@@ -1,0 +1,59 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {},
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "frontend",
+        "type": "shell",
+        "command": "npm run frontend",
+        "isBackground": true
+      },
+      {
+        "label": "backend",
+        "type": "shell",
+        "command": "npm run backend",
+        "isBackground": true
+      },
+      {
+        "label": "application",
+        "type": "shell",
+        "command": "npm run frontend",
+        "dependsOn": ["backend", "frontend"],
+        "dependsOrder": "parallel",
+		"isBackground": true,
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Launch localhost",
+        "type": "firefox",
+        "request": "launch",
+        "reAttach": true,
+        "url": "http://localhost8080/severin/index.html",
+        "webRoot": "${workspaceFolder}",
+        "preLaunchTask": "application"
+      },
+      {
+        "name": "Attach",
+        "type": "firefox",
+        "request": "attach"
+      },
+      {
+        "name": "Launch WebExtension",
+        "type": "firefox",
+        "request": "launch",
+        "reAttach": true,
+        "addonPath": "${workspaceFolder}"
+      }
+    ]
+  }
+}

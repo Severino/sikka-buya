@@ -1,0 +1,34 @@
+{
+  "name": "backend",
+  "version": "0.2.4",
+  "description": "Backend for the coin collection.",
+  "main": "index.js",
+  "scripts": {
+    "pm2": "pm2 start node -- index.js",
+    "serve": "node index.js",
+    "dev": "nodemon index.js --ext js,graphql",
+    "init": "npm i && npm run setup",
+    "setup": "node ./scripts/setup.js",
+    "migrate": "db-migrate up --config ./database.json -m ./migrations",
+    "migrate:down": "db-migrate down --config ./database.json -m ./migrations",
+    "create-migration": "db-migrate create --config './database.json' -m ./migrations"
+  },
+  "author": "Severin Opel",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "db-migrate": "^0.11.12",
+    "db-migrate-pg": "^1.2.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.4.0",
+    "graphql-tools": "^7.0.2",
+    "node-pg-migrate": "^5.9.0",
+    "pg": "^8.5.1",
+    "pg-promise": "^10.8.7"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
