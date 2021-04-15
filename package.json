@@ -8,7 +8,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "frontend": "cd frontend && npm run serve",
-    "backend": "cd backend && npm run dev"
+    "frontend": "cd frontend && yarn run serve",
+    "backend": "cd backend && yarn run dev",
+    "install": "cd backend && yarn install && cd ../frontend && yarn install"
   }
 }

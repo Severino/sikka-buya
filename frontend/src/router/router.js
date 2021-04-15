@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
-import Inventory from "@/components/page/Inventory"
+
 import LandingPage from "@/components/page/LandingPage.vue"
 import Overview from "@/components/page/Overview.vue"
 import SideTree from "@/components/page/SideTree.vue"

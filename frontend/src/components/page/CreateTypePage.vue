@@ -27,7 +27,6 @@
         <LabeledInputContainer :label="$t('property.mint_as_on_coin')">
           <RemovableInputField
             v-model="coin.mintAsOnCoin"
-            @remove="removeMintAsOnCoin"
           />
         </LabeledInputContainer>
       </Row>
@@ -701,9 +700,6 @@ export default {
       if (idx != -1) {
         this.coin.otherPersons.splice(idx, 1);
       }
-    },
-    removeMintAsOnCoin: function () {
-      this.coin.mintAsOnCoin = "";
     },
     mintSelected: function (mint) {
       if (!this.coin.mintAsOnCoin) {
