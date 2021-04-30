@@ -11,6 +11,8 @@ import SideTree from "@/components/page/SideTree.vue"
 import TypeOverview from "@/components/page/TypeOverview.vue"
 import TreeExplorer from "@/components/page/TreeExplorer.vue"
 import TypePage from "@/components/page/TypePage.vue"
+import CatalogEntry from "@/components/page/CatalogEntry"
+
 
 import CoinMarkForm from "@/components/page/property/CoinMarkForm"
 import HonorificForm from "@/components/page/property/HonorificForm"
@@ -30,6 +32,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: LandingPage
+  },
+  {
+    path: '/catalog/:id',
+    name: 'CatalogEntry',
+    component: CatalogEntry
   },
   {
     path: '/explorer',

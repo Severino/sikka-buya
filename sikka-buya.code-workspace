@@ -38,7 +38,7 @@
         "type": "firefox",
         "request": "launch",
         "reAttach": true,
-        "url": "http://localhost8080/severin/index.html",
+        "url": "http://localhost8080/index.html",
         "webRoot": "${workspaceFolder}",
         "preLaunchTask": "application"
       },

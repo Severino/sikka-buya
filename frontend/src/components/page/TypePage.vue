@@ -1,146 +1,89 @@
 <template>
   <div class="type">
-    <div class="labeled-group">
-      <h3>{{ $t("property.project_id") }}</h3>
-      <span>{{ this.getTypeProperty("projectId") }}</span>
-    </div>
+    <div class="container">
+      <section class="left-properties">
+        <div class="property-row">
+          <div class="title-group">
+            <h1>
+              {{ this.getTypeProperty("projectId") }}
+            </h1>
+            <div class="subtitle">
+              {{ this.getTypeProperty("treadwellId") }}
+            </div>
+          </div>
 
-    <div class="labeled-group">
-      <h3>{{ $tc("property.treadwell_id") }}</h3>
-      <span>{{ this.getTypeProperty("treadwellId") }}</span>
-    </div>
+          <labeled-property :label="$tc('property.mint')">
+            {{ this.getTypePropertyKey("mintAsOnCoin") }}
+          </labeled-property>
+          <labeled-property :label="$tc('property.material')">{{
+            this.getTypePropertyKey("material")
+          }}</labeled-property>
+          <labeled-property :label="$tc('property.nominal')">
+            {{ this.getTypePropertyKey("nominal") }}
+          </labeled-property>
+          <labeled-property :label="$tc('property.year')">
+            {{ this.getTypePropertyKey("yearOfMinting") }}
+          </labeled-property>
+        </div>
 
-    <div class="labeled-group">
-      <h3>{{ $tc("property.mint") }}</h3>
-      <span>{{ this.getTypePropertyKey("mint") }}</span>
-    </div>
+        <section class="leader-section">
+          <labeled-property
+            :label="$tc('property.issuer', type.issuers.length)"
+            v-if="this.type.issuers.length > 0"
+          >
+            <ul>
+              <li v-for="(issuer, idx) of type.issuers" :key="idx">
+                {{ issuer.person.name }}
+              </li>
+            </ul>
+          </labeled-property>
 
-    <div class="labeled-group">
-      <h3>{{ $t("property.mint_as_on_coin") }}</h3>
-      <span>{{ this.getTypeProperty("mintAsOnCoin") }}</span>
-    </div>
+          <labeled-property
+            v-if="this.type.overlords.length > 0"
+            :label="$tc('property.overlord', this.type.overlords.length)"
+          >
+            <ol>
+              <li
+                v-for="overlord of this.type.overlords"
+                :key="`overlord-${overlord.id}`"
+              >
+                {{ overlord.person.name }}
+              </li>
+            </ol>
+          </labeled-property>
 
-    <div class="labeled-group">
-      <h3>{{ $tc("property.material") }}</h3>
-      <span>{{ this.getTypePropertyKey("material") }}</span>
-    </div>
+          <labeled-property :label="$tc('role.caliph')">
+            {{ this.getTypePropertyKey("caliph") }}
+          </labeled-property>
+        </section>
 
-    <div class="labeled-group">
-      <h3>{{ $tc("property.nominal") }}</h3>
-      <span>{{ this.getTypePropertyKey("nominal") }}</span>
-    </div>
-
-    <div class="labeled-group">
-      <h3>{{ $t("property.mint_year") }}</h3>
-      <span>{{ this.getTypeProperty("yearOfMinting") }}</span>
-    </div>
-
-    <div class="labeled-group">
-      <span
-        >{{
-          this.type.donativ
-            ? $t("property.gifted_coin")
-            : $t("property.issue_coin")
-        }}
-      </span>
-    </div>
-
-    <hr />
-
-    <div class="labeled-group">
-      <h3>{{ $tc("property.issuer") }}</h3>
-      <span v-for="issuer of this.type.issuers" :key="`issuer-${issuer.id}`">{{
-        issuer.person.name
-      }}</span>
-    </div>
-
-    <div class="labeled-group">
-      <h3>{{ $tc("property.overlord", 2) }}</h3>
-      <ol>
-        <li
-          v-for="overlord of this.type.overlords"
-          :key="`overlord-${overlord.id}`"
+        <labeled-property
+          v-if="this.type.otherPersons.length > 0"
+          :label="$tc('property.otherPerson', this.type.otherPersons.length)"
         >
-          {{ overlord.person.name }}
-        </li>
-      </ol>
-    </div>
-    <div class="labeled-group">
-      <h3>{{ $tc("role.caliph") }}</h3>
-      <span>{{ this.getTypePropertyKey("caliph") }}</span>
-    </div>
+          <ol>
+            <li
+              v-for="otherPerson of this.type.otherPersons"
+              :key="`otherPerson-${otherPerson.id}`"
+            >
+              {{ otherPerson.person.name }}
+            </li>
+          </ol>
+        </labeled-property>
+      </section>
 
-    <div class="labeled-group">
-      <h3>{{ $tc("property.other_persons") }}</h3>
-      <ul>
-        <li
-          v-for="otherPerson of this.type.otherPersons"
-          :key="`otherPerson-${otherPerson.id}`"
-        >
-          {{ otherPerson.name }} ({{ $tc(`role.${otherPerson.role}`) }})
-        </li>
-      </ul>
-    </div>
-
-    <div class="frontside">
-      <h3>{{ $t("property.sides.front") }}</h3>
-      <div v-html="type.avers.fieldText" />
-
-      <h4>
-        {{
-          type.avers.outerInscript
-            ? $t("property.inner_circular_text")
-            : $t("property.circular_text")
-        }}
-      </h4>
-      <p>{{ type.avers.innerInscript }}</p>
-
-      <h4 v-if="type.avers.intermediateInscript">
-        {{ $t("property.intermediate_circular_text") }}
-      </h4>
-      <p v-if="type.avers.intermediateInscript">
-        {{ type.avers.intermediateInscript }}
-      </p>
-
-      <h4 v-if="type.avers.innerInscript">
-        {{ $t("property.outer_circular_text") }}
-      </h4>
-      <p v-if="type.avers.innerInscript">{{ type.avers.outerInscript }}</p>
-
-      <h4 v-if="type.avers.misc">{{ $t("property.border_and_misc") }}</h4>
-      <p v-if="type.avers.misc">{{ getTypePropertykey(type.avers, "misc") }}</p>
+      <section class="coin-side-properties">
+        <Tabulated :tabs="[$t('property.avers'), $t('property.revers')]">
+          <template v-slot:1>
+            <coin-side-group :value="type.avers" />
+          </template>
+          <template v-slot:2>
+            <coin-side-group :value="type.revers" />
+          </template>
+        </Tabulated>
+      </section>
     </div>
 
-    <div class="backside">
-      <h3>{{ $t("property.sides.back") }}</h3>
-      <div v-html="type.avers.fieldText" />
-
-      <h4>
-        {{
-          type.reverse.outerInscript
-            ? $t("property.inner_circular_text")
-            : $t("property.circular_text")
-        }}
-      </h4>
-      <p>{{ type.reverse.innerInscript }}</p>
-
-      <h4 v-if="type.reverse.intermediateInscript">
-        {{ $t("property.intermediate_circular_text") }}
-      </h4>
-      <p v-if="type.reverse.intermediateInscript">
-        {{ type.reverse.intermediateInscript }}
-      </p>
-
-      <h4 v-if="type.reverse.innerInscript">
-        {{ $t("property.outer_circular_text") }}
-      </h4>
-      <p v-if="type.reverse.innerInscript">{{ type.reverse.outerInscript }}</p>
-
-      <h4 v-if="type.reverse.misc">{{ $t("property.border_and_misc") }}</h4>
-      <p v-if="type.reverse.misc">
-        {{ getTypePropertykey(type.reverse, "misc") }}
-      </p>
-    </div>
 
     <div class="labeled-group">
       <h3>{{ $t("property.cursive_script") }}</h3>
@@ -153,7 +96,10 @@
         {{ $t("message.no_pieces_in_list") }}
       </p>
       <ul>
-        <li v-for="(coinMark, index) of type.coinMarks" :key="`coinMark-${index}`">
+        <li
+          v-for="(coinMark, index) of type.coinMarks"
+          :key="`coinMark-${index}`"
+        >
           <a :href="coinMark">{{ coinMark }}</a>
         </li>
       </ul>
@@ -178,10 +124,14 @@
 </template>
 
 <script>
+import CoinSideGroup from "../display/CoinSideGroup.vue";
+import LabeledProperty from "../display/LabeledProperty.vue";
+import Tabulated from "../layout/Tabulated.vue";
 import Query from "/src/database/query.js";
 export default {
+  components: { LabeledProperty, Tabulated, CoinSideGroup },
   name: "TypePage",
-  data: function () {
+  data: function() {
     return {
       type: {
         id: null,
@@ -219,7 +169,7 @@ export default {
       },
     };
   },
-  created: function () {
+  created: function() {
     Query.raw(
       `{
             getCoinType(id:${this.$route.params.id}){
@@ -244,7 +194,9 @@ export default {
                   person {
                     id,
                     name,
-                    role
+                    role {
+                      id
+                    }
                   }
                   titles {
                     id,
@@ -259,7 +211,10 @@ export default {
                   person {
                     id,
                     name,
-                    role
+                    role {
+                      id,
+                      name
+                    }
                   }
                   titles {
                     id,
@@ -272,12 +227,17 @@ export default {
                 otherPersons {
                   id
                   name
-                  role
+                  role {
+                    id
+                  }
                 }
                 caliph {
                   id
                   name
-                  role
+                  role {
+                    id,
+                      name
+                  }
                 }
                 avers {
                   fieldText
@@ -294,7 +254,10 @@ export default {
                   misc
                 }
                 cursiveScript
-                coinMarks
+                coinMarks {
+                  id,
+                      name
+                }
                 literature
                 pieces 
                 specials
@@ -317,7 +280,7 @@ export default {
         return this.type[name];
       }
     },
-    getTypePropertyKey(name, key = "name") {
+    getTypePropertyKey: function(name, key = "name") {
       let result = this.getTypeProperty(name);
       if (!result[key]) {
         return this.getUndefinedString();
@@ -326,3 +289,49 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+h1 {
+  margin-bottom: 0;
+}
+
+.left-properties {
+  flex: 2;
+  margin-right: 150px;
+}
+
+.coin-side-poperties {
+  flex: 1;
+}
+
+.subtitle {
+  font-weight: bold;
+  color: white;
+  font-size: 1.3rem;
+  opacity: 0.5;
+  margin-top: 0px;
+  margin-bottom: 0;
+  line-height: 0;
+}
+
+.property-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  margin-bottom: 3rem;
+}
+
+.labeled-property {
+  .label {
+    color: #058005;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    margin-bottom: 0;
+  }
+}
+
+.container {
+  display: flex;
+}
+</style>

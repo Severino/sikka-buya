@@ -8,20 +8,27 @@ const { graphqlHTTP } = require("express-graphql")
 
 const Resolver = require("./src/resolver.js")
 const MintResolver = require("./src/resolver/mintresolver.js");
-const { Database } = require("./src/utils/database.js");
+const { Database, pgp } = require("./src/utils/database.js");
 const PersonResolver = require("./src/resolver/personresolver.js");
 const SQLUtils = require("./src/utils/sql.js");
 const Type = require("./src/utils/type.js");
+const bodyParser = require("body-parser");
 
 require("dotenv").config()
 
 const app = express()
 
+
+/**
+ * Enables more traffic to the server.
+ */
+ app.use(bodyParser.json({limit: '10mb'}))
+
 /**
  * The cors middleware allows (currently) all cross-domain calls.
  * TODO: Only allow cors calls from the website! This is a severe security risk!
  */
-app.use(cors())
+app.use(cors(["http://localhost", "https://localhost", "127.0.0.1"]))
 
 /**
  * The Resolver class combines the basic operations of
@@ -60,28 +67,23 @@ const resolvers = {
 
             const include = args.include
             const exclude = args.exclude
-            const search = `%${args.text}`
+            const search = `%${args.text}%`
 
-            const baseQuery = `SELECT p.*, p.role AS role_id, r.name AS role_name FROM person p
+            let query = pgp.as.format(`SELECT p.*, p.role AS role_id, r.name AS role_name FROM person p
             LEFT JOIN person_role r ON p.role = r.id
             WHERE r IS NOT NULL 
-            AND unaccent(p.name) ILIKE $1`
-            
-            let result
+            AND unaccent(p.name) ILIKE $1`, search)
+
+
             if (include) {
-                result = await Database.manyOrNone(`
-                ${baseQuery}
-                AND r.name IN ($2:list) IS true
-                ORDER BY p.name ASC
-                `, [search, include])
-            } else {
-                result = await Database.manyOrNone(`
-                ${baseQuery}
-                AND r.name IN ($2:list) IS NOT true
-                ORDER BY p.name ASC
-            `, [search, exclude])
+                query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS true", include)}`
+            } else if (exclude) {
+                query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", exclude)}`
             }
 
+            result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
+
+            console.log(result)
             result.forEach((item, idx) => {
                 result[idx] = SQLUtils.objectify(item, {
                     prefix: "role_",

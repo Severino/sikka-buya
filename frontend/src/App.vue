@@ -3,18 +3,7 @@
     <header class="top-header">
       <div class="content-wrapper">
         <div class="top-navigation">
-          <h3 id="app-name" @click="goHome">sikka:būya</h3>
-          <span class="subtitle">{{ $t("general.type_catalogue") }}</span>
-          <div class="version">version: {{ version }}</div>
-          <nav>
-            <!-- <ButtonGroup
-              id="language"
-              :labels="['de', 'en']"
-              :options="['de', 'en']"
-              :value="language"
-              @input="this.languageChanged"
-            /> -->
-          </nav>
+          <img src="@/assets/images/sikka-logo-white.svg" alt="">
         </div>
       </div>
     </header>
@@ -64,6 +53,43 @@ export default {
 
 
 
+html,
+body {
+  margin: 0;
+  background-color: $background-color;
+  color: $text-color;
+}
+
+body {
+  font-family: 'Cairo', sans-serif;
+  font-size: 16px;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.content-wrapper {
+  margin: 20px 100px;
+}
+
+
+h1 {
+  font-weight: bold;
+  font-size: 3rem;
+}
+
+
+section {
+  // margin-top: 5em;
+
+  h3 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+}
+
 .label{
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -82,10 +108,6 @@ export default {
   margin-bottom: 1rem;
 }
 
-.subtitle {
-  font-size: 1.2rem;
-  text-transform: capitalize;
-}
 
 #app-name:after {
   content: "|";
@@ -93,19 +115,6 @@ export default {
   margin: 0 20px;
 }
 
-html,
-body {
-  margin: 0;
-}
-
-body {
-  font-family: "Newsreader", serif;
-  font-size: 16px;
-
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
 
 select,
 .button,
@@ -156,16 +165,10 @@ label {
   }
 }
 
-h1,
-h2,
-h3 {
-  font-weight: normal;
-  text-transform: capitalize;
-}
 
 .top-header {
-  color: white;
-  background-color: rgb(75, 75, 75);
+  // color: white;
+  // background-color: rgb(75, 75, 75);
 
   .button-group {
     input:checked + label {
@@ -202,23 +205,6 @@ header {
   align-items: center;
 }
 
-main {
-  position: relative;
-  padding-top: 20px;
-}
-
-.content-wrapper {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 20px;
-}
-
-// @media (min-width: 1080px) {
-//   .content-wrapper {
-//     margin: 0 auto;
-//     width: 50vw;
-//   }
-// }
 
 a {
   text-decoration: none;
@@ -247,13 +233,4 @@ a {
   border: 1px solid rgb(192, 68, 68);
 }
 
-section {
-  margin-top: 5em;
-
-  h3 {
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-bottom: 0;
-  }
-}
 </style>

@@ -1,7 +1,6 @@
 const path = require("path")
 
 module.exports = {
-    publicPath: "/severin/",
     configureWebpack: {
         devtool: 'source-map',
         resolve: {
@@ -11,6 +10,16 @@ module.exports = {
             extensions: [
                 ".vue"
             ]
+        },
+    },
+    css: {
+        loaderOptions: {
+            sass: {
+                additionalData: `
+        @import "@/scss/_variables.scss";
+        @import "@/scss/_mixins.scss";
+        `
+            }
         }
     }
 }
