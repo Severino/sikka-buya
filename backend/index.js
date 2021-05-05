@@ -12,7 +12,6 @@ const { Database, pgp } = require("./src/utils/database.js");
 const PersonResolver = require("./src/resolver/personresolver.js");
 const SQLUtils = require("./src/utils/sql.js");
 const Type = require("./src/utils/type.js");
-const bodyParser = require("body-parser");
 
 require("dotenv").config()
 
@@ -22,7 +21,8 @@ const app = express()
 /**
  * Enables more traffic to the server.
  */
- app.use(bodyParser.json({limit: '10mb'}))
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({extended:true, limit:'10mb'}))
 
 /**
  * The cors middleware allows (currently) all cross-domain calls.

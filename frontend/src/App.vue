@@ -3,7 +3,7 @@
     <header class="top-header">
       <div class="content-wrapper">
         <div class="top-navigation">
-          <img src="@/assets/images/sikka-logo-white.svg" alt="">
+          <img src="@/assets/images/sikka-buya.png" alt="">
         </div>
       </div>
     </header>
