@@ -14,7 +14,9 @@ $primary-color: #1D801D;
 
 $yellow: #F9D939;
 $green: #18F2B2;
-$red: #EE4266;
+$red: #da4133;
+
+$red-dark: darken($red, 10%);
 
 $large-font: 1.2em;
 $regular-font: 1em;
