@@ -761,9 +761,11 @@ export default {
         }
       });
 
+      const elementError="Das Element ist nicht valide. Geben Sie ein Element an oder löschen Sie das Element."
+
       this.coin.coinMarks.forEach((coinMark, index) =>{
         if(coinMark.id == null){
-          coinMark.error = "Das Element ist nicht valide. Geben Sie ein Element an oder löschen Sie das Element."
+          coinMark.error = elementError
           invalid = true
           this.coin.coinMarks.splice(index, 1, coinMark);
         }
@@ -771,8 +773,7 @@ export default {
 
       this.coin.pieces.forEach((piece, index) => {
         if (piece.value == "") {
-          piece.error =
-            "Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.";
+          piece.error =elementError
           invalid = true;
           this.coin.pieces.splice(index, 1, piece);
         } else {

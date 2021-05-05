@@ -115,7 +115,6 @@ export default {
     focus: function () {
       const obj = this.value;
       obj.id = null;
-      // obj[this.attribute] = "";
       this.$emit("input", obj);
       this.showList();
       this.searchEntry("");
