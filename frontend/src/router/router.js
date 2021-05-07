@@ -1,10 +1,14 @@
 import Vue from "vue"
 import VueRouter from 'vue-router'
 
+import LoginPage from "@/components/page/LoginPage.vue"
+import LandingPage from "@/components/page/LandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
+import InitialSetup from "@/components/page/InitialSetup.vue"
 
-import LandingPage from "@/components/page/LandingPage.vue"
+
+import PropertyOverview from "@/components/page/PropertyOverview.vue"
 import Overview from "@/components/page/Overview.vue"
 import SideTree from "@/components/page/SideTree.vue"
 
@@ -23,6 +27,7 @@ import NominalForm from "@/components/page/property/NominalForm"
 import PersonForm from "@/components/page/property/PersonForm"
 import RoleForm from "@/components/page/property/RoleForm"
 import TitleForm from "@/components/page/property/TitleForm"
+import Auth from "../utils/Auth.js"
 
 
 Vue.use(VueRouter)
@@ -32,6 +37,16 @@ const routes = [
     path: '/',
     name: 'Home',
     component: LandingPage
+  },
+  {
+    path: '/setup',
+    name: 'InitialSetup',
+    component: InitialSetup
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: LoginPage
   },
   {
     path: '/catalog/:id',
@@ -46,6 +61,12 @@ const routes = [
     path: '/explorer2',
     name: 'Explorer2',
     component: SideTree
+  }, {
+
+    path: "/manage/",
+    name: "PropertyOverview",
+    component: PropertyOverview,
+    meta: { auth: true }
   },
   {
 
@@ -66,10 +87,6 @@ const routes = [
     path: "/manage/coinmark",
     name: "CoinMarkOverview",
     component: CoinMarkOverview
-  }, {
-    path: "/:property",
-    name: "Property",
-    component: Overview
   },
   {
     path: '/type/:id',
@@ -155,6 +172,20 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach(async (to, from, next) => {
+  console.log("beforeEach")
+  if (to.meta && to.meta.auth) {
+    let auth = await Auth.check()
+    if (auth) {
+      next()
+    } else {
+      router.push({ name: "Login" })
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

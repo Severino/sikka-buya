@@ -1,28 +1,48 @@
+
+/**
+ * Express packages
+ */
 const express = require("express")
-const { loadSchemaSync } = require('@graphql-tools/load');
-
-const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader');
-const { addResolversToSchema } = require('graphql-tools');
 const cors = require("cors")
-const { graphqlHTTP } = require("express-graphql")
 
+/**
+ * Database Packages
+ */
+const { Database, pgp } = require("./src/utils/database.js");
+
+/**
+ * GraphQL Imports
+ */
+const { graphqlHTTP } = require("express-graphql")
+const { loadSchemaSync } = require('@graphql-tools/load');
+const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader');
+const { addResolversToSchema, buildSchemaFromTypeDefinitions, getUserTypesFromSchema } = require('graphql-tools');
+
+/**
+ * Custom GraphQL Extensions
+ */
 const Resolver = require("./src/resolver.js")
 const MintResolver = require("./src/resolver/mintresolver.js");
-const { Database, pgp } = require("./src/utils/database.js");
 const PersonResolver = require("./src/resolver/personresolver.js");
+
+/**
+ * Custom Utility Packages
+ */
 const SQLUtils = require("./src/utils/sql.js");
 const Type = require("./src/utils/type.js");
+const Auth = require("./src/auth.js");
+
+
 
 require("dotenv").config()
 
 const app = express()
 
-
 /**
  * Enables more traffic to the server.
  */
 app.use(express.json({ limit: '10mb' }))
-app.use(express.urlencoded({extended:true, limit:'10mb'}))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 /**
  * The cors middleware allows (currently) all cross-domain calls.
@@ -116,8 +136,41 @@ const resolvers = {
         getTypeComplete: async function (_, { id = null } = {}) {
             const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);
             return result.exists
-        }
+        },
+        login: Auth.login,
+        auth: Auth.verify
     }, Mutation: {
+        setup: async function (_, args) {
+            let { case: result } = await Database.one(`SELECT CASE 
+                WHEN EXISTS (SELECT * FROM app_user LIMIT 1) THEN 1
+                ELSE 0 
+              END`)
+
+            if (result == 0) {
+
+                const {
+                    name,
+                    password
+                } = args.data
+
+                let nameValidator = Auth.validateUsername(name)
+                if (!nameValidator.ok) throw new Error(nameValidator.error)
+
+                let passwordValidator = Auth.validatePassword(password)
+                if (!passwordValidator.ok) throw new Error(passwordValidator.error)
+
+                if (password && name) {
+                    const hashedPW = await Auth.hashPassword(password)
+                    return await Database.none("INSERT INTO app_user (name, password) VALUES ($[name], $[password])", { name, password: hashedPW })
+                } else {
+                    throw new Error("You must provide a username and a password!")
+                }
+            } else {
+                throw new Error("Superuser was already initialized!")
+            }
+
+            return false
+        },
         addCoinType: async function (_, args) {
             return Type.addType(args.data)
         },

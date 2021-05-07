@@ -1,15 +1,6 @@
 <template>
   <div id="app">
-    <header class="top-header">
-      <div class="content-wrapper">
-        <div class="top-navigation">
-          <img src="@/assets/images/sikka-buya.png" alt="">
-        </div>
-      </div>
-    </header>
-    <main class="content-wrapper">
       <router-view></router-view>
-    </main>
   </div>
 </template>
 
@@ -56,6 +47,7 @@ export default {
 html,
 body {
   margin: 0;
+  min-height: 100%;
   background-color: $background-color;
   color: $text-color;
 }
@@ -77,6 +69,11 @@ body {
 h1 {
   font-weight: bold;
   font-size: 3rem;
+}
+
+.hero {
+  width: 100%;
+  height: 100%;
 }
 
 

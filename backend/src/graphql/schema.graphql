@@ -1,8 +1,19 @@
 scalar Void
 
+type AuthResponse {
+  success: Boolean
+  message: String
+  token: String
+}
+
 type Material {
   id: ID
   name: String
+}
+
+input UserInput {
+  name: String!
+  password: String!
 }
 
 input NameInput {
@@ -186,7 +197,11 @@ type Query {
   searchDynasty(text: String): [Dynasty]!
   searchRole(text: String): [Role]!
 
-  searchPersonsWithRole(text: String!, include: [String], exclude: [String]): [Person]!
+  searchPersonsWithRole(
+    text: String!
+    include: [String]
+    exclude: [String]
+  ): [Person]!
   searchPersonsWithoutRole(text: String!): [Person]!
 
   getCoinMark(id: Int!): CoinMark
@@ -199,7 +214,6 @@ type Query {
   getDynasty(id: Int!): Dynasty
   getRole(id: Int!): Role
 
-
   getOverlord(id: ID!): Overlord
 
   getReducedCoinTypeList(id: ID): [ReducedCoinType]
@@ -209,9 +223,14 @@ type Query {
   getTypes: [CoinType]
 
   getTypeComplete(id: ID!): Boolean
+
+  login(data: UserInput): AuthResponse
+  auth(token:String): Boolean
 }
 
 type Mutation {
+  setup(data: UserInput): Boolean
+
   addCoinMark(data: NameInput): Void
   updateCoinMark(data: NameInput): Void
   deleteCoinMark(id: Int): Void

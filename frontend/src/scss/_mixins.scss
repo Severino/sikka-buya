@@ -38,3 +38,7 @@
     user-select: none;
     cursor: pointer;
 }
+
+@mixin box-padding($size){
+  padding: $size 1.75*$size;
+}
