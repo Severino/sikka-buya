@@ -8,7 +8,7 @@
         anymore!
       </p>
       <user-form
-        :name="name"
+        :email="email"
         :password="password"
         @input="formChanged"
         @submit="submit"
@@ -27,7 +27,7 @@ export default {
   components: { UserForm, Box },
   data: function () {
     return {
-      name: "",
+      email: "",
       password: "",
       response: "",
     };
@@ -41,7 +41,7 @@ export default {
         `
         mutation{
           setup(data:{
-            name: "${this.name}"
+            email: "${this.email}"
             password:"${this.password}"
           })
         }

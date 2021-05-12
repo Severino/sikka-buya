@@ -24,10 +24,6 @@ export default {
       interval: null,
     };
   },
-  created: function () {
-    this.update();
-    this.$data.interval = setInterval(this.update, 3000);
-  },
   beforeDestroy: function () {
     clearInterval(this.$data.interval);
   },
@@ -37,17 +33,7 @@ export default {
     },
     hideText: function () {
       this.textVisibility = false;
-    }, 
-    update: function () {
-      new Query() 
-        .raw(`{ping}`)
-        .then(() => {
-          this.status = true;
-        })
-        .catch(() => {
-          this.status = false;
-        });
-    },
+    }
   },
 };
 </script>

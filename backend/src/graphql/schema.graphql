@@ -16,6 +16,10 @@ input UserInput {
   password: String!
 }
 
+type User {
+  id: ID
+  email: String
+}
 
 input NameInput {
   id: ID
@@ -225,8 +229,12 @@ type Query {
 
   getTypeComplete(id: ID!): Boolean
 
+  users: [User]
+
   login(data: UserInput): AuthResponse
-  auth(token:String): Boolean
+  auth(token: String): Boolean
+
+  inviteUser(email: String, token: String): Boolean
 }
 
 type Mutation {

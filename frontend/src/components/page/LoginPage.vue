@@ -3,7 +3,7 @@
     <Box>
       <user-form
         title="Login"
-        :name="username"
+        :email="email"
         :password="password"
         @input="inputChanged"
         @submit="submit"
@@ -24,20 +24,20 @@ export default {
   name: "LoginPage",
   data: function () {
     return {
-      username: "Severin",
-      password: "sever1234",
+      email: "",
+      password: "",
       loginError: "",
     };
   },
   methods: {
-    inputChanged({ name, password } = {}) {
+    inputChanged({ email, password } = {}) {
       Object.assign(this.$data, {
-        username: name,
+        email: email,
         password,
       });
     },
     submit() {
-      Auth.login(this.username, this.password).then(({ success, message }) => {
+      Auth.login(this.email, this.password).then(({ success, message }) => {
         console.log(success, message);
         if (!success) {
           this.loginError = message;

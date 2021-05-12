@@ -2,7 +2,6 @@
   <div>
     <header>
       <h2>{{ $t("general.administration") }}</h2>
-      <ServerStatus />
     </header>
     <!-- <router-link :to="{ name: 'TypeList' }"> Explorer </router-link> -->
     <router-link
@@ -75,13 +74,11 @@
 
 <script>
 import PlusBox from "vue-material-design-icons/PlusBox";
-import ServerStatus from "../misc/ServerStatus.vue";
 
 export default {
   name: "PropertyOverview",
   components: {
-    PlusBox,
-    ServerStatus,
+    PlusBox
   },
 };
 </script>

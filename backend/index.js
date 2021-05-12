@@ -11,6 +11,11 @@ const cors = require("cors")
 const { Database, pgp } = require("./src/utils/database.js");
 
 /**
+ * Various Packages
+ */
+const sendmail = require("sendmail")()
+
+/**
  * GraphQL Imports
  */
 const { graphqlHTTP } = require("express-graphql")
@@ -138,7 +143,32 @@ const resolvers = {
             return result.exists
         },
         login: Auth.login,
-        auth: Auth.verify
+        auth: async function (_, args) {
+            return Auth.verify(args.token)
+        },
+        users: async function () {
+            return await Database.manyOrNone("SELECT id, email FROM app_user")
+        },
+        inviteUser: async function (_, { email, token } = {}) {
+            // console.log("SEND MAIL TO: ", arguments)
+
+            if (!Auth.verify(token)) {
+                throw new Error("Not authenticated!")
+            }
+
+            sendmail({
+                from: "Sikka Buya <noreply@sikkabuya.com>",
+                to: "severin.opel@outlook.com",
+                subject: "You have been invited ...",
+                html: "<b>Hello World</b>"
+            }, function(err, reply) {
+                console.log(err, err.stack)
+                console.dir.reply
+            })
+
+
+            return true
+        }
     }, Mutation: {
         setup: async function (_, args) {
             let { case: result } = await Database.one(`SELECT CASE 

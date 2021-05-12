@@ -32,10 +32,10 @@ export default class Auth {
         return status
     }
 
-    static async login(username, password) {
+    static async login(email, password) {
         let result = await Query.raw(`{
             login(data: {
-              name: "${username}",
+              email: "${email}",
               password: "${password}"
             }){
                 success

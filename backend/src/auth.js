@@ -47,7 +47,7 @@ class Auth {
                     id: user.id,
                     email: user.email
                 }, process.env.JWT_KEY, {
-                    expiresIn: "1h"
+                    expiresIn: "12h"
                 })
 
                 return {
@@ -66,8 +66,7 @@ class Auth {
         }
     }
 
-    static verify(_, args) {
-        const token = args.token
+    static verify(token) {
         try {
             jwt.verify(token, process.env.JWT_KEY)
             return true

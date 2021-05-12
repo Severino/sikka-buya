@@ -6,7 +6,8 @@ import LandingPage from "@/components/page/LandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
-
+import UserManagementPage from "@/components/page/UserManagementPage.vue"
+import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 import PropertyOverview from "@/components/page/PropertyOverview.vue"
 import Overview from "@/components/page/Overview.vue"
@@ -67,6 +68,11 @@ const routes = [
     name: "PropertyOverview",
     component: PropertyOverview,
     meta: { auth: true }
+  }, {
+    path: '/manage/user',
+    name: 'UserManagement',
+    component: UserManagementPage,
+    meta: { auth: true, super: true }
   },
   {
 
@@ -165,7 +171,10 @@ const routes = [
     path: "/dynasty/:id",
     name: "EditDynasty",
     component: DynastyForm
-  },
+  }, {
+    path: "*",
+    component: PageNotFoundPage
+  }
 ]
 
 const router = new VueRouter({
@@ -179,7 +188,12 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta && to.meta.auth) {
     let auth = await Auth.check()
     if (auth) {
-      next()
+
+      if (to.meta.super) {
+        next()
+      } else {
+        next()
+      }
     } else {
       router.push({ name: "Login" })
     }

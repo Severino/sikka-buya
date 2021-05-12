@@ -1,0 +1,6 @@
+<template>
+  <div class="page">
+    <h1>404</h1>
+    <h2>This is not the page you are looking for!</h2>
+  </div>
+</template>

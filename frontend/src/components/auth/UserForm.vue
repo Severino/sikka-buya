@@ -2,8 +2,8 @@
   <form @submit.prevent="submit">
     <h3 v-if="title">{{ title }}</h3>
 
-    <span>Nutzername</span>
-    <input type="text" :value="name" @input="nameChanged" required />
+    <span>Email</span>
+    <input type="email" :value="email" @input="emailChanged" required />
     <span>Password</span>
     <input
       type="password"
@@ -21,7 +21,7 @@ export default {
   name: "UserForm",
   props: {
     title: String,
-    name: String,
+    email: String,
     password: String,
     loginError: String,
   },
@@ -29,14 +29,14 @@ export default {
     passwordChanged: function (event) {
       this.changed({ password: event.currentTarget.value });
     },
-    nameChanged: function (event) {
-      this.changed({ name: event.currentTarget.value });
+    emailChanged: function (event) {
+      this.changed({ email: event.currentTarget.value });
     },
     changed: function (args) {
       const inputObject = Object.assign(
         {},
         {
-          name: this.name,
+          email: this.email,
           password: this.password,
         },
         args
