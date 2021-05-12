@@ -18,6 +18,10 @@ exports.up = function (db) {
   return db.createTable("app_user", {
     name: {
       type: "string",
+      unique: true
+    },
+    email: {
+      type: "string",
       unique: true,
       notNull: true
     },

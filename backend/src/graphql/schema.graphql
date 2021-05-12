@@ -12,9 +12,10 @@ type Material {
 }
 
 input UserInput {
-  name: String!
+  email: String!
   password: String!
 }
+
 
 input NameInput {
   id: ID

@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt")
-const { RegExValidationRule } = require("./validation")
+const { RegExValidationRule, FunctionValidationRule } = require("./validation")
 const jwt = require("jsonwebtoken")
 const { Database } = require("./utils/database")
+const validator = require("email-validator")
 
 class Auth {
     static get saltIterations() {
@@ -21,8 +22,8 @@ class Auth {
         return rule.validate(str)
     }
 
-    static validateUsername(str) {
-        let rule = new RegExValidationRule(/^([A-Z0-9]){3,}$/gi, "Ungültiger Nutzername: Ein Name darf nur aus den Zeichen a-z und den Ziffern 0-9 bestehen und muss mindestens drei Zeichen lang sein.")
+    static validateEmail(str) {
+        let rule = new FunctionValidationRule(validator.validate, "Ungültige Email-Adresse")
         return rule.validate(str)
     }
 
@@ -33,18 +34,18 @@ class Auth {
     }
 
     static async login(_, args) {
-        const { name, password } = args.data
+        const { email, password } = args.data
         /* 
         We don't want to break out of the function, when we found no user, to
         not provide a potential attacker, that the user does (not) exist!  
         */
         try {
-            let user = await Database.one("SELECT * FROM app_user WHERE name=$1", name)
+            let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)
             let result = await Auth.checkPassword(password, user.password)
             if (result) {
                 const token = jwt.sign({
                     id: user.id,
-                    name: user.name
+                    email: user.email
                 }, process.env.JWT_KEY, {
                     expiresIn: "1h"
                 })

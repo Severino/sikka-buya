@@ -149,21 +149,21 @@ const resolvers = {
             if (result == 0) {
 
                 const {
-                    name,
+                    email,
                     password
                 } = args.data
 
-                let nameValidator = Auth.validateUsername(name)
-                if (!nameValidator.ok) throw new Error(nameValidator.error)
+                let emailValidator = Auth.validateEmail(email)
+                if (!emailValidator.ok) throw new Error(emailValidator.error)
 
                 let passwordValidator = Auth.validatePassword(password)
                 if (!passwordValidator.ok) throw new Error(passwordValidator.error)
 
-                if (password && name) {
+                if (password && email) {
                     const hashedPW = await Auth.hashPassword(password)
-                    return await Database.none("INSERT INTO app_user (name, password) VALUES ($[name], $[password])", { name, password: hashedPW })
+                    return await Database.none("INSERT INTO app_user (email, password) VALUES ($[email], $[password])", { email, password: hashedPW })
                 } else {
-                    throw new Error("You must provide a username and a password!")
+                    throw new Error("You must provide an email and a password!")
                 }
             } else {
                 throw new Error("Superuser was already initialized!")

@@ -6,6 +6,17 @@ class ValidationRule {
     validate() { console.error("Don't call this method directly. Its abstract and should be overloaded.") }
 }
 
+class FunctionValidationRule extends ValidationRule {
+    constructor(func, errorMessage) {
+        super(errorMessage)
+        this.func = func
+    }
+
+    validate(...args) {
+        return new Validation(this.func(...args), this.errorMessage)
+    }
+}
+
 class RegExValidationRule extends ValidationRule {
     constructor(regex, errorMessage) {
         super(errorMessage)
@@ -13,7 +24,7 @@ class RegExValidationRule extends ValidationRule {
     }
 
     validate(string) {
-        if(!string) throw new Error("The 'string' parameter must be passed.")
+        if (!string) throw new Error("The 'string' parameter must be passed.")
         return new Validation(string.match(this.regex), this.errorMessage)
     }
 }
@@ -36,5 +47,6 @@ class Validation {
 module.exports = {
     Validation,
     ValidationRule,
-    RegExValidationRule
+    RegExValidationRule,
+    FunctionValidationRule
 }
