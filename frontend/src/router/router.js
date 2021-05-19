@@ -1,6 +1,8 @@
 import Vue from "vue"
 import VueRouter from 'vue-router'
 
+
+import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LoginPage from "@/components/page/LoginPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
@@ -8,6 +10,7 @@ import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
+
 
 import PropertyOverview from "@/components/page/PropertyOverview.vue"
 import Overview from "@/components/page/Overview.vue"
@@ -64,114 +67,126 @@ const routes = [
     component: SideTree
   }, {
 
-    path: "/manage/",
-    name: "PropertyOverview",
-    component: PropertyOverview,
-    meta: { auth: true }
-  }, {
-    path: '/manage/user',
-    name: 'UserManagement',
-    component: UserManagementPage,
-    meta: { auth: true, super: true }
-  },
-  {
+    path: "/editor/",
+    component: EditorPage,
+    meta: { auth: true },
+    children: [
+      {
+        path: "",
+        name: "PropertyOverview",
+        component: PropertyOverview,
+        meta: { auth: true },
+      },
+      {
+        path: 'user',
+        name: 'UserManagement',
+        component: UserManagementPage,
+        meta: { auth: true, super: true }
+      },
+      {
 
-    path: "/manage/type",
-    name: "TypeOverview",
-    component: TypeOverview
-  },
-  {
-    path: '/manage/type/create',
-    name: 'TypeCreationPage',
-    component: CreateTypePage
-  }, {
-    path: '/manage/type/edit/:id',
-    name: 'EditTypePage',
-    component: CreateTypePage
+        path: "type",
+        name: "TypeOverview",
+        component: TypeOverview
+      },
+      {
+        path: ":property",
+        name: "Property",
+        component: Overview
+      }, {
+        path: 'type/create',
+        name: 'TypeCreationPage',
+        component: CreateTypePage
+      }, {
+        path: 'type/edit/:id',
+        name: 'EditTypePage',
+        component: CreateTypePage
+      },
+      {
+        path: 'type/:id',
+        name: 'TypePage',
+        component: TypePage
+      }, {
+        path: "coinmark",
+        name: "CoinMarkOverview",
+        component: CoinMarkOverview
+      },
+      {
+        path: "coinmark/create",
+        name: "CreateCoinMark",
+        component: CoinMarkForm
+      }, {
+        path: "coinmark/:id",
+        name: "EditCoinMark",
+        component: CoinMarkForm
+      }, {
+        path: "material/create",
+        name: "CreateMaterial",
+        component: MaterialForm
+      }, {
+        path: "material/:id",
+        name: "EditMaterial",
+        component: MaterialForm
+      }, {
+        path: "person/create",
+        name: "CreatePerson",
+        component: PersonForm
+      }, {
+        path: "person/:id",
+        name: "EditPerson",
+        component: PersonForm
+      }, {
+        path: "title/create",
+        name: "CreateTitle",
+        component: TitleForm
+      }, {
+        path: "title/:id",
+        name: "EditTitle",
+        component: TitleForm
+      }, {
+        path: "honorific/create",
+        name: "CreateHonorific",
+        component: HonorificForm
+      }, {
+        path: "honorific/:id",
+        name: "EditHonorific",
+        component: HonorificForm
+      }, {
+        path: "mint/create",
+        name: "CreateMint",
+        component: MintForm
+      }, {
+        path: "mint/:id",
+        name: "EditMint",
+        component: MintForm
+      }, {
+        path: "nominal/create",
+        name: "CreateNominal",
+        component: NominalForm
+      }, {
+        path: "nominal/:id",
+        name: "EditNominal",
+        component: NominalForm
+      }, {
+        path: "role/create",
+        name: "CreateRole",
+        component: RoleForm
+      }, {
+        path: "role/:id",
+        name: "EditRole",
+        component: RoleForm
+      }, {
+        path: "dynasty/create",
+        name: "CreateDynasty",
+        component: DynastyForm
+      }, {
+        path: "dynasty/:id",
+        name: "EditDynasty",
+        component: DynastyForm
+      }
+    ]
   }
   , {
-    path: "/manage/coinmark",
-    name: "CoinMarkOverview",
-    component: CoinMarkOverview
-  },
-  {
-    path: '/type/:id',
-    name: 'TypePage',
-    component: TypePage
-  },
-  {
-    path: "/coinmark/create",
-    name: "CreateCoinMark",
-    component: CoinMarkForm
-  }, {
-    path: "/coinmark/:id",
-    name: "EditCoinMark",
-    component: CoinMarkForm
-  }, {
-    path: "/material/create",
-    name: "CreateMaterial",
-    component: MaterialForm
-  }, {
-    path: "/material/:id",
-    name: "EditMaterial",
-    component: MaterialForm
-  }, {
-    path: "/person/create",
-    name: "CreatePerson",
-    component: PersonForm
-  }, {
-    path: "/person/:id",
-    name: "EditPerson",
-    component: PersonForm
-  }, {
-    path: "/title/create",
-    name: "CreateTitle",
-    component: TitleForm
-  }, {
-    path: "/title/:id",
-    name: "EditTitle",
-    component: TitleForm
-  }, {
-    path: "/honorific/create",
-    name: "CreateHonorific",
-    component: HonorificForm
-  }, {
-    path: "/honorific/:id",
-    name: "EditHonorific",
-    component: HonorificForm
-  }, {
-    path: "/mint/create",
-    name: "CreateMint",
-    component: MintForm
-  }, {
-    path: "/mint/:id",
-    name: "EditMint",
-    component: MintForm
-  }, {
-    path: "/nominal/create",
-    name: "CreateNominal",
-    component: NominalForm
-  }, {
-    path: "/nominal/:id",
-    name: "EditNominal",
-    component: NominalForm
-  }, {
-    path: "/role/create",
-    name: "CreateRole",
-    component: RoleForm
-  }, {
-    path: "/role/:id",
-    name: "EditRole",
-    component: RoleForm
-  }, {
-    path: "/dynasty/create",
-    name: "CreateDynasty",
-    component: DynastyForm
-  }, {
-    path: "/dynasty/:id",
-    name: "EditDynasty",
-    component: DynastyForm
-  }, {
     path: "*",
     component: PageNotFoundPage
   }

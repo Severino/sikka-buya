@@ -2,22 +2,41 @@ import Query from "../database/query"
 
 export default class Auth {
 
-    static get tokenName() {
+    static get tokenStore() {
         return "auth-jwt-token"
     }
 
+    static get userStore() {
+        return "auth-user"
+    }
+
+    static saveUser(user) {
+        localStorage.setItem(this.userStore, JSON.stringify(user))
+    }
+
+    static loadUser() {
+        let userStr = localStorage.getItem(this.userStore)
+        let user = {id: 0, email:"Unknown"}
+        try {
+            user = JSON.parse(userStr)
+        } catch (e) {
+            console.error(`User could not be loaded. Forced a user logout!`, e)
+        }
+
+        return user
+    }
+
     static saveToken(token) {
-        localStorage.setItem(this.tokenName, token)
+        localStorage.setItem(this.tokenStore, token)
     }
 
     static loadToken() {
-        return localStorage.getItem(this.tokenName)
+        return localStorage.getItem(this.tokenStore)
     }
 
     static async check() {
         const token = this.loadToken()
         let status = true
-        console.log({ token })
         if (token) {
             let response = await Query.raw(`{
                 auth(token:"${token}")
@@ -32,6 +51,10 @@ export default class Auth {
         return status
     }
 
+    static logout() {
+        localStorage.removeItem(this.tokenStore)
+    }
+
     static async login(email, password) {
         let result = await Query.raw(`{
             login(data: {
@@ -41,22 +64,26 @@ export default class Auth {
                 success
                 message
                 token
+                user {
+                    id
+                    email
+                }
               }
             }`);
 
         const login = result?.data?.data?.login
 
         let response = { success: false, message: "Interner Fehler, melden Sie das Problem dem Admin. " }
-        console.log(login)
 
         if (login) {
-            const { success, message, token } = login
+            const { success, message, token, user } = login
             response = Object.assign(response, {
                 success, message
             })
 
             if (success) {
                 this.saveToken(token)
+                this.saveUser(user)
             }
         }
 

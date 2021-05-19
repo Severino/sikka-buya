@@ -29,7 +29,6 @@ class Auth {
 
 
     static isAuthenticated() {
-        console.log("AUTH WORING")
         return false
     }
 
@@ -53,7 +52,11 @@ class Auth {
                 return {
                     success: true,
                     message: "Successfully authenticated.",
-                    token
+                    token,
+                    user: {
+                        id: user.id,
+                        email: user.email
+                    }
                 }
             }
         } catch (e) { /*Wrong user was passed. Thats fine! */ console.log(e) }

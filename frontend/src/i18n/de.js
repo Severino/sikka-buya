@@ -37,12 +37,12 @@ const property = {
         "Umschrift | Umschriften",
     coin_mark:
         "Mzz. und Einzelworte",
-    issuer:
-        "Münzherr",
     cursive_script:
         "kursive Schriftart",
     donativ:
         "Geschenkmünze",
+    dynasty:
+        "Dynastie | Dynastien",
     field_text:
         "Feld",
     frontside:
@@ -51,6 +51,8 @@ const property = {
         "Ehrenname | Ehrennamen",
     isolated_characters:
         "isolierter Buchstabe | isolierte Buchstaben",
+    issuer:
+        "Münzherr",
     intermediate_circular_text:
         "Mittlere Umschrift",
     internal_notes:
@@ -86,6 +88,8 @@ const property = {
         pressed:
             "geprägt",
     },
+    role: 
+        "Rolle | Rollen",
     sides:
     {
         front:

@@ -1,5 +1,5 @@
 <template>
-    <Overview createPage="CreateCoinMark" overrideProperty="coinmark" query="coinMark" />
+    <Overview createPage="CreateCoinMark" overridePropertyName="coin_mark" overrideProperty="coinmark" query="coinMark" />
 </template>
 
 <script>

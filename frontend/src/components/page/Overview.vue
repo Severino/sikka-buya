@@ -1,7 +1,7 @@
 <template>
   <div :class="`overview ${this.property}-page`">
     <BackHeader />
-    <h1>{{ $tc(`property.${property}`) }}</h1>
+    <h1>{{ $tc(`property.${propertyName}`) }}</h1>
 
     <div
       class="button"
@@ -80,10 +80,16 @@ export default {
   },
   props: {
     query: String,
+    overridePropertyName: String,
     overrideProperty: String,
     createPage: String,
   },
   computed: {
+    propertyName: function () {
+      return this.overridePropertyName
+        ? this.overridePropertyName
+        : this.property;
+    },
     queryName: function () {
       return this.query ? this.query : this.property;
     },

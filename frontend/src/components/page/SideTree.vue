@@ -226,7 +226,7 @@ export default {
 }
 </style>
 
-<style lang="scss">
+<style lang="scss" scoped>
 body {
   height: 100%;
 }

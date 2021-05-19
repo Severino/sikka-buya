@@ -2,13 +2,16 @@
   <form @submit.prevent="submit">
     <h3 v-if="title">{{ title }}</h3>
 
-    <span>Email</span>
-    <input type="email" :value="email" @input="emailChanged" required />
-    <span>Password</span>
+    <label for="uname">Email</label>
+    <input id="uname" name="username" type="email" :value="email" @input="emailChanged" required  autocomplete="username" autofocus/>
+    <label for="cpassword">Password</label>
     <input
       type="password"
+      id="cpassword"
+      name="current-password"
       :value="password"
       @input="passwordChanged"
+      autocomplete="current-password"
       required
     />
     <p v-if="loginError">{{ loginError }}</p>

@@ -27,6 +27,12 @@
         <LabeledInputContainer :label="$t('property.mint_as_on_coin')">
           <RemovableInputField v-model="coin.mintAsOnCoin" />
         </LabeledInputContainer>
+
+        <Checkbox
+          id="mint_uncertain"
+          v-model="coin.mintUncertain"
+          :label="$tc('property.mint_uncertain')"
+        />
       </Row>
       <Row>
         <LabeledInputContainer :label="$tc('property.material')">
@@ -52,14 +58,11 @@
           />
         </LabeledInputContainer>
 
-        <LabeledInputContainer :label="$tc('property.procedure')">
-          <ButtonGroup
-            id="production"
-            :labels="productionLabels"
-            :options="productionOptions"
-            v-model="coin.procedure"
-          ></ButtonGroup>
-        </LabeledInputContainer>
+        <Checkbox
+          id="year_uncertain"
+          v-model="coin.yearUncertain"
+          :label="$tc('property.year_uncertain')"
+        />
       </Row>
 
       <Row>
@@ -68,6 +71,15 @@
           v-model="coin.donativ"
           :label="$tc('property.donativ')"
         />
+
+        <LabeledInputContainer :label="$tc('property.procedure')">
+          <ButtonGroup
+            id="production"
+            :labels="productionLabels"
+            :options="productionOptions"
+            v-model="coin.procedure"
+          ></ButtonGroup>
+        </LabeledInputContainer>
       </Row>
 
       <List v-on:add="addIssuer" :title="$t('property.issuer')">
@@ -272,7 +284,11 @@
       </Row>
 
       <div class="submit-error-window">
-        <div class="error submit-error" v-for="err in errorMessages" :key="err.key">
+        <div
+          class="error submit-error"
+          v-for="err in errorMessages"
+          :key="err.key"
+        >
           {{ err.message }}
         </div>
       </div>
@@ -328,14 +344,14 @@ export default {
     RemovableInputField,
   },
   computed: {
-    productionLabels: function() {
+    productionLabels: function () {
       return [
         this.$t("property.procedures.pressed"),
         this.$t("property.procedures.cast"),
       ];
     },
   },
-  mounted: function() {
+  mounted: function () {
     window.onbeforeunload = (event) => {
       if (!this.submitted) return "ASD";
       else {
@@ -360,7 +376,7 @@ export default {
       this.initFormattedFields.call(this);
     }
   },
-  created: function() {
+  created: function () {
     let id = this.$route.params.id;
     if (id != null) {
       this.$data.coin.id = id;
@@ -461,6 +477,8 @@ export default {
                 excludeFromTypeCatalogue
                 excludeFromMapApp
                 internalNotes
+                mintUncertain
+                yearUncertain
         }
       }
       `
@@ -524,6 +542,8 @@ export default {
             type.nominal = type.nominal ? type.nominal : { id: null, name: "" };
             type.caliph = type.caliph ? type.caliph : { id: null, name: "" };
 
+            console.log(type.mintUncertain, type.yearUncertain)
+
             Object.assign(this.$data.coin, type);
             this.initFormattedFields();
           }
@@ -549,7 +569,7 @@ export default {
       next();
     } else next(false);
   },
-  data: function() {
+  data: function () {
     return {
       coin: {
         id: null,
@@ -604,39 +624,39 @@ export default {
         key: "error-" + this.key++,
       });
     },
-    cancel: function() {
+    cancel: function () {
       this.$router.push({ name: "TypeOverview" });
     },
-    reverseChanged: function(coinSideObject) {
+    reverseChanged: function (coinSideObject) {
       this.coin.reverse = coinSideObject;
     },
-    issuerChanged: function(issuer, index) {
+    issuerChanged: function (issuer, index) {
       delete issuer.error;
       this.coin.issuers.splice(index, 1, issuer);
     },
-    addCoinMark: function() {
+    addCoinMark: function () {
       this.coin.coinMarks.push({
         key: "coin-mark-" + this.key++,
         id: null,
-        name: ""
+        name: "",
       });
     },
-    removeCoinMark: function(index) {
+    removeCoinMark: function (index) {
       this.coin.coinMarks.splice(index, 1);
     },
-    addPiece: function() {
+    addPiece: function () {
       this.coin.pieces.push({
         key: "piece-" + this.key++,
         value: "",
       });
     },
-    pieceChanged: function(piece) {
+    pieceChanged: function (piece) {
       delete piece.error;
     },
-    removePiece: function(index) {
+    removePiece: function (index) {
       this.coin.pieces.splice(index, 1);
     },
-    addIssuer: function() {
+    addIssuer: function () {
       this.coin.issuers.push({
         key: "issuer-" + this.key++,
         person: {
@@ -648,7 +668,7 @@ export default {
         honorifics: [],
       });
     },
-    removeIssuer: function(item) {
+    removeIssuer: function (item) {
       const idx = this.coin.issuers.indexOf(item);
       if (idx != -1) {
         this.coin.issuers.splice(idx, 1);
@@ -657,7 +677,7 @@ export default {
         });
       }
     },
-    initFormattedFields: function() {
+    initFormattedFields: function () {
       this.$refs.internalNotesField.setContent(this.coin.internalNotes);
       this.$refs.literatureField.setContent(this.coin.literature);
       this.$refs.specialsField.setContent(this.coin.specials);
@@ -665,7 +685,7 @@ export default {
       this.$refs.aversField.setFieldContent(this.coin.avers);
       this.$refs.reverseField.setFieldContent(this.coin.reverse);
     },
-    addOverlord: function() {
+    addOverlord: function () {
       this.coin.overlords.push({
         key: "overlord-" + this.key++,
         rank: this.coin.overlords.length + 1,
@@ -677,7 +697,7 @@ export default {
         honorifics: [],
       });
     },
-    addOtherPerson: function() {
+    addOtherPerson: function () {
       this.coin.otherPersons.push({
         id: null,
         key: this.key++,
@@ -685,13 +705,13 @@ export default {
         role: "",
       });
     },
-    overlordChanged: function(overlord, index) {
+    overlordChanged: function (overlord, index) {
       const old = this.coin.overlords[index];
       Object.assign(old, overlord);
       delete old.error;
       this.coin.overlords.splice(index, 1, old);
     },
-    removeOverlord: function(item) {
+    removeOverlord: function (item) {
       const idx = this.coin.overlords.indexOf(item);
       if (idx != -1) {
         this.coin.overlords.splice(idx, 1);
@@ -700,24 +720,24 @@ export default {
         });
       }
     },
-    removeOtherPerson: function(item) {
+    removeOtherPerson: function (item) {
       const idx = this.coin.otherPersons.indexOf(item);
       if (idx != -1) {
         this.coin.otherPersons.splice(idx, 1);
       }
     },
-    mintSelected: function(mint) {
+    mintSelected: function (mint) {
       if (!this.coin.mintAsOnCoin) {
         this.coin.mintAsOnCoin = mint.name;
       }
     },
-    otherPersonChanged: function(otherPerson, index) {
+    otherPersonChanged: function (otherPerson, index) {
       const op = this.coin.otherPersons[index];
       Object.assign(op, otherPerson);
       delete op.error;
       this.coin.otherPersons.splice(index, 1, op);
     },
-    submitForm: function() {
+    submitForm: function () {
       function validateTitledPerson(titledPerson) {
         return !!titledPerson.person.id;
       }
@@ -761,19 +781,20 @@ export default {
         }
       });
 
-      const elementError="Das Element ist nicht valide. Geben Sie ein Element an oder löschen Sie das Element."
+      const elementError =
+        "Das Element ist nicht valide. Geben Sie ein Element an oder löschen Sie das Element.";
 
-      this.coin.coinMarks.forEach((coinMark, index) =>{
-        if(coinMark.id == null){
-          coinMark.error = elementError
-          invalid = true
+      this.coin.coinMarks.forEach((coinMark, index) => {
+        if (coinMark.id == null) {
+          coinMark.error = elementError;
+          invalid = true;
           this.coin.coinMarks.splice(index, 1, coinMark);
         }
-      })
+      });
 
       this.coin.pieces.forEach((piece, index) => {
         if (piece.value == "") {
-          piece.error =elementError
+          piece.error = elementError;
           invalid = true;
           this.coin.pieces.splice(index, 1, piece);
         } else {
@@ -854,7 +875,9 @@ export default {
             $specials:String,
             $excludeFromTypeCatalogue: Boolean
             $excludeFromMapApp: Boolean,
-            $internalNotes: String
+            $internalNotes: String,
+            $yearUncertain:Boolean,
+            $mintUncertain:Boolean
             ){
         addCoinType(data: {
             projectId: $projectId,
@@ -878,8 +901,10 @@ export default {
             pieces: $pieces,
             specials: $specials,
             excludeFromTypeCatalogue:$excludeFromTypeCatalogue,
-            excludeFromMapApp:$excludeFromMapApp
-            internalNotes:$internalNotes
+            excludeFromMapApp:$excludeFromMapApp,
+            internalNotes:$internalNotes,
+            yearUncertain: $yearUncertain,
+            mintUncertain: $mintUncertain
          })
          }
    `;
@@ -924,6 +949,8 @@ export default {
         excludeFromTypeCatalogue: data.excludeFromTypeCatalogue,
         excludeFromMapApp: data.excludeFromMapApp,
         internalNotes: data.internalNotes,
+        yearUncertain: data.yearUncertain,
+        mintUncertain: data.mintUncertain,
       };
 
       return Query.raw(query, variables);
@@ -931,30 +958,33 @@ export default {
     updateCoinType(data) {
       // TODO ADA
       const query = `
-        mutation ($id:ID,
-         $projectId:String,
-         $treadwellId:String,
-         $mint:ID,
-         $mintAsOnCoin:String,
-         $material:ID,
-         $nominal:ID,
-         $yearOfMinting:String,
-         $donativ:Boolean,
-         $procedure:String,
-         $issuers:[TitledPersonInput],
-         $otherPersons:[ID],
-         $overlords:[OverlordInput],
-         $caliph:ID,
-         $avers:CoinSideInformationInput,
-         $reverse:CoinSideInformationInput,
-         $cursiveScript:Boolean,
-         $coinMarks:[ID],
-         $literature:String,
-         $pieces:[String],
+        mutation (
+          $id:ID,
+          $projectId:String,
+          $treadwellId:String,
+          $mint:ID,
+          $mintAsOnCoin:String,
+          $material:ID,
+          $nominal:ID,
+          $yearOfMinting:String,
+          $donativ:Boolean,
+          $procedure:String,
+          $issuers:[TitledPersonInput],
+          $otherPersons:[ID],
+          $overlords:[OverlordInput],
+          $caliph:ID,
+          $avers:CoinSideInformationInput,
+          $reverse:CoinSideInformationInput,
+          $cursiveScript:Boolean,
+          $coinMarks:[ID],
+          $literature:String,
+          $pieces:[String],
           $specials:String,
           $excludeFromTypeCatalogue:Boolean,
           $excludeFromMapApp:Boolean
-          $internalNotes: String
+          $internalNotes: String,
+          $yearUncertain:Boolean,
+          $mintUncertain:Boolean
         ){
         updateCoinType(id: $id, data: {
             projectId: $projectId,
@@ -979,7 +1009,9 @@ export default {
             specials: $specials,
             excludeFromTypeCatalogue: $excludeFromTypeCatalogue,
             excludeFromMapApp: $excludeFromMapApp
-            internalNotes: $internalNotes
+            internalNotes: $internalNotes,
+            yearUncertain: $yearUncertain,
+            mintUncertain: $mintUncertain
          })
          }
    `;
@@ -1029,6 +1061,8 @@ export default {
         excludeFromMapApp:
           data.excludeFromMapApp == null ? false : data.excludeFromMapApp,
         internalNotes: data.internalNotes,
+        yearUncertain: data.yearUncertain || false,
+        mintUncertain: data.mintUncertain || false,
       };
 
       return Query.raw(query, variables);
@@ -1045,7 +1079,7 @@ export default {
   margin-bottom: $padding * 2;
 }
 
-.invalid-error  {
+.invalid-error {
   position: absolute;
   z-index: 10;
   font-size: 0.85rem;
@@ -1142,6 +1176,4 @@ label {
   display: flex;
   align-items: center;
 }
-
-
 </style>

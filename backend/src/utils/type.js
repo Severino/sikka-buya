@@ -166,7 +166,9 @@ class Type {
                 specials,
                 exclude_from_type_catalogue,
                 exclude_from_map_app,
-                internal_notes
+                internal_notes,
+                mint_uncertain,
+                year_uncertain
                 )  VALUES (
                $[projectId],
                $[treadwellId],
@@ -193,7 +195,9 @@ class Type {
                 $[specials],
                 $[excludeFromTypeCatalogue],
                 $[excludeFromMapApp],
-                $[internalNotes]
+                $[internalNotes],
+                $[yearUncertain],
+                $[mintUncertain] 
                 ) RETURNING id
             `, data)
 
@@ -411,7 +415,7 @@ class Type {
         }
 
         return type
-
+        
     }
 
     static get databaseToGraphQlMap() {
@@ -423,8 +427,10 @@ class Type {
             cursive_script: "cursiveScript",
             exclude_from_type_catalogue: "excludeFromTypeCatalogue",
             exclude_from_map_app: "excludeFromMapApp",
-            internal_notes: "internalNotes"
-        }
+            internal_notes: "internalNotes",
+            mint_uncertain: "mintUncertain",
+            year_uncertain: "yearUncertain"
+        } 
     }
 
 

@@ -7,13 +7,11 @@
       :checked="value"
       @input="input"
     />
-    <label :for="id" tabindex="0">
-      <Row>
-        <span v-if="label">{{ label }}</span>
-        <CheckboxBlankOutline v-if="!value" />
-        <CheckboxMarked v-if="value" />
-      </Row>
-    </label>
+    <label :for="id" v-if="label">{{ label }}</label>
+    <div class="check">
+      <CheckboxMarked v-if="value" />
+      <CheckboxBlankOutline v-else />
+    </div>
   </div>
 </template>
 
@@ -55,20 +53,4 @@ input {
   display: none;
 }
 
-.checkbox {
-  display: flex;
-
-  .material-design-icon {
-    flex: 0;
-  }
-}
-
-label {
-  margin: 0;
-  flex: 1;
-
-  span {
-    display: block;
-  }
-}
 </style>

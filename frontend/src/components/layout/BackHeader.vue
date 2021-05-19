@@ -2,7 +2,7 @@
   <div class="back-header">
     <header class="content-wrapper">
       <nav>
-        <router-link :to="{ name: 'Home' }"><ArrowLeft />{{$t("navigation.back")}}</router-link>
+        <router-link :to="{ name: 'PropertyOverview' }"><ArrowLeft />{{$t("navigation.back")}}</router-link>
       </nav>
     </header>
   </div>

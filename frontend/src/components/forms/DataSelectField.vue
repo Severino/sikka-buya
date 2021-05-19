@@ -1,5 +1,5 @@
 <template>
-  <div class="data-select">
+  <div class="data-select" :class="{ invalid }">
     <input
       class="name-field"
       @input="input"
@@ -9,13 +9,18 @@
       v-model="value[attribute]"
       :required="required"
     />
-    <input
+
+    <div class="indicator">
+      <Alert v-if="invalid" class="alert" />
+      <Check v-else class="check" />
+    </div>
+    <!-- <input
       class="id-field"
       type="text"
       tabindex="-1"
       :value="value.id"
       readonly
-    />
+    /> -->
     <ul :class="'search-box ' + (listVisible ? 'visible' : 'hidden')">
       <li v-if="error" class="error non-selectable">{{ error }}</li>
       <li
@@ -44,8 +49,12 @@
 import GraphQLUtils from "../../utils/GraphQLUtils";
 import Query from "../../../src/database/query";
 
+import Alert from "vue-material-design-icons/Alert";
+import Check from "vue-material-design-icons/Check";
+
 export default {
   name: "DataSelectField",
+  components: { Alert, Check },
   data: function () {
     return {
       id: null,
@@ -95,6 +104,11 @@ export default {
     tooltip: String,
     placeholder: String,
   },
+  computed: {
+    invalid: function () {
+      return this.value.id == null;
+    },
+  },
   methods: {
     setValue: function (event) {
       const target = event.target;
@@ -105,19 +119,27 @@ export default {
       this.$emit("input", value);
       this.$emit("select", value);
     },
-    input: function (event) {
-      const value = this.value;
+    input: async function (event, preventSimiliarityCheck = false) {
+      let value = this.value;
       value[this.attribute] = event.target.value;
-      this.searchEntry(value[this.attribute]);
       value.id = null;
+      this.checkMatch(value);
       this.$emit("input", value);
     },
-    focus: function () {
-      const obj = this.value;
-      obj.id = null;
-      this.$emit("input", obj);
+    checkMatch: async function (value) {
+      await this.searchEntry(value[this.attribute]);
+      for (let entry of this.searchResults.values()) {
+        let regex = new RegExp("^" + value.name + "$", "i");
+
+        if (regex.test(entry.name)) {
+          value = entry;
+          break;
+        }
+      }
+    },
+    focus: async function () {
+      await this.checkMatch(this.value)
       this.showList();
-      this.searchEntry("");
     },
     showList: function () {
       if (this.hideTimeout) clearTimeout(this.hideTimeout);
@@ -126,11 +148,12 @@ export default {
     hideList: function () {
       this.hideTimeout = setTimeout(() => {
         this.listVisible = false;
-        if (!this.value.id) {
-          const obj = { id: null };
-          obj[this.attribute] = "";
-          this.$emit("input", obj);
-        }
+
+        // if (!this.value.id) {
+        //   const obj = { id: null };
+        //   obj[this.attribute] = "";
+        //   this.$emit("input", obj);
+        // }
       }, 200);
     },
     initId: function () {
@@ -148,7 +171,7 @@ export default {
 
       return loaded || [];
     },
-    searchEntry: function (str = null) {
+    searchEntry: async function (str = null) {
       let searchString = str !== null ? str : this.value[this.attribute] || "";
 
       const queryCommand = this.queryCommand
@@ -169,12 +192,10 @@ export default {
 
       Query.raw(query)
         .then((result) => {
-          console.log(result.data.data[queryCommand]);
           this.searchResults = result.data.data[queryCommand];
           this.error = "";
         })
         .catch((error) => {
-          console.error(error);
           this.error = error;
         })
         .finally(() => {
@@ -216,6 +237,35 @@ export default {
   display: flex;
   position: relative;
   color: #000000;
+
+  &.invalid {
+    .id-field {
+      background-color: rgba($yellow, 0.5);
+    }
+  }
+}
+
+.check {
+  color: $primary-color;
+}
+
+.alert {
+  color: $red;
+}
+
+.indicator {
+  position: absolute;
+  right: 0;
+  border-left: none;
+  padding: 0 5px;
+  box-sizing: border-box;
+  display: flex;
+  height: 100%;
+
+  > * {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .error {

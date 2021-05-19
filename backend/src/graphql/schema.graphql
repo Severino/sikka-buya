@@ -4,6 +4,7 @@ type AuthResponse {
   success: Boolean
   message: String
   token: String
+  user: User
 }
 
 type Material {
@@ -99,6 +100,8 @@ type CoinType {
   excludeFromTypeCatalogue: Boolean
   excludeFromMapApp: Boolean
   internalNotes: String
+  yearUncertain: Boolean
+  mintUncertain: Boolean
 }
 
 input CoinTypeInput {
@@ -126,6 +129,8 @@ input CoinTypeInput {
   excludeFromTypeCatalogue: Boolean
   excludeFromMapApp: Boolean
   internalNotes: String
+  yearUncertain: Boolean
+  mintUncertain: Boolean
 }
 
 type CoinMark {
