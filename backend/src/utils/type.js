@@ -269,9 +269,14 @@ class Type {
         CASE 
             WHEN tc.type IS NULL THEN false
             ELSE true
-        END AS completed
+        END AS completed,
+        CASE 
+            WHEN tr.type IS NULL THEN false
+            ELSE true
+        END AS reviewed
         FROM type t
         LEFT JOIN type_completed tc ON t.id = tc.type
+        LEFT JOIN type_reviewed tr ON t.id = tr.type
         ORDER BY project_id
         `)
 
@@ -286,6 +291,8 @@ class Type {
             }
             return type
         })
+
+        console.log(typeList)
 
         return typeList
     }

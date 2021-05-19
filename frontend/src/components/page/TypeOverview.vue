@@ -44,6 +44,10 @@
           :value="item.completed"
           @input="changeCompleteState($event, item)"
         />
+        <reviewed-toggle
+          :value="item.reviewed"
+          @input="changeReviewedState($event, item)"
+        />
         <!-- <DynamicDeleteButton @click="remove(item.id)" /> -->
       </ListItem>
     </List>
@@ -65,6 +69,8 @@ import ListFilterContainer from "../layout/list/ListFilterContainer.vue";
 import ButtonGroup from "../forms/ButtonGroup.vue";
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import SearchUtils from "@/utils/SearchUtils.js";
+import ReviewedToggle from "../layout/buttons/ReviewedToggle.vue";
+import Auth from '../../utils/Auth';
 
 export default {
   name: "TypeOverviewPage",
@@ -80,11 +86,12 @@ export default {
     ListItemCell,
     ListFilterContainer,
     ButtonGroup,
+    ReviewedToggle,
   },
   created: function () {
     new Query(`
      getReducedCoinTypeList`)
-      .list(["id", "projectId", "treadwellId", "completed"])
+      .list(["id", "projectId", "treadwellId", "completed", "reviewed"])
       .then((result) => {
         if (AxiosHelper.ok(result)) {
           this.$data.items = result.data.data["getReducedCoinTypeList"];
@@ -137,13 +144,28 @@ export default {
         name: `TypeCreationPage`,
       });
     },
-    changeCompleteState(state, item) {
-      console.log(state, item);
-
+    changeReviewedState(state, item) {
       Query.raw(
         `
         mutation{
-          setTypeComplete(id: ${item.id}, completed: ${state})
+          setTypeReviewed(id: ${item.id}, reviewed: ${state}, token: "${Auth.loadToken()}")
+        }
+      `
+      )
+        .then((result) => {
+          if (result.status >= 200 && result.status <= 200) {
+            item.reviewed = state;
+          }
+        })
+        .catch((err) => {
+          this.error = err;
+        });
+    },
+    changeCompleteState(state, item) {
+      Query.raw(
+        `
+        mutation{
+          setTypeComplete(id: ${item.id}, completed: ${state}, token: "${Auth.loadToken()}")
         }
       `
       )

@@ -73,6 +73,7 @@ type ReducedCoinType {
   projectId: String
   treadwellId: String
   completed: Boolean
+  reviewed: Boolean
 }
 
 type CoinType {
@@ -285,7 +286,8 @@ type Mutation {
   removeCoinType(id: ID): Void
   updateCoinType(id: ID, data: CoinTypeInput): Void
 
-  setTypeComplete(id: ID!, completed: Boolean = true): Void
+  setTypeComplete(id: ID!, completed: Boolean = true, token:String!): Boolean
+  setTypeReviewed(id:ID!, reviewed:Boolean = true, token:String!):Boolean
 }
 
 type Overlord {

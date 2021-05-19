@@ -27,11 +27,6 @@ class Auth {
         return rule.validate(str)
     }
 
-
-    static isAuthenticated() {
-        return false
-    }
-
     static async login(_, args) {
         const { email, password } = args.data
         /* 
@@ -77,6 +72,10 @@ class Auth {
             return false
         }
 
+    }
+
+    static get verificationError(){
+        return "User authentification failed!"
     }
 }
 

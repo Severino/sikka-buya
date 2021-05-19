@@ -161,7 +161,7 @@ const resolvers = {
                 to: "severin.opel@outlook.com",
                 subject: "You have been invited ...",
                 html: "<b>Hello World</b>"
-            }, function(err, reply) {
+            }, function (err, reply) {
                 console.log(err, err.stack)
                 console.dir.reply
             })
@@ -209,12 +209,35 @@ const resolvers = {
         },
         setTypeComplete: async function (_, {
             completed = true,
-            id = null
+            id = null,
+            token = null
         } = {}) {
-            if (completed) {
-                return Database.none("INSERT INTO type_completed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
+
+            if (!Auth.verify(token)) {
+                throw new Error(Auth.verificationError)
             } else {
-                return Database.none("DELETE FROM type_completed WHERE type=$1", id)
+                if (completed) {
+                    await Database.none("INSERT INTO type_completed (type) VALUES ($1) ON CONFLICT DO NOTHING", id) 
+                } else {
+                    await Database.none("DELETE FROM type_completed WHERE type=$1", id)
+                }
+                return completed
+            }
+        },
+        setTypeReviewed: async function (_, {
+            reviewed = true,
+            id = null,
+            token = null
+        }={}){
+            if (!Auth.verify(token)) {
+                throw new Error(Auth.verificationError)
+            } else {
+                if (reviewed) {
+                    await Database.none("INSERT INTO type_reviewed (type) VALUES ($1) ON CONFLICT DO NOTHING", id) 
+                } else {
+                    await Database.none("DELETE FROM type_reviewed WHERE type=$1", id)
+                }
+                return reviewed
             }
         }
     }
