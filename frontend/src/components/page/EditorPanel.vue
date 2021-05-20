@@ -4,67 +4,90 @@
       <h2>{{ $t("general.administration") }}</h2>
     </header>
     <!-- <router-link :to="{ name: 'TypeList' }"> Explorer </router-link> -->
-    <router-link
-      class="button icon-button"
-      :to="{ name: 'TypeOverview' }"
-      draggable="false"
-    >
-      <span>{{ $tc("general.type") }}</span>
-    </router-link>
+    <div class="button-list">
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'UserManagement' }"
+        draggable="false"
+      >
+        <span>{{ $tc("general.user") }}</span>
+      </router-link>
+
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'TypeOverview' }"
+        draggable="false"
+      >
+        <span>{{ $tc("general.type") }}</span>
+      </router-link>
+    </div>
 
     <h3>{{ $t("general.manage_properties") }}</h3>
     <div class="button-list">
-      <router-link class="button icon-button" :to="{name:'Property', params: {property: 'honorific'}}" draggable="false">
-       
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'Property', params: { property: 'honorific' } }"
+        draggable="false"
+      >
         <span>{{ $tc("property.honorific") }}</span>
       </router-link>
       <router-link
         class="button icon-button"
-        :to="{name:'CoinMarkOverview'}"
+        :to="{ name: 'CoinMarkOverview' }"
         draggable="false"
       >
-       
         <span>{{ $tc("property.coin_mark") }}</span>
       </router-link>
-      <router-link class="button icon-button" :to="{name:'Property', params: {property: 'material'}}" draggable="false">
-       
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'Property', params: { property: 'material' } }"
+        draggable="false"
+      >
         <span>{{ $tc("property.material") }}</span>
       </router-link>
-      <router-link class="button icon-button" :to="{name:'Property', params: {property: 'mint'}}" draggable="false">
-       
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'Property', params: { property: 'mint' } }"
+        draggable="false"
+      >
         <span>{{ $tc("property.mint") }}</span>
       </router-link>
-      <router-link class="button icon-button" :to="{name:'Property', params: {property: 'nominal'}}" draggable="false">
-       
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'Property', params: { property: 'nominal' } }"
+        draggable="false"
+      >
         <span>{{ $tc("property.nominal") }}</span>
       </router-link>
-      <router-link class="button icon-button" :to="{name:'Property', params: {property: 'person'}}" draggable="false">
-       
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'Property', params: { property: 'person' } }"
+        draggable="false"
+      >
         <span>{{ $tc("property.person") }}</span>
       </router-link>
 
-      <router-link class="button icon-button" :to="{name:'Property', params: {property: 'title'}}" draggable="false">
-       
+      <router-link
+        class="button icon-button"
+        :to="{ name: 'Property', params: { property: 'title' } }"
+        draggable="false"
+      >
         <span>{{ $tc("property.title") }}</span>
       </router-link>
-
 
       <router-link
         class="button icon-button"
         :to="{ name: 'Property', params: { property: 'dynasty' } }"
         draggable="false"
       >
-       
         <span>{{ $tc("property.dynasty") }}</span>
       </router-link>
 
-      
-           <router-link
+      <router-link
         class="button icon-button"
         :to="{ name: 'Property', params: { property: 'role' } }"
         draggable="false"
       >
-       
         <span>{{ $tc("property.role") }}</span>
       </router-link>
     </div>
@@ -75,7 +98,7 @@
 import PlusBox from "vue-material-design-icons/PlusBox";
 
 export default {
-  name: "PropertyOverview",
+  name: "EditorPanel",
   components: {
     PlusBox,
   },

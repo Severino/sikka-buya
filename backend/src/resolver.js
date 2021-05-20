@@ -1,3 +1,4 @@
+const Auth = require("./auth.js")
 const { Database } = require("./utils/database.js")
 
 class Resolver {
@@ -16,32 +17,64 @@ class Resolver {
             Query: {},
             Mutation: {}
         }
-        resolvers.Mutation[`add${this.capitalizedName}`] = this.add.bind(this)
-        resolvers.Mutation[`update${this.capitalizedName}`] = this.update.bind(this)
-        resolvers.Mutation[`delete${this.capitalizedName}`] = this.delete.bind(this)
-        resolvers.Query[`${this.name}`] = this.list.bind(this)
-        resolvers.Query[`get${this.capitalizedName}`] = this.get.bind(this)
-        resolvers.Query[`search${this.capitalizedName}`] = this.search.bind(this)
+
+        const ref = this
+        resolvers.Mutation[`add${this.capitalizedName}`] = function (_, args, context) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
+            }
+
+            return ref.add(_, args, context, ref.tableName)
+        }
+        resolvers.Mutation[`update${this.capitalizedName}`] = function (_, args, context) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
+            }
+
+            return ref.update(_, args, context, ref.tableName)
+        }
+        resolvers.Mutation[`delete${this.capitalizedName}`] = function (_, args, context) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
+            }
+
+            return ref.delete(_, args, context, ref.tableName)
+        }
+
+        resolvers.Query[`${this.name}`] = function (_, args, context) { return ref.list(_, args, context, ref.tableName) }
+        resolvers.Query[`get${this.capitalizedName}`] = function (_, args, context) { return ref.get(_, args, context, ref.tableName) }
+        resolvers.Query[`search${this.capitalizedName}`] = function (_, args, context) { return ref.search(_, args, context, ref.tableName) }
         return resolvers
     }
+    async add(_, args, context, tableName) {
+        if (!Auth.verifyContext(context)) {
+            throw new Error('You are not authenticated!')
+        }
 
-    async add(_, args) {
         const object = args.data
-        return this.request(`INSERT INTO ${this.tableName} (${Object.keys(object).join(",")}) VALUES (${Object.keys(object).map((_, idx) => `$${idx + 1}`)})`, Object.values(object))
+        return this.request(`INSERT INTO ${tableName} (${Object.keys(object).join(",")}) VALUES (${Object.keys(object).map((name) => `$[${name}]`)})`, Object.values(object))
     }
 
-    async update(_, args) {
+    async update(_, args, context) {
+        if (!Auth.verifyContext(context)) {
+            throw new Error(Auth.verificationError)
+        }
+
         const object = args.data
         const id = object.id
 
-        if(!id || id <= 0) throw new Error("error.invalid_id")
+        if (!id || id <= 0) throw new Error("error.invalid_id")
 
         delete object.id
         const query = `UPDATE ${this.tableName} SET ${Object.keys(object).map((val, idx) => `${val}=$${idx + 2}`)} WHERE id=$1`
         return this.request(query, [id, ...Object.values(object)])
     }
 
-    async delete(_, args) {       
+    async delete(_, args, context) {
+        if (!Auth.verifyContext(context)) {
+            throw new Error(Auth.verificationError)
+        }
+
         return Database.none(`DELETE FROM ${this.tableName} WHERE id=$1`, [args.id])
     }
 

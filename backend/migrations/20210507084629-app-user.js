@@ -27,20 +27,10 @@ exports.up = function (db) {
       notNull: true
     },
     password: {
-      type: "string",
-      notNull: true
-    },
-    role: {
-      type: "int",
-      foreignKey: {
-        name: "user_user_role_fk",
-        table: "user_role",
-        mapping: "id",
-        rules: {
-          onDelete: 'RESTRICT',
-          onUpdate: 'RESTRICT'
-        },
-      }
+      type: "string"
+    }, super: {
+      type: "boolean",
+      default: false
     }
   });
 };

@@ -111,11 +111,26 @@ pm2 delete <id>
 
 To run the backend application in an apache environment, we need to use the apache server as a proxy.
 
-```
-    ProxyPass /graphql http://localhost:4000/
-    LoadModule proxy_module modules/mod_proxy.so
+_Note: Check the port that is used. When the error occurs at port 443, make sure to edit the VirtualHost, that serves at 443._
+
+```ini
+ProxyPreserveHost On
+
+ProxyPass /graphql http://127.0.0.1:4000/graphql
+ProxyPassReverse /graphql http://127.0.0.1:4000/graphql
 ```
 
+In apache2 the modules get loaded seperately with:
+```ini
+a2enmod proxy  # To enable the module
+a2dismod proxy # To disable the module
+```
+
+After changes made to the apache config, make sure to restart the apache service
+
+```ini
+ sudo systemctl restart apache2
+```
 ## Endpoints
 
 The endpoint is found at *<your_server>:<port>/graphql

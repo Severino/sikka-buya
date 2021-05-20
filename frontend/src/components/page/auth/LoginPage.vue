@@ -14,10 +14,10 @@
 </template>
 
 <script>
-import Auth from "../../utils/Auth";
+import Auth from "../../../utils/Auth";
 
-import UserForm from "../auth/UserForm.vue";
-import Box from "../layout/Box.vue";
+import UserForm from "../../auth/UserForm.vue";
+import Box from "../../layout/Box.vue";
 
 export default {
   components: { Box, UserForm },
@@ -42,7 +42,7 @@ export default {
         if (!success) {
           this.loginError = message;
         } else {
-          this.$router.push({ name: "PropertyOverview" });
+          this.$router.push({ name: "EditorPanel" });
         }
       });
     },
@@ -63,7 +63,6 @@ section {
 }
 .box {
   max-width: 100%;
-  width: 720px;
   background-color: $white;
   @include box-padding($big-padding);
 }

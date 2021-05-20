@@ -15,7 +15,7 @@
       required
     />
     <p v-if="loginError">{{ loginError }}</p>
-    <button type="submit">Submit</button>
+    <button type="submit">Login</button>
   </form>
 </template>
 
@@ -58,5 +58,9 @@ export default {
 form > * {
   display: block;
   margin-top: 20px;
+}
+
+h3{
+  margin-top: 0;
 }
 </style>

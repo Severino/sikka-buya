@@ -7,7 +7,7 @@
 
         <span>Email</span>
         <input type="email" v-model="inviteEmail" />
-        <input type="submit" value="Invite" @click.prevent="" />
+        <input type="submit" value="Invite" @click.prevent="inviteUser" />
         <p v-if="inviteError">{{ inviteError }}</p>
       </form>
     </section>
@@ -16,7 +16,9 @@
       <ul>
         <li v-for="user in users" :key="`user-id-${user.id}`">
           ({{ user.id }}) {{ user.email }}
+          <input :value="getInvitePath(user.email)" @click="copy" readonly>
         </li>
+        
       </ul>
     </section>
   </div>
@@ -40,6 +42,15 @@ export default {
     this.refreshUserList();
   },
   methods: {
+    copy:function($event){
+      let target = $event.currentTarget
+      console.log(target)
+      target.select()
+      document.execCommand("copy")
+    },
+    getInvitePath: function(email){
+      return window.location.origin + '/invite/' + email
+    },
     refreshUserList: async function () {
       let result = await Query.raw(`{
             users{
@@ -58,22 +69,17 @@ export default {
     },
     inviteUser: async function () {
       Query.raw(
-        `{
-        inviteUser (
-          email: ${this.inviteEmail}
-          token: ${Auth.loadToken()}
-        )
-      }`
+        `mutation{
+          inviteUser(email: "${this.inviteEmail}")
+        }`,
       )
         .then((result) => {
-          if (AxiosHelper.ok(result)) {
             this.inviteEmail = "";
             this.inviteError = "";
-          } else {
-            this.inviteError = AxiosHelper.getErrors(result).join("\n\n");
-          }
+            this.refreshUserList()
         })
         .catch((err) => {
+          console.log(err)
           this.inviteError = err;
         });
     },

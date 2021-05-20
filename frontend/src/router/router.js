@@ -1,9 +1,12 @@
 import Vue from "vue"
 import VueRouter from 'vue-router'
 
+//** AUTH */
+import LoginPage from "@/components/page/auth/LoginPage"
+import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
+
 
 import EditorPage from "@/components/page/editor/EditorPage.vue"
-import LoginPage from "@/components/page/LoginPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
@@ -12,7 +15,10 @@ import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 
-import PropertyOverview from "@/components/page/PropertyOverview.vue"
+import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
+
+
+import EditorPanel from "@/components/page/EditorPanel.vue"
 import Overview from "@/components/page/Overview.vue"
 import SideTree from "@/components/page/SideTree.vue"
 
@@ -53,9 +59,20 @@ const routes = [
     component: LoginPage
   },
   {
+    path: '/invite/:mail',
+    name: "InviteSignUp",
+    component: AcceptInvitePage
+  },
+  {
     path: '/catalog/:id',
     name: 'CatalogEntry',
     component: CatalogEntry
+  },
+  {
+    path: "/analytics/table/",
+    name: "AnalyticsTable",
+    component: YearMintTablePage
+
   },
   {
     path: '/explorer',
@@ -73,8 +90,8 @@ const routes = [
     children: [
       {
         path: "",
-        name: "PropertyOverview",
-        component: PropertyOverview,
+        name: "EditorPanel",
+        component: EditorPanel,
         meta: { auth: true },
       },
       {

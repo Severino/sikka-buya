@@ -13,7 +13,16 @@ const { Database, pgp } = require("./src/utils/database.js");
 /**
  * Various Packages
  */
-const sendmail = require("sendmail")()
+const sendmail = require("sendmail")({
+    logger: {
+        debug: console.log,
+        info: console.info,
+        warn: console.warn,
+        error: console.error
+    },
+    devPort: 8080, // Default: False
+    devHost: 'localhost', // Default: localhost
+})
 
 /**
  * GraphQL Imports
@@ -36,6 +45,7 @@ const PersonResolver = require("./src/resolver/personresolver.js");
 const SQLUtils = require("./src/utils/sql.js");
 const Type = require("./src/utils/type.js");
 const Auth = require("./src/auth.js");
+const { validateEmail, validatePassword } = require("./src/auth.js");
 
 
 
@@ -149,27 +159,20 @@ const resolvers = {
         users: async function () {
             return await Database.manyOrNone("SELECT id, email FROM app_user")
         },
-        inviteUser: async function (_, { email, token } = {}) {
-            // console.log("SEND MAIL TO: ", arguments)
 
-            if (!Auth.verify(token)) {
-                throw new Error("Not authenticated!")
+    }, Mutation: {
+        acceptInvite: async function(_, {email, password}={}){
+            let pwValidator = Auth.validatePassword(password)
+            if(pwValidator.failed){
+                throw new Error(pwValidator.error)
             }
 
-            sendmail({
-                from: "Sikka Buya <noreply@sikkabuya.com>",
-                to: "severin.opel@outlook.com",
-                subject: "You have been invited ...",
-                html: "<b>Hello World</b>"
-            }, function (err, reply) {
-                console.log(err, err.stack)
-                console.dir.reply
-            })
+            const hashedPW = await Auth.hashPassword(password)       
 
+            let result = await Database.oneOrNone("UPDATE app_user SET password = $[password] WHERE email=$[email] AND password IS NULL RETURNING id", {email, password: hashedPW})
 
-            return true
-        }
-    }, Mutation: {
+            if(result == null) throw new Error("Could not set password!")
+        },
         setup: async function (_, args) {
             let { case: result } = await Database.one(`SELECT CASE 
                 WHEN EXISTS (SELECT * FROM app_user LIMIT 1) THEN 1
@@ -191,54 +194,84 @@ const resolvers = {
 
                 if (password && email) {
                     const hashedPW = await Auth.hashPassword(password)
-                    return await Database.none("INSERT INTO app_user (email, password) VALUES ($[email], $[password])", { email, password: hashedPW })
+                    return await Database.none("INSERT INTO app_user (email, password, super) VALUES ($[email], $[password], TRUE)", { email, password: hashedPW })
                 } else {
                     throw new Error("You must provide an email and a password!")
                 }
             } else {
                 throw new Error("Superuser was already initialized!")
             }
-
-            return false
         },
         addCoinType: async function (_, args) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
+            }
+
             return Type.addType(args.data)
         },
+        inviteUser: async function (_, { email } = {}, context) {
+            // console.log("SEND MAIL TO: ", arguments)
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
+            }
+            let mailValidation = Auth.validateEmail(email)
+            if (!mailValidation.ok) throw new Error(mailValidation.error)
+
+
+            return await Database.none("INSERT INTO app_user (email) VALUES ($1)", email)
+
+            // try {
+            //     sendmail({
+            //         from: "Sikka Buya <noreply@sikkabuya.com>",
+            //         to: "severin.opel@outlook.com",
+            //         subject: "You have been invited ...",
+            //         html: "<b>Hello World</b>"
+            //     }, function (err, reply) {
+            //         throw new Error(err)
+            //     })
+            // } catch (e) {
+            //     throw new Error(`Could not send invite e-mail: ${e}.`)
+            // }
+
+            return true
+        },
         updateCoinType: async function (_, args) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
+            }
+
             return Type.updateType(args.id, args.data)
         },
         setTypeComplete: async function (_, {
             completed = true,
-            id = null,
-            token = null
-        } = {}) {
-
-            if (!Auth.verify(token)) {
-                throw new Error(Auth.verificationError)
-            } else {
-                if (completed) {
-                    await Database.none("INSERT INTO type_completed (type) VALUES ($1) ON CONFLICT DO NOTHING", id) 
-                } else {
-                    await Database.none("DELETE FROM type_completed WHERE type=$1", id)
-                }
-                return completed
+            id = null
+        } = {}, context) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
             }
+
+            if (completed) {
+                await Database.none("INSERT INTO type_completed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
+            } else {
+                await Database.none("DELETE FROM type_completed WHERE type=$1", id)
+            }
+            return completed
         },
         setTypeReviewed: async function (_, {
             reviewed = true,
             id = null,
-            token = null
-        }={}){
-            if (!Auth.verify(token)) {
-                throw new Error(Auth.verificationError)
-            } else {
-                if (reviewed) {
-                    await Database.none("INSERT INTO type_reviewed (type) VALUES ($1) ON CONFLICT DO NOTHING", id) 
-                } else {
-                    await Database.none("DELETE FROM type_reviewed WHERE type=$1", id)
-                }
-                return reviewed
+        } = {}, context) {
+            if (!Auth.verifyContext(context)) {
+                throw new Error('You are not authenticated!')
             }
+
+            if (reviewed) {
+                await Database.none("INSERT INTO type_reviewed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
+            } else {
+                await Database.none("DELETE FROM type_reviewed WHERE type=$1", id)
+            }
+            return reviewed
+
         }
     }
 }

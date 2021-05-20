@@ -35,6 +35,10 @@ class Validation {
         this.message = message
     }
 
+    get failed(){
+        return !this.valid
+    }
+
     get ok() {
         return this.valid
     }

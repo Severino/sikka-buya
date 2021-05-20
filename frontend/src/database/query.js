@@ -2,6 +2,7 @@ import axios from "axios"
 const baseURL = process.env.VUE_APP_DATABASE_URL || "http://localhost:4000/graphql"
 const host = baseURL
 import AxiosHelper from "@/utils/AxiosHelper.js";
+import Auth from "../utils/Auth";
 
 export default class Query {
 
@@ -18,7 +19,7 @@ export default class Query {
         if (locationIndex != -1) {
             properties[locationIndex] = "location{lat,lon}"
         }
-
+        
         const query = `
               {
                 get${this.capitalizedName} (id:${id})  {
@@ -27,35 +28,32 @@ export default class Query {
               }
             `
 
-        return axios({
-            url: host,
-            method: "post",
-            data: {
-                query
-            },
-        })
+        return Query.raw(query)
     }
 
     static async raw(query, variables) {
+
         return new Query().raw(query, variables)
+
     }
 
 
     async raw(query, variables = {}) {
-        console.log(query)
+        console.log(query, variables)
         return new Promise((resolve, reject) => {
             axios({
                 url: host,
                 method: "post",
+                headers: {"Auth": Auth.loadToken() },
                 data: {
                     query,
                     variables
                 },
             }).then(result => {
-                console.log(result)
                 if (AxiosHelper.ok(result)) {
                     resolve(result)
                 } else {
+                    console.log(result)
                     reject(AxiosHelper.getErrors(result))
                 }
             }).catch(reject)
@@ -125,12 +123,6 @@ export default class Query {
         }
       `
 
-        return axios({
-            url: host,
-            method: "post",
-            data: {
-                query
-            },
-        })
+        return Query.raw(query)
     }
 }

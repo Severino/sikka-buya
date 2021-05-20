@@ -40,8 +40,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "./scss/_import.scss";
-
 
 
 html,
@@ -230,4 +228,29 @@ a {
   border: 1px solid rgb(192, 68, 68);
 }
 
+.material-design-icon {
+  display: flex;
+  align-items: center;
+  padding-top: 5px;
+}
+
+input:read-only {
+  background-color: whitesmoke;
+}
+
+// section {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// }
+// .box {
+//   max-width: 100%;
+//   background-color: $white;
+//   @include box-padding($big-padding);
+// }
 </style>

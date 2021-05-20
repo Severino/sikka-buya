@@ -70,7 +70,7 @@ import ButtonGroup from "../forms/ButtonGroup.vue";
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import SearchUtils from "@/utils/SearchUtils.js";
 import ReviewedToggle from "../layout/buttons/ReviewedToggle.vue";
-import Auth from '../../utils/Auth';
+import Auth from "../../utils/Auth";
 
 export default {
   name: "TypeOverviewPage",
@@ -148,7 +148,7 @@ export default {
       Query.raw(
         `
         mutation{
-          setTypeReviewed(id: ${item.id}, reviewed: ${state}, token: "${Auth.loadToken()}")
+          setTypeReviewed(id: ${item.id}, reviewed: ${state})
         }
       `
       )
@@ -165,7 +165,9 @@ export default {
       Query.raw(
         `
         mutation{
-          setTypeComplete(id: ${item.id}, completed: ${state}, token: "${Auth.loadToken()}")
+          setTypeComplete(id: ${
+            item.id
+          }, completed: ${state})
         }
       `
       )
