@@ -9,7 +9,7 @@
       <button @click="toggleCursive"><FormatItalic /></button>
     </Row>
 
-    <div ref="field" class="formatted-text-area" contenteditable></div>
+    <div ref="field" class="formatted-text-area" spellcheck="true" contenteditable></div>
   </div>
 </template>
 

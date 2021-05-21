@@ -44,7 +44,7 @@ export default class Query {
             axios({
                 url: host,
                 method: "post",
-                headers: {"Auth": Auth.loadToken() },
+                headers: {"auth": Auth.loadToken() },
                 data: {
                     query,
                     variables

@@ -50,7 +50,9 @@ class Type {
             specials=$[specials],
             exclude_from_type_catalogue=$[excludeFromTypeCatalogue],
             exclude_from_map_app=$[excludeFromMapApp],
-            internal_notes = $[internalNotes]
+            internal_notes = $[internalNotes],
+            year_uncertain = $[yearUncertain],
+            mint_uncertain = $[mintUncertain]
             WHERE id = $[id] 
         `, data)
 
@@ -125,6 +127,8 @@ class Type {
     }
 
     static async addType(data) {
+
+        console.log(data)
         /**
          * Thus the avers and reverse data is nested inside a seperate object,
          * inside the GraphQL interface, we need to transform whose properties

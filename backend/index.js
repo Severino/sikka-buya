@@ -10,19 +10,6 @@ const cors = require("cors")
  */
 const { Database, pgp } = require("./src/utils/database.js");
 
-/**
- * Various Packages
- */
-const sendmail = require("sendmail")({
-    logger: {
-        debug: console.log,
-        info: console.info,
-        warn: console.warn,
-        error: console.error
-    },
-    devPort: 8080, // Default: False
-    devHost: 'localhost', // Default: localhost
-})
 
 /**
  * GraphQL Imports
@@ -202,7 +189,8 @@ const resolvers = {
                 throw new Error("Superuser was already initialized!")
             }
         },
-        addCoinType: async function (_, args) {
+        addCoinType: async function (_, args, context) {
+            
             if (!Auth.verifyContext(context)) {
                 throw new Error('You are not authenticated!')
             }
@@ -217,25 +205,9 @@ const resolvers = {
             let mailValidation = Auth.validateEmail(email)
             if (!mailValidation.ok) throw new Error(mailValidation.error)
 
-
             return await Database.none("INSERT INTO app_user (email) VALUES ($1)", email)
-
-            // try {
-            //     sendmail({
-            //         from: "Sikka Buya <noreply@sikkabuya.com>",
-            //         to: "severin.opel@outlook.com",
-            //         subject: "You have been invited ...",
-            //         html: "<b>Hello World</b>"
-            //     }, function (err, reply) {
-            //         throw new Error(err)
-            //     })
-            // } catch (e) {
-            //     throw new Error(`Could not send invite e-mail: ${e}.`)
-            // }
-
-            return true
         },
-        updateCoinType: async function (_, args) {
+        updateCoinType: async function (_, args, context) {
             if (!Auth.verifyContext(context)) {
                 throw new Error('You are not authenticated!')
             }

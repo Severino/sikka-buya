@@ -216,20 +216,18 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  console.log("beforeEach")
   if (to.meta && to.meta.auth) {
     let auth = await Auth.check()
     if (auth) {
-
-      if (to.meta.super) {
-        next()
-      } else {
-        next()
-      }
+      next()
     } else {
       router.push({ name: "Login" })
     }
   } else {
+    if (to.name == "Login") {
+      let auth = await Auth.check()
+      if (auth) router.push({ name: "EditorPanel" })
+    }
     next()
   }
 })

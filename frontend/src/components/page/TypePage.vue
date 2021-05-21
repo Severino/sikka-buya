@@ -133,6 +133,7 @@ export default {
   name: "TypePage",
   data: function() {
     return {
+      navigationGuard: null,
       type: {
         id: null,
         projectId: "",
@@ -170,6 +171,7 @@ export default {
     };
   },
   created: function() {
+
     Query.raw(
       `{
             getCoinType(id:${this.$route.params.id}){

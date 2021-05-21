@@ -2,7 +2,7 @@
   <div class="editor">
     <header>
       <div class="content-wrapper">
-        <span>Editor</span>
+        <router-link :to="{name: 'EditorPage'}">Editor</router-link>
 
         <div class="user">
           <span>{{ user.email }}</span>
