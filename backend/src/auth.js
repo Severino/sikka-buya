@@ -27,14 +27,14 @@ class Auth {
         return rule.validate(str)
     }
 
-       /**
-     * Login method checks the database for the hashed version of the password 
-     * to authenticate the user.
-     * 
-     * @param {*} _ 
-     * @param {{email:string, password:string}} args.data - Provide email and password for the login.
-     * @returns {{success:boolean, message:string, token:string, user:object}} Returns an authentication object, that is send and stored at the client. 
-     */
+    /**
+  * Login method checks the database for the hashed version of the password 
+  * to authenticate the user.
+  * 
+  * @param {*} _ 
+  * @param {{email:string, password:string}} args.data - Provide email and password for the login.
+  * @returns {{success:boolean, message:string, token:string, user:object}} Returns an authentication object, that is send and stored at the client. 
+  */
     static async login(_, args) {
         const { email, password } = args.data
         /* 
@@ -90,13 +90,13 @@ class Auth {
         }
     }
 
-    static verifyContext(context){
-        let token = (context && context.headers)? context.headers.auth
-        if(!token) return false
+    static verifyContext(context) {
+        let token = (context && context.headers) ? context.headers.auth : null
+        if (!token) return false
         else return this.verify(token)
     }
 
-    static get verificationError(){
+    static get verificationError() {
         return "User authentification failed!"
     }
 }
