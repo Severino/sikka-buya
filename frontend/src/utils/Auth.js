@@ -16,7 +16,7 @@ export default class Auth {
 
     static loadUser() {
         let userStr = localStorage.getItem(this.userStore)
-        let user = {id: 0, email:"Unknown"}
+        let user = { id: 0, email: "Unknown" }
         try {
             user = JSON.parse(userStr)
         } catch (e) {
@@ -42,7 +42,9 @@ export default class Auth {
                 auth(token:"${token}")
             }`)
 
-            return response?.data?.data?.auth
+
+
+            return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
         } else {
             status = false
         }
@@ -71,11 +73,12 @@ export default class Auth {
               }
             }`);
 
-        const login = result?.data?.data?.login
+
 
         let response = { success: false, message: "Interner Fehler, melden Sie das Problem dem Admin. ", user: null }
 
-        if (login) {
+        if (result && result.data && result.data.data && result.data.data.login) {
+            const login = result.data.data.login
             const { success, message, token, user } = login
             response = Object.assign(response, {
                 success, message, user

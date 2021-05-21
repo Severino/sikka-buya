@@ -91,7 +91,7 @@ class Auth {
     }
 
     static verifyContext(context){
-        let token = context?.headers?.auth
+        let token = (context && context.headers)? context.headers.auth
         if(!token) return false
         else return this.verify(token)
     }

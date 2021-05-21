@@ -16,12 +16,9 @@
       <ul>
         <li v-for="user in users" :key="`user-id-${user.id}`">
           <span class="name">{{ user.email }}</span>
-          <div class="permissions">
-
-          </div>
-          <input :value="getInvitePath(user.email)" @click="copy" readonly>
+          <div class="permissions"></div>
+          <input :value="getInvitePath(user.email)" @click="copy" readonly />
         </li>
-        
       </ul>
     </section>
   </div>
@@ -33,7 +30,7 @@ import Auth from "../../utils/Auth";
 import AxiosHelper from "../../utils/AxiosHelper";
 export default {
   name: "UserManagement",
-  data: function () {
+  data: function() {
     return {
       listError: "",
       inviteError: "",
@@ -41,20 +38,20 @@ export default {
       users: [Object],
     };
   },
-  mounted: function () {
+  mounted: function() {
     this.refreshUserList();
   },
   methods: {
-    copy:function($event){
-      let target = $event.currentTarget
-      console.log(target)
-      target.select()
-      document.execCommand("copy")
+    copy: function($event) {
+      let target = $event.currentTarget;
+      console.log(target);
+      target.select();
+      document.execCommand("copy");
     },
-    getInvitePath: function(email){
-      return window.location.origin + '/invite/' + email
+    getInvitePath: function(email) {
+      return window.location.origin + "/invite/" + email;
     },
-    refreshUserList: async function () {
+    refreshUserList: async function() {
       let result = await Query.raw(`{
             users{
                 email
@@ -66,7 +63,7 @@ export default {
             }
         }`);
 
-      if (result?.data?.data?.users) {
+      if (result && result.data & result.data.users) {
         this.users = result.data.data.users;
         this.listError = "";
       } else {
@@ -74,19 +71,19 @@ export default {
         this.listError = "Nutzerliste konnte nicht geladen werden!";
       }
     },
-    inviteUser: async function () {
+    inviteUser: async function() {
       Query.raw(
         `mutation{
           inviteUser(email: "${this.inviteEmail}")
-        }`,
+        }`
       )
         .then((result) => {
-            this.inviteEmail = "";
-            this.inviteError = "";
-            this.refreshUserList()
+          this.inviteEmail = "";
+          this.inviteError = "";
+          this.refreshUserList();
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
           this.inviteError = err;
         });
     },

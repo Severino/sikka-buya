@@ -33,7 +33,8 @@ export default {
         }`
     )
       .then((result) => {
-        let data = result?.data?.data?.getTypes;
+
+        data = (result && result.data && result.data.data && result.data.getTypes)?result.data.getTypes: null
         if (data) {
           let min = Infinity;
           let max = -Infinity;
