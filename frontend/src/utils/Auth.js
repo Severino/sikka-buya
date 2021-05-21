@@ -73,13 +73,12 @@ export default class Auth {
 
         const login = result?.data?.data?.login
 
-        let response = { success: false, message: "Interner Fehler, melden Sie das Problem dem Admin. " }
+        let response = { success: false, message: "Interner Fehler, melden Sie das Problem dem Admin. ", user: null }
 
         if (login) {
             const { success, message, token, user } = login
-            console.log({login})
             response = Object.assign(response, {
-                success, message
+                success, message, user
             })
 
             if (success) {

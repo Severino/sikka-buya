@@ -15,7 +15,7 @@
       required
     />
     <p v-if="loginError">{{ loginError }}</p>
-    <button type="submit">Login</button>
+    <button type="submit">{{$t("system.login")}}</button>
   </form>
 </template>
 

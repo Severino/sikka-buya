@@ -21,6 +21,8 @@ const general = {
         "offline",
     server_status:
         "server status",
+    user:
+        "Nutzer | Nutzer",
     delete_submit:
         "Entfernen",
     yes: "ja"
@@ -88,7 +90,7 @@ const property = {
         pressed:
             "geprägt",
     },
-    role: 
+    role:
         "Rolle | Rollen",
     sides:
     {
@@ -183,6 +185,13 @@ const navigation = {
         "zurück"
 }
 
+const system = {
+    login:
+        "anmelden",
+    logout:
+        "abmelden"
+}
+
 module.exports = {
     attribute,
     error,
@@ -194,4 +203,5 @@ module.exports = {
     property,
     role,
     warning,
+    system
 }

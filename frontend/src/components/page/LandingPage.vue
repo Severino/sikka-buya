@@ -9,7 +9,7 @@
       <router-link :to="{name: 'Login'}">
       <div style="display: inline-block;" class="button">
         <row>
-        <span style="margin-right:10px; white-space: nowrap;">Editor Login</span><LoginVariant />
+        <span style="margin-right:10px; white-space: nowrap;">{{$t("system.login")}}</span><LoginVariant />
         </row>
       </div>
       </router-link>

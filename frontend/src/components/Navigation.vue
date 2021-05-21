@@ -11,6 +11,7 @@
           </li>
         </ul>
       </nav>
+      <span class="version">{{version}}</span>
       <div class="languages">
         DE
       </div>
@@ -18,7 +19,7 @@
         <router-link :to="{ name: 'Editor' }">
           <AccountCircle />
         </router-link>
-        <div @click="logout">Logout</div>
+        <div @click="logout">{{ $t("system.logout") }}</div>
       </div>
     </div>
   </header>
@@ -33,8 +34,9 @@ export default {
   components: {
     AccountCircle,
   },
-  mounted: function() {
+  created: function() {
     this.user = Auth.loadUser();
+    this.$store.commit("login", this.user);
   },
   data: function() {
     return {
@@ -45,11 +47,23 @@ export default {
         // { name: "Typekatalog", target: "undefined" },
       ],
     };
-  },methods: {
-    logout: function(){
-      Auth.logout()
-      this.user = null
-      this.$router.push({name: "Home"})
+  },
+  methods: {
+    logout: function() {
+      Auth.logout();
+      this.user = null;
+      this.$router.push({ name: "Home" });
+    },
+  },
+  watch: {
+    $route(to, from) {
+      this.user = Auth.loadUser();
+      this.$store.commit("login", this.user);
+    },
+  },computed:{
+    version: function(){
+      console.log(this.$store.version)
+      return this.$store.state.version
     }
   }
 };
@@ -73,6 +87,11 @@ header {
   }
 }
 
+.version{
+  opacity: 0.5;
+  margin-right: $padding;
+}
+
 ul {
   display: flex;
   list-style-type: none;
@@ -91,23 +110,30 @@ a {
 
 .user {
   display: flex;
-  alogn-items: center;
-  background-color: $primary-color;
+  align-items: stretch;
   color: $white;
   border-radius: 20px;
   margin-left: $padding * 2;
+  overflow: hidden;
 
-  >*{
+  > * {
+    display: block;
     color: $white;
     display: flex;
     white-space: nowrap;
-    
+
+    background-color: $primary-color;
+
+    &:hover {
+      background-color: lighten($primary-color, 10);
+    }
+
     padding: $padding/2 $padding;
-    @include interactive()
+    @include interactive();
   }
 
-  >div {
-    padding-right: 2*$padding;
+  > div {
+    padding-right: 2 * $padding;
   }
 
   .material-design-icon {

@@ -11,12 +11,8 @@ export default {
   name: "App",
   data: function () {
     return {
-      version: "",
       language: "de",
     };
-  },
-  created: function () {
-    this.version = require("../package.json").version;
   },
   mounted: function () {
     const lang = window.localStorage.getItem("language", this.$i18n.locale);
@@ -135,11 +131,6 @@ button {
   @include interactive();
 }
 
-.version {
-  font-size: 0.5em;
-  opacity: 0.5;
-  padding: 10px;
-}
 
 label {
   font-weight: bold;

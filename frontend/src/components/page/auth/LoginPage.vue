@@ -6,7 +6,9 @@
         :email="email"
         :password="password"
         @input="inputChanged"
-        @submit="submit"
+        @submit="login"
+        async
+        function=": async function"
       />
       <p v-if="loginError">{{ loginError }}</p>
     </Box>
@@ -22,7 +24,7 @@ import Box from "../../layout/Box.vue";
 export default {
   components: { Box, UserForm },
   name: "LoginPage",
-  data: function () {
+  data: function() {
     return {
       email: "",
       password: "",
@@ -36,14 +38,16 @@ export default {
         password,
       });
     },
-    submit() {
-      Auth.login(this.email, this.password).then(({ success, message }) => {
+    login: function() {
+      console.log("Submit");
+      Auth.login(this.email, this.password).then(({message, success, user}) => {
         if (!success) {
           this.loginError = message;
         } else {
+          this.$store.commit("login", user)
           this.$router.push({ name: "Editor" });
         }
-      });
+      }).catch(console.error);
     },
   },
 };
@@ -61,14 +65,13 @@ section {
   align-items: center;
 }
 .box {
-  
   align-items: stretch;
   max-width: 100%;
   background-color: $white;
   @include box-padding($big-padding);
 }
 
-form{
+form {
   width: 230px;
   display: flex;
   flex-direction: column;
