@@ -48,6 +48,7 @@ class Auth {
                 const token = jwt.sign({
                     id: user.id,
                     email: user.email,
+                    super: user.super
                 }, process.env.JWT_KEY, {
                     expiresIn: "12h"
                 })
@@ -58,7 +59,8 @@ class Auth {
                     token,
                     user: {
                         id: user.id,
-                        email: user.email
+                        email: user.email,
+                        super: user.super
                     }
                 }
             }

@@ -20,6 +20,7 @@ input UserInput {
 type User {
   id: ID
   email: String
+  super: Boolean
 }
 
 input NameInput {

@@ -15,7 +15,10 @@
       <h2>Registered Users</h2>
       <ul>
         <li v-for="user in users" :key="`user-id-${user.id}`">
-          ({{ user.id }}) {{ user.email }}
+          <span class="name">{{ user.email }}</span>
+          <div class="permissions">
+
+          </div>
           <input :value="getInvitePath(user.email)" @click="copy" readonly>
         </li>
         
@@ -56,6 +59,10 @@ export default {
             users{
                 email
                 id
+                permissions {
+                  id
+                  name
+                }
             }
         }`);
 

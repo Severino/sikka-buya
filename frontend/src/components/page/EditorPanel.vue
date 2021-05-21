@@ -6,6 +6,7 @@
     <!-- <router-link :to="{ name: 'TypeList' }"> Explorer </router-link> -->
     <div class="button-list">
       <router-link
+      v-if="superuser"
         class="button icon-button"
         :to="{ name: 'UserManagement' }"
         draggable="false"
@@ -96,12 +97,18 @@
 
 <script>
 import PlusBox from "vue-material-design-icons/PlusBox";
+import Auth from '../../utils/Auth';
 
 export default {
   name: "EditorPanel",
   components: {
     PlusBox,
-  },
+  },computed: {
+    superuser: function(){
+      let user = Auth.loadUser()
+      return user.super || false
+    }
+  }
 };
 </script>
 

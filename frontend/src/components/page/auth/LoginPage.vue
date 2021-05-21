@@ -38,11 +38,10 @@ export default {
     },
     submit() {
       Auth.login(this.email, this.password).then(({ success, message }) => {
-        console.log(success, message);
         if (!success) {
           this.loginError = message;
         } else {
-          this.$router.push({ name: "EditorPanel" });
+          this.$router.push({ name: "Editor" });
         }
       });
     },
@@ -62,8 +61,16 @@ section {
   align-items: center;
 }
 .box {
+  
+  align-items: stretch;
   max-width: 100%;
   background-color: $white;
   @include box-padding($big-padding);
+}
+
+form{
+  width: 230px;
+  display: flex;
+  flex-direction: column;
 }
 </style>

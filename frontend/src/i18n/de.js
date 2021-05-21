@@ -113,7 +113,9 @@ const property = {
     excludeFromMapApp:
         "Nicht für Kartenanwendung",
     varieties:
-        "Varianten"
+        "Varianten",
+    year_uncertain:
+        "Jahr Nicht Sicher"
 }
 
 const role = {

@@ -1,6 +1,21 @@
 import Vue from "vue"
 import VueRouter from 'vue-router'
 
+/**
+ * Mains:
+ * 
+ * Mains are the first layer inside the App.vue.
+ * This allows us to change the 'environment' of the
+ * app, on differents parts of the application.
+ * 
+ * E.G. Most of the time we want the usual navigation + 
+ * content section. But on the map we want to reduce the
+ * navigation or eliminate it completely.
+ */
+
+import CommonMain from "@/components/main/CommonMain"
+
+
 //** AUTH */
 import LoginPage from "@/components/page/auth/LoginPage"
 import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
@@ -43,168 +58,182 @@ import Auth from "../utils/Auth.js"
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: LandingPage
-  },
-  {
-    path: '/setup',
-    name: 'InitialSetup',
-    component: InitialSetup
-  },
-  {
-    path: '/login',
-    name: 'Login',
-    component: LoginPage
-  },
-  {
-    path: '/invite/:mail',
-    name: "InviteSignUp",
-    component: AcceptInvitePage
-  },
-  {
-    path: '/catalog/:id',
-    name: 'CatalogEntry',
-    component: CatalogEntry
-  },
-  {
-    path: "/analytics/table/",
-    name: "AnalyticsTable",
-    component: YearMintTablePage
+  // {
+  //   path: '/catalog/:id',
+  //   name: 'CatalogEntry',
+  //   component: CatalogEntry
+  // },
+  // {
+  //   path: "/analytics/table/",
+  //   name: "AnalyticsTable",
+  //   component: YearMintTablePage
 
-  },
-  {
-    path: '/explorer',
-    name: 'Explorer',
-    component: TreeExplorer
-  }, {
-    path: '/explorer2',
-    name: 'Explorer2',
-    component: SideTree
-  }, {
+  // },
+  // {
+  //   path: '/explorer',
+  //   name: 'Explorer',
+  //   component: TreeExplorer
+  // }, {
+  //   path: '/explorer2',
+  //   name: 'Explorer2',
+  //   component: SideTree
+  // }, 
 
-    path: "/editor/",
-    component: EditorPage,
-    meta: { auth: true },
+  {
+    path: "*",
+    component: CommonMain,
     children: [
+
       {
-        path: "",
-        name: "EditorPanel",
-        component: EditorPanel,
-        meta: { auth: true },
+        path: '/setup',
+        name: 'InitialSetup',
+        component: InitialSetup
       },
       {
-        path: 'user',
-        name: 'UserManagement',
-        component: UserManagementPage,
-        meta: { auth: true, super: true }
+        path: '/login',
+        name: 'Login',
+        component: LoginPage
+      },
+      {
+        path: '/invite/:mail',
+        name: "InviteSignUp",
+        component: AcceptInvitePage
+      }, {
+        path: "/home",
+        name: "LandingPage",
+        component: LandingPage
       },
       {
 
-        path: "type",
-        name: "TypeOverview",
-        component: TypeOverview
+        path: "/editor/",
+        component: EditorPage,
+        meta: { auth: true },
+        children: [
+          {
+            path: "",
+            name: "Editor",
+            component: EditorPanel,
+            meta: { auth: true },
+          },
+          {
+            path: 'user',
+            name: 'UserManagement',
+            component: UserManagementPage,
+            meta: { auth: true, super: true }
+          },
+          {
+
+            path: "type",
+            name: "TypeOverview",
+            component: TypeOverview
+          },
+          {
+            path: ":property",
+            name: "Property",
+            component: Overview
+          }, {
+            path: 'type/create',
+            name: 'TypeCreationPage',
+            component: CreateTypePage
+          }, {
+            path: 'type/edit/:id',
+            name: 'EditTypePage',
+            component: CreateTypePage
+          }, {
+            path: "coinmark",
+            name: "CoinMarkOverview",
+            component: CoinMarkOverview
+          },
+          {
+            path: "coinmark/create",
+            name: "CreateCoinMark",
+            component: CoinMarkForm
+          }, {
+            path: "coinmark/:id",
+            name: "EditCoinMark",
+            component: CoinMarkForm
+          }, {
+            path: "material/create",
+            name: "CreateMaterial",
+            component: MaterialForm
+          }, {
+            path: "material/:id",
+            name: "EditMaterial",
+            component: MaterialForm
+          }, {
+            path: "person/create",
+            name: "CreatePerson",
+            component: PersonForm
+          }, {
+            path: "person/:id",
+            name: "EditPerson",
+            component: PersonForm
+          }, {
+            path: "title/create",
+            name: "CreateTitle",
+            component: TitleForm
+          }, {
+            path: "title/:id",
+            name: "EditTitle",
+            component: TitleForm
+          }, {
+            path: "honorific/create",
+            name: "CreateHonorific",
+            component: HonorificForm
+          }, {
+            path: "honorific/:id",
+            name: "EditHonorific",
+            component: HonorificForm
+          }, {
+            path: "mint/create",
+            name: "CreateMint",
+            component: MintForm
+          }, {
+            path: "mint/:id",
+            name: "EditMint",
+            component: MintForm
+          }, {
+            path: "nominal/create",
+            name: "CreateNominal",
+            component: NominalForm
+          }, {
+            path: "nominal/:id",
+            name: "EditNominal",
+            component: NominalForm
+          }, {
+            path: "role/create",
+            name: "CreateRole",
+            component: RoleForm
+          }, {
+            path: "role/:id",
+            name: "EditRole",
+            component: RoleForm
+          }, {
+            path: "dynasty/create",
+            name: "CreateDynasty",
+            component: DynastyForm
+          }, {
+            path: "dynasty/:id",
+            name: "EditDynasty",
+            component: DynastyForm
+          },
+          {
+            path: "*",
+            name: "PageNotFound",
+            component: PageNotFoundPage
+          }
+        ]
       },
       {
-        path: ":property",
-        name: "Property",
-        component: Overview
-      }, {
-        path: 'type/create',
-        name: 'TypeCreationPage',
-        component: CreateTypePage
-      }, {
-        path: 'type/edit/:id',
-        name: 'EditTypePage',
-        component: CreateTypePage
-      },
-      {
-        path: 'type/:id',
-        name: 'TypePage',
-        component: TypePage
-      }, {
-        path: "coinmark",
-        name: "CoinMarkOverview",
-        component: CoinMarkOverview
-      },
-      {
-        path: "coinmark/create",
-        name: "CreateCoinMark",
-        component: CoinMarkForm
-      }, {
-        path: "coinmark/:id",
-        name: "EditCoinMark",
-        component: CoinMarkForm
-      }, {
-        path: "material/create",
-        name: "CreateMaterial",
-        component: MaterialForm
-      }, {
-        path: "material/:id",
-        name: "EditMaterial",
-        component: MaterialForm
-      }, {
-        path: "person/create",
-        name: "CreatePerson",
-        component: PersonForm
-      }, {
-        path: "person/:id",
-        name: "EditPerson",
-        component: PersonForm
-      }, {
-        path: "title/create",
-        name: "CreateTitle",
-        component: TitleForm
-      }, {
-        path: "title/:id",
-        name: "EditTitle",
-        component: TitleForm
-      }, {
-        path: "honorific/create",
-        name: "CreateHonorific",
-        component: HonorificForm
-      }, {
-        path: "honorific/:id",
-        name: "EditHonorific",
-        component: HonorificForm
-      }, {
-        path: "mint/create",
-        name: "CreateMint",
-        component: MintForm
-      }, {
-        path: "mint/:id",
-        name: "EditMint",
-        component: MintForm
-      }, {
-        path: "nominal/create",
-        name: "CreateNominal",
-        component: NominalForm
-      }, {
-        path: "nominal/:id",
-        name: "EditNominal",
-        component: NominalForm
-      }, {
-        path: "role/create",
-        name: "CreateRole",
-        component: RoleForm
-      }, {
-        path: "role/:id",
-        name: "EditRole",
-        component: RoleForm
-      }, {
-        path: "dynasty/create",
-        name: "CreateDynasty",
-        component: DynastyForm
-      }, {
-        path: "dynasty/:id",
-        name: "EditDynasty",
-        component: DynastyForm
+        path: "*",
+        name: "PageNotFound",
+        component: PageNotFoundPage
       }
     ]
-  }
-  , {
+  },
+  {
     path: "*",
+    name: "PageNotFound",
     component: PageNotFoundPage
   }
 ]
@@ -216,8 +245,12 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+
+  let auth = await Auth.check()
+  if (to.fullPath == "/") next({ name: "LandingPage" })
+
+
   if (to.meta && to.meta.auth) {
-    let auth = await Auth.check()
     if (auth) {
       next()
     } else {
@@ -225,8 +258,7 @@ router.beforeEach(async (to, from, next) => {
     }
   } else {
     if (to.name == "Login") {
-      let auth = await Auth.check()
-      if (auth) router.push({ name: "EditorPanel" })
+      if (auth) router.push({ name: "Editor" })
     }
     next()
   }

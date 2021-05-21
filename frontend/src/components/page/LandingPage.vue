@@ -1,7 +1,6 @@
 <template>
   <section class="hero">
     <div class="box">
-      <img src="@/assets/images/sikka-buya.png" alt="" />
       <p>
         Hier entsteht SIKKA:BUYA entdecke als Interessierter oder Forscher, eine
         neue Perspektive auf die Geschichte der Buiyden und die islamische
@@ -22,7 +21,7 @@
 import LoginVariant from "vue-material-design-icons/LoginVariant";
 import Row from '../layout/Row.vue';
 export default {
-  name: "Landing Page",
+  name: "LandingPage",
   components: {
     LoginVariant,
     Row,
@@ -32,9 +31,8 @@ export default {
 
 <style scoped>
 section {
-  position: fixed;
-  top: 0;
-  left: 0;
+  margin-top: -143px;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;

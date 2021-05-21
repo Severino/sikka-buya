@@ -31,7 +31,7 @@ exports.up = function (db) {
     }, super: {
       type: "boolean",
       default: false
-    }
+    },
   });
 };
 

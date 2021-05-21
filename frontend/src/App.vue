@@ -60,13 +60,18 @@ body {
 }
 
 .content-wrapper {
-  margin: 20px 100px;
+  width: 1080px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 30px;
+  box-sizing: border-box;
 }
 
 
 h1 {
   font-weight: bold;
   font-size: 3rem;
+  margin: 0;
 }
 
 .hero {
@@ -85,10 +90,6 @@ section {
   }
 }
 
-.label{
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
 
 #app-name {
   color: $primary-color;
@@ -141,9 +142,10 @@ button {
 }
 
 label {
-  font-size: $large-font;
+  font-weight: bold;
+  // color: $primary-color;
+  font-size: $regular-font;
   display: block;
-  margin-bottom: 10px;
 
   @include interactive();
 }
@@ -185,21 +187,6 @@ label {
   }
 }
 
-header {
-  padding: 0 $padding;
-  display: flex;
-  align-items: center;
-
-  nav {
-    margin-left: auto;
-  }
-}
-
-.top-navigation {
-  display: flex;
-  align-items: center;
-}
-
 
 a {
   text-decoration: none;
@@ -231,7 +218,6 @@ a {
 .material-design-icon {
   display: flex;
   align-items: center;
-  padding-top: 5px;
 }
 
 input:read-only {

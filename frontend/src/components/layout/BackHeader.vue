@@ -1,13 +1,10 @@
 <template>
   <div class="back-header">
-    <header class="content-wrapper">
-      <nav>
-        <router-link :to="{ name: 'EditorPanel' }"><ArrowLeft />{{$t("navigation.back")}}</router-link>
-      </nav>
-    </header>
+    <router-link :to="{ name: 'Editor' }"
+      ><ArrowLeft />{{ $t("navigation.back") }}</router-link
+    >
   </div>
 </template>
-
 
 <script>
 import ArrowLeft from "vue-material-design-icons/KeyboardBackspace";
@@ -24,39 +21,29 @@ export default {
 @import "@/scss/_import.scss";
 
 .back-header {
-  // box-sizing: border-box;
-  // position: sticky;
-  // background-color: gray;
   width: 100%;
   left: 0;
   top: 0;
-  // padding: 10px 50px;
+  display: flex;
 }
 
 h1 {
   margin: 0;
 }
 
-nav {
-  margin-left: 0;
-}
-
 a {
   display: flex;
   align-items: center;
   color: black;
-  text-transform:capitalize;
+  text-transform: capitalize;
+  align-self: flex-start;
+  padding: $padding;
+  margin-top: $padding;
 
-
-// $shadow:  1px 2px 3px rgba($color: #000000, $alpha: .3);
   text-decoration: none;
-  // text-shadow:$shadow;
 
   .material-design-icon {
-      margin-right: 10px;
-      // svg {
-      //     filter: drop-shadow($shadow);
-      // }
+    margin-right: 10px;
   }
 }
 
@@ -66,4 +53,4 @@ a {
   display: flex;
   align-items: center;
 }
-</style> 
+</style>

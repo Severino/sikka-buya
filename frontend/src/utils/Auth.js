@@ -41,18 +41,17 @@ export default class Auth {
             let response = await Query.raw(`{
                 auth(token:"${token}")
             }`)
-            console.log(response)
 
             return response?.data?.data?.auth
         } else {
             status = false
         }
-        console.log({ status })
         return status
     }
 
     static logout() {
         localStorage.removeItem(this.tokenStore)
+        localStorage.removeItem(this.userStore)
     }
 
     static async login(email, password) {
@@ -67,6 +66,7 @@ export default class Auth {
                 user {
                     id
                     email
+                    super
                 }
               }
             }`);
@@ -77,6 +77,7 @@ export default class Auth {
 
         if (login) {
             const { success, message, token, user } = login
+            console.log({login})
             response = Object.assign(response, {
                 success, message
             })

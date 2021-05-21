@@ -55,12 +55,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-form > * {
+form > *:not(:first-child, input, button) {
   display: block;
-  margin-top: 20px;
+  margin-top: $padding;
+}
+
+button{
+  margin-top: 3*$padding;
 }
 
 h3{
+  user-select: none;
   margin-top: 0;
 }
 </style>

@@ -1,15 +1,12 @@
 <template>
   <div class="editor">
-    <header>
+    <!-- <header>
       <div class="content-wrapper">
-        <router-link :to="{name: 'EditorPage'}">Editor</router-link>
-
-        <div class="user">
-          <span>{{ user.email }}</span>
-          <div class="button" @click="logout">Sign Out</div>
-        </div>
+        <header>
+          <h3>Editor</h3>
+        </header>
       </div>
-    </header>
+    </header> -->
     <div class="content-wrapper">
       <router-view> </router-view>
     </div>
@@ -38,16 +35,20 @@ export default {
   methods: {
     logout: function () {
       Auth.logout();
-      this.$router.push({ name: "Home" });
+      this.$router.push("/");
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+h3{
+  color: $primary-color;
+  font-weight: "black";
+  text-transform: uppercase;
+}
+
 header {
-  background-color: black;
-  color: white;
   > .content-wrapper {
     flex: 1;
 
