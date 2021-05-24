@@ -192,7 +192,7 @@ const system = {
         "anmelden",
     logout:
         "abmelden",
-    emai:
+    email:
         "E-Mail",
     password:
         "Password",

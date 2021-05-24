@@ -12,7 +12,7 @@
           name="new-password"
           id="password"
         />
-        <button @click.prevent="submit">{{ $t("system.register") }}</button>
+        <button :disabled="disabled" @click.prevent="submit">{{ $t("system.register") }}</button>
         <p v-if="error">{{ error }}</p>
       </form>
     </Box>
@@ -29,10 +29,12 @@ export default {
     return {
       password: "",
       error: "",
+      disabled: false
     };
   },
   methods: {
     submit: function (args) {
+      this.disabled = true
       Query.raw(
         `mutation AcceptInvite($email:String, $password:String) {
             acceptInvite(email:$email, password:$password)
@@ -48,6 +50,8 @@ export default {
         })
         .catch((err) => {
           this.error = err;
+        }).finally(()=>{
+          this.disabled=false
         });
     },
   },
@@ -60,8 +64,40 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-form > * {
-  display: block;
-  margin-top: $padding;
+
+button {
+  color: $white;
+  font-weight: bold;
+  background-color: $primary-color;
+
+  &[disabled]{
+    background-color: gray;
+  }
+}
+
+section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.box {
+  align-items: stretch;
+  max-width: 100%;
+  background-color: $white;
+  @include box-padding($big-padding);
+}
+
+form {
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  >* {
+    margin-top: $padding;
+  }
 }
 </style>
