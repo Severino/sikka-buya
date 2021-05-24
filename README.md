@@ -139,3 +139,12 @@ To import it back into a test database or to restore a backup, run
 ```cmd
 psql.exe -U postgres -h 127.0.0.1 coins < export.sql
 ```
+
+# Client
+
+Vue must know where to send the backend server resides. Therefore the .env.production 
+must be set correctly!
+
+```ini
+VUE_APP_DATABASE_URL=https://sikkabuya.philosophie.uni-tuebingen.de
+```
