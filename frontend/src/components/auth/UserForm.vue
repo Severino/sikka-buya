@@ -15,7 +15,7 @@
       required
     />
     <p v-if="loginError">{{ loginError }}</p>
-    <button type="submit">{{$t("system.login")}}</button>
+    <button :disabled="disabled" type="submit">{{$t("system.login")}}</button>
   </form>
 </template>
 
@@ -27,6 +27,7 @@ export default {
     email: String,
     password: String,
     loginError: String,
+    disabled: Boolean
   },
   methods: {
     passwordChanged: function (event) {

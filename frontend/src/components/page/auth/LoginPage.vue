@@ -5,6 +5,7 @@
         title="Login"
         :email="email"
         :password="password"
+        :disabled="buttonDisabled"
         @input="inputChanged"
         @submit="login"
         async
@@ -24,11 +25,12 @@ import Box from "../../layout/Box.vue";
 export default {
   components: { Box, UserForm },
   name: "LoginPage",
-  data: function() {
+  data: function () {
     return {
       email: "",
       password: "",
       loginError: "",
+      buttonDisabled: false,
     };
   },
   methods: {
@@ -38,16 +40,25 @@ export default {
         password,
       });
     },
-    login: function() {
+    login: function () {
       console.log("Submit");
-      Auth.login(this.email, this.password).then(({message, success, user}) => {
-        if (!success) {
-          this.loginError = message;
-        } else {
-          this.$store.commit("login", user)
-          this.$router.push({ name: "Editor" });
-        }
-      }).catch(console.error);
+      this.buttonDisabled = true;
+      Auth.login(this.email, this.password)
+        .then(({ message, success, user }) => {
+          if (!success) {
+            this.loginError = message;
+          } else {
+            this.$store.commit("login", user);
+            this.$router.push({ name: "Editor" });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          this.loginError = err;
+        })
+        .finally(() => {
+          this.buttonDisabled = false;
+        });
     },
   },
 };

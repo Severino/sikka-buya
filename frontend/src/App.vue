@@ -108,6 +108,10 @@ section {
 }
 
 
+button[disabled]{
+  background-color: gray
+}
+
 select,
 .button,
 input,
