@@ -71,6 +71,8 @@ const property = {
         "Prägeort | Prägeorte",
     mint_as_on_coin:
         "Prägeort wie auf Münze",
+    mint_uncertain:
+        "Prägeort Nicht Sicher",
     nominal:
         "Nominal | Nominale",
     overlord:
