@@ -90,6 +90,8 @@ export default class Auth {
             }
         }
 
+        console.log(result)
+
         return response
     }
 }

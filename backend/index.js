@@ -48,7 +48,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 /**
  * The cors middleware allows (currently) all cross-domain calls.
- * TODO: Only allow cors calls from the website! This is a severe security risk!
  */
 app.use(cors(["http://localhost", "https://localhost", "127.0.0.1"]))
 
