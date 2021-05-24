@@ -13,6 +13,7 @@
     </section>
     <section>
       <h2>Registered Users</h2>
+      <div class="error" v-if="listError">{{listError}}</div>
       <ul>
         <li v-for="user in users" :key="`user-id-${user.id}`">
           <span class="name">{{ user.email }}</span>
@@ -26,11 +27,9 @@
 
 <script>
 import Query from "../../database/query";
-import Auth from "../../utils/Auth";
-import AxiosHelper from "../../utils/AxiosHelper";
 export default {
   name: "UserManagement",
-  data: function() {
+  data: function () {
     return {
       listError: "",
       inviteError: "",
@@ -38,20 +37,20 @@ export default {
       users: [Object],
     };
   },
-  mounted: function() {
+  mounted: function () {
     this.refreshUserList();
   },
   methods: {
-    copy: function($event) {
+    copy: function ($event) {
       let target = $event.currentTarget;
       console.log(target);
       target.select();
       document.execCommand("copy");
     },
-    getInvitePath: function(email) {
+    getInvitePath: function (email) {
       return window.location.origin + "/invite/" + email;
     },
-    refreshUserList: async function() {
+    refreshUserList: async function () {
       let result = await Query.raw(`{
             users{
                 email
@@ -59,15 +58,18 @@ export default {
             }
         }`);
 
-      if (result && result.data & result.data.users) {
+      if (result && result.data && result.data.data && result.data.data.users) {
         this.users = result.data.data.users;
         this.listError = "";
+
+        console.log(result);
       } else {
+        console.log(result);
         this.users = [];
         this.listError = "Nutzerliste konnte nicht geladen werden!";
       }
     },
-    inviteUser: async function() {
+    inviteUser: async function () {
       Query.raw(
         `mutation{
           inviteUser(email: "${this.inviteEmail}")
