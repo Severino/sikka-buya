@@ -191,7 +191,15 @@ const system = {
     login:
         "anmelden",
     logout:
-        "abmelden"
+        "abmelden",
+    emai:
+        "E-Mail",
+    password:
+        "Password",
+    register:
+        "Registrieren",
+    register_title:
+        "Registrierung"
 }
 
 module.exports = {
