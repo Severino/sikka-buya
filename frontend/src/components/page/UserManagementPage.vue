@@ -56,10 +56,6 @@ export default {
             users{
                 email
                 id
-                permissions {
-                  id
-                  name
-                }
             }
         }`);
 
