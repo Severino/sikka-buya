@@ -2,7 +2,9 @@
   <header>
     <div class="content-wrapper">
       <div class="brand">
+        <router-link :to="{name:'Home'}">
         <img src="@/assets/images/sikka-buya.png" alt="" />
+        </router-link>
       </div>
       <nav>
         <ul>
@@ -11,10 +13,8 @@
           </li>
         </ul>
       </nav>
-      <span class="version">{{version}}</span>
-      <div class="languages">
-        DE
-      </div>
+      <span class="version">{{ version }}</span>
+      <div class="languages">DE</div>
       <div v-if="user" class="user">
         <router-link :to="{ name: 'Editor' }">
           <AccountCircle />
@@ -34,11 +34,11 @@ export default {
   components: {
     AccountCircle,
   },
-  created: function() {
+  created: function () {
     this.user = Auth.loadUser();
     this.$store.commit("login", this.user);
   },
-  data: function() {
+  data: function () {
     return {
       user: null,
       items: [
@@ -49,7 +49,7 @@ export default {
     };
   },
   methods: {
-    logout: function() {
+    logout: function () {
       Auth.logout();
       this.user = null;
       this.$router.push({ name: "Home" });
@@ -60,12 +60,13 @@ export default {
       this.user = Auth.loadUser();
       this.$store.commit("login", this.user);
     },
-  },computed:{
-    version: function(){
-      console.log(this.$store.version)
-      return this.$store.state.version
-    }
-  }
+  },
+  computed: {
+    version: function () {
+      console.log(this.$store.version);
+      return this.$store.state.version;
+    },
+  },
 };
 </script>
 
@@ -80,14 +81,17 @@ header {
 
   box-shadow: $shadow;
 
-  > * {
+  .content-wrapper {
     display: flex;
     align-items: center;
+  }
+
+  .content-wrapper > * {
     padding: $big-padding 0;
   }
 }
 
-.version{
+.version {
   opacity: 0.5;
   margin-right: $padding;
 }
@@ -101,6 +105,9 @@ ul {
 
 .brand {
   margin-right: auto;
+  a {
+    padding: 0;
+  }
 }
 
 a {
