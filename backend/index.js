@@ -147,17 +147,17 @@ const resolvers = {
         },
 
     }, Mutation: {
-        acceptInvite: async function(_, {email, password}={}){
+        acceptInvite: async function (_, { email, password } = {}) {
             let pwValidator = Auth.validatePassword(password)
-            if(pwValidator.failed){
+            if (pwValidator.failed) {
                 throw new Error(pwValidator.error)
             }
 
-            const hashedPW = await Auth.hashPassword(password)       
+            const hashedPW = await Auth.hashPassword(password)
 
-            let result = await Database.oneOrNone("UPDATE app_user SET password = $[password] WHERE email=$[email] AND password IS NULL RETURNING id", {email, password: hashedPW})
+            let result = await Database.oneOrNone("UPDATE app_user SET password = $[password] WHERE email=$[email] AND password IS NULL RETURNING id", { email, password: hashedPW })
 
-            if(result == null) throw new Error("Could not set password!")
+            if (result == null) throw new Error("Could not set password!")
         },
         setup: async function (_, args) {
             let { case: result } = await Database.one(`SELECT CASE 
@@ -189,7 +189,7 @@ const resolvers = {
             }
         },
         addCoinType: async function (_, args, context) {
-            
+
             if (!Auth.verifyContext(context)) {
                 throw new Error('You are not authenticated!')
             }

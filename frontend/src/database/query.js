@@ -3,6 +3,7 @@ const baseURL = process.env.VUE_APP_DATABASE_URL || "http://localhost:4000/graph
 const host = baseURL
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
+import store from "../store";
 
 export default class Query {
 
@@ -19,7 +20,7 @@ export default class Query {
         if (locationIndex != -1) {
             properties[locationIndex] = "location{lat,lon}"
         }
-        
+
         const query = `
               {
                 get${this.capitalizedName} (id:${id})  {
@@ -39,12 +40,12 @@ export default class Query {
 
 
     async raw(query, variables = {}) {
-        console.log(query, variables)
+        console.log(query)
         return new Promise((resolve, reject) => {
             axios({
                 url: host,
                 method: "post",
-                headers: {"auth": Auth.loadToken() },
+                headers: { "auth": Auth.loadToken() },
                 data: {
                     query,
                     variables
@@ -53,8 +54,13 @@ export default class Query {
                 if (AxiosHelper.ok(result)) {
                     resolve(result)
                 } else {
-                    console.log(result)
-                    reject(AxiosHelper.getErrors(result))
+                    let erros = AxiosHelper.getErrors(result)
+                    if(erros[0] === "401"){
+                        console.log("SHOW IT")
+                        store.commit("showLoginForm")
+                    }
+
+                    reject(erros)
                 }
             }).catch(reject)
         })
@@ -106,13 +112,7 @@ export default class Query {
         }
       `;
 
-        return axios({
-            url: host,
-            method: "post",
-            data: {
-                query,
-            },
-        })
+        return this.raw(query)
     }
 
     async list(properties) {

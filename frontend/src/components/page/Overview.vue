@@ -1,6 +1,6 @@
 <template>
   <div :class="`overview ${this.property}-page`">
-    <BackHeader />
+    <BackHeader :to="{name: 'Editor'}" />
     <h1>{{ $tc(`property.${propertyName}`) }}</h1>
 
     <div
@@ -147,7 +147,8 @@ export default {
     },
     edit(id) {
       this.$router.push({
-        path: `/${this.property.toLowerCase()}/${id}`,
+        path: `${id}`,
+        append: true
       });
     },
   },

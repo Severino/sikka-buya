@@ -20,25 +20,16 @@ class Resolver {
 
         const ref = this
         resolvers.Mutation[`add${this.capitalizedName}`] = function (_, args, context) {
-            if (!Auth.verifyContext(context)) {
-                throw new Error('You are not authenticated!')
-            }
-
-            return ref.add(_, args, context, ref.tableName)
+            Auth.verifyContext(context)
+            return ref.add(_, args, ref.tableName)
         }
         resolvers.Mutation[`update${this.capitalizedName}`] = function (_, args, context) {
-            if (!Auth.verifyContext(context)) {
-                throw new Error('You are not authenticated!')
-            }
-
-            return ref.update(_, args, context, ref.tableName)
+            Auth.verifyContext(context)
+            return ref.update(_, args, ref.tableName)
         }
         resolvers.Mutation[`delete${this.capitalizedName}`] = function (_, args, context) {
-            if (!Auth.verifyContext(context)) {
-                throw new Error('You are not authenticated!')
-            }
-
-            return ref.delete(_, args, context, ref.tableName)
+            Auth.verifyContext(context)
+            return ref.delete(_, args, ref.tableName)
         }
 
         resolvers.Query[`${this.name}`] = function (_, args, context) { return ref.list(_, args, context, ref.tableName) }
@@ -46,20 +37,14 @@ class Resolver {
         resolvers.Query[`search${this.capitalizedName}`] = function (_, args, context) { return ref.search(_, args, context, ref.tableName) }
         return resolvers
     }
-    async add(_, args, context, tableName) {
-        if (!Auth.verifyContext(context)) {
-            throw new Error('You are not authenticated!')
-        }
 
-        const object = args.data
-        return this.request(`INSERT INTO ${tableName} (${Object.keys(object).join(",")}) VALUES (${Object.keys(object).map((name) => `$[${name}]`)})`, Object.values(object))
+    async add(_, args, tableName) {
+        const obj = args.data
+        console.dir(obj)
+        return this.request(`INSERT INTO ${tableName} (${Object.keys(obj).join(",")}) VALUES (${Object.keys(obj).map((name) => `$[${name}]`)})`, obj)
     }
-
-    async update(_, args, context) {
-        if (!Auth.verifyContext(context)) {
-            throw new Error(Auth.verificationError)
-        }
-
+ 
+    async update(_, args) {
         const object = args.data
         const id = object.id
 
@@ -70,11 +55,7 @@ class Resolver {
         return this.request(query, [id, ...Object.values(object)])
     }
 
-    async delete(_, args, context) {
-        if (!Auth.verifyContext(context)) {
-            throw new Error(Auth.verificationError)
-        }
-
+    async delete(_, args) {
         return Database.none(`DELETE FROM ${this.tableName} WHERE id=$1`, [args.id])
     }
 

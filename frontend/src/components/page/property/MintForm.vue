@@ -1,9 +1,10 @@
 <template>
   <div class="mint-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
       :loading="loading"
+      property="mint"
       :title="$tc('property.mint')"
       :error="error"
     >
@@ -22,19 +23,19 @@
 
         <Checkbox id="location_uncertain" v-model="mint.uncertain" />
       </div>
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 import Checkbox from "../../forms/Checkbox";
 
 export default {
   components: {
     Checkbox,
-    FormWrapper,
+    PropertyFormWrapper,
   },
   name: "MintForm",
   created: function () {

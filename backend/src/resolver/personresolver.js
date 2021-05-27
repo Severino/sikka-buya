@@ -11,7 +11,7 @@ class PersonResolver extends Resolver {
 
     async add(_, args) {
         args.data = transformPropertyToSnakeCase(args.data, "shortName")
-        return super.add(_, args)
+        return super.add(...arguments)
     }
 
     async update(_, args) {
@@ -21,7 +21,7 @@ class PersonResolver extends Resolver {
         args.data = transformPropertyToSnakeCase(args.data, "shortName")
 
 
-        return super.update(_, args)
+        return super.update(...arguments)
     }
 
     async get(_, args) {

@@ -1,10 +1,10 @@
 <template>
   <div class="honorific-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
-      @cancel="cancel"
       :loading="loading"
-      :honorific="$tc('property.honorific')"
+      :title="$tc('property.honorific')"
+      property="honorific"
       :error="error"
     >
       <input v-model="honorific.id" type="hidden" />
@@ -15,16 +15,16 @@
         autofocus
         required
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 
 export default {
-  components: { FormWrapper },
+  components: { PropertyFormWrapper },
   name: "HonorificForm",
   created: function () {
     let id = this.$route.params.id;
@@ -59,10 +59,7 @@ export default {
           this.error = this.$t("error.could_not_update_element");
           console.error(err);
         });
-    },
-    cancel: function () {
-      this.$router.push({ path: "/honorific" });
-    },
+    }
   },
   data: function () {
     return {

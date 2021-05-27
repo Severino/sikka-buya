@@ -1,8 +1,9 @@
 <template>
   <div class="nominal-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
+      property="nominal"
       :loading="loading"
       :title="$tc('property.nominal')"
       :error="error"
@@ -15,16 +16,16 @@
         autofocus
         required
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 
 export default {
-  components: { FormWrapper },
+  components: { PropertyFormWrapper },
   name: "NominalForm",
   created: function () {
     let id = this.$route.params.id;

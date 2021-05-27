@@ -27,7 +27,7 @@ export default {
     email: String,
     password: String,
     loginError: String,
-    disabled: Boolean
+    disabled: Boolean,
   },
   methods: {
     passwordChanged: function (event) {
@@ -61,11 +61,11 @@ form > *:not(:first-child, input, button) {
   margin-top: $padding;
 }
 
-button{
-  margin-top: 3*$padding;
+button {
+  margin-top: 3 * $padding;
 }
 
-h3{
+h3 {
   user-select: none;
   margin-top: 0;
 }

@@ -1,9 +1,10 @@
 <template>
   <div class="material-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
       :loading="loading"
+      property="material"
       :title="$tc('property.material')"
       :error="error"
     >
@@ -15,16 +16,16 @@
         autofocus
         required
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 
 export default {
-  components: { FormWrapper },
+  components: { PropertyFormWrapper },
   name: "MaterialForm",
   created: function () {
     let id = this.$route.params.id;

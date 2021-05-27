@@ -1,5 +1,6 @@
 <template>
   <div class="page">
+    <back-header :to="{name: 'Editor'}" />
     <h1>User Management</h1>
     <section>
       <form submit.stop.prevent="">
@@ -27,8 +28,12 @@
 
 <script>
 import Query from "../../database/query";
+import BackHeader from '../layout/BackHeader.vue';
 export default {
   name: "UserManagement",
+  components: {
+    BackHeader
+  },
   data: function () {
     return {
       listError: "",

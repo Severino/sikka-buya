@@ -1,6 +1,6 @@
 <template>
   <div class="back-header">
-    <router-link :to="{ name: 'Editor' }"
+    <router-link :to="to"
       ><ArrowLeft />{{ $t("navigation.back") }}</router-link
     >
   </div>
@@ -13,6 +13,12 @@ export default {
   components: {
     ArrowLeft,
   },
+  props: {
+    to: {
+      type: Object,
+      required: true
+    }
+  }
 };
 </script>
 

@@ -1,10 +1,12 @@
 <template>
   <div class="coin-mark-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
       :loading="loading"
       :title="$tc('property.coin_mark')"
+      property="coinmark"
+      overwriteRoute="CoinMarkOverview"
       :error="error"
     >
       <input v-model="value.id" type="hidden" />
@@ -15,16 +17,16 @@
         autofocus
         required
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 
 export default {
-  components: { FormWrapper },
+  components: { PropertyFormWrapper },
   name: "CoinMarkForm",
   created: function () {
     let id = this.$route.params.id;

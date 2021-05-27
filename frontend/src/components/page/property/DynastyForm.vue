@@ -1,9 +1,10 @@
 <template>
   <div class="dynasty-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
       :loading="loading"
+      property="dynasty"
       :title="$tc('property.dynasty')"
       :error="error"
     >
@@ -15,16 +16,16 @@
         autofocus
         required
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 
 export default {
-  components: { FormWrapper },
+  components: { PropertyFormWrapper },
   name: "DynastyForm",
   created: function () {
     let id = this.$route.params.id;

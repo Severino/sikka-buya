@@ -1,13 +1,19 @@
 <template>
   <div id="app">
-      <router-view></router-view>
+    <modal :active="loginActive" @close="closeLoginForm">
+      <login-form @login="closeLoginForm" />
+      {{getCount}}
+    </modal>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
+import LoginForm from "./components/auth/LoginForm.vue";
 import ButtonGroup from "./components/forms/ButtonGroup.vue";
+import Modal from "./components/layout/Modal.vue";
 export default {
-  components: { ButtonGroup },
+  components: { ButtonGroup, LoginForm, Modal },
   name: "App",
   data: function () {
     return {
@@ -18,7 +24,7 @@ export default {
     const lang = window.localStorage.getItem("language", this.$i18n.locale);
     if (lang) {
       this.languageChanged(lang);
-    }else{
+    } else {
       this.languageChanged("de");
     }
   },
@@ -31,13 +37,27 @@ export default {
     goHome: function () {
       if (this.$router.route != "/") this.$router.push("/");
     },
+    closeLoginForm: function () {
+      this.$store.commit("closeLoginForm");
+      this.$store.commit("increment")
+      console.log(this.$store.state.showLoginForm)
+    },
+    plusOne: function(){
+      this.$store.commit("increment")
+    }
+  },
+  computed: {
+    loginActive() {
+      return this.$store.state.showLoginForm;
+    },
+    getCount(){
+      return this.$store.state.test;
+    }
   },
 };
 </script>
 
 <style lang="scss">
-
-
 html,
 body {
   margin: 0;
@@ -47,7 +67,7 @@ body {
 }
 
 body {
-  font-family: 'Cairo', sans-serif;
+  font-family: "Cairo", sans-serif;
   font-size: 16px;
 
   -webkit-font-smoothing: antialiased;
@@ -63,7 +83,6 @@ body {
   box-sizing: border-box;
 }
 
-
 h1 {
   font-weight: bold;
   font-size: 3rem;
@@ -75,7 +94,6 @@ h1 {
   height: 100%;
 }
 
-
 section {
   // margin-top: 5em;
 
@@ -86,7 +104,6 @@ section {
   }
 }
 
-
 #app-name {
   color: $primary-color;
   margin-right: $padding;
@@ -96,10 +113,9 @@ section {
   @include interactive();
 }
 
-.property-group{
+.property-group {
   margin-bottom: 1rem;
 }
-
 
 #app-name:after {
   content: "|";
@@ -107,9 +123,8 @@ section {
   margin: 0 20px;
 }
 
-
-button[disabled]{
-  background-color: gray
+button[disabled] {
+  background-color: gray;
 }
 
 select,
@@ -135,7 +150,6 @@ button {
   @include interactive();
 }
 
-
 label {
   font-weight: bold;
   // color: $primary-color;
@@ -156,7 +170,6 @@ label {
     margin-right: 10px;
   }
 }
-
 
 .top-header {
   // color: white;
@@ -181,7 +194,6 @@ label {
     }
   }
 }
-
 
 a {
   text-decoration: none;

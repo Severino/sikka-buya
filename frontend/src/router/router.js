@@ -29,19 +29,10 @@ import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
-
-import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
-
-
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import Overview from "@/components/page/Overview.vue"
-import SideTree from "@/components/page/SideTree.vue"
 
 import TypeOverview from "@/components/page/TypeOverview.vue"
-import TreeExplorer from "@/components/page/TreeExplorer.vue"
-import TypePage from "@/components/page/TypePage.vue"
-import CatalogEntry from "@/components/page/CatalogEntry"
-
 
 import CoinMarkForm from "@/components/page/property/CoinMarkForm"
 import HonorificForm from "@/components/page/property/HonorificForm"
@@ -128,6 +119,11 @@ const routes = [
             component: TypeOverview
           },
           {
+            path: "coinmark",
+            name: "CoinMarkOverview",
+            component: CoinMarkOverview
+          },
+          {
             path: ":property",
             name: "Property",
             component: Overview
@@ -139,10 +135,6 @@ const routes = [
             path: 'type/edit/:id',
             name: 'EditTypePage',
             component: CreateTypePage
-          }, {
-            path: "coinmark",
-            name: "CoinMarkOverview",
-            component: CoinMarkOverview
           },
           {
             path: "coinmark/create",
@@ -246,20 +238,27 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
 
-  let auth = await Auth.check()
   if (to.fullPath == "/") next({ name: "LandingPage" })
 
 
   if (to.meta && to.meta.auth) {
+
+    let auth = await Auth.check()
     if (auth) {
       next()
     } else {
+      console.log("LOGIN")
       router.push({ name: "Login" })
     }
   } else {
-    if (to.name == "Login") {
-      if (auth) router.push({ name: "Editor" })
-    }
+
+    // await Login
+
+    // if (to.name == "Login") {
+
+    //   let auth = await Auth.check()
+    //   if (auth) router.push({ name: "Editor" })
+    // }
     next()
   }
 })

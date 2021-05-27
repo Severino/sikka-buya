@@ -1,8 +1,9 @@
 <template>
   <div class="person-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
+      property="person"
       :loading="loading"
       :title="$tc('property.person')"
       :error="error"
@@ -34,18 +35,18 @@
         table="dynasty"
         attribute="name"
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 import DataSelectField from "@/components/forms/DataSelectField.vue";
 import AxiosHelper from "@/utils/AxiosHelper.js";
 
 export default {
-  components: { FormWrapper, DataSelectField },
+  components: { PropertyFormWrapper, DataSelectField },
   name: "PersonForm",
   created: function () {
     let id = +this.$route.params.id;
@@ -133,14 +134,16 @@ export default {
 
       Query.raw(query, variables)
         .then((result) => {
-          if (AxiosHelper.ok(result)) {
-            this.$router.push({
-              name: "Property",
-              params: { property: "person" },
-            });
-          } else {
-            this.error = AxiosHelper.getErrors(result).join("\n");
-          }
+
+          console.log(result)
+          // if (AxiosHelper.ok(result)) {
+          //   this.$router.push({
+          //     name: "Property",
+          //     params: { property: "person" },
+          //   });
+          // } else {
+          //   this.error = AxiosHelper.getErrors(result).join("\n");
+          // }
         })
         .catch((err) => {
           this.error = this.$t("error.could_not_update_element");

@@ -86,18 +86,16 @@ class Auth {
             jwt.verify(token, process.env.JWT_KEY)
             return true
         } catch (e) {
-            return false
+            throw new Error("401")
         }
     }
 
     static verifyContext(context) {
+        console.log(95, context.headers.auth)
         let token = (context && context.headers) ? context.headers.auth : null
-        if (!token) return false
+        
+        if (!token) throw new Error("401")
         else return this.verify(token)
-    }
-
-    static get verificationError() {
-        return "User authentification failed!"
     }
 }
 

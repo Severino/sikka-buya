@@ -1,12 +1,5 @@
 <template>
   <div class="editor">
-    <!-- <header>
-      <div class="content-wrapper">
-        <header>
-          <h3>Editor</h3>
-        </header>
-      </div>
-    </header> -->
     <div class="content-wrapper">
       <router-view> </router-view>
     </div>

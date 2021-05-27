@@ -1,6 +1,6 @@
 <template>
   <div :class="`overview type-page`">
-    <BackHeader />
+    <BackHeader :to="{name: 'Editor'}" />
     <h1>{{ $t("attribute.test") }}</h1>
 
     <div

@@ -42,7 +42,7 @@ export default class Auth {
                 auth(token:"${token}")
             }`)
 
-
+            console.log(response)
 
             return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
         } else {
@@ -50,6 +50,7 @@ export default class Auth {
         }
         return status
     }
+
 
     static logout() {
         localStorage.removeItem(this.tokenStore)

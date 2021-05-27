@@ -318,7 +318,6 @@ import List from "../forms/List.vue";
 import ListItem from "../forms/ListItem.vue";
 import TitledPersonSelect from "../forms/TitledPersonSelect.vue";
 import CoinSideField from "../forms/coins/CoinSideField.vue";
-import BackHeader from "../layout/BackHeader.vue";
 import SimpleFormattedField from "../forms/SimpleFormattedField.vue";
 import Query from "../../database/query.js";
 import LoadingSpinner from "../misc/LoadingSpinner.vue";
@@ -342,7 +341,6 @@ export default {
     ListItem,
     TitledPersonSelect,
     CoinSideField,
-    BackHeader,
     SimpleFormattedField,
     LoadingSpinner,
     RemovableInputField,

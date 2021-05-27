@@ -1,10 +1,11 @@
 <template>
   <div class="role-form">
-    <FormWrapper
+    <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
+      property="role"
+      :title="$tc('property.role')"
       :loading="loading"
-      :role="$tc('property.role')"
       :error="error"
     >
       <input v-model="role.id" type="hidden" />
@@ -15,16 +16,16 @@
         autofocus
         required
       />
-    </FormWrapper>
+    </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
 import Query from "../../../database/query.js";
-import FormWrapper from "../FormWrapper.vue";
+import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 
 export default {
-  components: { FormWrapper },
+  components: { PropertyFormWrapper },
   name: "RoleForm",
   created: function () {
     let id = this.$route.params.id;
