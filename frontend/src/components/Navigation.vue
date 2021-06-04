@@ -53,8 +53,8 @@ export default {
       active: false,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: "Karte", target: { name: "MapPage" }, auth: true },
-        { name: "Typekatalog", target: { name: "Catalog" } },
+        { name: "Karte", target: { name: "MapPage" } },
+        { name: "Typekatalog", target: { name: "Catalog" }, auth: true },
       ],
     };
   },
