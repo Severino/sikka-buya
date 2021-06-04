@@ -27,7 +27,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0;
+  padding: 0 $padding;
   border-bottom-width: 0;
 
   &:last-of-type {

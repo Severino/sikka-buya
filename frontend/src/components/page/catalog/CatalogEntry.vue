@@ -10,12 +10,7 @@
           v-for="(val, idx) of ['mint', 'year', 'nominal', 'material']"
           v-bind:key="`property-${val}-${idx}`"
         >
-          <div class="property-label">
-            {{ $tc(`property.${val}`) }}
-          </div>
-          <div class="property-value">
-            {{ printTypeProperty(val) }}
-          </div>
+          <labeled-field :label="val" :value="printTypeProperty(val)" />
         </div>
       </div>
 
@@ -37,13 +32,12 @@
             <div class="property-label">
               {{ $tc(`property.${val}`) }}
             </div>
-            <div class="property-value" v-html="type.avers[val]">
-            </div>
+            <div class="property-value" v-html="type.avers[val]"></div>
           </div>
         </div>
         <div class="revers">
           <h2>Revers</h2>
-           <div
+          <div
             class="property"
             v-for="(val, idx) of [
               'fieldText',
@@ -57,14 +51,13 @@
             <div class="property-label">
               {{ $tc(`property.${val}`) }}
             </div>
-            <div class="property-value" v-html="type.reverse[val]">
-            </div>
+            <div class="property-value" v-html="type.reverse[val]"></div>
           </div>
         </div>
       </div>
 
+      <div v-if="persons.length > 0" class="person-wrapper">
       <h2>Persons</h2>
-      <div class="person-wrapper">
         <div
           class="person-container"
           v-for="(val, idx) of persons"
@@ -81,13 +74,14 @@
 </template>
 
 <script>
-import Query from "../../database/query";
-import CatalogItem from "../catalog/CatalogItem.vue";
-import CoinSideField from "../forms/coins/CoinSideField.vue";
+import Query from "../../../database/query";
+import CatalogItem from "../../catalog/CatalogItem.vue";
+import LabeledField from "../../display/LabeledField.vue";
+import CoinSideField from "../../forms/coins/CoinSideField.vue";
 export default {
-  components: { CatalogItem, CoinSideField },
+  components: { CatalogItem, CoinSideField, LabeledField },
   name: "CatalogEntry",
-  data: function() {
+  data: function () {
     return {
       type: {
         id: null,
@@ -125,7 +119,7 @@ export default {
       },
     };
   },
-  created: function() {
+  created: function () {
     Query.raw(
       `
         {
@@ -240,18 +234,20 @@ export default {
     printTypeProperty(key, attr = "name") {
       let text = "Unbekannt";
       if (this.$data.type[key]) {
-        if (this.$data.type[key][attr]) {
+
+        console.log(this.$data.type[key][attr], attr)
+        if (this.$data.type[key][attr] !== null) {
           text = this.$data.type[key][attr];
         } else {
           text = this.$data.type[key];
         }
       }
-
+  console.log(text)
       return text;
     },
   },
   computed: {
-    persons: function() {
+    persons: function () {
       let persons = [
         "issuers",
         "overlords",
@@ -268,15 +264,31 @@ export default {
 };
 </script>
 
+
+
 <style lang="scss" scoped>
+header {
+  font-weight: 700;
+  margin-top: 5em;
+  margin-bottom: 4em;
+}
+
 .property-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: $padding;
+  
+  margin: 2em 0;
+
+  @include media_phone {
+    grid-template-columns: 1fr 1fr
+  }
 }
 
 .person-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: $padding;
 
   > * {
     column-span: 2;
@@ -286,5 +298,22 @@ export default {
 .coin-sides {
   display: grid;
   grid-template-columns: 1fr 1fr;
+    gap: $padding;
+
+  >* {
+    
+    
+    >*{
+    margin-bottom: $padding*2;
+  }
+
+  
+    > h2 {
+      margin-bottom: 1em ;
+    }
+}
+    @include media_phone {
+      grid-template-columns: 1fr;
+    }
 }
 </style>

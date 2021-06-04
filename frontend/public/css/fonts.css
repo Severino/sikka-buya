@@ -1,0 +1,43 @@
+@font-face {
+    font-family: "Signika";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/Signika/static/Signika-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Signika";
+    font-weight: bold;
+    font-style: normal;
+    src: url("../fonts/Signika/static/Signika-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Arimo";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/Arimo/static/Arimo-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Arimo";
+    font-weight: bold;
+    font-style: normal;
+    src: url("../fonts/Arimo/static/Arimo-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Scheherazade";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/Scheherazade/Scheherazade-Regular.ttf") format("truetype");
+    unicode-range: U+0600-06ff;
+}
+
+@font-face {
+    font-family: "Scheherazade";
+    font-weight: bold;
+    font-style: normal;
+    src: url("../fonts/Scheherazade/Scheherazade-Bold.ttf") format("truetype");
+    unicode-range: U+0600-06ff;
+}

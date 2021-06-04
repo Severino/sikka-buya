@@ -20,9 +20,19 @@ import CommonMain from "@/components/main/CommonMain"
 import LoginPage from "@/components/page/auth/LoginPage"
 import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
 
+/**
+ * Catalog
+ */
+import Catalog from "@/components/page/catalog/Catalog.vue"
+import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
+import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
 
+/**
+ * Editor Page
+ */
 import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
+import MapPage from "@/components/page/MapPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
@@ -49,11 +59,7 @@ import Auth from "../utils/Auth.js"
 Vue.use(VueRouter)
 
 const routes = [
-  // {
-  //   path: '/catalog/:id',
-  //   name: 'CatalogEntry',
-  //   component: CatalogEntry
-  // },
+
   // {
   //   path: "/analytics/table/",
   //   name: "AnalyticsTable",
@@ -74,7 +80,29 @@ const routes = [
     path: "*",
     component: CommonMain,
     children: [
-
+      {
+        path: "/home",
+        name: "Home",
+        component: LandingPage
+      },
+      {
+        path: '/catalog/',
+        component: Catalog,
+        children: [{
+          path: '',
+          name: 'Catalog',
+          component: CatalogLanding
+        },
+        {
+          path: '/catalog/:id',
+          name: 'CatalogEntry',
+          component: CatalogEntry
+        }]
+      }, {
+        path: "/map",
+        name: "MapPage",
+        component: MapPage
+      },
       {
         path: '/setup',
         name: 'InitialSetup',
@@ -89,10 +117,6 @@ const routes = [
         path: '/invite/:mail',
         name: "InviteSignUp",
         component: AcceptInvitePage
-      }, {
-        path: "/home",
-        name: "LandingPage",
-        component: LandingPage
       },
       {
 
@@ -238,7 +262,7 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
 
-  if (to.fullPath == "/") next({ name: "LandingPage" })
+  if (to.fullPath == "/") next({ name: "Home" })
 
 
   if (to.meta && to.meta.auth) {

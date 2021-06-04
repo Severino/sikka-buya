@@ -267,14 +267,36 @@ class Type {
         }
     }
 
+    static async searchType(text) {
+        let result = await Database.manyOrNone(
+            `
+        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
+        LEFT JOIN material ma 
+        ON t.material = ma.id
+        LEFT JOIN mint mi 
+        ON t.mint = mi.id
+        LEFT JOIN nominal n 
+        ON t.nominal = n.id
+        LEFT JOIN person p
+        ON t.caliph = p.id
+        WHERE unaccent(t.project_id) ILIKE $[searchText]
+        `, { searchText: "%"+text+"%" })
+
+        for (let [idx, type] of result.entries()) {
+            result[idx] = this.postprocessType(type)
+        }
+
+        return result
+    }
+
     static async getTypesReducedList() {
         let typeList = await Database.manyOrNone(`SELECT 
-        id, project_id , treadwell_id,
-        CASE 
+        id, project_id, treadwell_id,
+            CASE 
             WHEN tc.type IS NULL THEN false
             ELSE true
         END AS completed,
-        CASE 
+            CASE 
             WHEN tr.type IS NULL THEN false
             ELSE true
         END AS reviewed
@@ -282,7 +304,7 @@ class Type {
         LEFT JOIN type_completed tc ON t.id = tc.type
         LEFT JOIN type_reviewed tr ON t.id = tr.type
         ORDER BY project_id
-        `)
+            `)
 
         const map = {
             project_id: "projectId",
@@ -312,7 +334,7 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-        `)
+            `)
 
 
         for (let [idx, type] of result.entries()) {
@@ -335,7 +357,7 @@ class Type {
             ON t.nominal = n.id
             LEFT JOIN person p
             ON t.caliph = p.id
-            WHERE t.id=$1
+            WHERE t.id = $1
             `, id).catch(() => {
             throw new Error("Requested type does not exist!")
         })
@@ -355,8 +377,8 @@ class Type {
 
         const result = await Database.manyOrNone(`
         WITH blah AS(
-            SELECT type FROM overlord WHERE person = $1
-        )
+                SELECT type FROM overlord WHERE person = $1
+            )
         SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
         LEFT JOIN material ma 
         ON t.material = ma.id
@@ -366,8 +388,8 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-        WHERE t.id IN (SELECT type FROM blah)
-        `, person);
+        WHERE t.id IN(SELECT type FROM blah)
+            `, person);
 
         for (let [key, value] of result.entries()) {
             result[key] = await this.postprocessType(value)
@@ -426,7 +448,7 @@ class Type {
         }
 
         return type
-        
+
     }
 
     static get databaseToGraphQlMap() {
@@ -441,7 +463,7 @@ class Type {
             internal_notes: "internalNotes",
             mint_uncertain: "mintUncertain",
             year_uncertain: "yearUncertain"
-        } 
+        }
     }
 
 
@@ -450,21 +472,21 @@ class Type {
         const request = await Database.one(
             `
             SELECT o.id, o.rank, o.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM overlords o 
-            JOIN (
-                 SELECT ot.overlord_id AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
+            JOIN(
+                SELECT ot.overlord_id AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
                  FROM overlord_titles ot
                  JOIN title t ON t.id = ot.title_id
                  GROUP BY ot.overlord_id
             ) t USING(id)
-            JOIN (
-                 SELECT oh.overlord_id AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
+            JOIN(
+                SELECT oh.overlord_id AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
                  FROM overlord_honorifics oh
                  JOIN honorific h ON h.id = oh.honorific_id
                  GROUP BY oh.overlord_id
             ) h USING(id)
             INNER JOIN person p
                 ON o.person = p.id
-        `)
+            `)
 
         const config = [
             {
@@ -503,23 +525,23 @@ class Type {
         const request = await Database.multi(
             `
             SELECT o.id, o.rank, o.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM overlord o
-            LEFT JOIN (
-                 SELECT ot.overlord_id AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
+            LEFT JOIN(
+                SELECT ot.overlord_id AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
                  FROM overlord_titles ot
                  JOIN title t ON t.id = ot.title_id
                  GROUP BY ot.overlord_id
             ) t USING(id)
-            LEFT JOIN (
-                 SELECT oh.overlord_id AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
+            LEFT JOIN(
+                SELECT oh.overlord_id AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
                  FROM overlord_honorifics oh
                  JOIN honorific h ON h.id = oh.honorific_id
                  GROUP BY oh.overlord_id
             ) h USING(id)
             INNER JOIN person p
                 ON o.person = p.id
-			WHERE o.type =$1
+			WHERE o.type = $1
             ORDER BY o.rank ASC
-        `, type_id)
+            `, type_id)
 
         const overlords = []
 
@@ -560,22 +582,22 @@ class Type {
     static async getIssuerByType(type_id) {
         const result = await Database.multi(`
         SELECT i.id, i.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM issuer i
-            LEFT JOIN (
-                 SELECT it.issuer AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
+            LEFT JOIN(
+                SELECT it.issuer AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
                  FROM issuer_titles it
                  JOIN title t ON t.id = it.title
                  GROUP BY it.issuer
             ) t USING(id)
-            LEFT JOIN (
-                 SELECT ih.issuer AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
+            LEFT JOIN(
+                SELECT ih.issuer AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
                  FROM issuer_honorifics ih
                  JOIN honorific h ON h.id = ih.honorific
                  GROUP BY ih.issuer
             ) h USING(id)
             INNER JOIN person p
                 ON i.person = p.id
-			WHERE i.type =$1
-        `, type_id)
+			WHERE i.type = $1
+            `, type_id)
 
         if (request.length < 1) return []
 
@@ -622,7 +644,7 @@ class Type {
         LEFT JOIN coin_marks cm
             ON tcm.coin_mark = cm.id
 			WHERE tcm.type = $1
-        `, type_id)
+            `, type_id)
     }
 
     static async getOtherPersonsByType(type_id) {
@@ -630,15 +652,15 @@ class Type {
         SELECT p.* FROM other_person op 
         LEFT JOIN person p
             ON op.person = p.id
-			WHERE op.type=$1
-        `, type_id)
+			WHERE op.type = $1
+            `, type_id)
     }
 
     static async getPieces(type_id) {
         let results = await Database.manyOrNone(`
         SELECT piece.piece FROM piece
-			WHERE piece.type=$1
-        `, type_id)
+			WHERE piece.type = $1
+            `, type_id)
 
         return results.map(res => res.piece)
     }

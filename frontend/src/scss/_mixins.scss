@@ -41,3 +41,19 @@
 @mixin box-padding($size){
   padding: $size 1.75*$size;
 }
+
+@mixin media-tablet {
+  /* Portrait and Landscape */
+  @media only screen 
+  and (max-width: 1024px)  {
+    @content;
+  }
+}
+
+
+@mixin media-phone {
+  @media only screen 
+  and (max-width: 720px) {
+    @content;
+  }
+}

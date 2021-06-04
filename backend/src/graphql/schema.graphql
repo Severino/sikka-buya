@@ -209,6 +209,8 @@ type Query {
   searchDynasty(text: String): [Dynasty]!
   searchRole(text: String): [Role]!
 
+  searchTypes(text:String):[CoinType]!
+
   searchPersonsWithRole(
     text: String!
     include: [String]

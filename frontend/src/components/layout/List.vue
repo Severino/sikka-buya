@@ -1,5 +1,15 @@
 <template>
   <div class="list">
+    <LoadingSpinner class="loading-spinner" v-if="loading" />
+
+    <header v-if="properties">
+      <div
+        v-for="(label, idx) of [ ...properties]"
+        :key="`label-of-${label}-${idx}`"
+      >
+        {{ label }}
+      </div>
+    </header>
     <div v-if="error" class="info error">
       <Information />
       <p>
@@ -7,14 +17,19 @@
       </p>
     </div>
 
-    <div v-if="items && items.length == 0 && !loading && error == ''" class="info">
+    <div
+      v-if="!items || (items && items.length == 0 && !loading && error == '')"
+      class="info"
+    >
       <Information />
       <p>
         {{ $t("warning.list_is_empty") }}
       </p>
     </div>
     <div
-      v-else-if="(filteredItems && filteredItems.length == 0) && !loading && error == ''"
+      v-else-if="
+        filteredItems && filteredItems.length == 0 && !loading && error == ''
+      "
       class="info"
     >
       <Information />
@@ -23,16 +38,6 @@
       </p>
     </div>
 
-    <LoadingSpinner class="loading-spinner" v-if="loading" />
-
-    <header v-if="properties">
-      <div
-        v-for="(label, idx) of ['id', ...properties]"
-        :key="`label-of-${label}-${idx}`"
-      >
-        {{ label }}
-      </div>
-    </header>
     <slot></slot>
   </div>
 </template>
@@ -45,10 +50,6 @@ import LoadingSpinner from "../misc/LoadingSpinner.vue";
 export default {
   components: { ListItem, Information, LoadingSpinner },
   props: {
-    property: {
-      type: String,
-      default: null,
-    },
     properties: {
       type: Array,
       default: null,
@@ -60,6 +61,7 @@ export default {
     items: {
       id: String,
       name: String,
+      required: true,
     },
     error: {
       type: String,
@@ -78,7 +80,7 @@ export default {
     listItemRemoved: function (id) {
       this.$emit("remove", id);
     },
-  }
+  },
 };
 </script>
 
@@ -114,25 +116,25 @@ export default {
 header {
   display: flex;
   align-items: center;
-  padding: 0;
+  padding: 0 $padding; 
   border-bottom-width: 0;
   background-color: rgb(224, 224, 224);
   color: gray;
   border: 1px solid #cccccc;
   border-bottom: none;
   font-weight: bold;
-  padding-right: 44px;
+  // padding-right: 44px;
 
-  :first-child {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: $padding/3 $padding;
-    min-width: 16px;
-    margin-right: $padding * 2;
-  }
+  // :first-child {
+  //   display: flex;
+  //   align-items: center;
+  //   justify-content: center;
+  //   padding: $padding/3 $padding;
+  //   min-width: 16px;
+  //   margin-right: $padding * 2;
+  // }
 
-  > :not(:first-child) {
+  > *{
     flex: 1;
   }
 

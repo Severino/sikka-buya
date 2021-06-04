@@ -46,7 +46,7 @@ import PlusCircleOutline from "vue-material-design-icons/PlusCircleOutline";
 import List from "../layout/List.vue";
 import Query from "../../database/query.js";
 import BackHeader from "../layout/BackHeader.vue";
-import SearchField from "../forms/SearchField.vue";
+import SearchField from "../layout/SearchField.vue";
 import ListItemIdField from "../layout/list/ListItemIdField.vue";
 
 import ListItemCell from "../layout/list/ListItemCell.vue";

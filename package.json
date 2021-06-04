@@ -11,7 +11,5 @@
     "frontend": "cd frontend && yarn run serve",
     "backend": "cd backend && yarn run dev",
     "install": "cd backend && yarn install && cd ../frontend && yarn install"
-  },
-  "dependencies": {
   }
 }

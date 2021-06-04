@@ -1,73 +1,67 @@
 <template>
-  <div class="loading">
-    <div></div>
-    <div></div>
-    <div></div>
-    <div></div>
-  </div>
+  <div class="spinner" :style="{ width: `${size}px`, height:`${size}px` }"></div>
 </template>
 
+<script>
+export default {
+  name: "LoadingSpinner",
+  props: {
+    size: Number,
+  },
+};
+</script>
+
 <style lang="scss" scoped>
-// Taken from: https://loading.io/css/
-// 28.01.2021
-/* License:
-All 12 CSS loading icons provided in this page are released under CC0 License, so just use them freely! 
-We also provide advanced license and editor for premium loaders and animated icons, don't forget to check it out :)
-*/
-.loading {
-  display: block;
+$color: #48ac48;
+
+.spinner {
   position: relative;
-  width: 80px;
-  height: 80px;
-  margin: 0 auto;
+
+  @mixin circle($time, $delay) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+
+    animation: $time infinite growing;
+animation-timing-function: linear;
+
+    animation-delay: $delay;
+  }
+
+  &:after {
+    @include circle(2s, 0);
+
+  }
+
+  &:before {
+    @include circle(2s, -1s);
+  }
 }
-.loading div {
-  position: absolute;
-  top: 33px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: gray;
-  animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-.loading div:nth-child(1) {
-  left: 8px;
-  animation: loading1 0.6s infinite;
-}
-.loading div:nth-child(2) {
-  left: 8px;
-  animation: loading2 0.6s infinite;
-}
-.loading div:nth-child(3) {
-  left: 32px;
-  animation: loading2 0.6s infinite;
-}
-.loading div:nth-child(4) {
-  left: 56px;
-  animation: loading3 0.6s infinite;
-}
-@keyframes loading1 {
+
+@keyframes growing {
   0% {
-    transform: scale(0);
+    background-color: $white;
+    transform: scale(0.3);
+    opacity: 0;
+    z-index: 100;
   }
-  100% {
-    transform: scale(1);
-  }
-}
-@keyframes loading3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
-}
-@keyframes loading2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
+  20%{
+    
+    background-color: $white;
+    opacity: 1;
+    }
+  80% {opacity: 1;}
+  100%{    
+    background-color: $color;
+
+    opacity: 0;
+    transform: scale(0.8);
+    z-index: 0;
   }
 }
 </style>

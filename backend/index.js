@@ -131,6 +131,10 @@ const resolvers = {
         getTypesByOverlord: async function (_, args) {
             return Type.getTypesByOverlord(args.id)
         },
+        searchTypes: async function(_, args){
+            const text = args.text
+            return Type.searchType(text)
+        },
         getTypes: async function () {
             return Type.getTypes()
         },

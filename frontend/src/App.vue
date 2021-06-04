@@ -2,7 +2,7 @@
   <div id="app">
     <modal :active="loginActive" @close="closeLoginForm">
       <login-form @login="closeLoginForm" />
-      {{getCount}}
+      {{ getCount }}
     </modal>
     <router-view></router-view>
   </div>
@@ -39,20 +39,20 @@ export default {
     },
     closeLoginForm: function () {
       this.$store.commit("closeLoginForm");
-      this.$store.commit("increment")
-      console.log(this.$store.state.showLoginForm)
+      this.$store.commit("increment");
+      console.log(this.$store.state.showLoginForm);
     },
-    plusOne: function(){
-      this.$store.commit("increment")
-    }
+    plusOne: function () {
+      this.$store.commit("increment");
+    },
   },
   computed: {
     loginActive() {
       return this.$store.state.showLoginForm;
     },
-    getCount(){
+    getCount() {
       return this.$store.state.test;
-    }
+    },
   },
 };
 </script>
@@ -66,13 +66,20 @@ body {
   color: $text-color;
 }
 
+$fonts: "Scheherazade","Signika", sans-serif;
+
 body {
-  font-family: "Cairo", sans-serif;
+  font-family:  $fonts;
   font-size: 16px;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+input {
+  font-family: $fonts;
+  font-size: 16px;
 }
 
 .content-wrapper {
@@ -81,6 +88,17 @@ body {
   margin: 0 auto;
   padding: 0 30px;
   box-sizing: border-box;
+}
+
+.center-box {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 h1 {
