@@ -5,21 +5,21 @@
       <SimpleFormattedField ref="fieldTextField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.inner_circular_text')">
+    <LabeledInputContainer :label="prefix + $t('property.inner_inscript')">
       <SimpleFormattedField ref="innerInscriptField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer
-      :label="prefix + $t('property.intermediate_circular_text')"
+      :label="prefix + $t('property.intermediate_inscript ')"
     >
       <SimpleFormattedField ref="intermediateInscriptField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.outer_circular_text')">
+    <LabeledInputContainer :label="prefix + $t('property.outer_inscript')">
       <SimpleFormattedField ref="outerInscriptField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.border_and_misc')">
+    <LabeledInputContainer :label="prefix + $t('property.misc')">
       <SimpleFormattedField ref="miscField" />
     </LabeledInputContainer>
   </div>

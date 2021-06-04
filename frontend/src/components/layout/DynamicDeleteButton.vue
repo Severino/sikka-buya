@@ -4,16 +4,16 @@
     :class="active ? 'active' : 'inactive'"
     @click.stop="requestRemove"
   >
-    <MinusCircle class="icon" />
+    <Delete class="icon" />
     <span id="text">{{ $t("general.delete_submit") }}</span>
   </div>
 </template>
 
 <script>
-import MinusCircle from "vue-material-design-icons/MinusCircle";
+import Delete from "vue-material-design-icons/Delete";
 export default {
   components: {
-    MinusCircle,
+    Delete,
   },
   props: {
       time: {
@@ -51,7 +51,7 @@ export default {
 @import "@/scss/_import.scss";
 
 #delete {
-  background-color: gray;
+  // background-color: gray;
   align-self: stretch;
 
   display: flex;
@@ -67,10 +67,6 @@ export default {
   letter-spacing: 1px;
   transition: background-color $long-transition-time;
 
-  > * {
-    color: white;
-  }
-
   .icon {
     padding: 10px;
   }
@@ -84,7 +80,8 @@ export default {
   }
 
   &.active {
-    background-color: $red;
+    // background-color: $red;
+    // color: $white;
     padding-left: $padding;
     padding-right: $padding;
 

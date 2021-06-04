@@ -11,11 +11,11 @@ export default class Auth {
     }
 
     static saveUser(user) {
-        localStorage.setItem(this.userStore, JSON.stringify(user))
+        sessionStorage.setItem(this.userStore, JSON.stringify(user))
     }
 
     static loadUser() {
-        let userStr = localStorage.getItem(this.userStore)
+        let userStr = sessionStorage.getItem(this.userStore)
         let user = { id: 0, email: "Unknown" }
         try {
             user = JSON.parse(userStr)
@@ -27,11 +27,34 @@ export default class Auth {
     }
 
     static saveToken(token) {
-        localStorage.setItem(this.tokenStore, token)
+        sessionStorage.setItem(this.tokenStore, token)
     }
 
     static loadToken() {
-        return localStorage.getItem(this.tokenStore)
+        return sessionStorage.getItem(this.tokenStore)
+    }
+
+    static load(){
+        return {
+            user: this.loadUser(),
+            token: this.loadToken()
+        }
+    }
+
+    static async init(){
+        const token = this.loadToken()
+        if (token) {
+            let response = await Query.raw(`{
+                auth(token:"${token}"){
+                    id
+                    email
+                    super
+                }
+            }`)
+
+            return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
+        }
+        return null
     }
 
     static async check() {
@@ -39,7 +62,7 @@ export default class Auth {
         let status = true
         if (token) {
             let response = await Query.raw(`{
-                auth(token:"${token}")
+                auth(token:"${token}"){id}
             }`)
 
             console.log(response)
@@ -53,8 +76,8 @@ export default class Auth {
 
 
     static logout() {
-        localStorage.removeItem(this.tokenStore)
-        localStorage.removeItem(this.userStore)
+        sessionStorage.removeItem(this.tokenStore)
+        sessionStorage.removeItem(this.userStore)
     }
 
     static async login(email, password) {
@@ -90,8 +113,6 @@ export default class Auth {
                 this.saveUser(user)
             }
         }
-
-        console.log(result)
 
         return response
     }

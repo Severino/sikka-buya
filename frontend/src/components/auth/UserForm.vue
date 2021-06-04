@@ -2,8 +2,9 @@
   <form @submit.prevent="submit">
     <h3 v-if="title">{{ title }}</h3>
 
-    <label for="uname">Email</label>
-    <input id="uname" name="username" type="email" :value="email" @input="emailChanged" required  autocomplete="username" autofocus/>
+    <label for="username">Email</label>
+    <input id="username" name="username" type="email" :value="email" @input="emailChanged" required  autocomplete="username" autofocus/>
+
     <label for="cpassword">Password</label>
     <input
       type="password"

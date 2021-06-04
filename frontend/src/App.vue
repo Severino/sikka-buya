@@ -12,6 +12,7 @@
 import LoginForm from "./components/auth/LoginForm.vue";
 import ButtonGroup from "./components/forms/ButtonGroup.vue";
 import Modal from "./components/layout/Modal.vue";
+import Auth from './utils/Auth';
 export default {
   components: { ButtonGroup, LoginForm, Modal },
   name: "App",
@@ -19,6 +20,11 @@ export default {
     return {
       language: "de",
     };
+  },
+  created: async function(){
+    let user = await Auth.init()
+    console.log(user)
+    this.$store.commit("login", user)
   },
   mounted: function () {
     const lang = window.localStorage.getItem("language", this.$i18n.locale);

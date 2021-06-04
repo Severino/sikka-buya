@@ -88,6 +88,7 @@ const routes = [
       {
         path: '/catalog/',
         component: Catalog,
+        meta: { auth: true },
         children: [{
           path: '',
           name: 'Catalog',
@@ -265,7 +266,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.fullPath == "/") next({ name: "Home" })
 
 
-  if (to.meta && to.meta.auth) {
+  if (to.matched.some(record => record.meta.auth)) {
 
     let auth = await Auth.check()
     if (auth) {

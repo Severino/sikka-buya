@@ -21,7 +21,9 @@ export default {
 
 <style lang="scss" >
 .property-label {
+  font-size: $small-font;
   font-weight: bold;
   color: $primary-color;
+  text-transform: uppercase;
 }
 </style>

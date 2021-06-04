@@ -33,7 +33,7 @@ const property = {
         "Sonstige Personen",
     backside:
         "revers",
-    border_and_misc:
+    misc:
         "Randbeschriftung",
     circular_text:
         "Umschrift | Umschriften",
@@ -55,11 +55,11 @@ const property = {
         "isolierter Buchstabe | isolierte Buchstaben",
     issuer:
         "Münzherr",
-    intermediate_circular_text:
+    intermediate_inscript :
         "Mittlere Umschrift",
     internal_notes:
         "Interne Anmerkungen",
-    inner_circular_text:
+    inner_inscript:
         "innere Umschrift",
     literature_and_remarks:
         "Literatur & Anmerkungen",
@@ -77,7 +77,7 @@ const property = {
         "Nominal | Nominale",
     overlord:
         "Oberherr | Oberherren",
-    outer_circular_text:
+    outer_inscript:
         "äußere Umschrift",
     person:
         "Person | Personen",
@@ -161,7 +161,9 @@ const error = {
         "Das angefragte Element konnte nicht geladen werden. Gehe zur Liste zurück oder erstelle ein neues Element hier. Kontaktiere einen Admin, falls das Problem weiterhin besteht."
     ,
     loading_list:
-        "List konnte nicht geladen werden. Anscheinend ist die Datenbank nicht verfügbar."
+        "List konnte nicht geladen werden. Anscheinend ist die Datenbank nicht verfügbar.",
+    delete_list_item_prevented:
+        "Eintrag konnte nicht gelöscht werden. Wahscheinlich wird er noch von anderen Einträgen referenziert."
 }
 
 

@@ -83,8 +83,7 @@ class Auth {
      */
     static verify(token) {
         try {
-            jwt.verify(token, process.env.JWT_KEY)
-            return true
+            return jwt.verify(token, process.env.JWT_KEY)
         } catch (e) {
             throw new Error("401")
         }

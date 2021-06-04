@@ -241,7 +241,7 @@ type Query {
   users: [User]
 
   login(data: UserInput): AuthResponse
-  auth(token: String): Boolean
+  auth(token: String): User
 }
 
 type Mutation {

@@ -304,6 +304,7 @@ class Type {
         LEFT JOIN type_completed tc ON t.id = tc.type
         LEFT JOIN type_reviewed tr ON t.id = tr.type
         ORDER BY project_id
+        COLLATE "C";
             `)
 
         const map = {

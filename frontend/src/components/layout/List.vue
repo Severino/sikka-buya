@@ -4,14 +4,14 @@
 
     <header v-if="properties">
       <div
-        v-for="(label, idx) of [ ...properties]"
+        v-for="(label, idx) of [...properties]"
         :key="`label-of-${label}-${idx}`"
       >
         {{ label }}
       </div>
     </header>
     <div v-if="error" class="info error">
-      <Information />
+      <AlertCircle />
       <p>
         {{ error }}
       </p>
@@ -43,12 +43,14 @@
 </template>
 
 <script>
+import AlertCircle from "vue-material-design-icons/AlertCircle";
+
 import Information from "vue-material-design-icons/Information";
 import ListItem from "./ListItem.vue";
 import LoadingSpinner from "../misc/LoadingSpinner.vue";
 
 export default {
-  components: { ListItem, Information, LoadingSpinner },
+  components: { ListItem, Information, AlertCircle, LoadingSpinner },
   props: {
     properties: {
       type: Array,
@@ -74,10 +76,10 @@ export default {
     noRemove: Boolean,
   },
   methods: {
-    listItemClicked: function (id) {
+    listItemClicked: function(id) {
       this.$emit("select", id);
     },
-    listItemRemoved: function (id) {
+    listItemRemoved: function(id) {
       this.$emit("remove", id);
     },
   },
@@ -94,7 +96,7 @@ export default {
 .info {
   color: gray;
   background-color: whitesmoke;
-  border-radius: $border-radius;
+  // border-radius: $border-radius;
   display: flex;
   align-items: center;
 
@@ -104,7 +106,8 @@ export default {
 }
 
 .error {
-  color: rgb(138, 39, 39);
+  color: black;
+  font-weight: normal;
   background-color: rgb(255, 81, 81);
   border: 1px solid rgb(138, 39, 39);
 }
@@ -116,7 +119,7 @@ export default {
 header {
   display: flex;
   align-items: center;
-  padding: 0 $padding; 
+  padding: 0 $padding;
   border-bottom-width: 0;
   background-color: rgb(224, 224, 224);
   color: gray;
@@ -134,7 +137,7 @@ header {
   //   margin-right: $padding * 2;
   // }
 
-  > *{
+  > * {
     flex: 1;
   }
 

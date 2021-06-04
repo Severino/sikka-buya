@@ -13,8 +13,10 @@ const store = new Vuex.Store({
   },
   mutations: {
     login(state, user) {
-      console.log(user)
       state.user = user
+    },
+    logout(state){
+      state.user = null
     },
     showLoginForm(state) {
       state.showLoginForm = true

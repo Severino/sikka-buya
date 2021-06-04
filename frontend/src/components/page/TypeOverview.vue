@@ -36,7 +36,6 @@
         @click="edit(item.id)"
         :class="item.completed ? 'completed' : 'incomplete'"
       >
-        <ListItemIdField :value="item.id" />
         <ListItemCell>
           {{ item.projectId }}
         </ListItemCell>

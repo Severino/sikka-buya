@@ -71,7 +71,7 @@
           <h4 v-if="type.avers.innerInscript.textContent">
             {{
               type.avers.outerInscript
-                ? $t("property.inner_circular_text")
+                ? $t("property.inner_inscript")
                 : $t("property.circular_text")
             }}
           </h4>
@@ -81,7 +81,7 @@
           ></p>
 
           <h4 v-if="type.avers.intermediateInscript.textContent">
-            {{ $t("property.intermediate_circular_text") }}
+            {{ $t("property.intermediate_inscript ") }}
           </h4>
           <p
             v-if="type.avers.intermediateInscript.textContent"
@@ -89,7 +89,7 @@
           ></p>
 
           <h4 v-if="type.avers.innerInscript.textContent">
-            {{ $t("property.outer_circular_text") }}
+            {{ $t("property.outer_inscript") }}
           </h4>
           <p
             v-if="type.avers.innerInscript.textContent"
@@ -97,7 +97,7 @@
           />
 
           <h4 v-if="type.avers.misc.textContent">
-            {{ $t("property.border_and_misc") }}
+            {{ $t("property.misc") }}
           </h4>
           <p v-if="type.avers.misc.textContent" v-html="type.avers.misc" />
         </div>
@@ -110,7 +110,7 @@
           <h4 v-if="type.reverse.innerInscript.textContent">
             {{
               type.reverse.outerInscript
-                ? $t("property.inner_circular_text")
+                ? $t("property.inner_inscript")
                 : $t("property.circular_text")
             }}
           </h4>
@@ -120,7 +120,7 @@
           ></p>
 
           <h4 v-if="type.reverse.intermediateInscript.textContent">
-            {{ $t("property.intermediate_circular_text") }}
+            {{ $t("property.intermediate_inscript ") }}
           </h4>
           <p
             v-if="type.reverse.intermediateInscript.textContent"
@@ -128,7 +128,7 @@
           ></p>
 
           <h4 v-if="type.reverse.innerInscript.textContent">
-            {{ $t("property.outer_circular_text") }}
+            {{ $t("property.outer_inscript") }}
           </h4>
           <p
             v-if="type.reverse.innerInscript.textContent"
@@ -136,7 +136,7 @@
           />
 
           <h4 v-if="type.reverse.misc.textContent">
-            {{ $t("property.border_and_misc") }}
+            {{ $t("property.misc") }}
           </h4>
           <p v-if="type.reverse.misc.textContent" v-html="type.reverse.misc" />
         </div>

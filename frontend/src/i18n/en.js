@@ -31,7 +31,7 @@ const property = {
         "additional persons",
     backside:
         "reverse",
-    border_and_misc:
+    misc:
         "border inscription",
     circular_text:
         "marginal inscription | marginal inscriptions",
@@ -51,9 +51,9 @@ const property = {
         "honorific | honorifics",
     isolated_character:
         "isolated character | isolated characters",
-    intermediate_circular_text:
+    intermediate_inscript :
         "intermediate marginal inscription",
-    inner_circular_text:
+    inner_inscript:
         "inner marginal inscription",
     literature_and_remarks:
         "literature & remarks",
@@ -69,7 +69,7 @@ const property = {
         "nominal | nominals",
     overlord:
         "overlord | overlords",
-    outer_circular_text:
+    outer_inscript:
         "outer marginal inscription",
     person:
         "person | persons",

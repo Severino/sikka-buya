@@ -48,17 +48,12 @@ export default {
     Menu,
     Close,
   },
-  created: function () {
-    this.user = Auth.loadUser();
-    this.$store.commit("login", this.user);
-  },
   data: function () {
     return {
       active: false,
-      user: null,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: "Karte", target: { name: "MapPage" } },
+        { name: "Karte", target: { name: "MapPage" }, auth: true },
         { name: "Typekatalog", target: { name: "Catalog" } },
       ],
     };
@@ -69,21 +64,27 @@ export default {
     },
     logout: function () {
       Auth.logout();
-      this.user = null;
+      this.$store.commit("logout")
       this.$router.push({ name: "Home" });
     },
   },
-  watch: {
-    $route(to, from) {
-      this.user = Auth.loadUser();
-      this.$store.commit("login", this.user);
-    },
+  created: function(){
+    console.log("NAVIGATION CREATED")
   },
+  ////TODO: Remove if this was not necessary.
+  //// User is now stored in VUEX.
+// watch: {
+//     $route(to, from) {
+//       this.$store.commit("login", this.user);
+//     },
+//   },
   computed: {
     version: function () {
-      console.log(this.$store.version);
       return this.$store.state.version;
     },
+    user: function(){
+      return this.$store.state.user
+    }
   },
 };
 </script>
@@ -182,11 +183,13 @@ a {
   margin-left: $padding * 2;
   overflow: hidden;
 
+
   > * {
     display: block;
     color: $white;
     display: flex;
     white-space: nowrap;
+    align-items: center;
 
     background-color: $primary-color;
 
@@ -215,6 +218,11 @@ a {
       padding: 3 * $padding;
       background-color: transparent;
       color: $primary-color;
+
+      &:hover {
+        color: darken($primary-color, 15%);
+        background-color: transparent;
+      }
     }
   }
 }

@@ -6,28 +6,28 @@
 
     <labeled-property
       v-if="hasText(value.innerInscript)"
-      :label="$t('property.sides.inner_circular_text')"
+      :label="$t('property.sides.inner_inscript')"
     >
       <div v-html="value.innerInscript" />
     </labeled-property>
 
     <labeled-property
       v-if="hasText(value.intermediateInscript)"
-      :label="$t('property.sides.intermediate_circular_text')"
+      :label="$t('property.sides.intermediate_inscript ')"
     >
       <div v-html="value.intermediateInscript" />
     </labeled-property>
 
     <labeled-property
       v-if="hasText(value.outerInscript)"
-      :label="$t('property.sides.outer_circular_text')"
+      :label="$t('property.sides.outer_inscript')"
     >
       <div v-html="value.outerInscript" />
     </labeled-property>
 
     <labeled-property
       v-if="hasText(value.misc)"
-      :label="$t('property.sides.border_and_misc')"
+      :label="$t('property.sides.misc')"
     >
       <div v-html="value.misc" />
     </labeled-property>

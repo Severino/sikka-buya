@@ -1,6 +1,6 @@
 <template>
   <div :class="`overview ${this.property}-page`">
-    <BackHeader :to="{name: 'Editor'}" />
+    <BackHeader :to="{ name: 'Editor' }" />
     <h1>{{ $tc(`property.${propertyName}`) }}</h1>
 
     <div
@@ -29,7 +29,6 @@
         :id="item.id"
         @click="edit(item.id)"
       >
-        <ListItemIdField :value="item.id" />
         <ListItemCell>{{ item.name }}</ListItemCell>
         <DynamicDeleteButton @click="remove(item.id)" />
       </ListItem>
@@ -65,7 +64,7 @@ export default {
     ListItemCell,
     DynamicDeleteButton,
   },
-  created: function () {
+  created: function() {
     new Query(this.queryName)
       .list(["id", "name"])
       .then((obj) => {
@@ -85,23 +84,23 @@ export default {
     createPage: String,
   },
   computed: {
-    propertyName: function () {
+    propertyName: function() {
       return this.overridePropertyName
         ? this.overridePropertyName
         : this.property;
     },
-    queryName: function () {
+    queryName: function() {
       return this.query ? this.query : this.property;
     },
-    property: function () {
+    property: function() {
       return this.overrideProperty
         ? this.overrideProperty
         : this.$route.params.property.toLowerCase();
     },
-    list: function () {
+    list: function() {
       return this.$data.items;
     },
-    filteredItems: function () {
+    filteredItems: function() {
       let list = this.$data.items;
 
       list = SearchUtils.filter(this.textFilter, list);
@@ -109,10 +108,11 @@ export default {
       return list;
     },
   },
-  data: function () {
+  data: function() {
     return {
       loading: true,
       items: [],
+      error_id: 0,
       error: "",
       textFilter: "",
     };
@@ -132,24 +132,31 @@ export default {
       new Query(this.queryName)
         .delete(id)
         .then((answer) => {
-          if (AxiosHelper.ok(answer)) {
-            const idx = this.$data.items.findIndex((item) => item.id == id);
-            if (idx != -1) this.$data.items.splice(idx, 1);
-          } else {
-            const errors = AxiosHelper.getErrors(answer);
-            this.error = errors.join("\n");
-            console.error(errors);
-          }
+          const idx = this.$data.items.findIndex((item) => item.id == id);
+          if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((err) => {
+          this.displayError(this.$t("error.delete_list_item_prevented"));
           console.error(err);
         });
     },
     edit(id) {
       this.$router.push({
         path: `${id}`,
-        append: true
+        append: true,
       });
+    },
+    displayError(err) {
+      this.error_id++;
+      let current_id = this.error_id;
+      this.error = err;
+
+      // Delete the error message if its the same message after X seconds.
+      setTimeout(() => {
+        if ((this.error_id = current_id)) {
+          this.error = "";
+        }
+      }, 3000);
     },
   },
 };
@@ -163,8 +170,6 @@ export default {
   margin: $padding 0;
   // padding: $padding;
   overflow: hidden;
-  background-color: rgb(78, 78, 78);
-
   background-color: whitesmoke;
   border-radius: 3px;
 
