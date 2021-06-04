@@ -131,7 +131,7 @@ const resolvers = {
         getTypesByOverlord: async function (_, args) {
             return Type.getTypesByOverlord(args.id)
         },
-        searchTypes: async function(_, args){
+        searchTypes: async function (_, args) {
             const text = args.text
             return Type.searchType(text)
         },
@@ -141,6 +141,15 @@ const resolvers = {
         getTypeComplete: async function (_, { id = null } = {}) {
             const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);
             return result.exists
+        },
+        getAnalytics: async function (_, { id = null } = {}) {
+            const count = await Database.one("SELECT COUNT(*) as types, COUNT(DISTINCT mint) AS mints, COUNT(DISTINCT year_of_mint) AS years  FROM type", id);
+
+            return {
+                typeCount: count.types,
+                mintCount: count.mints,
+                yearCount: count.years
+            }
         },
         login: Auth.login,
         auth: async function (_, args) {

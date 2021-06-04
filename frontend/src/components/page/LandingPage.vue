@@ -1,10 +1,6 @@
 <template>
   <section class="hero">
     <div class="box">
-
-      <p>
-        بسم الله ضرب هذا الدرهم
-      </p>
       <p>
         Hier entsteht SIKKA:BUYA entdecke als Interessierter oder Forscher, eine
         neue Perspektive auf die Geschichte der Buiyden und die islamische

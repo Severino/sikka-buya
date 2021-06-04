@@ -5,15 +5,18 @@
       <thead>
         <tr>
           <td></td>
-          <td v-for="year in years" :key="'head-' + year" >{{ year }}</td>
+          <td v-for="mint in mints" :key="'head-' + mint">{{ mint }}</td>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="mint in mints" :key="'row-' + mint" >
-          <td>{{ mint }}</td>
-          <td v-for="year in years" :key="'col-' + year + '-' + mint"
-          class="color-box"
-          :class="{exists: typeByMintAndYear(mint, year) }">
+        <tr v-for="year in years" :key="'row-' + year">
+          <td>{{ year }}</td>
+          <td
+            v-for="mint in mints"
+            :key="'col-' + year + '-' + mint"
+            class="color-box"
+            :class="{ exists: typeByMintAndYear(mint, year) }"
+          >
             <!-- {{ typeByMintAndYear(mint, year) }} -->
           </td>
         </tr>
@@ -33,8 +36,11 @@ export default {
         }`
     )
       .then((result) => {
-
-        let data = (result && result.data && result.data.data && result.data.getTypes)?result.data.getTypes: null
+        console.log(result);
+        let data =
+          result && result.data && result.data.data && result.data.data.getTypes
+            ? result.data.data.getTypes
+            : null;
         if (data) {
           let min = Infinity;
           let max = -Infinity;
@@ -82,14 +88,12 @@ export default {
   },
   methods: {
     typeByMintAndYear(mint, year) {
-        console.log(year)
-        console.log(this.map[mint].values())
       return this.map[mint].has(year.toString());
     },
   },
   computed: {
     mints: function () {
-      return Object.keys(this.map);
+      return Object.keys(this.map).sort((a, b) => b < a);
     },
   },
 };
@@ -102,21 +106,25 @@ export default {
   justify-content: flex-start;
   align-items: center;
 
-  font-size: 10px;
+  // font-size: 10px;
 }
 
 .color-box {
-    width: 20px;
-    height: 20px;
-    background-color: red;
+  width: 20px;
+  height: 20px;
+  background-color: red;
 
-    font-weight: bold;
-    text-transform: uppercase;
-    color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
 
-    &.exists {
-        background-color: green;
-    }
+  &.exists {
+    background-color: green;
+  }
 }
 
+td {
+  text-align: center;
+  min-width: 72px;
+}
 </style>

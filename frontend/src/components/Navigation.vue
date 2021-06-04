@@ -9,7 +9,10 @@
       <div class="nav-menu" :class="{ active: active }">
         <nav>
           <ul>
-            <li v-for="(item, index) in items" :key="`nav-item-${index}`">
+            <li
+              v-for="(item, index) in visibleItems"
+              :key="`nav-item-${index}`"
+            >
               <router-link :to="item.target">{{ item.name }}</router-link>
             </li>
           </ul>
@@ -18,15 +21,16 @@
           <span class="version">{{ version }}</span>
           <div class="languages">DE</div>
         </div>
-        <div v-if="user" class="user">
+        
+        <div v-if="loggedIn"  class="user">
           <router-link :to="{ name: 'Editor' }">
             <Pencil />
           </router-link>
           <div @click="logout">{{ $t("system.logout") }}</div>
         </div>
         <div class="nav-toggle" @click="toggleMenu()">
-          <Menu v-if="active" />
-          <Close v-else />
+          <Close v-if="active" />
+          <Menu  v-else />
         </div>
       </div>
     </div>
@@ -55,6 +59,7 @@ export default {
         // { name: "Home", target: "undefined" },
         { name: "Karte", target: { name: "MapPage" } },
         { name: "Typekatalog", target: { name: "Catalog" }, auth: true },
+        { name: "Analytics", target: { name: "Analytics" }, auth: true },
       ],
     };
   },
@@ -64,26 +69,35 @@ export default {
     },
     logout: function () {
       Auth.logout();
-      this.$store.commit("logout")
+      this.$store.commit("logout");
       this.$router.push({ name: "Home" });
     },
   },
-  created: function(){
-    console.log("NAVIGATION CREATED")
+  created: function () {
+    console.log("NAVIGATION CREATED");
   },
   ////TODO: Remove if this was not necessary.
   //// User is now stored in VUEX.
-// watch: {
-//     $route(to, from) {
-//       this.$store.commit("login", this.user);
-//     },
-//   },
+  // watch: {
+  //     $route(to, from) {
+  //       this.$store.commit("login", this.user);
+  //     },
+  //   },
   computed: {
     version: function () {
       return this.$store.state.version;
     },
-    user: function(){
-      return this.$store.state.user
+    visibleItems() {
+      let items = [];
+      if (this.loggedIn) {
+        items = this.items;
+      } else {
+        items = this.items.filter(item => !item.auth)
+      }
+      return items
+    },
+    loggedIn: function(){
+      return this.$store.getters.loggedIn
     }
   },
 };
@@ -114,8 +128,7 @@ header {
   display: flex;
   align-items: center;
 
-  
-    z-index: 2000;
+  z-index: 2000;
 
   @include media_phone {
     justify-content: flex-end;
@@ -123,14 +136,14 @@ header {
     flex-direction: column-reverse;
     position: fixed;
     top: 0;
-    left: 0;
-    width: 100%;
+    left: 100vw;
+    width: 100vw;
     height: 100%;
     background-color: $white;
     transition: transform 0.3s;
 
     &.active {
-      transform: translateX(100%);
+      transform: translateX(-100%);
     }
   }
 }
@@ -183,7 +196,6 @@ a {
   margin-left: $padding * 2;
   overflow: hidden;
 
-
   > * {
     display: block;
     color: $white;
@@ -227,9 +239,7 @@ a {
   }
 }
 .lang-version-grp {
-
-    display: flex;
-
+  display: flex;
 
   @include media_phone {
     justify-content: space-between;
@@ -242,7 +252,7 @@ a {
 @include media_phone {
   .nav-menu.active {
     .nav-toggle {
-      transform: translateX(-100%);
+      transform: translateX(0);
     }
   }
 }
@@ -250,6 +260,7 @@ a {
 .nav-toggle {
   display: none;
   transition: all 0.3s;
+  transform: translateX(-100%);
   @include interactive;
 
   @include media_phone {

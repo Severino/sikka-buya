@@ -14,6 +14,7 @@ import VueRouter from 'vue-router'
  */
 
 import CommonMain from "@/components/main/CommonMain"
+import RouterContainer from "@/components/page/RouterContainer.vue"
 
 
 //** AUTH */
@@ -21,9 +22,15 @@ import LoginPage from "@/components/page/auth/LoginPage"
 import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
 
 /**
+ * Analytics
+ */
+import AnalyticsDashboard from "@/components/page/analytics/AnalyticsDashboard"
+import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
+
+
+/**
  * Catalog
  */
-import Catalog from "@/components/page/catalog/Catalog.vue"
 import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
 import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
 
@@ -58,14 +65,26 @@ import Auth from "../utils/Auth.js"
 
 Vue.use(VueRouter)
 
+const analyticsRoutes = {
+  path: "/analytics/",
+  component: RouterContainer,
+  children: [
+    {
+      path: "",
+      name: "Analytics",
+      component: AnalyticsDashboard
+    },
+    {
+      path: "/table/",
+      name: "AnalyticsTable",
+      component: YearMintTablePage
+    },
+  ]
+}
+
+
 const routes = [
 
-  // {
-  //   path: "/analytics/table/",
-  //   name: "AnalyticsTable",
-  //   component: YearMintTablePage
-
-  // },
   // {
   //   path: '/explorer',
   //   name: 'Explorer',
@@ -85,9 +104,10 @@ const routes = [
         name: "Home",
         component: LandingPage
       },
+      analyticsRoutes,
       {
         path: '/catalog/',
-        component: Catalog,
+        component: RouterContainer,
         meta: { auth: true },
         children: [{
           path: '',

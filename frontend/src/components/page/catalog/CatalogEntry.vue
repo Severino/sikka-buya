@@ -2,8 +2,8 @@
   <div class="catalogEntry">
     <header>
       <h1>{{ type.projectId }}</h1>
-      <Gift v-if="type.donativ" /> 
-      <RecycleVariant v-else/>
+      <Gift v-if="type.donativ" />
+      <RecycleVariant v-else />
     </header>
     <div class="catalogFields">
       <div class="property-row">
@@ -22,13 +22,7 @@
 
           <div
             class="property"
-            v-for="(val, idx) of [
-              'fieldText',
-              'innerInscript',
-              'intermediateInscript',
-              'outerInscript',
-              'misc',
-            ]"
+            v-for="(val, idx) of getFilledFields('avers')"
             v-bind:key="`property-${val}-${idx}`"
           >
             <div class="property-label">
@@ -41,13 +35,7 @@
           <h2>Revers</h2>
           <div
             class="property"
-            v-for="(val, idx) of [
-              'fieldText',
-              'innerInscript',
-              'intermediateInscript',
-              'outerInscript',
-              'misc',
-            ]"
+            v-for="(val, idx) of getFilledFields('reverse')"
             v-bind:key="`property-${val}-${idx}`"
           >
             <div class="property-label">
@@ -94,7 +82,7 @@ export default {
     RecycleVariant,
   },
   name: "CatalogEntry",
-  data: function() {
+  data: function () {
     return {
       type: {
         id: null,
@@ -132,7 +120,7 @@ export default {
       },
     };
   },
-  created: function() {
+  created: function () {
     Query.raw(
       `
         {
@@ -235,7 +223,6 @@ export default {
       `
     )
       .then((result) => {
-        console.log("THEM", this.$data.type);
         Object.assign(this.$data.type, result.data.data.getCoinType);
       })
       .catch(console.error);
@@ -254,7 +241,6 @@ export default {
       }
 
       if (typeof this.$data.type[key] == "object") {
-        console.log(this.$data.type[key][attr], attr);
         if (this.$data.type[key]) {
           if (this.$data.type[key][attr] !== null) {
             text = this.$data.type[key][attr];
@@ -270,9 +256,24 @@ export default {
     camelToSnake(value) {
       return CaseHelper.camelToSnake(value);
     },
+    getFilledFields(str) {
+      let result = [];
+      console.log(this.type[str])
+      if (this.type[str]) {
+        result = Object.entries(this.type[str]).filter(([_, val]) => {
+
+          const parser = new DOMParser()
+          const doc = parser.parseFromString(val, "text/html")
+
+          return doc.documentElement.innerText;
+        }).map(([key,val]) => key);
+        
+      }
+      return result;
+    },
   },
   computed: {
-    persons: function() {
+    persons: function () {
       let persons = [
         "issuers",
         "overlords",
@@ -282,7 +283,6 @@ export default {
         "cutter",
       ];
 
-      console.log(persons.filter((name) => this[name]));
       return persons.filter((name) => this[name]);
     },
   },
@@ -290,9 +290,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-
-
 header {
   font-weight: 700;
   margin-top: 5em;
@@ -300,14 +297,11 @@ header {
   display: flex;
   align-items: baseline;
 
-  .material-design-icon{
+  .material-design-icon {
     color: $primary-color;
     padding: 0 1em;
   }
 }
-
-
-
 
 .property-row {
   display: grid;

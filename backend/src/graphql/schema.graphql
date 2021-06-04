@@ -228,6 +228,8 @@ type Query {
   getDynasty(id: Int!): Dynasty
   getRole(id: Int!): Role
 
+  getAnalytics: Analytics
+
   getOverlord(id: ID!): Overlord
 
   getReducedCoinTypeList(id: ID): [ReducedCoinType]
@@ -315,4 +317,11 @@ input OverlordInput {
   rank: Int!
   titles: [Int]!
   honorifics: [Int]!
+}
+
+
+type Analytics {
+  typeCount: Int
+  mintCount: Int
+  yearCount: Int
 }

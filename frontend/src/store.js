@@ -15,7 +15,7 @@ const store = new Vuex.Store({
     login(state, user) {
       state.user = user
     },
-    logout(state){
+    logout(state) {
       state.user = null
     },
     showLoginForm(state) {
@@ -25,6 +25,10 @@ const store = new Vuex.Store({
       state.showLoginForm = false
     }, increment(state) {
       state.test++
+    }
+  }, getters: {
+    loggedIn: state => {
+      return !!state.user
     }
   }
 })

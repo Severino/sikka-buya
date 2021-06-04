@@ -169,6 +169,7 @@ button[type="submit"] {
 
 .button,
 button {
+  display: block;
   text-transform: capitalize;
   @include input;
   @include interactive();
