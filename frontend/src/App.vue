@@ -72,7 +72,7 @@ body {
   color: $text-color;
 }
 
-$fonts: "Scheherazade","Signika", sans-serif;
+$fonts: "TimesNewRoman","Arimo", sans-serif;
 
 body {
   font-family:  $fonts;
@@ -110,7 +110,6 @@ input {
 h1 {
   font-weight: bold;
   font-size: 3rem;
-  margin: 0;
 }
 
 .hero {

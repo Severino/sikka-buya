@@ -134,16 +134,10 @@ export default {
 
       Query.raw(query, variables)
         .then((result) => {
-
-          console.log(result)
-          // if (AxiosHelper.ok(result)) {
-          //   this.$router.push({
-          //     name: "Property",
-          //     params: { property: "person" },
-          //   });
-          // } else {
-          //   this.error = AxiosHelper.getErrors(result).join("\n");
-          // }
+          this.$router.push({
+              name: "Property",
+              params: { property: "person" },
+            });
         })
         .catch((err) => {
           this.error = this.$t("error.could_not_update_element");

@@ -27,17 +27,17 @@
 }
 
 @font-face {
-    font-family: "Scheherazade";
+    font-family: "Times New Roman";
     font-style: normal;
     font-weight: normal;
-    src: url("../fonts/Scheherazade/Scheherazade-Regular.ttf") format("truetype");
+    src: url("../fonts/TimesNewRoman/times.ttf") format("truetype");
     unicode-range: U+0600-06ff;
 }
 
 @font-face {
-    font-family: "Scheherazade";
+    font-family: "Times New Roman";
     font-weight: bold;
     font-style: normal;
-    src: url("../fonts/Scheherazade/Scheherazade-Bold.ttf") format("truetype");
+    src: url("../fonts/TimesNewRoman/timesbd.ttf") format("truetype");
     unicode-range: U+0600-06ff;
 }

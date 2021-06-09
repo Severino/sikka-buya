@@ -148,7 +148,7 @@ export default {
 
 .formatted-text-area {
   @include input();
-  font-size: 1rem;
+  font-size: 1.3em;
   min-height: 1em;
   // background-color: red;
 

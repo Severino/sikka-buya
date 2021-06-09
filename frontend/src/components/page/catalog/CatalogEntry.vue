@@ -2,9 +2,13 @@
   <div class="catalogEntry">
     <header>
       <h1>{{ type.projectId }}</h1>
-      <Gift v-if="type.donativ" />
-      <RecycleVariant v-else />
+      <br>
+      
+      <!-- <Gift v-if="type.donativ" />
+      <RecycleVariant v-else /> -->
     </header>
+    <Gift />
+    <p style="opacity:0.5;">Geschenkmünze</p>
     <div class="catalogFields">
       <div class="property-row">
         <div
@@ -12,37 +16,25 @@
           v-for="(val, idx) of ['mint', 'year', 'nominal', 'material']"
           v-bind:key="`property-${val}-${idx}`"
         >
-          <labeled-field :label="val" :value="printTypeProperty(val)" />
+          <catalog-property :label="val" :value="printTypeProperty(val)" />
         </div>
       </div>
 
       <div class="coin-sides">
-        <div class="avers">
-          <h2>Avers</h2>
+        <div
+          v-for="(side, sideIdx) in ['avers', 'reverse']"
+          :key="`coin-sides-${sideIdx}`"
+          class="avers"
+        >
+          <h2>{{ side[0].toUpperCase() + side.substr(1) }}</h2>
 
-          <div
+          <catalog-property
             class="property"
-            v-for="(val, idx) of getFilledFields('avers')"
-            v-bind:key="`property-${val}-${idx}`"
-          >
-            <div class="property-label">
-              {{ $tc(`property.${camelToSnake(val)}`) }}
-            </div>
-            <div class="property-value" v-html="type.avers[val]"></div>
-          </div>
-        </div>
-        <div class="revers">
-          <h2>Revers</h2>
-          <div
-            class="property"
-            v-for="(val, idx) of getFilledFields('reverse')"
-            v-bind:key="`property-${val}-${idx}`"
-          >
-            <div class="property-label">
-              {{ $tc(`property.${camelToSnake(val)}`) }}
-            </div>
-            <div class="property-value" v-html="type.reverse[val]"></div>
-          </div>
+            v-for="(val, idx) of getFilledFields(side)"
+            :key="`property-${val}-${idx}`"
+            :html="type[side][val]"
+            :label="$tc(`property.${camelToSnake(val)}`)"
+          />
         </div>
       </div>
 
@@ -50,12 +42,12 @@
         <h2>Persons</h2>
         <div
           class="person-container"
-          v-for="(val, idx) of persons"
-          v-bind:key="`person-${val}-${idx}`"
+          v-for="(personObj, idx) of persons"
+          v-bind:key="`person-${idx}`"
         >
           <catalog-item
-            :label="$tc(`person.${val}`)"
-            :value="$data[val]"
+            :label="$tc(`person.${personObj.name}`)"
+            :value="personObj.value"
           ></catalog-item>
         </div>
       </div>
@@ -72,6 +64,7 @@ import CaseHelper from "../../../utils/CaseHelper";
 
 import Gift from "vue-material-design-icons/Gift";
 import RecycleVariant from "vue-material-design-icons/RecycleVariant";
+import CatalogProperty from "../../catalog/CatalogProperty.vue";
 
 export default {
   components: {
@@ -80,6 +73,7 @@ export default {
     LabeledField,
     Gift,
     RecycleVariant,
+    CatalogProperty,
   },
   name: "CatalogEntry",
   data: function () {
@@ -258,23 +252,25 @@ export default {
     },
     getFilledFields(str) {
       let result = [];
-      console.log(this.type[str])
+      console.log(this.type[str]);
       if (this.type[str]) {
-        result = Object.entries(this.type[str]).filter(([_, val]) => {
+        result = Object.entries(this.type[str])
+          .filter(([_, val]) => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(val, "text/html");
 
-          const parser = new DOMParser()
-          const doc = parser.parseFromString(val, "text/html")
-
-          return doc.documentElement.innerText;
-        }).map(([key,val]) => key);
-        
+            return doc.documentElement.innerText;
+          })
+          .map(([key, val]) => key);
       }
+
+      console.log(result);
       return result;
     },
   },
   computed: {
     persons: function () {
-      let persons = [
+      let personType = [
         "issuers",
         "overlords",
         "caliph",
@@ -283,13 +279,45 @@ export default {
         "cutter",
       ];
 
-      return persons.filter((name) => this[name]);
+      let filteredPersons = [];
+
+      personType.forEach((t) => {
+        if (this.type[t]) {
+          if (Array.isArray(this.type[t])) {
+            if (this.type[t].length == 1) {
+              console.log(this.type[t][0].person.name);
+              filteredPersons.push({
+                name: t,
+                value: this.type[t][0].person.name,
+              });
+            }
+            // else if (this.type[t].length > 1){
+            //     filteredPersons.push({name: t, value: this.type[t].map(item => item.person.name)})
+            // }
+          } else {
+            console.log(this.type[t]);
+            filteredPersons.push({
+              name: t,
+              value: this.type[t].name,
+            });
+          }
+        }
+      });
+
+      console.log(filteredPersons);
+
+      return filteredPersons;
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+
+h2 {
+  margin-top: 2em;
+}
+
 header {
   font-weight: 700;
   margin-top: 5em;
@@ -308,8 +336,6 @@ header {
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: $padding;
 
-  margin: 2em 0;
-
   @include media_phone {
     grid-template-columns: 1fr 1fr;
   }
@@ -319,6 +345,18 @@ header {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $padding;
+
+  h2 {
+  grid-column: span 2;
+}
+
+  @include media_phone {
+    grid-template-columns: 1fr;
+
+    h2 {
+  grid-column: span 1;
+}
+  }
 
   > * {
     column-span: 2;
@@ -343,4 +381,9 @@ header {
     grid-template-columns: 1fr;
   }
 }
+
+.catalogEntry {
+  margin-bottom: 50vh;;
+}
+
 </style>

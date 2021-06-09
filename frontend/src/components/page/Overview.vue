@@ -2,37 +2,38 @@
   <div :class="`overview ${this.property}-page`">
     <BackHeader :to="{ name: 'Editor' }" />
     <h1>{{ $tc(`property.${propertyName}`) }}</h1>
-
-    <div
-      class="button"
-      @click="create"
-      tabindex="1"
-      autofocus
-      @keydown.enter="create"
-    >
-      <PlusCircleOutline />
-      <span>{{ $t("form.create") }}</span>
-    </div>
-
-    <SearchField v-model="textFilter" />
-
-    <List
-      @remove="remove"
-      :error="error"
-      :loading="loading"
-      :items="list"
-      :filteredItems="filteredItems"
-    >
-      <ListItem
-        v-for="item of filteredItems"
-        v-bind:key="item.key"
-        :id="item.id"
-        @click="edit(item.id)"
+    <section>
+      <div
+        class="button"
+        @click="create"
+        tabindex="1"
+        autofocus
+        @keydown.enter="create"
       >
-        <ListItemCell>{{ item.name }}</ListItemCell>
-        <DynamicDeleteButton @click="remove(item.id)" />
-      </ListItem>
-    </List>
+        <PlusCircleOutline />
+        <span>{{ $t("form.create") }}</span>
+      </div>
+
+      <SearchField v-model="textFilter" />
+
+      <List
+        @remove="remove"
+        :error="error"
+        :loading="loading"
+        :items="list"
+        :filteredItems="filteredItems"
+      >
+        <ListItem
+          v-for="item of filteredItems"
+          v-bind:key="item.key"
+          :id="item.id"
+          @click="edit(item.id)"
+        >
+          <ListItemCell>{{ item.name }}</ListItemCell>
+          <DynamicDeleteButton @click="remove(item.id)" />
+        </ListItem>
+      </List>
+    </section>
   </div>
 </template>
 
@@ -64,7 +65,7 @@ export default {
     ListItemCell,
     DynamicDeleteButton,
   },
-  created: function() {
+  created: function () {
     new Query(this.queryName)
       .list(["id", "name"])
       .then((obj) => {
@@ -84,23 +85,23 @@ export default {
     createPage: String,
   },
   computed: {
-    propertyName: function() {
+    propertyName: function () {
       return this.overridePropertyName
         ? this.overridePropertyName
         : this.property;
     },
-    queryName: function() {
+    queryName: function () {
       return this.query ? this.query : this.property;
     },
-    property: function() {
+    property: function () {
       return this.overrideProperty
         ? this.overrideProperty
         : this.$route.params.property.toLowerCase();
     },
-    list: function() {
+    list: function () {
       return this.$data.items;
     },
-    filteredItems: function() {
+    filteredItems: function () {
       let list = this.$data.items;
 
       list = SearchUtils.filter(this.textFilter, list);
@@ -108,7 +109,7 @@ export default {
       return list;
     },
   },
-  data: function() {
+  data: function () {
     return {
       loading: true,
       items: [],
@@ -215,7 +216,7 @@ export default {
   }
 }
 
-.overview > * {
+section > * {
   margin-bottom: $padding;
 }
 </style>

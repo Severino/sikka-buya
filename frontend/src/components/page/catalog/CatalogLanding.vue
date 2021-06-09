@@ -16,9 +16,7 @@
         <list-item
           v-for="type of types"
           :key="'type-search-result-' + type.id"
-          @click="
-            $router.push({ name: 'CatalogEntry', params: { id: type.id } })
-          "
+          :to="{ name: 'CatalogEntry', params: { id: type.id } }"
         >
           <list-item-cell
             v-for="prop of Object.values(type)"
