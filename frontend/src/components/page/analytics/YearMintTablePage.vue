@@ -1,8 +1,6 @@
 <template>
   <div class="page">
-    <h1>
-      Münzstätten / Jahr Tabelle
-    </h1>
+    <h1>Münzstätten / Jahr Tabelle</h1>
     <div v-if="error" class="error"></div>
     <table>
       <thead>
@@ -48,15 +46,17 @@ export default {
           let years = new Set();
 
           data.forEach((d) => {
-            const mint = d.mint.name;
-            const year = d.yearOfMinting;
-            if (!map[mint]) map[mint] = new Set();
-            map[mint].add(year);
+            if (d.mint !== null && d.mint.name !== null) {
+              const mint = d.mint.name;
+              const year = d.yearOfMinting;
+              if (!map[mint]) map[mint] = new Set();
+              map[mint].add(year);
 
-            let numYear = parseInt(year);
-            if (numYear) {
-              years.add(numYear);
-            } else console.error("Year is no number", year);
+              let numYear = parseInt(year);
+              if (numYear) {
+                years.add(numYear);
+              } else console.error("Year is no number", year);
+            }
           });
 
           // Max Gap must be x >= 2
@@ -75,11 +75,12 @@ export default {
 
               let gap = nextYear - year;
               if (gap > maxGap) {
-                yearWithGapsArray.push(`${year + 1} ... ${nextYear - 1} (${nextYear-year-2})`);
+                yearWithGapsArray.push(
+                  `${year + 1} ... ${nextYear - 1} (${nextYear - year - 2})`
+                );
               } else {
-
                 for (let j = parseInt(year) + 1; j < nextYear; j++) {
-                  if(j == 125) console.error("DANGER", year, nextYear)
+                  if (j == 125) console.error("DANGER", year, nextYear);
                   yearWithGapsArray.push(j);
                 }
               }
@@ -116,15 +117,14 @@ export default {
     mints: function () {
       return Object.keys(this.map).sort((a, b) => b < a);
     },
-    sortedYears: function(){
-      return Array.from(this.years).sort()
-    }
+    sortedYears: function () {
+      return Array.from(this.years).sort();
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-
 h1 {
   margin-bottom: 1em;
 }
