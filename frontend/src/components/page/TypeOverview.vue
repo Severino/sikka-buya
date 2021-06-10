@@ -200,7 +200,7 @@ export default {
     },
     edit(id) {
       this.$router.push({
-        name: "EditTypePage",
+        name: "EditType",
         params: { id },
       });
     },

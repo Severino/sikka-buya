@@ -1,22 +1,39 @@
 <template>
   <div class="catalogEntry">
     <header>
+      <router-link :to="{ name: 'EditType', params: { id: type.id } }"
+        >Edit</router-link
+      >
       <h1>{{ type.projectId }}</h1>
-      <br>
-      
-      <!-- <Gift v-if="type.donativ" />
-      <RecycleVariant v-else /> -->
     </header>
-    <Gift />
-    <p style="opacity:0.5;">Geschenkmünze</p>
+
     <div class="catalogFields">
+      <div class="tags">
+        <tag v-if="type.cursiveScript" 
+        :text="$tc('property.cursive_script')"
+        popup="Auf dieser Münze sind kursive Schriftzeichen enthalten."
+        >
+          <Italic />
+        </tag>
+
+        <tag v-if="type.donativ" 
+        :text="$tc('property.donativ')"
+        popup="Diese Münze ist eine Geschenkmünze. Im Gegensatz zu den üblichen Umlaufmünzen, wurden diese zu besonderen Anlässen verschenkt."
+        
+        >
+          <Gift />
+        </tag>
+      </div>
       <div class="property-row">
         <div
           class="property"
-          v-for="(val, idx) of ['mint', 'year', 'nominal', 'material']"
+          v-for="(val, idx) of ['mintAsOnCoin', 'year', 'nominal', 'material']"
           v-bind:key="`property-${val}-${idx}`"
         >
-          <catalog-property :label="val" :value="printTypeProperty(val)" />
+          <catalog-property
+            :label="mapText(val)"
+            :value="printTypeProperty(val)"
+          />
         </div>
       </div>
 
@@ -39,14 +56,14 @@
       </div>
 
       <div v-if="persons.length > 0" class="person-wrapper">
-        <h2>Persons</h2>
+        <h2>{{ $tc("property.person") }}</h2>
         <div
           class="person-container"
           v-for="(personObj, idx) of persons"
           v-bind:key="`person-${idx}`"
         >
           <catalog-item
-            :label="$tc(`person.${personObj.name}`)"
+            :label="mapText(personObj.name)"
             :value="personObj.value"
           ></catalog-item>
         </div>
@@ -62,9 +79,11 @@ import LabeledField from "../../display/LabeledField.vue";
 import CoinSideField from "../../forms/coins/CoinSideField.vue";
 import CaseHelper from "../../../utils/CaseHelper";
 
-import Gift from "vue-material-design-icons/Gift";
-import RecycleVariant from "vue-material-design-icons/RecycleVariant";
+import Gift from "vue-material-design-icons/GiftOutline";
+import Italic from "vue-material-design-icons/FormatItalic.vue";
 import CatalogProperty from "../../catalog/CatalogProperty.vue";
+import Row from "../../layout/Row.vue";
+import Tag from "../../Tag.vue";
 
 export default {
   components: {
@@ -72,8 +91,10 @@ export default {
     CoinSideField,
     LabeledField,
     Gift,
-    RecycleVariant,
+    Italic,
     CatalogProperty,
+    Row,
+    Tag,
   },
   name: "CatalogEntry",
   data: function () {
@@ -252,20 +273,31 @@ export default {
     },
     getFilledFields(str) {
       let result = [];
-      console.log(this.type[str]);
       if (this.type[str]) {
         result = Object.entries(this.type[str])
           .filter(([_, val]) => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(val, "text/html");
-
             return doc.documentElement.innerText;
           })
           .map(([key, val]) => key);
       }
 
-      console.log(result);
       return result;
+    },
+    mapText: function (val) {
+      let map = {
+        year: "mint_year",
+        issuers: "issuer",
+        caliph: { property: "role", value: "caliph" },
+      };
+
+      if (map[val]) {
+        if (typeof map[val] == "object")
+          val = `${map[val].property}.${map[val].value}`;
+        else val = `property.${map[val]}`;
+      }
+      return this.$tc(val);
     },
   },
   computed: {
@@ -285,7 +317,6 @@ export default {
         if (this.type[t]) {
           if (Array.isArray(this.type[t])) {
             if (this.type[t].length == 1) {
-              console.log(this.type[t][0].person.name);
               filteredPersons.push({
                 name: t,
                 value: this.type[t][0].person.name,
@@ -295,7 +326,6 @@ export default {
             //     filteredPersons.push({name: t, value: this.type[t].map(item => item.person.name)})
             // }
           } else {
-            console.log(this.type[t]);
             filteredPersons.push({
               name: t,
               value: this.type[t].name,
@@ -304,8 +334,6 @@ export default {
         }
       });
 
-      console.log(filteredPersons);
-
       return filteredPersons;
     },
   },
@@ -313,7 +341,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 h2 {
   margin-top: 2em;
 }
@@ -322,7 +349,6 @@ header {
   font-weight: 700;
   margin-top: 5em;
   margin-bottom: 4em;
-  display: flex;
   align-items: baseline;
 
   .material-design-icon {
@@ -347,15 +373,15 @@ header {
   gap: $padding;
 
   h2 {
-  grid-column: span 2;
-}
+    grid-column: span 2;
+  }
 
   @include media_phone {
     grid-template-columns: 1fr;
 
     h2 {
-  grid-column: span 1;
-}
+      grid-column: span 1;
+    }
   }
 
   > * {
@@ -383,7 +409,15 @@ header {
 }
 
 .catalogEntry {
-  margin-bottom: 50vh;;
+  margin-bottom: 50vh;
 }
 
+.tags {
+  display: flex;
+
+  > * {
+    margin-right: $padding;
+    margin-bottom: $padding;
+  }
+}
 </style>

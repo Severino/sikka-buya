@@ -10,7 +10,7 @@
 
       <List
         v-if="searchText"
-        :properties="['id', 'projectId', 'mint', 'material', 'nominal']"
+        :properties="columns"
         :items="types"
       >
         <list-item
@@ -19,30 +19,13 @@
           :to="{ name: 'CatalogEntry', params: { id: type.id } }"
         >
           <list-item-cell
-            v-for="prop of Object.values(type)"
-            :key="'type-search-result-' + type.id + '-' + prop"
+            v-for="column of columns"
+            :key="'type-search-result-' + type.id + '-' + column"
           >
-            {{ prop }}
+            {{ type[column] }}
           </list-item-cell>
         </list-item>
       </List>
-
-      <!-- <div class="list">
-        <ul>
-          <li v-for="type of types" :key="'type-' + type.id">
-            <router-link
-              :to="{ name: 'CatalogEntry', params: { id: type.id } }"
-            >
-              <row>
-                <span>{{ type.projectId }}</span>
-                <span>{{ type.mint.name }}</span>
-                <span>{{ type.material.name }}</span>
-                <span>{{ type.nominal.name }}</span>
-              </row>
-            </router-link>
-          </li>
-        </ul>
-      </div> -->
     </Column>
   </div>
 </template>
@@ -62,6 +45,7 @@ export default {
     return {
       types: [],
       searchText: "",
+      columns: ['projectId', 'material', 'nominal', 'mint']
     };
   },
   methods: {
@@ -79,7 +63,6 @@ export default {
         `
             {
                 searchTypes(text: "${value}") {
-                  
                     id
                     projectId
                     mint{name}

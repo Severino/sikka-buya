@@ -178,7 +178,7 @@ const routes = [
             component: CreateTypePage
           }, {
             path: 'type/edit/:id',
-            name: 'EditTypePage',
+            name: 'EditType',
             component: CreateTypePage
           },
           {
