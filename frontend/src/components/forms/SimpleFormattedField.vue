@@ -1,15 +1,21 @@
 <template>
   <div class="simple-formatted-field">
     <Row class="toolbar" style="margin-bottom: 10px">
-      <button @click="align('left')"><FormatAlignLeft /></button>
-      <button @click="align('center')"><FormatAlignCenter /></button>
-      <button @click="align('right')"><FormatAlignRight /></button>
+      <button type="button" @click.prevent="align('left')"><FormatAlignLeft /></button>
+      <button type="button" @click.prevent="align('center')"><FormatAlignCenter /></button>
+      <button type="button" @click.prevent="align('right')"><FormatAlignRight /></button>
       <div class="spacer"></div>
-      <button @click="toggleBold"><FormatBold /></button>
-      <button @click="toggleCursive"><FormatItalic /></button>
+      <button type="button" @click.prevent="toggleBold"><FormatBold /></button>
+      <button type="button" @click.prevent="toggleCursive"><FormatItalic /></button>
     </Row>
 
-    <div ref="field" class="formatted-text-area" spellcheck="true" contenteditable></div>
+    <div
+      ref="field"
+      class="formatted-text-area"
+      spellcheck="true"
+      @paste="pasted($event)"
+      contenteditable
+    ></div>
   </div>
 </template>
 
@@ -33,23 +39,23 @@ export default {
     FormatItalic,
   },
   name: "SimpleFormattedField",
-  data: function() {
+  data: function () {
     return {
       range: null,
     };
   },
   methods: {
-    setContent: function(str) {
-      if(!str){
-        str = '<div style="text-align: center;"><br></div>'
+    setContent: function (str) {
+      if (!str) {
+        str = '<div style="text-align: center;"><br></div>';
       }
 
       this.$refs.field.innerHTML = str;
     },
-    getContent: function() {
+    getContent: function () {
       return this.$refs.field.innerHTML;
     },
-    getSelected: function() {
+    getSelected: function () {
       let node = document.getSelection().anchorNode;
 
       /**
@@ -76,7 +82,7 @@ export default {
       return node;
     },
 
-    align: function(value) {
+    align: function (value) {
       const node = this.getSelected();
       if (node) {
         Object.assign(node.style, {
@@ -85,15 +91,15 @@ export default {
         this.$emit("input", this.$refs.field.innerHTML);
       }
     },
-    toggleBold: function() {
+    toggleBold: function () {
       document.execCommand("bold", false, null);
       this.$emit("input", this.$refs.field.innerHTML);
     },
-    toggleCursive: function() {
+    toggleCursive: function () {
       document.execCommand("italic", false, null);
       this.$emit("input", this.$refs.field.innerHTML);
     },
-    input: function(event) {
+    input: function (event) {
       const target = event.target;
       this.$emit("input", target.innerHTML);
     },
@@ -101,7 +107,7 @@ export default {
     /**
      * Thankfully taken from: https://gist.github.com/dantaex/543e721be845c18d2f92652c0ebe06aa
      */
-    saveSelection: function() {
+    saveSelection: function () {
       if (window.getSelection) {
         var sel = window.getSelection();
         if (sel.getRangeAt && sel.rangeCount) {
@@ -112,7 +118,7 @@ export default {
       }
       return null;
     },
-    restoreSelection: function(range) {
+    restoreSelection: function (range) {
       if (range) {
         if (window.getSelection) {
           var sel = window.getSelection();
@@ -123,6 +129,16 @@ export default {
         }
       }
     },
+    pasted: function (event) {
+      event.preventDefault();
+
+      let paste = (event.clipboardData || window.clipboardData).getData("text");
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return false;
+      selection.deleteFromDocument();
+      selection.getRangeAt(0).insertNode(document.createTextNode(paste));
+      selection.removeAllRanges()
+    },
   },
 };
 </script>
@@ -132,7 +148,7 @@ export default {
 
 .toolbar {
   // background-color: rgb(100, 100, 100);
-  margin-bottom: 0  !important;
+  margin-bottom: 0 !important;
   > *:not(.spacer) {
     width: unset;
     margin: 0 !important;
@@ -151,8 +167,6 @@ export default {
   font-size: 1.3em;
   min-height: 1em;
   // background-color: red;
-
- 
 
   span {
     display: block;
