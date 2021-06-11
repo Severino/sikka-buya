@@ -24,8 +24,9 @@ export default {
 
 <style lang="scss" scoped>
 .tag {
-  color: $white;
-  background-color: $primary-color;
+  color: $primary-color;
+  background-color: $white;
+  border: 2px solid $primary-color;
   border-radius: 3px;
   font-weight: bold;
   padding: $padding/2 $padding;

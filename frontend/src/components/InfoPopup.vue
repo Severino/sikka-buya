@@ -1,7 +1,7 @@
 <template>
   <div class="info-popup popup-container">
-    <InfoIcon @click.stop="togglePopup()" />
-    <popup :active="popupActive">
+    <InfoIcon @click.stop.prevent="togglePopup()" />
+    <popup :active="popupActive" @close="closePopup()">
       {{ content }}
     </popup>
   </div>
@@ -28,7 +28,10 @@ export default {
   methods: {
     togglePopup (){
         this.popupActive = !this.popupActive
-    }  
+    } ,
+    closePopup(){
+      this.popupActive = false
+    }
   }
 };
 </script>

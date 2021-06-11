@@ -13,11 +13,14 @@ import LoginForm from "./components/auth/LoginForm.vue";
 import ButtonGroup from "./components/forms/ButtonGroup.vue";
 import Modal from "./components/layout/Modal.vue";
 import Auth from './utils/Auth';
+import PopupHandler from "./popup"
+
 export default {
   components: { ButtonGroup, LoginForm, Modal },
   name: "App",
   data: function () {
     return {
+      popupHandler: null,
       language: "de",
     };
   },
@@ -25,6 +28,12 @@ export default {
     let user = await Auth.init()
     console.log(user)
     this.$store.commit("login", user)
+
+    this.popupHandler = new PopupHandler(this)
+    this.popupHandler.init(document.body)
+  },
+  beforeDestroy: function(){
+    this.popupHandler.cleanup()
   },
   mounted: function () {
     const lang = window.localStorage.getItem("language", this.$i18n.locale);

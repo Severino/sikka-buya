@@ -12,13 +12,21 @@
 export default {
   name: "Popup",
   props: {
-    active: Boolean
+    active: Boolean,
   },
   data: function () {
     return {
       offsetRight: 0,
       offsetLeft: 0,
     };
+  },
+  watch: {
+    active: function (newValue, oldValue) {
+      if (newValue != oldValue) {
+        if (newValue == true) this.$root.$emit("popup-opened", this);
+        else this.$root.$emit("popup-closed", this);
+      }
+    },
   },
   created: function () {
     this.resize = this.resize.bind(this);
@@ -34,17 +42,18 @@ export default {
     // setInterval(this.keepInWindow.bind(this), 1000);
   },
   methods: {
+    close(){
+      this.$emit("close")
+    },
     resize: function () {
       this.keepInWindow.call(this);
     },
     keepInWindow: function () {
       if (this.$refs.popup) {
-
-
         let rect = this.$refs.popup.getBoundingClientRect();
         let whitespace = 20;
 
-        const rightside = window.innerWidth - whitespace
+        const rightside = window.innerWidth - whitespace;
 
         let originalRight = rect.right - this.offsetRight;
 
@@ -57,9 +66,9 @@ export default {
         let rightCss = parseInt(-this.offsetRight) + "px";
         this.$refs.popup.style.right = rightCss;
 
-        const leftside = whitespace
+        const leftside = whitespace;
 
-        let originalLeft = rect.left- this.offsetLeft;
+        let originalLeft = rect.left - this.offsetLeft;
 
         if (originalLeft < leftside) {
           this.offsetLeft = leftside - originalLeft;
@@ -77,11 +86,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 $color: $white;
 .popup {
   position: absolute;
-  bottom:0;
+  bottom: 0;
   background-color: $color;
 
   padding: $padding;
@@ -102,21 +110,19 @@ $color: $white;
   //   left: 50%;
 
   box-sizing: border-box;
-  
 }
-
 
 .popup-anchor::before {
   content: "";
   width: 15px;
   height: 15px;
   transform: translateX(-1px) translateY(-120%) rotate(45deg);
-display: block;
-position: absolute;
-top: 0;
+  display: block;
+  position: absolute;
+  top: 0;
 
   background-color: $color;
-  
+
   box-shadow: $shadow;
 }
 </style>
