@@ -1,6 +1,7 @@
 const { request } = require("express")
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
+const Styler = require("./styler")
 
 class Type {
 
@@ -18,6 +19,9 @@ class Type {
          */
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
+
+        this.cleanupHTMLFields(data)
+
 
         return Database.tx(async t => {
 
@@ -70,6 +74,29 @@ class Type {
             await this.addCoinMarks(t, data, id)
 
             return id
+        })
+    }
+
+    static cleanupHTMLFields(type) {
+        const fields = [
+            "front_side_field_text",
+            "front_side_inner_inscript",
+            "front_side_intermediate_inscript",
+            "front_side_outer_inscript",
+            "front_side_misc",
+            "back_side_field_text",
+            "back_side_inner_inscript",
+            "back_side_intermediate_inscript",
+            "back_side_outer_inscript",
+            "back_side_misc",
+            "literature",
+            "specials",
+            "internal_notes",
+        ]
+
+        fields.forEach(field =>{
+            type[field] = Styler.allow(type[field], "font-weight", "text-align", "font-style")
+            console.log(type[field])
         })
     }
 
@@ -127,8 +154,6 @@ class Type {
     }
 
     static async addType(data) {
-
-        console.log(data)
         /**
          * Thus the avers and reverse data is nested inside a seperate object,
          * inside the GraphQL interface, we need to transform whose properties
@@ -140,6 +165,8 @@ class Type {
          */
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
+
+        this.cleanupHTMLFields(data)
 
         return Database.tx(async t => {
 
@@ -280,7 +307,7 @@ class Type {
         LEFT JOIN person p
         ON t.caliph = p.id
         WHERE unaccent(t.project_id) ILIKE $[searchText]
-        `, { searchText: "%"+text+"%" })
+        `, { searchText: "%" + text + "%" })
 
         for (let [idx, type] of result.entries()) {
             result[idx] = this.postprocessType(type)
@@ -318,8 +345,6 @@ class Type {
             }
             return type
         })
-
-        console.log(typeList)
 
         return typeList
     }

@@ -104,7 +104,6 @@ const resolvers = {
 
             result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
 
-            console.log(result)
             result.forEach((item, idx) => {
                 result[idx] = SQLUtils.objectify(item, {
                     prefix: "role_",

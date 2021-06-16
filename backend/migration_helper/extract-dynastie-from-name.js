@@ -37,11 +37,9 @@ async function main() {
     existingDynasties.forEach(row => {
         dynastieMap[row.name] = row.id
     })
-    console.log(dynastieMap)
 
 
     for (let row of rows.values()) {
-        console.log(row)
         let result = regex.exec(row.name)
         if (result) {
             const dynasty = result[1]

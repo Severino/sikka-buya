@@ -90,7 +90,6 @@ class Auth {
     }
 
     static verifyContext(context) {
-        console.log(95, context.headers.auth)
         let token = (context && context.headers) ? context.headers.auth : null
         
         if (!token) throw new Error("401")
