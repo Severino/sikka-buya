@@ -7,11 +7,14 @@
       :checked="value"
       @input="input"
     />
-    <label :for="id" v-if="label">{{ label }}</label>
-    <div class="check">
-      <CheckboxMarked v-if="value" />
-      <CheckboxBlankOutline v-else />
-    </div>
+    <label :for="id" v-if="label"
+      >
+      <span>{{ label }}</span>
+      <div class="check">
+        <CheckboxMarked v-if="value" />
+        <CheckboxBlankOutline v-else />
+      </div>
+    </label>
   </div>
 </template>
 
@@ -52,5 +55,4 @@ export default {
 input {
   display: none;
 }
-
 </style>
