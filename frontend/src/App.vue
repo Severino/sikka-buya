@@ -85,7 +85,7 @@ $fonts: "TimesNewRoman","Arimo", sans-serif;
 
 body {
   font-family:  $fonts;
-  font-size: 16px;
+  font-size: $regular-font;
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -94,7 +94,7 @@ body {
 
 input {
   font-family: $fonts;
-  font-size: 16px;
+  font-size: $regular-font;
 }
 
 .content-wrapper {

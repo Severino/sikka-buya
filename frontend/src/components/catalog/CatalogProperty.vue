@@ -52,11 +52,10 @@ header {
 
 .catalog-property {
   // margin: 2em 0 ;
-
+  font-size: $large-font;
   background-color: $white;
   border-radius: 3px;
   padding: 2 * $padding;
-  font-size: 2rem;
 }
 
 .property-label {
@@ -69,5 +68,9 @@ header {
 
 .popup-container {
   position: relative;
+}
+
+.property-value {
+  padding: 2*$padding 0;
 }
 </style>

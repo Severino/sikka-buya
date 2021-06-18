@@ -9,17 +9,18 @@
 
     <div class="catalogFields">
       <div class="tags">
-        <tag v-if="type.cursiveScript" 
-        :text="$tc('property.cursive_script')"
-        popup="Auf dieser Münze sind kursive Schriftzeichen enthalten."
+        <tag
+          v-if="type.cursiveScript"
+          :text="$tc('property.cursive_script')"
+          popup="Auf dieser Münze sind kursive Schriftzeichen enthalten."
         >
           <Italic />
         </tag>
 
-        <tag v-if="type.donativ" 
-        :text="$tc('property.donativ')"
-        popup="Diese Münze ist eine Geschenkmünze. Im Gegensatz zu den üblichen Umlaufmünzen, wurden diese zu besonderen Anlässen verschenkt."
-        
+        <tag
+          v-if="type.donativ"
+          :text="$tc('property.donativ')"
+          popup="Diese Münze ist eine Geschenkmünze. Im Gegensatz zu den üblichen Umlaufmünzen, wurden diese zu besonderen Anlässen verschenkt."
         >
           <Gift />
         </tag>
@@ -66,6 +67,12 @@
             :label="mapText(personObj.name)"
             :value="personObj.value"
           ></catalog-item>
+        </div>
+      </div>
+
+      <div class="property-row specials">
+        <div class="specials">
+          <catalog-property :label="$t('property.specialities_and_variants')" :html="type.specials"></catalog-property>
         </div>
       </div>
     </div>
@@ -361,6 +368,11 @@ header {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: $padding;
+
+  &.specials {
+    margin-top: 2*$padding;
+    grid-template-columns: 1fr;
+  }
 
   @include media_phone {
     grid-template-columns: 1fr 1fr;
