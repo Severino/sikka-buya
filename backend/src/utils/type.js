@@ -1,7 +1,8 @@
 const { request } = require("express")
+const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fields")
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
-const Styler = require("./styler")
+const HTMLSanitizer = require("./HTMLSanitizer")
 
 class Type {
 
@@ -78,25 +79,8 @@ class Type {
     }
 
     static cleanupHTMLFields(type) {
-        const fields = [
-            "front_side_field_text",
-            "front_side_inner_inscript",
-            "front_side_intermediate_inscript",
-            "front_side_outer_inscript",
-            "front_side_misc",
-            "back_side_field_text",
-            "back_side_inner_inscript",
-            "back_side_intermediate_inscript",
-            "back_side_outer_inscript",
-            "back_side_misc",
-            "literature",
-            "specials",
-            "internal_notes",
-        ]
-
-        fields.forEach(field =>{
-            type[field] = Styler.allow(type[field], "font-weight", "text-align", "font-style")
-            console.log(type[field])
+        DB_FIELDS.forEach(field =>{
+            type[field] = HTMLSanitizer.sanitize(field, ... ALLOWED_STYLES)
         })
     }
 

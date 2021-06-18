@@ -1,11 +1,24 @@
 const { JSDOM } = require("jsdom")
 
 /**
- * The styler is a helper class, that get's an HTML string as input
+ * The HTMLSanitizer is a helper class, that get's an HTML string as input
  * and only allows certain styles on the HTML elements inside.
  * 
  */
-class Styler {
+class HTMLSanitizer {
+
+    static sanitize(html, ...allowed){
+        html = this.removeScripts(html)
+        return this.allowStyles(html, ...allowed)
+    }
+
+    static removeScripts(html){
+        let { window } = new JSDOM(html)
+        let parsedDocument = window.document
+        let scripts = parsedDocument.querySelectorAll("script")
+        scripts.forEach(script => script.parentNode.removeChild(script))
+        return parsedDocument.body.innerHTML
+    }
 
     /**
      * The allow function will just allow a set of CSS styles on all elements provided
@@ -14,17 +27,17 @@ class Styler {
      * @param {string} html 
      * @param  {...string} allowed 
      */
-    static allow(html, ...allowed) {
+    static allowStyles(html, ...allowed) {
         let { window } = new JSDOM(html)
         let parsedDocument = window.document
         let elements = parsedDocument.querySelectorAll("*")
 
-        if (elements.length > Styler.limit) {
-            console.error("Provided HTML is too complex. Styler function was not applied!")
+        if (elements.length > HTMLSanitizer.limit) {
+            console.error("Provided HTML is too complex. HTMLSanitizer function was not applied!")
         } else {
             elements.forEach(el => {
+
                 let cache = {}
-                const oldStyle = el.getAttribute("style")
                 allowed.forEach(a => {
                     if (el.style[a]) {
                         cache[a] = el.style[a]
@@ -38,6 +51,6 @@ class Styler {
     }
 }
 
-Styler.limit = 1000
+HTMLSanitizer.limit = 1000
 
-module.exports = Styler
+module.exports = HTMLSanitizer
