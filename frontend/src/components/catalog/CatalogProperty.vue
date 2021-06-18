@@ -56,11 +56,12 @@ header {
   background-color: $white;
   border-radius: 3px;
   padding: 2 * $padding;
+  font-size: 2rem;
 }
 
 .property-label {
   font-size: $small-font;
-  margin-bottom: 1.5em;
+  margin-bottom: 1.3em;
   font-weight: bold;
   color: $primary-color;
   text-transform: uppercase;
