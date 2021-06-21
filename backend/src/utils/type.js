@@ -79,8 +79,8 @@ class Type {
     }
 
     static cleanupHTMLFields(type) {
-        DB_FIELDS.forEach(field =>{
-            type[field] = HTMLSanitizer.sanitize(field, ... ALLOWED_STYLES)
+        DB_FIELDS.forEach(field => {
+            type[field] = HTMLSanitizer.sanitize(type[field], ...ALLOWED_STYLES)
         })
     }
 
@@ -149,6 +149,8 @@ class Type {
          */
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
+
+        console.dir(data)
 
         this.cleanupHTMLFields(data)
 
