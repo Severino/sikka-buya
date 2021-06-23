@@ -17,11 +17,11 @@
         required
       />
       <div id="uncertain-row">
-        <div class="label">
-          {{ $t("property.uncertain_location") + "(?)" }}
-        </div>
-
-        <Checkbox id="location_uncertain" v-model="mint.uncertain" />
+        <Checkbox 
+        id="location_uncertain" 
+        v-model="mint.uncertain" 
+        :label="$t('property.uncertain_location') + '(?)'"
+        />
       </div>
     </PropertyFormWrapper>
   </div>
