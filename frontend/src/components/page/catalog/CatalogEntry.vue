@@ -31,48 +31,103 @@
           v-for="(val, idx) of ['mintAsOnCoin', 'year', 'nominal', 'material']"
           v-bind:key="`property-${val}-${idx}`"
         >
-          <catalog-property
-            :label="mapText(val)"
-            :value="printTypeProperty(val)"
-          />
+          <catalog-property :label="mapText(val)">
+            {{ printTypeProperty(val) }}</catalog-property
+          >
         </div>
       </div>
 
       <div class="coin-sides">
         <div
-          v-for="(side, sideIdx) in ['avers', 'reverse']"
+          v-for="(sideObj, sideIdx) in [
+            { prop: 'avers', label: 'frontside' },
+            { prop: 'reverse', label: 'backside' },
+          ]"
           :key="`coin-sides-${sideIdx}`"
           class="avers"
         >
-          <h2>{{ side[0].toUpperCase() + side.substr(1) }}</h2>
+          <h2>{{ $t(`property.${sideObj.label}`) }}</h2>
 
           <catalog-property
             class="property"
-            v-for="(val, idx) of getFilledFields(side)"
+            v-for="(val, idx) of getFilledFields(sideObj.prop)"
             :key="`property-${val}-${idx}`"
-            :html="type[side][val]"
+            :html="type[sideObj.prop][val]"
             :label="$tc(`property.${camelToSnake(val)}`)"
           />
         </div>
       </div>
 
       <div v-if="persons.length > 0" class="person-wrapper">
-        <h2>{{ $tc("property.person") }}</h2>
+        <h2>{{ $tc("property.person", 2) }}</h2>
         <div
           class="person-container"
           v-for="(personObj, idx) of persons"
           v-bind:key="`person-${idx}`"
         >
-          <catalog-item
-            :label="mapText(personObj.name)"
-            :value="personObj.value"
-          ></catalog-item>
+          <catalog-property :label="mapText(personObj.name)">
+            <template v-if="Array.isArray(personObj.value)">
+              <ul>
+                <li
+                  v-for="(person, pIdx) in personObj.value"
+                  :key="`person-${personObj.name}-${pIdx}`"
+                >
+                  {{ person }}
+                </li>
+              </ul>
+            </template>
+            <template v-else>{{ personObj.value }}</template>
+          </catalog-property>
         </div>
       </div>
 
       <div class="property-row specials">
         <div class="specials">
-          <catalog-property :label="$t('property.specialities_and_variants')" :html="type.specials"></catalog-property>
+          <h2>Sonstiges</h2>
+          <catalog-property
+            :label="$t('property.specialities_and_variants')"
+            :html="type.specials"
+          />
+
+          <catalog-property
+            v-if="type.coinMarks.length > 0"
+            class="coin-marks"
+            :label="$t('property.coin_mark')"
+          >
+            <div>
+              <span
+                v-for="(cm, idx) in type.coinMarks"
+                :key="`coin_mark-${cm.id}`"
+                >{{ cm.name
+                }}<template v-if="idx < type.coinMarks.length - 1"
+                  >,
+                </template></span
+              >
+            </div>
+          </catalog-property>
+
+          <catalog-property
+            v-if="htmlHasContent(type.literature)"
+            :label="$t('property.literature_and_remarks')"
+            :html="type.literature"
+          >
+          </catalog-property>
+
+          <catalog-property :label="$tc('property.piece', 2)">
+            <div v-for="piece of type.pieces" :key="piece" class="piece">
+              <a :href="piece" target="_blank">
+                <img :src="getLogoFromPath(piece)" alt="" width="32" />
+                {{ piece }}</a
+              >
+            </div>
+          </catalog-property>
+
+          <catalog-property
+            v-if="type.treadwellId"
+            :label="$tc('property.treadwell_id')"
+          >
+            {{ type.treadwellId }}
+          </catalog-property>
         </div>
       </div>
     </div>
@@ -91,6 +146,7 @@ import Italic from "vue-material-design-icons/FormatItalic.vue";
 import CatalogProperty from "../../catalog/CatalogProperty.vue";
 import Row from "../../layout/Row.vue";
 import Tag from "../../Tag.vue";
+import Web from "../../../utils/Web";
 
 export default {
   components: {
@@ -253,6 +309,13 @@ export default {
     get(property) {
       return this[property];
     },
+    getLogoFromPath(path) {
+      const site = Web.extractDomainName(path);
+      console.log(path, site);
+      return site
+        ? `/img/logos/${site}.png`
+        : "https://www.fint-ikmk.uni-tuebingen.de/ikmk/special/favicons/android-chrome-256x256.png";
+    },
     printTypeProperty(key, attr = "name") {
       let text = "Unbekannt";
 
@@ -283,14 +346,17 @@ export default {
       if (this.type[str]) {
         result = Object.entries(this.type[str])
           .filter(([_, val]) => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(val, "text/html");
-            return doc.documentElement.innerText;
+            return this.htmlHasContent(val);
           })
           .map(([key, val]) => key);
       }
 
       return result;
+    },
+    htmlHasContent(val) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(val, "text/html");
+      return doc.documentElement.innerText;
     },
     mapText: function (val) {
       let map = {
@@ -328,10 +394,12 @@ export default {
                 name: t,
                 value: this.type[t][0].person.name,
               });
+            } else if (this.type[t].length > 1) {
+              filteredPersons.push({
+                name: t,
+                value: this.type[t].map((item) => item.person.name),
+              });
             }
-            // else if (this.type[t].length > 1){
-            //     filteredPersons.push({name: t, value: this.type[t].map(item => item.person.name)})
-            // }
           } else {
             filteredPersons.push({
               name: t,
@@ -370,7 +438,7 @@ header {
   gap: $padding;
 
   &.specials {
-    margin-top: 2*$padding;
+    margin-top: 2 * $padding;
     grid-template-columns: 1fr;
   }
 
@@ -420,6 +488,10 @@ header {
   }
 }
 
+.specials > * {
+  margin-bottom: $padding * 2;
+}
+
 .catalogEntry {
   margin-bottom: 50vh;
 }
@@ -431,5 +503,11 @@ header {
     margin-right: $padding;
     margin-bottom: $padding;
   }
+}
+
+.piece a {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1em;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="catalog-property">
     <header>
-      <div class="property-label">
+      <div v-if="label" class="property-label">
         {{ label }}
       </div>
 
@@ -14,7 +14,9 @@
     </header>
 
     <div v-if="html" class="property-value" v-html="html" />
-    <div v-else class="property-value">{{ value }}</div>
+    <div v-else class="property-value">
+      <slot />
+    </div>
   </div>
 </template>
 
@@ -51,8 +53,8 @@ header {
 }
 
 .catalog-property {
-  // margin: 2em 0 ;
   font-size: $large-font;
+  line-height: $large-font * 1.65;
   background-color: $white;
   border-radius: 3px;
   padding: 2 * $padding;
@@ -60,7 +62,6 @@ header {
 
 .property-label {
   font-size: $small-font;
-  margin-bottom: 1.3em;
   font-weight: bold;
   color: $primary-color;
   text-transform: uppercase;
@@ -68,9 +69,5 @@ header {
 
 .popup-container {
   position: relative;
-}
-
-.property-value {
-  padding: 2*$padding 0;
 }
 </style>
