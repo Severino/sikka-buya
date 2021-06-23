@@ -7,6 +7,15 @@ const path = require("path")
 
 async function main() {
 
+    /**
+     * Create first. If it fails for some reason, the execution is stop.
+     * Preventing changes on the database without tracking changes.
+     */
+    if(!fs.existsSync(outpath)){
+        fs.mkdirSync(outpath)
+    }
+
+
     const changesOverview = []
     const detailsOld = []
     const detailsNew = []
@@ -99,9 +108,13 @@ async function main() {
         return a.name < b.name
     })
 
-    fs.writeFileSync(path.join(__dirname, "out", "änderungen_überblick.json"), JSON.stringify(changesOverview))
-    fs.writeFileSync(path.join(__dirname, "out", "änderungen_detail_old.json"), JSON.stringify(detailsOld))
-    fs.writeFileSync(path.join(__dirname, "out", "änderungen_detail_new.json"), JSON.stringify(detailsNew))
+    const outpath = path.join(__dirname, "out")
+
+   
+
+    fs.writeFileSync(path.join(outpath, "änderungen_überblick.json"), JSON.stringify(changesOverview))
+    fs.writeFileSync(path.join(outpath, "änderungen_detail_old.json"), JSON.stringify(detailsOld))
+    fs.writeFileSync(path.join(outpath, "änderungen_detail_new.json"), JSON.stringify(detailsNew))
 
 
 }
