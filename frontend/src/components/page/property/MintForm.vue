@@ -23,7 +23,12 @@
         :label="$t('property.uncertain_location') + '(?)'"
         />
       </div>
+
+
+  <map-view height="500" />
+
     </PropertyFormWrapper>
+
   </div>
 </template>
 
@@ -31,11 +36,13 @@
 import Query from "../../../database/query.js";
 import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 import Checkbox from "../../forms/Checkbox";
+import MapView from "../../MapView.vue"
 
 export default {
   components: {
     Checkbox,
     PropertyFormWrapper,
+    MapView
   },
   name: "MintForm",
   created: function () {

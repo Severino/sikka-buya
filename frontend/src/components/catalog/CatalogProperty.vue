@@ -57,7 +57,7 @@ header {
   line-height: $large-font * 1.65;
   background-color: $white;
   border-radius: 3px;
-  padding: 2 * $padding;
+  padding: $padding 2 * $padding;
 }
 
 .property-label {

@@ -11,6 +11,7 @@ async function main() {
      * Create first. If it fails for some reason, the execution is stop.
      * Preventing changes on the database without tracking changes.
      */
+     const outpath = path.join(__dirname, "out")
     if(!fs.existsSync(outpath)){
         fs.mkdirSync(outpath)
     }
@@ -24,7 +25,7 @@ async function main() {
     const limit = 10
     let offset = 0
 
-    const serviceColumns = [
+    const idColumns = [
         "id",
         "project_id",
     ]
@@ -32,7 +33,7 @@ async function main() {
     let results
     do {
         results = await Database.manyOrNone(`
-    SELECT ${[...serviceColumns, ...DB_FIELDS].join(", ")} from type
+    SELECT ${[...idColumns, ...DB_FIELDS].join(", ")} from type
     LIMIT $[limit]
     OFFSET $[offset]
 `, { limit, offset })
@@ -42,36 +43,23 @@ async function main() {
         for (let result of Object.values(results)) {
             updateData = {}
 
-            let overviewEntry = {
+            const base = {
                 id: result.id,
                 name: result.project_id,
                 felder: []
             }
 
-            let detailsOldEntry = {
-                id: result.id,
-                name: result.project_id,
-                felder: {}
-            }
+            let overviewEntry = Object.assign({}, base)
+            let detailsOldEntry = Object.assign({}, base)
+            let detailsNewEntry = Object.assign({}, base)
 
-            let detailsNewEntry = {
-                id: result.id,
-                name: result.project_id,
-                felder: {}
-            }
+            console.log(result.id)
 
             for (let col of Object.values(DB_FIELDS)) {
                 let field = result[col]
                 let updated = HTMLSanitizer.sanitize(field, ...ALLOWED_STYLES)
                 updated = removeComments(updated)
 
-                // // let xml = removeXML(updated)
-                // if (uncommented != updated) {
-                //     const fileName = result.project_id.replace("?", "Q") + "_" + col + ".html"
-                //     // fs.writeFileSync(path.join(__dirname, "out", fileName), uncommented)
-
-                //     
-                // }
                 if (field != updated) {
                     updateData[col] = updated
                     overviewEntry.felder.push(col)
@@ -83,7 +71,6 @@ async function main() {
             if (Object.keys(updateData).length > 0) {
                 let query = pgp.helpers.update(updateData, Object.keys(updateData), "type")
                 await Database.none(query + " WHERE id=$1", result.id)
-                // console.log("Sanitized row " + result.project_id + "...")
             }
 
             if (overviewEntry.felder.length > 0)
@@ -107,9 +94,6 @@ async function main() {
     detailsOld.sort((a, b) => {
         return a.name < b.name
     })
-
-    const outpath = path.join(__dirname, "out")
-
    
 
     fs.writeFileSync(path.join(outpath, "änderungen_überblick.json"), JSON.stringify(changesOverview))

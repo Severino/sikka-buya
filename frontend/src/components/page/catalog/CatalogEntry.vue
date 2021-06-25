@@ -1,5 +1,5 @@
 <template>
-  <div class="catalogEntry">
+  <div class="catalog-entry">
     <header>
       <router-link :to="{ name: 'EditType', params: { id: type.id } }"
         >Edit</router-link
@@ -7,130 +7,131 @@
       <h1>{{ type.projectId }}</h1>
     </header>
 
-    <div class="catalogFields">
-      <div class="tags">
-        <tag
-          v-if="type.cursiveScript"
-          :text="$tc('property.cursive_script')"
-          popup="Auf dieser Münze sind kursive Schriftzeichen enthalten."
-        >
-          <Italic />
-        </tag>
-
-        <tag
-          v-if="type.donativ"
-          :text="$tc('property.donativ')"
-          popup="Diese Münze ist eine Geschenkmünze. Im Gegensatz zu den üblichen Umlaufmünzen, wurden diese zu besonderen Anlässen verschenkt."
-        >
-          <Gift />
-        </tag>
-      </div>
-      <div class="property-row">
-        <div
-          class="property"
-          v-for="(val, idx) of ['mintAsOnCoin', 'year', 'nominal', 'material']"
-          v-bind:key="`property-${val}-${idx}`"
-        >
-          <catalog-property :label="mapText(val)">
-            {{ printTypeProperty(val) }}</catalog-property
-          >
-        </div>
-      </div>
-
-      <div class="coin-sides">
-        <div
-          v-for="(sideObj, sideIdx) in [
-            { prop: 'avers', label: 'frontside' },
-            { prop: 'reverse', label: 'backside' },
-          ]"
-          :key="`coin-sides-${sideIdx}`"
-          class="avers"
-        >
-          <h2>{{ $t(`property.${sideObj.label}`) }}</h2>
-
-          <catalog-property
-            class="property"
-            v-for="(val, idx) of getFilledFields(sideObj.prop)"
-            :key="`property-${val}-${idx}`"
-            :html="type[sideObj.prop][val]"
-            :label="$tc(`property.${camelToSnake(val)}`)"
-          />
-        </div>
-      </div>
-
-      <div v-if="persons.length > 0" class="person-wrapper">
-        <h2>{{ $tc("property.person", 2) }}</h2>
-        <div
-          class="person-container"
-          v-for="(personObj, idx) of persons"
-          v-bind:key="`person-${idx}`"
-        >
-          <catalog-property :label="mapText(personObj.name)">
-            <template v-if="Array.isArray(personObj.value)">
-              <ul>
-                <li
-                  v-for="(person, pIdx) in personObj.value"
-                  :key="`person-${personObj.name}-${pIdx}`"
-                >
-                  {{ person }}
-                </li>
-              </ul>
-            </template>
-            <template v-else>{{ personObj.value }}</template>
-          </catalog-property>
-        </div>
-      </div>
-
-      <div class="property-row specials">
-        <div class="specials">
-          <h2>Sonstiges</h2>
-          <catalog-property
-            :label="$t('property.specialities_and_variants')"
-            :html="type.specials"
-          />
-
-          <catalog-property
-            v-if="type.coinMarks.length > 0"
-            class="coin-marks"
-            :label="$t('property.coin_mark')"
-          >
-            <div>
-              <span
-                v-for="(cm, idx) in type.coinMarks"
-                :key="`coin_mark-${cm.id}`"
-                >{{ cm.name
-                }}<template v-if="idx < type.coinMarks.length - 1"
-                  >,
-                </template></span
-              >
-            </div>
-          </catalog-property>
-
-          <catalog-property
-            v-if="htmlHasContent(type.literature)"
-            :label="$t('property.literature_and_remarks')"
-            :html="type.literature"
-          >
-          </catalog-property>
-
-          <catalog-property :label="$tc('property.piece', 2)">
-            <div v-for="piece of type.pieces" :key="piece" class="piece">
-              <a :href="piece" target="_blank">
-                <img :src="getLogoFromPath(piece)" alt="" width="32" />
-                {{ piece }}</a
-              >
-            </div>
-          </catalog-property>
-
-          <catalog-property
-            v-if="type.treadwellId"
-            :label="$tc('property.treadwell_id')"
-          >
-            {{ type.treadwellId }}
-          </catalog-property>
-        </div>
-      </div>
+    <div class="property gm2 gd2">
+      <catalog-property :label="mapText('year')">
+        {{ printTypeProperty("year") }}
+        <!-- <template v-if="type.yearUncertain">?</template> -->
+      </catalog-property>
     </div>
+    <div class="property gm2 gd2">
+      <catalog-property :label="mapText('mint')">
+        {{ printTypeProperty("mint") }}
+        <template v-if="type.mintUncertain">?</template>
+      </catalog-property>
+    </div>
+    <div
+      class="property gm2 gt4 gd4"
+      v-for="(val, idx) of ['nominal', 'material', 'donativ', 'procedure']"
+      v-bind:key="`property-${val}-${idx}`"
+    >
+      <catalog-property :label="mapText(val)">
+        {{ printTypeProperty(val) }}</catalog-property
+      >
+    </div>
+
+     <h2>{{ $tc("property.person", 2) }}</h2>
+    <div class="person-container gm1 gt1 gd1">
+      <catalog-property
+        v-for="(personObj, idx) of persons"
+        v-bind:key="`person-${idx}`"
+        :label="
+          mapText(
+            personObj.name,
+            Array.isArray(personObj.value) ? personObj.value.length : 1
+          )
+        "
+      >
+        <template v-if="Array.isArray(personObj.value)">
+          <ul>
+            <li
+              v-for="(person, pIdx) in personObj.value"
+              :key="`person-${personObj.name}-${pIdx}`"
+            >
+              {{ person }}
+            </li>
+          </ul>
+        </template>
+        <template v-else>{{ personObj.value }}</template>
+      </catalog-property>
+    </div>
+
+    <div
+      v-for="(sideObj, sideIdx) in [
+        { prop: 'avers', label: 'frontside', prefix:'Av.-' },
+        { prop: 'reverse', label: 'backside', prefix:'Rev.-' },
+      ]"
+      :key="`coin-sides-${sideIdx}`"
+      class="coin-side avers gm1 gt2 gd2"
+    >
+      <h2>{{ $t(`property.${sideObj.label}`) }}</h2>
+
+      <catalog-property class="property">
+        <catalog-property
+          v-for="(val, idx) of getFilledFields(sideObj.prop)"
+          :key="`property-${val}-${idx}`"
+          :label="sideObj.prefix + $tc(`property.${camelToSnake(val)}`)"
+        >
+          <div v-html="type[sideObj.prop][val]"></div>
+        </catalog-property>
+      </catalog-property>
+    </div>
+
+    <catalog-property
+      v-if="type.coinMarks.length > 0"
+      class="coin-marks gm2"
+      :label="$t('property.coin_mark')"
+    >
+      <div>
+        <span v-for="(cm, idx) in type.coinMarks" :key="`coin_mark-${cm.id}`"
+          >{{ cm.name
+          }}<template v-if="idx < type.coinMarks.length - 1">, </template></span
+        >
+      </div>
+    </catalog-property>
+    
+
+     <catalog-property
+     v-if="type.cursive"
+     :label="$t('property.cursive')"
+     class="coin-marks gm2"
+     >
+      {{$t("general.yes")}}
+     </catalog-property>
+
+    <catalog-property
+      :label="$t('property.specialities_and_variants')"
+      :html="type.specials"
+      class="gm1"
+    />
+
+   
+
+    <h2>Sonstiges</h2>
+
+    <catalog-property
+      v-if="htmlHasContent(type.literature)"
+      :label="$t('property.literature_and_remarks')"
+      :html="type.literature"
+      class="gm2"
+    >
+    </catalog-property>
+
+    <catalog-property :label="$tc('property.piece', 2)" class="gm2">
+      <div v-for="piece of type.pieces" :key="piece" class="piece">
+        <a :href="piece" target="_blank">
+          <img :src="getLogoFromPath(piece)" alt="" width="32" />
+          {{ piece }}</a
+        >
+      </div>
+    </catalog-property>
+
+    <catalog-property
+      v-if="type.treadwellId"
+      :label="$tc('property.treadwell_id')"
+      class="gm2"
+    >
+      {{ type.treadwellId ? type.treadwellId : "-" }}
+    </catalog-property>
   </div>
 </template>
 
@@ -166,7 +167,7 @@ export default {
         id: null,
         projectId: "",
         treadwellId: "",
-        mint: { id: null, name: "" },
+        mint: { id: null, name: "", uncertain: false },
         mintAsOnCoin: "",
         material: { id: null, name: "" },
         nominal: { id: null, name: "" },
@@ -211,6 +212,7 @@ export default {
                   name
                 }
                 mintAsOnCoin
+                mintUncertain
                 material {
                   id,
                   name
@@ -220,6 +222,7 @@ export default {
                   name
                 }
                 yearOfMinting
+                yearUncertain
                 donativ
                 procedure
                 issuers {
@@ -317,7 +320,7 @@ export default {
         : "https://www.fint-ikmk.uni-tuebingen.de/ikmk/special/favicons/android-chrome-256x256.png";
     },
     printTypeProperty(key, attr = "name") {
-      let text = "Unbekannt";
+      let value = "Unbekannt";
 
       let map = { year: "yearOfMinting" };
 
@@ -328,15 +331,22 @@ export default {
       if (typeof this.$data.type[key] == "object") {
         if (this.$data.type[key]) {
           if (this.$data.type[key][attr] !== null) {
-            text = this.$data.type[key][attr];
+            value = this.$data.type[key][attr];
           } else {
-            text = this.$data.type[key];
+            value = this.$data.type[key];
           }
         }
       } else {
-        text = this.$data.type[key];
+        value = this.$data.type[key];
       }
-      return text;
+
+      if (typeof value == "boolean") {
+        value = value ? "Ja" : "Nein";
+      }
+      if (value == "pressed") value = this.$tc("property.procedures.pressed");
+      if (value == "struck") value = this.$tc("property.procedures.struck");
+
+      return value;
     },
     camelToSnake(value) {
       return CaseHelper.camelToSnake(value);
@@ -358,8 +368,9 @@ export default {
       const doc = parser.parseFromString(val, "text/html");
       return doc.documentElement.innerText;
     },
-    mapText: function (val) {
+    mapText: function (val, num = 1) {
       let map = {
+        overlords: "overlord",
         year: "mint_year",
         issuers: "issuer",
         caliph: { property: "role", value: "caliph" },
@@ -369,8 +380,9 @@ export default {
         if (typeof map[val] == "object")
           val = `${map[val].property}.${map[val].value}`;
         else val = `property.${map[val]}`;
-      }
-      return this.$tc(val);
+      } else val = `property.${val}`;
+
+      return this.$tc(val, num);
     },
   },
   computed: {
@@ -416,98 +428,48 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-h2 {
-  margin-top: 2em;
-}
-
-header {
-  font-weight: 700;
-  margin-top: 5em;
-  margin-bottom: 4em;
-  align-items: baseline;
-
-  .material-design-icon {
-    color: $primary-color;
-    padding: 0 1em;
-  }
-}
-
-.property-row {
+$columns: 4;
+.catalog-entry {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: $padding;
-
-  &.specials {
-    margin-top: 2 * $padding;
-    grid-template-columns: 1fr;
-  }
-
-  @include media_phone {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.person-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $padding;
-
-  h2 {
-    grid-column: span 2;
-  }
-
-  @include media_phone {
-    grid-template-columns: 1fr;
-
-    h2 {
-      grid-column: span 1;
-    }
-  }
-
-  > * {
-    column-span: 2;
-  }
-}
-
-.coin-sides {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $padding;
-
-  > * {
-    > * {
-      margin-bottom: $padding * 2;
-    }
-
-    > h2 {
-      margin-bottom: 1em;
-    }
-  }
-  @include media_phone {
-    grid-template-columns: 1fr;
-  }
-}
-
-.specials > * {
-  margin-bottom: $padding * 2;
-}
-
-.catalogEntry {
+  grid-template-columns: repeat($columns, 1fr);
   margin-bottom: 50vh;
 }
 
-.tags {
-  display: flex;
+header,
+h2 {
+  grid-column: 1 / -1;
+}
 
-  > * {
-    margin-right: $padding;
-    margin-bottom: $padding;
+.gm1 {
+  grid-column: span $columns;
+}
+
+.gm2 {
+  grid-column: span 2;
+}
+
+.gt1 {
+  grid-column: span $columns;
+}
+
+.gt2 {
+  grid-column: span 2;
+}
+
+.gt4 {
+  grid-column: span 1;
+}
+
+.coin-side {
+  display: flex;
+  flex-direction: column;
+
+  .catalog-property{
+    flex:1;
+    display: flex;
+    flex-direction: column;
   }
 }
 
-.piece a {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1em;
-}
 </style>
