@@ -213,8 +213,8 @@ class Type {
                 $[excludeFromTypeCatalogue],
                 $[excludeFromMapApp],
                 $[internalNotes],
-                $[yearUncertain],
-                $[mintUncertain] 
+                $[mintUncertain],
+                $[yearUncertain]
                 ) RETURNING id
             `, data)
 
