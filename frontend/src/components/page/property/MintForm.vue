@@ -16,19 +16,26 @@
         autofocus
         required
       />
+
+      <label for="location">Location</label>
+      <location-input id="location" />
+
       <div id="uncertain-row">
-        <Checkbox 
-        id="location_uncertain" 
-        v-model="mint.uncertain" 
-        :label="$t('property.uncertain_location') + '(?)'"
+        <Checkbox
+          id="location_uncertain"
+          v-model="mint.uncertain"
+          :label="$t('property.uncertain_location') + '(?)'"
         />
       </div>
-
-
-  <map-view height="500" />
-
+      <label v-if="mint.uncertain" for="location">Geschätzte Verortung</label>
+      <location-input
+        v-if="mint.uncertain"
+        id="location"
+        type="circle"
+        :radius="radius"
+        v-on:radiusChanged="radiusChanged($event)"
+      />
     </PropertyFormWrapper>
-
   </div>
 </template>
 
@@ -36,13 +43,13 @@
 import Query from "../../../database/query.js";
 import PropertyFormWrapper from "../PropertyFormWrapper.vue";
 import Checkbox from "../../forms/Checkbox";
-import MapView from "../../MapView.vue"
+import LocationInput from "../../forms/LocationInput.vue";
 
 export default {
   components: {
     Checkbox,
     PropertyFormWrapper,
-    MapView
+    LocationInput,
   },
   name: "MintForm",
   created: function () {
@@ -72,6 +79,9 @@ export default {
         this.update();
       }
     },
+    radiusChanged: function (radius) {
+      this.radius = parseInt(radius);
+    },
     update: function () {
       const query = `
        mutation {
@@ -88,7 +98,7 @@ export default {
                 )
               }
       `;
-      
+
       new Query("mint")
         .raw(query)
         .then(() => {
@@ -111,7 +121,6 @@ export default {
                       lon: ${this.mint.location.lon}
                     }`
           : "";
-
 
       const query = `
        mutation {
@@ -149,6 +158,7 @@ export default {
     return {
       error: "",
       loading: true,
+      radius: 1000,
       mint: { id: -1, name: "", uncertain: false, location: [0, 0] },
     };
   },
@@ -156,9 +166,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  #uncertain-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-  }
+#uncertain-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
 </style>

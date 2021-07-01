@@ -1,5 +1,11 @@
 <template>
   <div id="app">
+    <modal :active="false" ref="confirm">
+      <confirmation
+        text="Wollen Sie die Seite wirklich verlassen? Änderungen gehen dabei verloren!"
+      />
+    </modal>
+
     <modal :active="loginActive" @close="closeLoginForm">
       <login-form @login="closeLoginForm" />
       {{ getCount }}
@@ -9,14 +15,16 @@
 </template>
 
 <script>
+import Vue from "vue";
 import LoginForm from "./components/auth/LoginForm.vue";
 import ButtonGroup from "./components/forms/ButtonGroup.vue";
 import Modal from "./components/layout/Modal.vue";
-import Auth from './utils/Auth';
-import PopupHandler from "./popup"
+import Auth from "./utils/Auth";
+import PopupHandler from "./popup";
+import Confirmation from "./components/misc/Confirmation.vue";
 
 export default {
-  components: { ButtonGroup, LoginForm, Modal },
+  components: { ButtonGroup, LoginForm, Modal, Confirmation },
   name: "App",
   data: function () {
     return {
@@ -24,18 +32,19 @@ export default {
       language: "de",
     };
   },
-  created: async function(){
-    let user = await Auth.init()
-    console.log(user)
-    this.$store.commit("login", user)
+  created: async function () {
+    let user = await Auth.init();
+    console.log(user);
+    this.$store.commit("login", user);
 
-    this.popupHandler = new PopupHandler(this)
-    this.popupHandler.init(document.body)
+    this.popupHandler = new PopupHandler(this);
+    this.popupHandler.init(document.body);
   },
-  beforeDestroy: function(){
-    this.popupHandler.cleanup()
+  beforeDestroy: function () {
+    this.popupHandler.cleanup();
   },
   mounted: function () {
+
     const lang = window.localStorage.getItem("language", this.$i18n.locale);
     if (lang) {
       this.languageChanged(lang);
@@ -81,10 +90,10 @@ body {
   color: $text-color;
 }
 
-$fonts: "TimesNewRoman","Arimo", sans-serif;
+$fonts: "TimesNewRoman", "Arimo", sans-serif;
 
 body {
-  font-family:  $fonts;
+  font-family: $fonts;
   font-size: $regular-font;
 
   -webkit-font-smoothing: antialiased;

@@ -7,6 +7,11 @@ type AuthResponse {
   user: User
 }
 
+type GeoJSON {
+  type: String
+  coordinates: [Float]
+}
+
 type Material {
   id: ID
   name: String
@@ -188,6 +193,7 @@ type Nominal {
 
 type Query {
   ping: String
+  getGeo:[GeoJSON]
 
   coinMark: [CoinMark]
   nominal: [Nominal]!

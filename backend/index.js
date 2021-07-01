@@ -75,6 +75,12 @@ const resolverClasses = [
 const resolvers = {
     Query: {
         ping: () => Date.now(),
+        getGeo: async() =>{
+            let result = await Database.manyOrNone(`SELECT ST_AsGeoJSON(geo) FROM geo;`)
+            result = result.map(el => JSON.parse(el.st_asgeojson))
+            console.dir(result)
+            return  result
+        },
         getOverlord: function (_, args) {
             return Type.getOverlord(args.id)
         },

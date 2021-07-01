@@ -32,7 +32,7 @@ export default {
     bottom: 0;
 
   display: flex;
-  background-color: rgba($color: #000000, $alpha: 0.2);
+  background-color: rgba($color: #000000, $alpha: 0.5);
   align-items: center;
   justify-content: center;
 

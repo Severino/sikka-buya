@@ -6,15 +6,17 @@
       <thead>
         <tr>
           <td></td>
-          <td v-for="mint in mints" :key="'head-' + mint">{{ mint }}</td>
+          <td v-for="(year, yearIdx) in sortedYears" :key="'row-' + yearIdx">
+            {{ year }}
+          </td>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(year, idx) in sortedYears" :key="'row-' + idx">
-          <td>{{ year }}</td>
+        <tr v-for="(mint, idx) in mints" :key="'head-' + mint">
+          <td>{{ mint }}</td>
           <td
-            v-for="mint in mints"
-            :key="'col-' + idx + '-' + mint"
+            v-for="(year, yearIdx) in years"
+            v-bind:key="'cell-' + idx + '-' + yearIdx"
             class="color-box"
             :class="{ exists: typeByMintAndYear(mint, year) }"
           >
@@ -156,5 +158,7 @@ h1 {
 td {
   text-align: center;
   min-width: 72px;
+  height: 50px;
 }
+
 </style>

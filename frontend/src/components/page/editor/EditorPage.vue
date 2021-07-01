@@ -1,5 +1,6 @@
 <template>
   <div class="editor">
+  
     <div class="content-wrapper">
       <router-view> </router-view>
     </div>
@@ -35,7 +36,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-h3{
+h3 {
   color: $primary-color;
   font-weight: "black";
   text-transform: uppercase;
