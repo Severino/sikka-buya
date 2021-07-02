@@ -10,7 +10,7 @@
     </LabeledInputContainer>
 
     <LabeledInputContainer
-      :label="prefix + $t('property.intermediate_inscript ')"
+      :label="prefix + $t('property.intermediate_inscript')"
     >
       <SimpleFormattedField ref="intermediateInscriptField" />
     </LabeledInputContainer>

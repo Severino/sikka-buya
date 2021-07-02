@@ -7,6 +7,12 @@ type AuthResponse {
   user: User
 }
 
+
+input GeoJSONInput {
+  type: String
+  coordinates: [Float]
+}
+
 type GeoJSON {
   type: String
   coordinates: [Float]
@@ -41,21 +47,14 @@ input PersonInput {
   dynasty: ID
 }
 
-type Location {
-  lat: Float
-  lon: Float
-}
 
-input LocationInput {
-  lat: Float
-  lon: Float
-}
 
 input MintInput {
   id: ID
   name: String
-  location: LocationInput
+  location: GeoJSONInput
   uncertain: Boolean
+  uncertainArea: GeoJSONInput
 }
 
 type CoinSideInformation {
@@ -148,7 +147,7 @@ type CoinMark {
 type Mint {
   id: ID
   name: String
-  location: Location
+  location: GeoJSON
   uncertain: Boolean
 }
 

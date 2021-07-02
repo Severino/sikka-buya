@@ -18,7 +18,7 @@
       />
 
       <label for="location">Location</label>
-      <location-input id="location" />
+      <location-input id="location" type="polygon" />
 
       <div id="uncertain-row">
         <Checkbox
@@ -31,7 +31,7 @@
       <location-input
         v-if="mint.uncertain"
         id="location"
-        type="circle"
+        type="polygon"
         :radius="radius"
         v-on:radiusChanged="radiusChanged($event)"
       />
