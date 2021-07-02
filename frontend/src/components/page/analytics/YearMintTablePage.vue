@@ -32,7 +32,7 @@
 import Query from "../../../database/query";
 export default {
   name: "YearMintTablePage",
-  created: function () {
+  created: function() {
     Query.raw(
       `{
             getTypes{projectId, yearOfMinting, mint{name} }
@@ -54,10 +54,12 @@ export default {
               if (!map[mint]) map[mint] = new Set();
               map[mint].add(year);
 
-              let numYear = parseInt(year);
-              if (numYear) {
-                years.add(numYear);
-              } else console.error("Year is no number", year);
+              if (year.match(/^[1-9]*$/)) {
+                let numYear = parseInt(year);
+                if (numYear) {
+                  years.add(numYear);
+                } else console.error("Year is no number", year);
+              }
             }
           });
 
@@ -103,7 +105,7 @@ export default {
         console.log(err);
       });
   },
-  data: function () {
+  data: function() {
     return {
       error: "",
       years: [],
@@ -116,10 +118,10 @@ export default {
     },
   },
   computed: {
-    mints: function () {
+    mints: function() {
       return Object.keys(this.map).sort((a, b) => b < a);
     },
-    sortedYears: function () {
+    sortedYears: function() {
       return Array.from(this.years).sort();
     },
   },

@@ -8,7 +8,7 @@
         {{ error }}
       </div>
       <Row class="button-bar">
-        <button type="button" @click="cancel">{{ $t("form.cancel") }}</button>
+        <button type="button" @click.prevent.stop="cancel">{{ $t("form.cancel") }}</button>
         <button id="submit-btn" type="submit">{{ $t("form.submit") }}</button>
       </Row>
     </form>

@@ -297,7 +297,7 @@
       </div>
 
       <Row>
-        <button @click.stop="cancel">{{ $t("form.cancel") }}</button>
+        <button @click.stop.prevent="cancel">{{ $t("form.cancel") }}</button>
         <button @click.stop="submitForm" type="submit">
           {{ $t("form.submit") }}
         </button>

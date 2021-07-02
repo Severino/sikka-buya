@@ -16,7 +16,7 @@ export default {
     to: Object,
   },
   methods: {
-    click: function () {
+    click: function() {
       this.$emit("click");
     },
   },
@@ -27,18 +27,21 @@ export default {
 <style lang="scss" scoped>
 @import "@/scss/_import.scss";
 
+.list-item:not(:last-of-type) {
+  background-color: red;
+  .list-item-row {
+    border-bottom-width: 0;
+  }
+}
+
 .list-item-row {
   @include interactive();
   @include input();
+  padding: 3px $padding;
 
   position: relative;
   display: flex;
   align-items: center;
-  border-bottom-width: 0;
-
-  &:last-of-type {
-    border-bottom-width: 1px;
-  }
 }
 
 .removeBtn {
@@ -49,11 +52,10 @@ export default {
 
 .slot {
   flex: 1;
-  // padding: $padding;
   display: flex;
 
   > * {
     flex: 1;
   }
 }
-</style> 
+</style>

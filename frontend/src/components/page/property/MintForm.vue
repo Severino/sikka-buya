@@ -52,7 +52,7 @@ export default {
     LocationInput,
   },
   name: "MintForm",
-  created: function () {
+  created: function() {
     let id = this.$route.params.id;
     if (id != null) {
       new Query("mint")
@@ -72,7 +72,7 @@ export default {
     }
   },
   methods: {
-    submit: function () {
+    submit: function() {
       if (this.mint.id == -1) {
         this.add();
       } else {
@@ -112,7 +112,7 @@ export default {
           console.error(err);
         });
     },
-    add: function () {
+    add: function() {
       const location =
         !!this.mint.location.lat && !!this.mint.location.lon
           ? `
@@ -147,14 +147,14 @@ export default {
           console.error(err);
         });
     },
-    cancel: function () {
+    cancel: function() {
       this.$router.push({ path: "/mint" });
     },
-    updateLocation: function (location) {
+    updateLocation: function(location) {
       this.$data.mint.location = location;
     },
   },
-  data: function () {
+  data: function() {
     return {
       error: "",
       loading: true,

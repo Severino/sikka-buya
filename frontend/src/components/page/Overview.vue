@@ -27,7 +27,10 @@
           v-for="item of filteredItems"
           v-bind:key="item.key"
           :id="item.id"
-          @click="edit(item.id)"
+          :to="{
+            path: `${item.id}`,
+            append: true,
+          }"
         >
           <ListItemCell>{{ item.name }}</ListItemCell>
           <DynamicDeleteButton @click="remove(item.id)" />
@@ -65,7 +68,7 @@ export default {
     ListItemCell,
     DynamicDeleteButton,
   },
-  created: function () {
+  created: function() {
     new Query(this.queryName)
       .list(["id", "name"])
       .then((obj) => {
@@ -85,23 +88,23 @@ export default {
     createPage: String,
   },
   computed: {
-    propertyName: function () {
+    propertyName: function() {
       return this.overridePropertyName
         ? this.overridePropertyName
         : this.property;
     },
-    queryName: function () {
+    queryName: function() {
       return this.query ? this.query : this.property;
     },
-    property: function () {
+    property: function() {
       return this.overrideProperty
         ? this.overrideProperty
         : this.$route.params.property.toLowerCase();
     },
-    list: function () {
+    list: function() {
       return this.$data.items;
     },
-    filteredItems: function () {
+    filteredItems: function() {
       let list = this.$data.items;
 
       list = SearchUtils.filter(this.textFilter, list);
@@ -109,7 +112,7 @@ export default {
       return list;
     },
   },
-  data: function () {
+  data: function() {
     return {
       loading: true,
       items: [],
@@ -140,12 +143,6 @@ export default {
           this.displayError(this.$t("error.delete_list_item_prevented"));
           console.error(err);
         });
-    },
-    edit(id) {
-      this.$router.push({
-        path: `${id}`,
-        append: true,
-      });
     },
     displayError(err) {
       this.error_id++;

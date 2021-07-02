@@ -1,6 +1,6 @@
 <template>
   <div :class="`overview type-page`">
-    <BackHeader :to="{name: 'Editor'}" />
+    <BackHeader :to="{ name: 'Editor' }" />
     <h1>{{ $t("attribute.test") }}</h1>
 
     <div
@@ -33,7 +33,10 @@
       <ListItem
         v-for="item of filteredList"
         v-bind:key="item.key"
-        @click="edit(item.id)"
+        :to="{
+          name: 'EditType',
+          params: {id: item.id },
+        }"
         :class="item.completed ? 'completed' : 'incomplete'"
       >
         <ListItemCell>
@@ -87,7 +90,7 @@ export default {
     ButtonGroup,
     ReviewedToggle,
   },
-  created: function () {
+  created: function() {
     new Query(`
      getReducedCoinTypeList`)
       .list(["id", "projectId", "treadwellId", "completed", "reviewed"])
@@ -106,10 +109,10 @@ export default {
       });
   },
   computed: {
-    isListFiltered: function () {
+    isListFiltered: function() {
       return !(this.completeFilter == "none" && !this.textFilter);
     },
-    filteredList: function () {
+    filteredList: function() {
       let list = this.$data.items;
 
       list = SearchUtils.filter(this.textFilter, list, "projectId");
@@ -121,11 +124,11 @@ export default {
 
       return list;
     },
-    list: function () {
+    list: function() {
       return this.$data.items;
     },
   },
-  data: function () {
+  data: function() {
     return {
       loading: true,
       items: [],
@@ -164,9 +167,7 @@ export default {
       Query.raw(
         `
         mutation{
-          setTypeComplete(id: ${
-            item.id
-          }, completed: ${state})
+          setTypeComplete(id: ${item.id}, completed: ${state})
         }
       `
       )
@@ -197,12 +198,6 @@ export default {
           // this.error =
           // console.error(err);
         });
-    },
-    edit(id) {
-      this.$router.push({
-        name: "EditType",
-        params: { id },
-      });
     },
   },
 };

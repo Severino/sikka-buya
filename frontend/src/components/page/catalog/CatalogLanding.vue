@@ -4,15 +4,15 @@
       <div class="search">
         <Column>
           <h2>Typensuche</h2>
-          <search-field :value="searchText" @input="input" :asyncSearch="search" />
+          <search-field
+            :value="searchText"
+            @input="input"
+            :asyncSearch="search"
+          />
         </Column>
       </div>
 
-      <List
-        v-if="searchText"
-        :properties="columns"
-        :items="types"
-      >
+      <List v-if="searchText" :properties="columns" :items="types">
         <list-item
           v-for="type of types"
           :key="'type-search-result-' + type.id"
@@ -41,24 +41,24 @@ import Column from "../../layout/tabs/Column.vue";
 export default {
   components: { Column, Row, List, ListItem, ListItemCell, SearchField },
   name: "CatalogLanding",
-  data: function () {
+  data: function() {
     return {
       types: [],
       searchText: "",
-      columns: ['projectId', 'material', 'nominal', 'mint']
+      columns: ["projectId", "material", "nominal", "mint"],
     };
   },
   methods: {
-    input: function (value) {
-      console.log("value")
-      if(value == ""){
-        console.log("CLEAR")
-        this.types = []
+    input: function(value) {
+      console.log("value");
+      if (value == "") {
+        console.log("CLEAR");
+        this.types = [];
       }
       this.searchText = value;
     },
-    search: function (value) {
-      console.log("SEARCH", value)
+    search: function(value) {
+      console.log("SEARCH", value);
       return Query.raw(
         `
             {
@@ -85,14 +85,14 @@ export default {
             };
           });
         })
-        .catch((err) => (this.error = err))
+        .catch((err) => (this.error = err));
     },
   },
   computed: {
-    blocked: function () {
+    blocked: function() {
       return Date.now() - this.lastBlockTime < this.blockTime;
     },
-    empty: function () {
+    empty: function() {
       return this.searchText == "";
     },
   },
@@ -115,5 +115,11 @@ export default {
 .catalog-landing {
   flex: 1;
   position: relative;
+}
+</style>
+
+<style lang="scss">
+.catalog-landing .list-item-row {
+  padding: $padding;
 }
 </style>
