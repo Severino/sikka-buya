@@ -67,16 +67,18 @@ export default {
     },
   },
   watch: {
-    radius: function () {
+    radius: function() {
       this.updateMarker();
     },
   },
-  data: function () {
+  data: function() {
     return {
+      activeMarkerIndex: null,
       focused: false,
       location: null,
       marker: null,
       handles: [],
+      lineHandles: [],
       markerHistory: [],
       historyLimit: 20,
       points: [],
@@ -86,25 +88,40 @@ export default {
    * Mounted hooks are fired in dir child -> parent.
    * Therefore we may access the mounted map here.
    */
-  mounted: function () {
+  mounted: function() {
     this.enableMap();
   },
   methods: {
+    setActiveMarker: function(i) {
+      let old = this.activeMarkerIndex;
+
+      if (old != null) {
+        this.handles[old].setStyle({
+          fillColor: "#3388ff",
+        });
+      }
+
+      this.activeMarkerIndex = i;
+
+      this.handles[this.activeMarkerIndex].setStyle({
+        fillColor: "#ff0000",
+      });
+
+      this.updateMarker();
+    },
     radiusChanged(event) {
       this.$emit("radiusChanged", event.target.value);
     },
-    focus(e) {
+    focus() {
       this.focused = true;
     },
-    unfocus(e) {
-      console.log("BLUR");
+    unfocus() {
       this.focused = false;
     },
     keydown(e) {
       if (this.focused) {
         if (e.ctrlKey && e.key.toLowerCase() == "z") {
           if (this.isPolygon && this.points.length > 0) {
-            console.log(this.points);
             this.points.pop();
           }
 
@@ -115,14 +132,25 @@ export default {
 
           this.updateMarker();
         }
+
+        if (
+          (e.key.toLowerCase() == "backspace" ||
+            e.key.toLowerCase() == "delete") &&
+          this.activeMarkerIndex != null
+        ) {
+          this.points.splice(this.activeMarkerIndex, 1);
+          this.activeMarkerIndex = null;
+          this.updateMarker();
+        }
       }
     },
-    clearData: function () {
+    clearData: function() {
       this.location = null;
       this.updateMarker();
     },
     enableMap() {
       this.map = this.$refs.map.map;
+      this.map.doubleClickZoom.disable();
 
       this.map.on("click", (e) => {
         if (e.originalEvent.ctrlKey == true) {
@@ -133,14 +161,14 @@ export default {
             this.points.push(this.location);
           }
 
-          let i = document.createElement("input");
-          i.value = `${this.location.lat.toFixed(
-            2
-          )}, ${this.location.lng.toFixed(2)}`;
-          document.body.appendChild(i);
-          i.select();
-          document.execCommand("copy");
-          document.body.removeChild(i);
+          // let i = document.createElement("input");
+          // i.value = `${this.location.lat.toFixed(
+          //   2
+          // )}, ${this.location.lng.toFixed(2)}`;
+          // document.body.appendChild(i);
+          // i.select();
+          // document.execCommand("copy");
+          // document.body.removeChild(i);
 
           while (this.markerHistory.length > this.historyLimit)
             this.markerHistory.pop();
@@ -170,11 +198,42 @@ export default {
         this.marker.remove();
         this.marker = null;
 
-        console.log(this.handles);
         this.handles.forEach((element) => {
           element.remove();
         });
         this.handles = [];
+
+        this.lineHandles.forEach((el) => el.remove());
+        this.lineHandles = [];
+      }
+    },
+    drawLineHandles() {
+      if (this.points.length > 1) {
+        this.points.forEach((point, idx) => {
+          let nextPoint = this.points[(idx + 1) % this.points.length];
+
+          let lineHandle = L.polyline([point, nextPoint], {
+            color: "#ff0000",
+            weight: 15,
+            opacity: 0,
+          }).addTo(this.map);
+
+          lineHandle.on("mousedown", (evt) => {
+            const point = evt.latlng;
+            this.points.splice(idx + 1, 0, point);
+
+            this.updateMarker();
+            this.setActiveMarker(idx + 1);
+
+            this.handles[this.activeMarkerIndex].fire("mousedown", evt);
+
+            //Prevents the input from losing focus
+            // L.DomEvent.preventDefault(evt.originalEvent);
+            // L.DomEvent.stopPropagation(evt.originalEvent);
+          });
+
+          this.lineHandles.push(lineHandle);
+        });
       }
     },
     updateMarker() {
@@ -186,25 +245,50 @@ export default {
           //
           this.marker = L.polygon(this.points).addTo(this.map);
 
+          this.drawLineHandles();
+
           this.handles = this.points.map((point, i) => {
             let marker = L.circleMarker(point, {
               radius: 10,
+              fillOpacity: 1,
+              fillColor: this.activeMarkerIndex == i ? "#ffffff" : "#3388ff",
               draggable: true,
             }).addTo(this.map);
 
-            let trackCursor = function (evt) {
-              marker.setLatLng(evt.latlng);
-              this.points[i] = evt.latlng;
-              this.marker.setLatLngs(this.points);
-            };
-            trackCursor = trackCursor.bind(this);
+            let trackCursor = (evt) => {
+              if (this.activeMarkerIndex != null) {
+                let a = this.activeMarkerIndex;
+                let b =
+                  this.activeMarkerIndex - 1 < 0
+                    ? this.lineHandles.length - 1
+                    : a - 1;
 
-            marker.on("mousedown", () => {
+                const marker = this.handles[this.activeMarkerIndex];
+                const location = evt.latlng;
+                marker.setLatLng(location);
+                this.points[a] = location;
+
+                for (let [handle, point] of [
+                  [a, 0],
+                  [b, 1],
+                ]) {
+                  let polyPoints = this.lineHandles[handle].getLatLngs();
+                  polyPoints[point] = location;
+                  this.lineHandles[handle].setLatLngs(polyPoints);
+                }
+
+                this.updateMarker();
+              }
+            };
+
+            marker.on("mousedown", (e) => {
               this.map.dragging.disable();
+              this.setActiveMarker(i);
               this.map.on("mousemove", trackCursor);
+              e.originalEvent.preventDefault();
             });
 
-            marker.on("mouseup", () => {
+            this.map.on("mouseup", () => {
               this.map.dragging.enable();
               this.map.off("mousemove", trackCursor);
             });
@@ -232,27 +316,27 @@ export default {
     },
   },
   computed: {
-    isCircle: function () {
+    isCircle: function() {
       return this.type == "circle";
     },
-    isPolygon: function () {
+    isPolygon: function() {
       return this.type == "polygon";
     },
-    lat: function () {
+    lat: function() {
       if (this.location == null || this.location.lat == null) {
         return "-";
       } else {
         return this.location.lat;
       }
     },
-    lng: function () {
+    lng: function() {
       if (this.location == null || this.location.lng == null) {
         return "-";
       } else {
         return this.location.lng;
       }
     },
-    polygon: function () {
+    polygon: function() {
       return this.points.reduce((acc, value) => {
         return `${acc} [${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}];`;
       }, "");
