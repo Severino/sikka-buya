@@ -7,16 +7,18 @@ const { JSDOM } = require("jsdom")
  */
 class HTMLSanitizer {
 
-    static sanitize(html, ...allowed){
+    static sanitize(html, ...allowed) {
         html = this.removeScripts(html)
         return this.allowStyles(html, ...allowed)
     }
 
-    static removeScripts(html){
+    static removeScripts(html) {
         let { window } = new JSDOM(html)
         let parsedDocument = window.document
         let scripts = parsedDocument.querySelectorAll("script")
         scripts.forEach(script => script.parentNode.removeChild(script))
+        if (scripts.length > 0)
+            console.log("Script was removed successfully!")
         return parsedDocument.body.innerHTML
     }
 

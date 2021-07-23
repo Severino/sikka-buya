@@ -2,7 +2,7 @@
   <div
     id="delete"
     :class="active ? 'active' : 'inactive'"
-    @click.stop="requestRemove"
+    @click.stop.prevent="requestRemove"
   >
     <Delete class="icon" />
     <span id="text">{{ $t("general.delete_submit") }}</span>
