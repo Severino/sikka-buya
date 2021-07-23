@@ -16,11 +16,6 @@ export default class Query {
     }
 
     async get(id, properties) {
-        let locationIndex = properties.indexOf("location")
-        if (locationIndex != -1) {
-            properties[locationIndex] = "location{lat,lon}"
-        }
-
         const query = `
               {
                 get${this.capitalizedName} (id:${id})  {
@@ -56,7 +51,6 @@ export default class Query {
                 } else {
                     let erros = AxiosHelper.getErrors(result)
                     if(erros[0] === "401"){
-                        console.log("SHOW IT")
                         store.commit("showLoginForm")
                     }
 

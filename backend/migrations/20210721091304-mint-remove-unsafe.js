@@ -14,18 +14,15 @@ exports.setup = function (options, seedLink) {
   seed = seedLink;
 };
 
-exports.up = function (db) {
-  return db.createTable("material", {
-    id: { type: "int", primaryKey: true, autoIncrement: true },
-    name: "string"
-  },
-  );
+exports.up = function (db, callback) {
+  return db.removeColumn("mint", "unsafe", callback);
 };
 
 exports.down = function (db) {
-  return db.dropTable("material"); 
+  return db.addColumn("mint", "unsafe", { type: "boolean" }, callback)
 };
 
 exports._meta = {
   "version": 1
 };
+ 

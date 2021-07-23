@@ -54,7 +54,7 @@ input MintInput {
   name: String
   location: GeoJSONInput
   uncertain: Boolean
-  uncertainArea: GeoJSONInput
+  uncertainLocation: GeoJSONInput
 }
 
 type CoinSideInformation {
@@ -149,6 +149,7 @@ type Mint {
   name: String
   location: GeoJSON
   uncertain: Boolean
+  uncertainLocation: GeoJSON
 }
 
 type Person {

@@ -186,7 +186,7 @@ export default {
             )
           : ""
       } ){
-        ${GraphQLUtils.buildQueryParams(this.queryParams)}
+        ${GraphQLUtils.buildQueryBody(this.queryParams)}
       }
       }`;
 

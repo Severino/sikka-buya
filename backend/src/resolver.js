@@ -43,7 +43,7 @@ class Resolver {
         console.dir(obj)
         return this.request(`INSERT INTO ${tableName} (${Object.keys(obj).join(",")}) VALUES (${Object.keys(obj).map((name) => `$[${name}]`)})`, obj)
     }
- 
+
     async update(_, args) {
         const object = args.data
         const id = object.id

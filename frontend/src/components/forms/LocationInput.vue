@@ -8,17 +8,9 @@
     ref="root"
   >
     <div class="toolbar">
-      <div v-if="isPolygon" class="input-wrapper">
-        <label for="polygon">Polygon</label>
-        <input id="polygon" type="text" :value="polygon" readonly />
-      </div>
-      <div v-if="!isPolygon" class="input-wrapper">
-        <label for="lat">Lat</label>
-        <input id="lat" type="text" :value="lat" readonly />
-      </div>
-      <div v-if="!isPolygon" class="input-wrapper">
-        <label for="lng">Lng</label>
-        <input form="lng" type="text" :value="lng" readonly />
+      <div class="input-wrapper">
+        <label for="input">{{ type.toUpperCase() }}</label>
+        <input id="input" type="text" :value="coordinateString" readonly />
       </div>
       <div class="input-wrapper" v-if="isCircle">
         <label for="radius">Radius</label>
@@ -65,13 +57,20 @@ export default {
       type: Number,
       default: 100,
     },
+    coordinates: {
+      type: Array,
+      required: true,
+    },
   },
   watch: {
-    radius: function() {
+    radius: function () {
+      this.updateMarker();
+    },
+    coordinates: function () {
       this.updateMarker();
     },
   },
-  data: function() {
+  data: function () {
     return {
       activeMarkerIndex: null,
       focused: false,
@@ -81,18 +80,18 @@ export default {
       lineHandles: [],
       markerHistory: [],
       historyLimit: 20,
-      points: [],
     };
   },
   /**
    * Mounted hooks are fired in dir child -> parent.
    * Therefore we may access the mounted map here.
    */
-  mounted: function() {
+  mounted: function () {
     this.enableMap();
+    this.updateMarker();
   },
   methods: {
-    setActiveMarker: function(i) {
+    setActiveMarker: function (i) {
       let old = this.activeMarkerIndex;
 
       if (old != null) {
@@ -103,6 +102,7 @@ export default {
 
       this.activeMarkerIndex = i;
 
+      console.log(this.handles[this.activeMarkerIndex], this.activeMarkerIndex);
       this.handles[this.activeMarkerIndex].setStyle({
         fillColor: "#ff0000",
       });
@@ -117,20 +117,24 @@ export default {
     },
     unfocus() {
       this.focused = false;
+      this.activeMarkerIndex = null;
+      this.updateMarker();
     },
     keydown(e) {
       if (this.focused) {
         if (e.ctrlKey && e.key.toLowerCase() == "z") {
-          if (this.isPolygon && this.points.length > 0) {
-            this.points.pop();
-          }
-
+          let prevPosition;
           if (this.markerHistory.length > 1) {
-            this.markerHistory.shift();
-            this.location = this.markerHistory[0];
+            prevPosition = this.markerHistory.shift();
           }
 
-          this.updateMarker();
+          let coordinates = this.coordinates;
+          if (this.isPolygon) {
+            if (coordinates.length > 0) coordinates.pop();
+          } else if (prevPosition) {
+            coordinates[0] = prevPosition;
+          }
+          this.emitUpdate(coordinates);
         }
 
         if (
@@ -138,15 +142,15 @@ export default {
             e.key.toLowerCase() == "delete") &&
           this.activeMarkerIndex != null
         ) {
-          this.points.splice(this.activeMarkerIndex, 1);
+          const coordinates = this.coordinates;
+          coordinates.splice(this.activeMarkerIndex, 1);
           this.activeMarkerIndex = null;
-          this.updateMarker();
+          this.emitUpdate(coordinates);
         }
       }
     },
-    clearData: function() {
-      this.location = null;
-      this.updateMarker();
+    clearData: function () {
+      this.emitUpdate([]);
     },
     enableMap() {
       this.map = this.$refs.map.map;
@@ -154,26 +158,21 @@ export default {
 
       this.map.on("click", (e) => {
         if (e.originalEvent.ctrlKey == true) {
-          this.location = e.latlng;
-          this.markerHistory.unshift(this.location);
+          const location = e.latlng;
+          this.markerHistory.unshift(location);
+
+          let coordinates = this.coordinates;
 
           if (this.isPolygon) {
-            this.points.push(this.location);
+            coordinates.push([location.lat, location.lng]);
+          } else {
+            coordinates = [location.lat, location.lng];
           }
-
-          // let i = document.createElement("input");
-          // i.value = `${this.location.lat.toFixed(
-          //   2
-          // )}, ${this.location.lng.toFixed(2)}`;
-          // document.body.appendChild(i);
-          // i.select();
-          // document.execCommand("copy");
-          // document.body.removeChild(i);
 
           while (this.markerHistory.length > this.historyLimit)
             this.markerHistory.pop();
 
-          this.updateMarker();
+          this.emitUpdate(coordinates);
         }
       });
 
@@ -208,9 +207,9 @@ export default {
       }
     },
     drawLineHandles() {
-      if (this.points.length > 1) {
-        this.points.forEach((point, idx) => {
-          let nextPoint = this.points[(idx + 1) % this.points.length];
+      if (this.coordinates.length > 1) {
+        this.coordinates.forEach((point, idx) => {
+          let nextPoint = this.coordinates[(idx + 1) % this.coordinates.length];
 
           let lineHandle = L.polyline([point, nextPoint], {
             color: "#ff0000",
@@ -219,35 +218,44 @@ export default {
           }).addTo(this.map);
 
           lineHandle.on("mousedown", (evt) => {
-            const point = evt.latlng;
-            this.points.splice(idx + 1, 0, point);
+            const point = [evt.latlng.lat, evt.latlng.lng];
+
+            const coordinates = this.coordinates;
+            coordinates.splice(idx + 1, 0, point);
 
             this.updateMarker();
             this.setActiveMarker(idx + 1);
-
             this.handles[this.activeMarkerIndex].fire("mousedown", evt);
 
-            //Prevents the input from losing focus
-            // L.DomEvent.preventDefault(evt.originalEvent);
-            // L.DomEvent.stopPropagation(evt.originalEvent);
+            this.emitUpdate(coordinates);
           });
 
           this.lineHandles.push(lineHandle);
         });
       }
     },
+
+    emitUpdate(coordinates) {
+      this.$emit("update", {
+        type: this.type,
+        coordinates,
+      });
+    },
     updateMarker() {
       this.removeMarker();
-      if (this.location) {
+      if (this.coordinates.length > 0) {
         if (this.isCircle) {
-          this.marker = L.circle(this.location, this.radius).addTo(this.map);
+          this.marker = L.circle(this.coordinates[0], this.radius).addTo(
+            this.map
+          );
         } else if (this.isPolygon) {
           //
-          this.marker = L.polygon(this.points).addTo(this.map);
+
+          this.marker = L.polygon(this.coordinates).addTo(this.map);
 
           this.drawLineHandles();
 
-          this.handles = this.points.map((point, i) => {
+          this.handles = this.coordinates.map((point, i) => {
             let marker = L.circleMarker(point, {
               radius: 10,
               fillOpacity: 1,
@@ -266,7 +274,7 @@ export default {
                 const marker = this.handles[this.activeMarkerIndex];
                 const location = evt.latlng;
                 marker.setLatLng(location);
-                this.points[a] = location;
+                this.coordinates[a] = [location.lat, location.lng];
 
                 for (let [handle, point] of [
                   [a, 0],
@@ -291,6 +299,8 @@ export default {
             this.map.on("mouseup", () => {
               this.map.dragging.enable();
               this.map.off("mousemove", trackCursor);
+              if (this.activeMarkerIndex !== null)
+                this.coordinates.splice(0, 0);
             });
 
             return marker;
@@ -308,7 +318,7 @@ export default {
             shadowUrl: defaultMarkerShadow,
           });
 
-          this.marker = L.marker(this.location, {
+          this.marker = L.marker(this.coordinates, {
             icon: defaultIcon,
           }).addTo(this.map);
         }
@@ -316,30 +326,49 @@ export default {
     },
   },
   computed: {
-    isCircle: function() {
+    isCircle: function () {
       return this.type == "circle";
     },
-    isPolygon: function() {
+    isPolygon: function () {
       return this.type == "polygon";
     },
-    lat: function() {
-      if (this.location == null || this.location.lat == null) {
+    lat: function () {
+      if (this.coordinates.length == 0) {
         return "-";
       } else {
-        return this.location.lat;
+        return this.coordinates[0];
       }
     },
-    lng: function() {
-      if (this.location == null || this.location.lng == null) {
+    lng: function () {
+      if (this.coordinates.length == 0) {
         return "-";
       } else {
-        return this.location.lng;
+        return this.coordinates[1];
       }
     },
-    polygon: function() {
-      return this.points.reduce((acc, value) => {
-        return `${acc} [${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}];`;
+    coordinateString: function () {
+      switch (this.type) {
+        case "polygon":
+          return this.polygonString;
+        case "point":
+          return this.pointString;
+        default:
+          console.error(`Undefined type in coordinateString ${this.type}!`);
+          return "undefined";
+      }
+    },
+    polygonString: function () {
+      return this.coordinates.reduce((acc, value) => {
+        console.log(value);
+        return `${acc} [${value[0].toFixed(2)}, ${value[1].toFixed(2)}]`;
       }, "");
+    },
+    pointString: function () {
+      if (this.coordinates.length < 2) return "";
+      else
+        return `[${this.coordinates[0].toFixed(
+          2
+        )}, ${this.coordinates[1].toFixed(2)}]`;
     },
   },
 };
@@ -361,7 +390,7 @@ export default {
     display: flex;
     > input {
       flex: 1;
-      padding-left: 75px;
+      padding-left: 100px;
     }
 
     > *,
