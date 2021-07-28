@@ -3,6 +3,7 @@ const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fi
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
+const { default: Overlord } = require("../../overlord")
 
 class Type {
 
@@ -500,33 +501,7 @@ class Type {
                 ON o.person = p.id
             `)
 
-        const config = [
-            {
-                prefix: "person_",
-                target: "person",
-                keys: ["id", "name", "role"]
-            }
-        ]
-
-        SQLUtils.objectifyBulk(request, config)
-
-
-        const arrays = [
-            {
-                target: "honorifics",
-                prefix: "honorific_",
-                keys: ["ids", "names"],
-                to: ["id", "name"]
-            },
-            {
-                target: "titles",
-                prefix: "title_",
-                keys: ["ids", "names"],
-                to: ["id", "name"]
-            },
-        ]
-
-        SQLUtils.listifyBulk(request, arrays)
+        Overlord.extract(request)
 
         return Promise.resolve(request)
     }
@@ -536,7 +511,17 @@ class Type {
 
         const request = await Database.multi(
             `
-            SELECT o.id, o.rank, o.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM overlord o
+            SELECT o.id,
+            o.rank,
+            o.type,
+            p.id as person_id,
+            p.name as person_name,
+            p.role as person_role,
+            t.title_names,
+            t.title_ids,
+            h.honorific_names,
+            h.honorific_ids 
+            FROM overlord o
             LEFT JOIN(
                 SELECT ot.overlord_id AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
                  FROM overlord_titles ot
@@ -556,38 +541,9 @@ class Type {
             `, type_id)
 
         const overlords = []
+        Overlord.extract(request)
 
-        request[0].forEach(result => {
-
-            const config = [
-                {
-                    prefix: "person_",
-                    target: "person",
-                    keys: ["id", "name", "role"]
-                }
-            ]
-
-            SQLUtils.objectifyBulk(result, config)
-
-            const arrays = [
-                {
-                    target: "honorifics",
-                    prefix: "honorific_",
-                    keys: ["ids", "names"],
-                    to: ["id", "name"]
-                },
-                {
-                    target: "titles",
-                    prefix: "title_",
-                    keys: ["ids", "names"],
-                    to: ["id", "name"]
-                },
-            ]
-
-            SQLUtils.listifyBulk(result, arrays)
-            overlords.push(result)
-        })
-
+        overlords.push(result)
         return Promise.resolve(overlords)
     }
 
@@ -616,33 +572,7 @@ class Type {
         const issuers = []
 
         result[0].forEach(issuer => {
-            const config = [
-                {
-                    prefix: "person_",
-                    target: "person",
-                    keys: ["id", "name", "role"]
-                }
-            ]
-
-            SQLUtils.objectifyBulk(issuer, config)
-
-
-            const arrays = [
-                {
-                    target: "honorifics",
-                    prefix: "honorific_",
-                    keys: ["ids", "names"],
-                    to: ["id", "name"]
-                },
-                {
-                    target: "titles",
-                    prefix: "title_",
-                    keys: ["ids", "names"],
-                    to: ["id", "name"]
-                },
-            ]
-
-            SQLUtils.listifyBulk(issuer, arrays)
+            
             issuers.push(issuer)
         })
 

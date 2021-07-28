@@ -15,13 +15,11 @@ class MintResolver extends Resolver {
 
         if (!data.id || data.id <= 0) throw new Error("error.invalid_id")
 
-        console.log(args.uncertain_area)
         const query = `UPDATE mint SET name=$[name],location=ST_GeomFromGeoJSON($[location]),uncertain=$[uncertain],uncertain_area=$[uncertain_area] WHERE id=$[id]`
         return this.request(query, data)
     }
 
     async get(_, args) {
-        console.log("GET MINT!")
         let p = await Database.one(`SELECT *, ST_AsGeoJSON(location) AS geo_location, ST_AsGeoJSON(uncertain_area) AS geo_uncertain_area FROM ${this.name} WHERE id=$1`, [args.id])
 
         let location = p.location
@@ -41,7 +39,16 @@ class MintResolver extends Resolver {
             } catch (e) { console.error(e) }
         }
 
-        console.log(p)
+        return p
+    }
+
+    async list(_, args) {
+        let p = await Database.manyOrNone(`SELECT *, ST_AsGeoJSON(location) AS geo_location, ST_AsGeoJSON(uncertain_area) AS geo_uncertain_area FROM ${this.name}`, [args.id])
+
+        p.forEach(mint =>
+            mint.location = (mint.geo_location) ? JSON.parse(mint.geo_location) : null
+        )
+
         return p
     }
 
@@ -50,7 +57,6 @@ class MintResolver extends Resolver {
         obj["uncertain_area"] = obj.uncertainLocation
         delete obj.uncertainLocation
 
-        console.log(obj)
         this.modifyGeoJSON(obj, "location")
         this.modifyGeoJSON(obj, "uncertain_area")
     }
@@ -60,7 +66,7 @@ class MintResolver extends Resolver {
 
             if (obj[key].type.toLowerCase() == "polygon") {
                 let coords = []
-                console.log("TRANSFORM POLYGON")
+
                 for (let i = 0; i < obj[key].coordinates.length - 1; i += 2) {
                     coords.push([obj[key].coordinates[i], obj[key].coordinates[i + 1]])
                 }
@@ -74,24 +80,6 @@ class MintResolver extends Resolver {
             console.log(obj[key])
         }
     }
-    //     console.log(obj[key], obj[key].type)
-
-    //     if (obj[key] == null) return;
-
-    //     if (obj[key] && obj[key].type) {
-    //         switch (obj[key].type.toLowerCase()) {
-    //             case "point":
-    //                 obj[key] = `POINT(${obj[key].coordinates.slice(0, 2).join(" ")})`
-    //                 break;
-    //             case "polygon":
-    //                 obj[key] = `POLYGON(${obj[key].coordinates.slice().join(" ")} ${obj[key].coordinates.slice(-2).join(" ")})`
-    //                 break;
-    //             default:
-    //                 throw new Error(`Unsupported GeoJSON type : ${obj[key]?.type}.`)
-    //         }
-    //     } else throw new Error(`Invalid GeoJSON type : ${obj[key]?.type}.`)
-    // } 
-
 }
 
 module.exports = MintResolver

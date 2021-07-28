@@ -53,8 +53,6 @@ async function main() {
             let detailsOldEntry = Object.assign({}, base)
             let detailsNewEntry = Object.assign({}, base)
 
-            console.log(result.id)
-
             for (let col of Object.values(DB_FIELDS)) {
                 let field = result[col]
                 let updated = HTMLSanitizer.sanitize(field, ...ALLOWED_STYLES)

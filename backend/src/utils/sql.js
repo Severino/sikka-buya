@@ -59,7 +59,7 @@ class SQLUtils {
     static objectify(obj, config) {
         obj[config.target] = {}
         config.keys.forEach(key => {
-            if (obj[config.prefix + key]) {
+            if (obj[config.prefix + key] !== undefined) {
                 obj[config.target][key] = obj[config.prefix + key]
                 delete obj[config.prefix + key]
             } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)

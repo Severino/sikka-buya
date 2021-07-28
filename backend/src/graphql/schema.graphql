@@ -7,7 +7,6 @@ type AuthResponse {
   user: User
 }
 
-
 input GeoJSONInput {
   type: String
   coordinates: [Float]
@@ -46,8 +45,6 @@ input PersonInput {
   role: ID
   dynasty: ID
 }
-
-
 
 input MintInput {
   id: ID
@@ -191,9 +188,14 @@ type Nominal {
   name: String!
 }
 
+type Dominion {
+  mint:Mint,
+  overlord: Overlord,
+}
+
 type Query {
   ping: String
-  getGeo:[GeoJSON]
+  getGeo: [GeoJSON]
 
   coinMark: [CoinMark]
   nominal: [Nominal]!
@@ -215,7 +217,7 @@ type Query {
   searchDynasty(text: String): [Dynasty]!
   searchRole(text: String): [Role]!
 
-  searchTypes(text:String):[CoinType]!
+  searchTypes(text: String): [CoinType]!
 
   searchPersonsWithRole(
     text: String!
@@ -245,6 +247,8 @@ type Query {
   getTypes: [CoinType]
 
   getTypeComplete(id: ID!): Boolean
+
+  getDominion(year:Int):[Dominion]
 
   users: [User]
 
@@ -304,7 +308,10 @@ type Mutation {
 
 type Overlord {
   id: ID
-  person: Person
+  name: String
+  shortName: String
+  role: Role
+  dynasty: Dynasty
   titles: [Title]!
   honorifics: [Honorific]!
   rank: Int
@@ -324,7 +331,6 @@ input OverlordInput {
   titles: [Int]!
   honorifics: [Int]!
 }
-
 
 type Analytics {
   typeCount: Int
