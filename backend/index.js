@@ -35,6 +35,7 @@ const Auth = require("./src/auth.js");
 const { validateEmail, validatePassword } = require("./src/auth.js");
 const Overlord = require("./overlord.js");
 const Mint = require("./src/models/mint.js");
+const { objectifyBulk } = require("./src/utils/sql.js");
 
 
 
@@ -97,9 +98,9 @@ const resolvers = {
             SELECT DISTINCT 
             mint.id AS mint_id, 
             mint.name AS mint_name, 
-            mint.location,
-            overlord.id AS overlord_id,
+            ST_AsGeoJSON(mint.location) AS mint_location,
             overlord.rank AS overlord_rank,
+			person.id AS overlord_id,
             person.name AS overlord_name,
             person.short_name AS overlord_short_name,
             person.role AS overlord_role,
@@ -109,9 +110,10 @@ const resolvers = {
             inner JOIN person ON person.id = overlord.person
             inner join mint ON mint.id = type.mint
             WHERE type.year_of_mint='363' and mint.location IS NOT NULL and mint.uncertain IS NOT true
-            ORDER BY mint.name;
+            ORDER BY person.id;
             `)
             let arr = []
+
 
             result.forEach(dominion => {
                 const separator = "_"
@@ -122,6 +124,7 @@ const resolvers = {
                     for (let str of objects) {
                         if (key.startsWith(str + separator)) {
                             key = key.replace(str + separator, "")
+                            key = SQLUtils.snakeToCamelCase(key)
                             matchedObject = str
                             break
                         }
@@ -132,15 +135,32 @@ const resolvers = {
                         obj[matchedObject][key] = val
                     }
                 }
+
+                console.log(obj)
+
+                if (obj.mint?.location) {
+                    try {
+                        obj.mint.location = JSON.parse(obj.mint.location)
+                    } catch (e) { console.error(e, obj.mint.location) }
+                } else obj.mint.location = null
+
+
                 arr.push(obj)
             })
 
-            console.log(arr)
 
 
-            return arr
+            let dominions = new Map()
+
+            arr.forEach(el => {
+                let id = el.overlord.id
+                if (!dominions.has(id)) dominions.set(id, { overlord: el.overlord, mints: [] })
+                let entries = dominions.get(id)
+                entries.mints.push(el.mint)
+            })
 
 
+            return Array.from(dominions.values())
         },
         searchPersonsWithRole: async function (_, args) {
 

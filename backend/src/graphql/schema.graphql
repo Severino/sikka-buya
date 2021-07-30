@@ -189,8 +189,8 @@ type Nominal {
 }
 
 type Dominion {
-  mint:Mint,
-  overlord: Overlord,
+  overlord: Person, 
+  mints:[Mint]!,
 }
 
 type Query {
