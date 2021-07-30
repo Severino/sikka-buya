@@ -320,8 +320,8 @@ type Overlord {
 type TitledPerson {
   id: ID
   person: Person
-  titles: [Title]
-  honorifics: [Honorific]
+  titles: [Title]!
+  honorifics: [Honorific]!
 }
 
 input OverlordInput {

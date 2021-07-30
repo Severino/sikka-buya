@@ -109,6 +109,12 @@ export default {
         });
         console.log(mintData);
 
+        L.Control.extend({
+          onAdd: function(map){
+            
+          }
+        })
+
         L.geoJSON(
           mintData.map((mint) => {
             let geo = mint.location;

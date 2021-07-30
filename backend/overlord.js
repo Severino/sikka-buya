@@ -5,11 +5,12 @@ class Overlord {
     static extract(result, {
         target = null,
         prefix = "" } = {}) {
+
         const config = [
             {
                 prefix: `${prefix}`,
                 target: target,
-                keys: ["id", "name", "role", "rank"]
+                keys: ["role", "rank"]
             }
         ]
 

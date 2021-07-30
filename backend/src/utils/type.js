@@ -3,7 +3,7 @@ const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fi
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
-const { default: Overlord } = require("../../overlord")
+const Overlord = require("../../overlord")
 
 class Type {
 
@@ -254,7 +254,7 @@ class Type {
             issuer.type = +type
             this.removeEmptyTitlesAndHonorifics(issuer)
             let { id: issuer_id } = await t.one(pgp.helpers.insert(issuer, ["type", "person"], "issuer") + " RETURNING id")
-
+            
             for (let title of issuer.titles.values()) {
                 await t.none("INSERT INTO issuer_titles(issuer, title) VALUES($1, $2)", [issuer_id, title])
             }
@@ -413,7 +413,6 @@ class Type {
     }
 
     static async postprocessType(type) {
-
         if (!type) throw new Error(`Type was not provided!`)
 
         const config = [
@@ -451,8 +450,6 @@ class Type {
         type.pieces = await Type.getPieces(type.id)
         type.coinMarks = await Type.getCoinMarks(type.id)
 
-
-
         for (let [key, val] of Object.entries(this.databaseToGraphQlMap)) {
             if (type[key] != null) {
                 type[val] = type[key]
@@ -480,36 +477,48 @@ class Type {
     }
 
 
-    static async getOverlord(id) {
+    // static async getOverlord(id) {
+    //     console.log("GET OVERLORD",)
 
-        const request = await Database.one(
-            `
-            SELECT o.id, o.rank, o.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM overlords o 
-            JOIN(
-                SELECT ot.overlord_id AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
-                 FROM overlord_titles ot
-                 JOIN title t ON t.id = ot.title_id
-                 GROUP BY ot.overlord_id
-            ) t USING(id)
-            JOIN(
-                SELECT oh.overlord_id AS id, array_agg(h.name) AS honorific_names, array_agg(h.id) AS honorific_ids
-                 FROM overlord_honorifics oh
-                 JOIN honorific h ON h.id = oh.honorific_id
-                 GROUP BY oh.overlord_id
-            ) h USING(id)
-            INNER JOIN person p
-                ON o.person = p.id
-            `)
+    //     const request = await Database.one(`
+    //         SELECT O.ID,
+    //         	O.RANK,
+    //         	O.TYPE,
+    //         	P.ID AS PERSON_ID,
+    //         	P.NAME AS PERSON_NAME,
+    //         	P.ROLE AS PERSON_ROLE,
+    //         	T.TITLE_NAMES,
+    //         	T.TITLE_IDS,
+    //         	H.HONORIFIC_NAMES,
+    //         	H.HONORIFIC_IDS
+    //         FROM OVERLORD O JOIN
+    //         				(SELECT OT.OVERLORD_ID AS ID,
 
-        Overlord.extract(request)
+    //         				ARRAY_AGG(T.NAME) AS TITLE_NAMES,
+    //         				ARRAY_AGG(T.ID) AS TITLE_IDS
+    //         					FROM OVERLORD_TITLES OT
+    //         					JOIN TITLE T ON T.ID = OT.TITLE_ID
+    //         					GROUP BY OT.OVERLORD_ID) T USING(ID) JOIN
+    //         				(SELECT OH.OVERLORD_ID AS ID,
 
-        return Promise.resolve(request)
-    }
+    //         				ARRAY_AGG(H.NAME) AS HONORIFIC_NAMES,
+    //         				ARRAY_AGG(H.ID) AS HONORIFIC_IDS
+    //         					FROM OVERLORD_HONORIFICS OH
+    //         					JOIN HONORIFIC H ON H.ID = OH.HONORIFIC_ID
+    //         					GROUP BY OH.OVERLORD_ID) H USING(ID)
+    //         INNER JOIN PERSON P ON O.PERSON = P.ID
+    //         WHERE O.id = 726
+    //         `, id)
+
+    //     Overlord.extract(request)
+
+    //     return Promise.resolve(request)
+    // }
 
 
     static async getOverlordsByType(type_id) {
 
-        const request = await Database.multi(
+        const result = await Database.multi(
             `
             SELECT o.id,
             o.rank,
@@ -540,9 +549,9 @@ class Type {
             ORDER BY o.rank ASC
             `, type_id)
 
-        const overlords = []
-        Overlord.extract(request)
-
+        Overlord.extract(result)
+        console.log("asd", result)
+        let overlords = []
         overlords.push(result)
         return Promise.resolve(overlords)
     }
@@ -572,10 +581,9 @@ class Type {
         const issuers = []
 
         result[0].forEach(issuer => {
-            
+
             issuers.push(issuer)
         })
-
 
         return issuers
     }

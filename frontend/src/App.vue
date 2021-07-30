@@ -192,6 +192,15 @@ button {
   @include interactive();
 }
 
+.transparent-button {
+  background-color: transparent;
+  border: none;
+
+  &:hover{
+    background-color: rgba(#000000, 0.1);
+  }
+}
+
 label {
   font-weight: bold;
   // color: $primary-color;
