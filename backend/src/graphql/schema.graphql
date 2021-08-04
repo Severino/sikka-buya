@@ -189,8 +189,13 @@ type Nominal {
 }
 
 type Dominion {
-  overlord: Person, 
-  mints:[Mint]!,
+  overlord: Person
+  mints: [Mint]!
+}
+
+type Range {
+  from: Int
+  to: Int
 }
 
 type Query {
@@ -206,6 +211,7 @@ type Query {
   mint: [Mint]!
   dynasty: [Dynasty]!
   role: [Role]
+  timespan: Range
 
   searchCoinMark(text: String): [CoinMark]!
   searchHonorific(text: String): [Honorific]!
@@ -248,7 +254,7 @@ type Query {
 
   getTypeComplete(id: ID!): Boolean
 
-  getDominion(year:Int):[Dominion]
+  getDominion(year: Int): [Dominion]
 
   users: [User]
 

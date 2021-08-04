@@ -41,7 +41,7 @@
 
 <script>
 import Close from "vue-material-design-icons/Close.vue";
-import MapView from "../MapView.vue";
+import MapView from "../map/MapView.vue";
 var L = require("leaflet");
 
 export default {

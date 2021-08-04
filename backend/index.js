@@ -84,6 +84,16 @@ const resolvers = {
             console.dir(result)
             return result
         },
+        timespan: async () => {
+
+            let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint != '';`)
+            range = range.map(row => row.year_of_mint).filter(res => res.match(/^\d+$/g)).sort()
+
+            if (range.length == 0) throw new Error("Could not get Range!")
+
+            console.log(range)
+            return { from: range[0], to: range[range.length - 1] }
+        },
         getOverlord: function (_, args) {
             return Type.getOverlord(args.id)
         },
@@ -94,6 +104,10 @@ const resolvers = {
             return Type.getType(args.id)
         },
         getDominion: async function (_, args) {
+
+            const year = args.year
+            if (!year) throw new Error(`The query did not provide a year.`)
+
             let result = await Database.manyOrNone(`
             SELECT DISTINCT 
             mint.id AS mint_id, 
@@ -109,9 +123,9 @@ const resolvers = {
             INNER JOIN type ON type.id =overlord.type
             inner JOIN person ON person.id = overlord.person
             inner join mint ON mint.id = type.mint
-            WHERE type.year_of_mint='363' and mint.location IS NOT NULL and mint.uncertain IS NOT true
+            WHERE type.year_of_mint='$[year]' and mint.location IS NOT NULL and mint.uncertain IS NOT true
             ORDER BY person.id;
-            `)
+            `, { year })
             let arr = []
 
 
