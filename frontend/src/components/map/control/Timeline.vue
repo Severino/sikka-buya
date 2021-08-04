@@ -42,7 +42,7 @@ export default {
   },
   mounted: function () {
     this.$nextTick(() => {
-      console.log("MOUNTED");
+      
       L.Control.Timeline = L.Control.extend({
         options: {
           position: "middlecenter",

@@ -31,21 +31,19 @@ export default {
     };
   },
   mounted: function () {
-
     Query.raw(
       `{
         timespan {
           from
           to
         }
-  mint {
+    mint {
     name
     location {
       type
       coordinates
     }
   }
-  
 }`
     )
       .then((result) => {
@@ -54,7 +52,7 @@ export default {
         this.timeline = timeline;
 
         this.updateMint(result.data.data.mint);
-    this.updateDominion()
+        this.updateDominion();
       })
       .catch(console.error);
   },
@@ -107,7 +105,25 @@ export default {
     updateDominion: function () {
       Query.raw(
         `
-    {
+      {
+  ruledMint(year: ${this.timeline.value}) {
+    mint {
+      name
+      location {
+        type
+        coordinates
+      }
+    }
+    overlords {
+      name
+      rank
+      honorifics {
+        name
+      }
+    }
+  }
+
+
       getDominion(year: ${this.timeline.value}) {
     overlord {
       name
@@ -123,6 +139,32 @@ export default {
   }}`
       )
         .then((result) => {
+          let rms = result.data.data.ruledMint.filter(
+            (rm) =>
+              rm.mint.location != null && rm.mint.location.coordinates != null
+          );
+
+          console.log(rms);
+
+          if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
+          this.mintGeoJSONLayer = L.geoJSON([], {
+            coordsToLatLng: function (coords) {
+              return new L.LatLng(coords[0], coords[1], coords[2]);
+            },
+            style: {
+              stroke: true,
+              opacity: 0.75,
+              color: "#48ac48",
+              fillColor: "#48ac48",
+              fillOpacity: 0.5,
+            },
+          }).addTo(this.map);
+
+          rms.forEach((rm) => {
+            console.log(rm.mint.location);
+            this.mintGeoJSONLayer.addData(rm.mint.location);
+          });
+
           let dominionData = result.data.data.getDominion;
           dominionData.filter(
             (data) =>
@@ -149,12 +191,12 @@ export default {
                 points.push(turf.point([lat, lng]));
               }
             });
-            
+
             let area = turf.convex(turf.featureCollection(points));
             area.dominion = dominion;
             dominionData[idx] = area;
           });
-          if(this.dominionLayer) this.dominionLayer.remove() 
+          if (this.dominionLayer) this.dominionLayer.remove();
           this.dominionLayer = L.geoJSON(dominionData, {
             coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);

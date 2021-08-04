@@ -193,6 +193,11 @@ type Dominion {
   mints: [Mint]!
 }
 
+type RuledMint {
+  mint: Mint
+  overlords: [Overlord]!
+}
+
 type Range {
   from: Int
   to: Int
@@ -255,6 +260,7 @@ type Query {
   getTypeComplete(id: ID!): Boolean
 
   getDominion(year: Int): [Dominion]
+  ruledMint(year:Int): [RuledMint]
 
   users: [User]
 

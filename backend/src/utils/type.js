@@ -3,7 +3,9 @@ const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fi
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
-const { default: Overlord } = require("../../overlord")
+const Overlord = require("../../overlord")
+const { objectifyList } = require("./sql")
+
 
 class Type {
 
@@ -536,15 +538,16 @@ class Type {
             ) h USING(id)
             INNER JOIN person p
                 ON o.person = p.id
-			WHERE o.type = $1
+			WHERE o.type = 384
             ORDER BY o.rank ASC
             `, type_id)
 
-        const overlords = []
-        Overlord.extract(request)
 
-        overlords.push(result)
-        return Promise.resolve(overlords)
+        let result = request[0]
+        console.log("REASD", result)
+
+        let overlords = Overlord.extractList(result)
+        return overlords
     }
 
     static async getIssuerByType(type_id) {
@@ -572,7 +575,7 @@ class Type {
         const issuers = []
 
         result[0].forEach(issuer => {
-            
+
             issuers.push(issuer)
         })
 

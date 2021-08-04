@@ -84,10 +84,42 @@ const resolvers = {
             console.dir(result)
             return result
         },
+        ruledMint: async function (_, { year } = {}) {
+            if (!year) throw new Error("Year is a required parameter")
+
+            let mints = await Database.manyOrNone(`
+           SELECT type.id AS type_id, m.name AS mint_name, ST_AsGeoJSON(m.location) AS mint_location FROM type
+           INNER JOIN mint m ON m.id = type.mint
+           WHERE year_of_mint='$[year]'
+           `, { year })
+
+
+            for (let mint of Object.values(mints)) {
+
+                let result = await Type.getOverlordsByType(mint.type_id)
+
+                console.log("ASDASD", result)
+                mint.overlords = result || []
+            }
+
+            // console.log(mints.findIndex(mint => mint.person.length > 0))
+
+            mints = SQLUtils.objectifyList(mints, {
+                prefix: "mint_",
+                target: "mint",
+                keys: [
+                    "name",
+                    "location"
+                ]
+            })
+
+            return mints
+
+        },
         timespan: async () => {
 
-            let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint != '';`)
-            range = range.map(row => row.year_of_mint).filter(res => res.match(/^\d+$/g)).sort()
+            let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint !='';`)
+            range = range.map(row => row.year_of_mint).filter(res => res && res.match(/^\d+$/g)).sort()
 
             if (range.length == 0) throw new Error("Could not get Range!")
 
@@ -104,7 +136,6 @@ const resolvers = {
             return Type.getType(args.id)
         },
         getDominion: async function (_, args) {
-
             const year = args.year
             if (!year) throw new Error(`The query did not provide a year.`)
 
@@ -130,6 +161,7 @@ const resolvers = {
 
 
             result.forEach(dominion => {
+                console.log(dominion)
                 const separator = "_"
                 const objects = ["mint", "overlord"]
                 let obj = {}

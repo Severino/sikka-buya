@@ -25,6 +25,20 @@ class SQLUtils {
      * @param {*} obj 
      * @param {*} config 
      */
+    static objectifyBulkList(arr, config) {
+        arr.forEach((obj, idx) => {
+            config.forEach(conf => {
+                arr[idx] = SQLUtils.objectify(obj, conf)
+            })
+        })
+        return arr
+    }
+
+    /**
+     * 
+     * @param {*} obj 
+     * @param {*} config 
+     */
     static objectifyBulk(obj, config) {
         config.forEach(conf => {
             SQLUtils.objectify(obj, conf)
@@ -57,14 +71,33 @@ class SQLUtils {
      * @param {ObjectifyConfig} config - Defines the operations the objectify function will perform.
      */
     static objectify(obj, config) {
-        obj[config.target] = {}
+        if (config.target)
+            obj[config.target] = {}
         config.keys.forEach(key => {
             if (obj[config.prefix + key] !== undefined) {
-                obj[config.target][key] = obj[config.prefix + key]
+                if (config.target)
+                    obj[config.target][key] = obj[config.prefix + key]
+                else
+                    obj[key] = obj[config.prefix + key]
                 delete obj[config.prefix + key]
             } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
         })
         return obj
+    }
+
+
+    /**
+     * Performs an objectify on a list of elements.
+     * 
+     * @param {[object]} arr 
+     * @param {ObjectifyConfig} config - Defines the operations the objectify function will perform.
+     * @returns 
+     */
+    static objectifyList(arr, config) {
+        arr.forEach((obj, idx) => {
+            arr[idx] = this.objectify(obj, config)
+        })
+        return arr
     }
 
     static listifyBulk(obj, config) {
