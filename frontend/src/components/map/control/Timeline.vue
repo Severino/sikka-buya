@@ -1,6 +1,11 @@
 <template>
   <div class="timeline" ref="element">
     <p>{{value}}</p>
+    <div class="toolbox">
+<button @click.stop.prevent="down">Left</button>
+<button @click.stop.prevent="up">Right</button>
+</div>
+    <br>
     <input
       type="range"
       :min="from"
@@ -8,8 +13,8 @@
       :value="value"
       @input.stop.prevent="input"
       @change.stop="change"
-      @mousedown="disableMap"
-      @mouseup="enableMap"
+      @pointerdown="disableMap"
+      @pointerup="enableMap"
     />
   </div>
 </template>
@@ -39,6 +44,19 @@ export default {
     disableMap() {
       this.getMap().dragging.disable();
     },
+    down(event){
+      event.preventDefault()
+      event.stopPropagation()
+      console.log(parseFloat(this.value - 1))
+      this.$emit("change", parseFloat(this.value - 1))
+    },
+    up(event){
+      event.preventDefault()
+      event.stopPropagation()
+      console.log(parseFloat(this.value + 1))
+
+      this.$emit("change", parseFloat(this.value + 1))
+    }
   },
   mounted: function () {
     this.$nextTick(() => {
@@ -60,14 +78,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.toolbox {
+  display: flex;
+  >* {
+    flex:1;
+  }
+}
 
 .timeline {
   position:absolute;
   left:0;
   right: 0;
   bottom: 0;
-  background-color: red;
-  width: 100%;
+  background-color: white;
+  margin: 0 auto;
+  padding: 20px;
+  width: 50%;
 }
   input {
     width: 100%;

@@ -5,7 +5,7 @@
       :from="timeline.from"
       :to="timeline.to"
       v-model="timeline.value"
-      @change="updateDominion"
+      @change="changed"
     />
   </map-view>
 </template>
@@ -57,6 +57,10 @@ export default {
       .catch(console.error);
   },
   methods: {
+    changed: function(val){
+      this.timeline.value = val
+      this.updateDominion()
+    },
     queryMint: function () {
       Query.raw(`{mint {name location { type coordinates} } }`)
         .then((result) => {
@@ -91,7 +95,7 @@ export default {
           },
           style: {
             stroke: false,
-            fillColor: "#48ac48",
+            fillColor: "#629bf0",
             fillOpacity: 1,
           },
           tooltip: function (feature) {
