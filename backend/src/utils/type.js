@@ -4,7 +4,8 @@ const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
 const Overlord = require("../../overlord")
-const { objectifyList } = require("./sql")
+const Mint = require("../models/mint")
+const { objectifyList, camelCaseToSnakeCase } = require("./sql")
 
 
 class Type {
@@ -36,10 +37,9 @@ class Type {
             project_id = $[projectId],
             treadwell_id = $[treadwellId],
             material = $[material],
-            mint = $[mint],
-            mint_as_on_coin = $[mintAsOnCoin],
+            ${Mint.query()}
             nominal = $[nominal],
-            year_of_mint = $[yearOfMinting],
+            year_of_mint = $[yearOfMint],
             donativ = $[donativ],
             procedure = $[procedure],
             caliph = $[caliph],
@@ -196,7 +196,7 @@ class Type {
                $[mint],
                $[mintAsOnCoin],
                $[nominal],
-               $[yearOfMinting],
+               $[yearOfMint],
                $[donativ],
                $[procedure],
                $[caliph],
@@ -286,7 +286,13 @@ class Type {
     static async searchType(text) {
         let result = await Database.manyOrNone(
             `
-        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
+        SELECT t.*,
+        ${Mint.query()}
+         mi.name AS mint_name,
+         n.id AS nominal_id,
+         n.name AS nominal_name,
+         p.id AS caliph_id,
+         p.name AS caliph_name FROM type t 
         LEFT JOIN material ma 
         ON t.material = ma.id
         LEFT JOIN mint mi 
@@ -338,9 +344,26 @@ class Type {
         return typeList
     }
 
-    static async getTypes() {
+    static async getTypes(filters) {
+
+        console.log("FILTERS", filters)
+        function objAsWhereClause(filterObj) {
+            if (Object.keys(filterObj).length == 0) return ""
+            let filterTxt = "WHERE "
+            for (let [key, val] of Object.entries(filterObj)) {
+                filterTxt += `${camelCaseToSnakeCase(key)}='${val}'`
+            }
+            return filterTxt
+        }
+
         const result = await Database.manyOrNone(`
-        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
+        SELECT t.*, ma.id AS material_id,
+         ma.name AS material_name,
+         ${Mint.query()}
+         n.id AS nominal_id,
+         n.name AS nominal_name,
+         p.id AS caliph_id,
+         p.name AS caliph_name FROM type t 
         LEFT JOIN material ma 
         ON t.material = ma.id
         LEFT JOIN mint mi 
@@ -349,8 +372,8 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
+        ${objAsWhereClause(filters)}
             `)
-
 
         for (let [idx, type] of result.entries()) {
             result[idx] = this.postprocessType(type)
@@ -363,7 +386,14 @@ class Type {
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
-            SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
+            SELECT t.*,
+             ma.id AS material_id,
+             ma.name AS material_name,
+             ${Mint.query()}
+             n.id AS nominal_id,
+             n.name AS nominal_name,
+             p.id AS caliph_id,
+             p.name AS caliph_name FROM type t 
             LEFT JOIN material ma 
             ON t.material = ma.id
             LEFT JOIN mint mi 
@@ -394,7 +424,17 @@ class Type {
         WITH blah AS(
                 SELECT type FROM overlord WHERE person = $1
             )
-        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
+        SELECT t.*, ma.id AS material_id,
+         ma.name AS material_name,
+         mi.id AS mint_id,
+         mi.name AS mint_name,
+         ST_AsGeoJSON(mi.location) AS mint_location,
+         mi.name AS mint_name,
+         mi.id AS mint_id,
+         n.id AS nominal_id,
+         n.name AS nominal_name,
+         p.id AS caliph_id,
+         p.name AS caliph_name FROM type t 
         LEFT JOIN material ma 
         ON t.material = ma.id
         LEFT JOIN mint mi 
@@ -427,7 +467,7 @@ class Type {
             {
                 prefix: "mint_",
                 target: "mint",
-                keys: ["id", "name"]
+                keys: ["id", "name", "location", "uncertain", "uncertain_area"]
             },
             {
                 prefix: "nominal_",
@@ -444,8 +484,20 @@ class Type {
         config.forEach(conf => delete type[conf.target])
         SQLUtils.objectifyBulk(type, config)
 
+        if (type?.mint?.location) {
+            console.log(type.mint.location)
+            try {
+                type.mint.location = JSON.parse(type.mint.location)
+            } catch (e) {
+                console.error("Could not stringify location: ", e)
+            }
+        }
+
+        console.log(type)
+
         type.avers = this.wrapCoinSideInformation(type, "front_side_")
         type.reverse = this.wrapCoinSideInformation(type, "back_side_")
+
 
         type.overlords = await Type.getOverlordsByType(type.id)
         type.issuers = await Type.getIssuerByType(type.id)
@@ -471,7 +523,7 @@ class Type {
             project_id: "projectId",
             treadwell_id: "treadwellId",
             mint_as_on_coin: "mintAsOnCoin",
-            year_of_mint: "yearOfMinting",
+            year_of_mint: "yearOfMint",
             cursive_script: "cursiveScript",
             exclude_from_type_catalogue: "excludeFromTypeCatalogue",
             exclude_from_map_app: "excludeFromMapApp",
@@ -517,6 +569,7 @@ class Type {
             o.rank,
             o.type,
             p.id as person_id,
+            p.short_name as person_short_name,
             p.name as person_name,
             p.role as person_role,
             t.title_names,
@@ -538,13 +591,12 @@ class Type {
             ) h USING(id)
             INNER JOIN person p
                 ON o.person = p.id
-			WHERE o.type = 384
+			WHERE o.type = ${type_id}
             ORDER BY o.rank ASC
             `, type_id)
 
 
         let result = request[0]
-        console.log("REASD", result)
 
         let overlords = Overlord.extractList(result)
         return overlords

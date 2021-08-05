@@ -22,7 +22,7 @@
             {{ this.getTypePropertyKey("nominal") }}
           </labeled-property>
           <labeled-property :label="$tc('property.year')">
-            {{ this.getTypePropertyKey("yearOfMinting") }}
+            {{ this.getTypePropertyKey("yearOfMint") }}
           </labeled-property>
         </div>
 
@@ -142,7 +142,7 @@ export default {
         mintAsOnCoin: "",
         material: { id: null, name: "" },
         nominal: { id: null, name: "" },
-        yearOfMinting: "",
+        yearOfMint: "",
         donativ: false,
         procedure: "pressed",
         issuers: [],
@@ -175,20 +175,26 @@ export default {
     Query.raw(
       `{
             getCoinType(id:${this.$route.params.id}){
+               {
                 id
                 projectId
                 treadwellId
                 mint {
+                  id,
                   name
                 }
                 mintAsOnCoin
+                mintUncertain
                 material {
-                    name
+                  id,
+                  name
                 }
                 nominal {
-                    name
+                  id,
+                  name
                 }
-                yearOfMinting
+                yearOfMint
+                yearUncertain
                 donativ
                 procedure
                 issuers {
@@ -197,7 +203,7 @@ export default {
                     id,
                     name,
                     role {
-                      id
+                      id, name
                     }
                   }
                   titles {
@@ -210,14 +216,11 @@ export default {
                 }
                 overlords {
                   id
-                  person {
-                    id,
+                  rank
                     name,
                     role {
-                      id,
-                      name
+                      id, name
                     }
-                  }
                   titles {
                     id,
                     name
@@ -230,15 +233,14 @@ export default {
                   id
                   name
                   role {
-                    id
+                    id, name
                   }
                 }
                 caliph {
                   id
                   name
                   role {
-                    id,
-                      name
+                    id, name
                   }
                 }
                 avers {
@@ -257,12 +259,15 @@ export default {
                 }
                 cursiveScript
                 coinMarks {
-                  id,
-                      name
+                  id
+                  name
                 }
                 literature
-                pieces 
+                pieces
                 specials
+                excludeFromTypeCatalogue
+                excludeFromMapApp
+                internalNotes
         }
       }`
     )

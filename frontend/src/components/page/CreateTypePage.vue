@@ -56,7 +56,7 @@
       <Row>
         <LabeledInputContainer :label="$t('property.mint_year')">
           <RestrictedInputField
-            v-model="coin.yearOfMinting"
+            v-model="coin.yearOfMint"
             pattern="^-?[0-9x]{0,3}$"
           />
         </LabeledInputContainer>
@@ -397,7 +397,7 @@ export default {
                   id,
                   name
                 }
-                yearOfMinting
+                yearOfMint
                 donativ
                 procedure
                 issuers {
@@ -573,7 +573,7 @@ export default {
         mintAsOnCoin: "",
         material: { id: null, name: "" },
         nominal: { id: null, name: "" },
-        yearOfMinting: "",
+        yearOfMint: "",
         donativ: false,
         procedure: "pressed",
         issuers: [],
@@ -869,7 +869,7 @@ export default {
             $mintAsOnCoin:String,
             $material:ID,
             $nominal:ID,
-            $yearOfMinting:String,
+            $yearOfMint:String,
             $donativ:Boolean,
             $procedure:String,
             $issuers:[TitledPersonInput],
@@ -896,7 +896,7 @@ export default {
             mintAsOnCoin: $mintAsOnCoin,
             material: $material,
             nominal: $nominal,
-            yearOfMinting: $yearOfMinting,
+            yearOfMint: $yearOfMint,
             donativ: $donativ,
             procedure: $procedure,
             issuers: $issuers,
@@ -926,7 +926,7 @@ export default {
         mintAsOnCoin: data.mintAsOnCoin,
         material: data.material && data.material.id ? data.material.id : null,
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
-        yearOfMinting: data.yearOfMinting,
+        yearOfMint: data.yearOfMint,
         donativ: data.donativ,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
@@ -976,7 +976,7 @@ export default {
           $mintAsOnCoin:String,
           $material:ID,
           $nominal:ID,
-          $yearOfMinting:String,
+          $yearOfMint:String,
           $donativ:Boolean,
           $procedure:String,
           $issuers:[TitledPersonInput],
@@ -1003,7 +1003,7 @@ export default {
             mintAsOnCoin: $mintAsOnCoin,
             material: $material,
             nominal: $nominal,
-            yearOfMinting: $yearOfMinting,
+            yearOfMint: $yearOfMint,
             donativ: $donativ,
             procedure: $procedure,
             issuers: $issuers,
@@ -1034,7 +1034,7 @@ export default {
         mintAsOnCoin: data.mintAsOnCoin,
         material: data.material && data.material.id ? data.material.id : null,
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
-        yearOfMinting: data.yearOfMinting,
+        yearOfMint: data.yearOfMint,
         donativ: data.donativ,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {

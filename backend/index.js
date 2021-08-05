@@ -95,10 +95,7 @@ const resolvers = {
 
 
             for (let mint of Object.values(mints)) {
-
                 let result = await Type.getOverlordsByType(mint.type_id)
-
-                console.log("ASDASD", result)
                 mint.overlords = result || []
             }
 
@@ -258,8 +255,8 @@ const resolvers = {
             const text = args.text
             return Type.searchType(text)
         },
-        getTypes: async function () {
-            return Type.getTypes()
+        getTypes: async function (_, args) {
+            return Type.getTypes(args)
         },
         getTypeComplete: async function (_, { id = null } = {}) {
             const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);

@@ -7,7 +7,7 @@ mutation {
       mintAsOnCoin: "ASDjkl asdASD JK"
       material: 5
       nominal: 5
-      yearOfMinting: "9x6"
+      yearOfMint: "9x6"
       donativ: true
       procedure: "cast"
       issuers: [{ person: 12, titles: [5], honorifics: [6, 9, 10] },{ person: 16, titles: [5], honorifics: [10] }]

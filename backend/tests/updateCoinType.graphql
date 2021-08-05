@@ -8,7 +8,7 @@ mutation {
       mintAsOnCoin: "MAOC"
       material: 9
       nominal: 20
-      yearOfMinting: "000"
+      yearOfMint: "000"
       donativ: false
       procedure: "sevvt"
       issuers: [

@@ -58,7 +58,7 @@ export default {
                   id,
                   name
                 }
-                yearOfMinting
+                yearOfMint
                 donativ
                 procedure
                 issuers {
@@ -131,23 +131,23 @@ export default {
 
           let output = {};
           data.forEach((type) => {
-            if (!output[type.yearOfMinting]) {
-              output[type.yearOfMinting] = [];
+            if (!output[type.yearOfMint]) {
+              output[type.yearOfMint] = [];
             }
 
-            output[type.yearOfMinting] = output[type.yearOfMinting]
-              ? output[type.yearOfMinting]
+            output[type.yearOfMint] = output[type.yearOfMint]
+              ? output[type.yearOfMint]
               : {};
 
             console.log(type);
             const mint =
               type.mint && type.mint.name ? type.mint.name : "NO MINT";
 
-            output[type.yearOfMinting][mint] = output[type.yearOfMinting][mint]
-              ? output[type.yearOfMinting][mint]
+            output[type.yearOfMint][mint] = output[type.yearOfMint][mint]
+              ? output[type.yearOfMint][mint]
               : {};
 
-            output[type.yearOfMinting][mint][type.projectId] = type;
+            output[type.yearOfMint][mint][type.projectId] = type;
           });
 
           let that = this;

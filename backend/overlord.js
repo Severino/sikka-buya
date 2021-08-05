@@ -5,7 +5,6 @@ class Overlord {
     static extractList(arr, options){
         arr.forEach((obj, idx) => {
             arr[idx] = this.extract(obj, options)
-            console.log("ASDASD", arr[idx])
         });
         return arr
     }
@@ -15,7 +14,7 @@ class Overlord {
             {
                 prefix: `person_`,
                 target: null,
-                keys: ["id", "name", "role", "rank"]
+                keys: ["id", "name", "role", "short_name"]
             }
         ]
 

@@ -171,7 +171,7 @@ export default {
         mintAsOnCoin: "",
         material: { id: null, name: "" },
         nominal: { id: null, name: "" },
-        yearOfMinting: "",
+        yearOfMint: "",
         donativ: false,
         procedure: "pressed",
         issuers: [],
@@ -202,8 +202,9 @@ export default {
   created: function () {
     Query.raw(
       `
+       
         {
-            getCoinType(id:${this.$route.params.id}){
+            getCoinType(id:45){
                 id
                 projectId
                 treadwellId
@@ -221,7 +222,7 @@ export default {
                   id,
                   name
                 }
-                yearOfMinting
+                yearOfMint
                 yearUncertain
                 donativ
                 procedure
@@ -245,13 +246,10 @@ export default {
                 overlords {
                   id
                   rank
-                  person {
-                    id,
                     name,
                     role {
                       id, name
                     }
-                  }
                   titles {
                     id,
                     name
@@ -322,7 +320,7 @@ export default {
     printTypeProperty(key, attr = "name") {
       let value = "Unbekannt";
 
-      let map = { year: "yearOfMinting" };
+      let map = { year: "yearOfMint" };
 
       if (map[key]) {
         key = map[key];
@@ -404,12 +402,12 @@ export default {
             if (this.type[t].length == 1) {
               filteredPersons.push({
                 name: t,
-                value: this.type[t][0].person.name,
+                value: this.type[t][0].name,
               });
             } else if (this.type[t].length > 1) {
               filteredPersons.push({
                 name: t,
-                value: this.type[t].map((item) => item.person.name),
+                value: this.type[t].map((item) => item.name),
               });
             }
           } else {

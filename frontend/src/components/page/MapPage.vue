@@ -21,16 +21,17 @@ import MapView from "../map/MapView.vue";
 export default {
   components: { MapView, Timeline },
   computed: {
-    map: function () {
+    map: function() {
       return this.$refs.map.map;
     },
   },
-  data: function () {
+  data: function() {
     return {
       timeline: null,
+      mints: [],
     };
   },
-  mounted: function () {
+  mounted: function() {
     Query.raw(
       `{
         timespan {
@@ -50,34 +51,146 @@ export default {
         let timeline = result.data.data.timespan;
         timeline.value = 363;
         this.timeline = timeline;
+        this.mints = result.data.data.mint;
+        this.update();
 
-        this.updateMint(result.data.data.mint);
-        this.updateDominion();
+        window.map = this.map;
       })
       .catch(console.error);
   },
   methods: {
-    changed: function(val){
-      this.timeline.value = val
-      this.updateDominion()
+    getColor(i) {
+      const colors = [
+        "#ff6542",
+        "#0b1d51",
+        "#f092dd",
+        "#ffaff0",
+        "#9ece9a",
+        "#f1e8b8",
+        "#e2c044",
+        "#1b4079",
+        "#2ba84a",
+      ];
+      if (i > colors.length) console.error("RAN OUT OF COLORS", i);
+      return colors[i % colors.length];
     },
-    queryMint: function () {
+    update() {
+      // this.updateDominion();
+      // this.updateMint();
+      this.updateConcentricCircles();
+    },
+    changed: function(val) {
+      this.timeline.value = val;
+      this.update();
+    },
+    queryMint: function() {
       Query.raw(`{mint {name location { type coordinates} } }`)
         .then((result) => {
-          this.updateMint(result.data.data.mint);
+          this.mints = result.data.data.mint;
+          this.update();
         })
         .catch(console.error);
     },
-    updateMint: function (mintData) {
-      mintData = mintData.filter((mint) => {
+    updateConcentricCircles: function() {
+      Query.raw(
+        `{
+  getTypes(yearOfMint:${this.timeline.value}){
+    mint {
+      id
+      name
+      location {
+        type
+        coordinates
+      }
+    },
+    overlords {
+      id
+      name
+      shortName
+      rank
+    }
+  }
+}`
+      )
+        .then((result) => {
+          let data = result.data.data.getTypes;
+
+          let overlords = {};
+
+          data = data.filter(
+            (d) => d.mint?.location && d.mint.location.coordinates != null
+          );
+
+          data.forEach((type) => {
+            type.overlords.forEach((o) => (overlords[o.id] = o));
+          });
+
+          let oArr = Object.values(overlords);
+          for (let i = 0; i < oArr.length; i++) {
+            overlords[oArr[i].id].color = this.getColor(i);
+          }
+
+          if (this.concentricCircles) this.concentricCircles.remove();
+          this.concentricCircles = L.geoJSON(
+            data.map((obj) => {
+              let mint = obj.mint;
+              let geo = mint.location;
+              geo.coin = obj;
+              return geo;
+            }),
+            {
+              pointToLayer: function(feature, latlng) {
+                let circles = [];
+                let radius = 10;
+                const increment = 5;
+                for (let ov of feature.coin.overlords) {
+                  const overlord = overlords[ov.id];
+
+                  circles.push(
+                    L.circleMarker(latlng, {
+                      radius,
+                      // color: "#ffffff",
+                      weight: 0.1,
+                      stroke: false,
+                      fillColor: overlord.color,
+                      fillOpacity: 1,
+                    }).bindTooltip(overlord.name, {
+                      className: "map-label",
+                      // permanent: true,
+                      direction: "top",
+                    })
+                  );
+                  radius += increment;
+                }
+                circles.reverse();
+                return L.layerGroup(circles);
+              },
+              coordsToLatLng: function(coords) {
+                return new L.LatLng(coords[0], coords[1], coords[2]);
+              },
+              style: {
+                stroke: false,
+                fillColor: "#629bf0",
+                fillOpacity: 1,
+              },
+              tooltip: function(feature) {
+                return feature.mint.name;
+              },
+            }
+          );
+
+          this.concentricCircles.addTo(this.map);
+        })
+        .catch(console.error);
+    },
+    updateMint: function() {
+      let mintData = this.mints.filter((mint) => {
         return (
           mint.location?.coordinates &&
           Array.isArray(mint.location.coordinates) &&
           mint.location.coordinates.length > 0
         );
       });
-      console.log(mintData);
-
       if (this.mintLayer) this.mintLayer.remove();
 
       this.mintLayer = L.geoJSON(
@@ -90,7 +203,7 @@ export default {
           pointToLayer: (point, latlng) => {
             return L.circleMarker(latlng);
           },
-          coordsToLatLng: function (coords) {
+          coordsToLatLng: function(coords) {
             return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
@@ -98,7 +211,7 @@ export default {
             fillColor: "#629bf0",
             fillOpacity: 1,
           },
-          tooltip: function (feature) {
+          tooltip: function(feature) {
             return feature.mint.name;
           },
         }
@@ -106,7 +219,7 @@ export default {
 
       this.mintLayer.addTo(this.map);
     },
-    updateDominion: function () {
+    updateDominion: function() {
       Query.raw(
         `
       {
@@ -152,15 +265,15 @@ export default {
 
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
-            coordsToLatLng: function (coords) {
+            coordsToLatLng: function(coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
               stroke: true,
               opacity: 0.75,
-              color: "#48ac48",
+              color: "red",
               fillColor: "#48ac48",
-              fillOpacity: 0.5,
+              fillOpacity: 0.1,
             },
           }).addTo(this.map);
 
@@ -202,7 +315,7 @@ export default {
           });
           if (this.dominionLayer) this.dominionLayer.remove();
           this.dominionLayer = L.geoJSON(dominionData, {
-            coordsToLatLng: function (coords) {
+            coordsToLatLng: function(coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -215,7 +328,7 @@ export default {
           }).addTo(this.map);
           this.dominionLayer.bindTooltip(
             (layer) => {
-              return layer.feature.dominion.overlord.name;
+              return layer.feature.dominion.overlord.shortName;
             },
             {
               sticky: true,
@@ -233,5 +346,18 @@ export default {
 .mapview {
   min-height: 100px;
   flex: 1;
+}
+
+.map-label {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: bold;
+  font-size: 22px;
+  margin-bottom: 10px;
+
+  &::before {
+    border-top-color: transparent !important;
+  }
 }
 </style>

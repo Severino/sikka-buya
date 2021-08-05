@@ -1,8 +1,9 @@
 <template>
   <div class="timeline" ref="element">
-    <p>{{value}}</p>
+   
     <div class="toolbox">
 <button @click.stop.prevent="down">Left</button>
+<input read-only :value="value" style="text-align:center;" />
 <button @click.stop.prevent="up">Right</button>
 </div>
     <br>

@@ -13,7 +13,7 @@
                 nominal {
                   id
                 }
-                yearOfMinting
+                yearOfMint
                 donativ
                 procedure
                 issuers {

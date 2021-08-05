@@ -73,12 +73,15 @@ class SQLUtils {
     static objectify(obj, config) {
         if (config.target)
             obj[config.target] = {}
+
         config.keys.forEach(key => {
+            const targetKey = this.snakeToCamelCase(key)
             if (obj[config.prefix + key] !== undefined) {
+                let targetValue = obj[config.prefix + key]
                 if (config.target)
-                    obj[config.target][key] = obj[config.prefix + key]
+                    obj[config.target][targetKey] = targetValue
                 else
-                    obj[key] = obj[config.prefix + key]
+                    obj[targetKey] = targetValue
                 delete obj[config.prefix + key]
             } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
         })

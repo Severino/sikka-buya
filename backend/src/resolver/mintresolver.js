@@ -20,24 +20,9 @@ class MintResolver extends Resolver {
     }
 
     async get(_, args) {
-        let p = await Database.one(`SELECT *, ST_AsGeoJSON(location) AS geo_location, ST_AsGeoJSON(uncertain_area) AS geo_uncertain_area FROM ${this.name} WHERE id=$1`, [args.id])
+        let p = await Database.one(`SELECT *, ST_AsGeoJSON(location) AS location, ST_AsGeoJSON(uncertain_area) AS geo_uncertain_area FROM ${this.name} WHERE id=$1`, [args.id])
 
-        let location = p.location
-        p.location = { type: "empty", coordinates: [] }
-        if (location) {
-            try { p.location = JSON.parse(p.geo_location) } catch (e) { console.error(e) }
-        }
 
-        let uncertainLocation = p.uncertain_area
-        p.uncertainLocation = { type: "empty", coordinates: [] }
-        if (uncertainLocation) {
-            try {
-                let geoJSON = JSON.parse(p.geo_uncertain_area)
-                let flatPolygon = geoJSON.coordinates[0].flatMap(coords => coords)
-                geoJSON.coordinates = flatPolygon
-                p.uncertainLocation = geoJSON
-            } catch (e) { console.error(e) }
-        }
 
         return p
     }

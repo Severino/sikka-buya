@@ -86,7 +86,7 @@ type CoinType {
   mintAsOnCoin: String
   material: Material
   nominal: Nominal
-  yearOfMinting: String
+  yearOfMint: String
   donativ: Boolean
   procedure: String
   issuers: [TitledPerson]
@@ -115,7 +115,7 @@ input CoinTypeInput {
   mintAsOnCoin: String = ""
   material: ID = null
   nominal: ID = null
-  yearOfMinting: String = ""
+  yearOfMint: String = ""
   donativ: Boolean = false
   procedure: String = ""
   issuers: [TitledPersonInput] = []
@@ -255,7 +255,8 @@ type Query {
   getCoinType(id: ID!): CoinType
 
   getTypesByOverlord(id: ID!): [CoinType]
-  getTypes: [CoinType]
+  getTypes(yearOfMint:Int): [CoinType]
+  
 
   getTypeComplete(id: ID!): Boolean
 

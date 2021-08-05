@@ -35,7 +35,7 @@ export default class Query {
 
 
     async raw(query, variables = {}) {
-        console.log(query)
+        
         return new Promise((resolve, reject) => {
             axios({
                 url: host,
