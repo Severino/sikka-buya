@@ -205,7 +205,6 @@ type Range {
 
 type Query {
   ping: String
-  getGeo: [GeoJSON]
 
   coinMark: [CoinMark]
   nominal: [Nominal]!

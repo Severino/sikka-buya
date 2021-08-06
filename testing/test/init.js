@@ -1,34 +1,103 @@
 const pgp = require('pg-promise')({
     query: function (e) {
-        console.log(e.query);
+        // console.log(e.query);
     }
 });
 
 const { QueryFile } = pgp
-const fs = require("fs/promises")
-const { expect, should } = require('chai');
+const { default: axios } = require('axios');
+const { expect } = require('chai');
 const path = require("path")
 require('dotenv').config()
-import {
-    graphqlSync,
-    getIntrospectionQuery,
-    IntrospectionQuery
-} from 'graphql';
 
+let authToken;
 
 let Database;
 
+const {
+    user,
+    password,
+    port,
+    host,
+    database
+} = process.env
+
+const database_schema_file = "../coins_schema.sql"
+const graphql_schema_file = "../../backend/"
+
+
+class AxiosHelper {
+
+    static ok(result) {
+        if (result.data.errors && result.data.errors.length > 0) {
+            return false
+        } else return true
+    }
+
+
+    static getErrors(result) {
+        console.log(result)
+        let errors = [];
+        if (result.data.errors && result.data.errors.length > 0) {
+            errors = result.data.errors.map(errObj => errObj.message)
+        }
+        return errors
+    }
+}
+
+function graphql(query, variables = {}, auth = false) {
+    headers = {}
+
+    if (auth) {
+        headers.auth = authToken
+    }
+
+    return new Promise((resolve, reject) => {
+        axios({
+            url: "http://localhost:4000/graphql",
+            method: "post",
+            headers,
+            data: {
+                query,
+                variables
+            },
+        }).then(result => {
+            if (AxiosHelper.ok(result)) {
+                resolve(result)
+            } else {
+                let errors = AxiosHelper.getErrors(result)
+                reject(errors)
+            }
+        }).catch(reject)
+    })
+}
+
+
+/**
+ * The env file describes how the database is accessed!
+ * 
+ * We have to verify first, that it was created properly.
+ */
+describe("Check .env variables", function () {
+    ["user",
+        "password",
+        "port",
+        "host",
+        "database"].forEach(var_name => {
+            it(`Test for variable ${var_name}`, function () {
+                expect(process.env[var_name]).to.not.be.undefined
+            })
+        })
+})
+
 describe("Setup Test Environment", function () {
     before(async function () {
-        const {
-            user,
-            password,
-            port,
-            host,
-            database,
-            database_schema_file
-        } = process.env
 
+
+        await graphql(`{ping}`).catch((err) => {
+            console.log(err)
+            throw new Error(`Background process is not running. Start it and try again!`)
+        })
 
 
         let dbconf = {
@@ -53,30 +122,39 @@ describe("Setup Test Environment", function () {
         await Database.any(dbSchemaFile).catch(console.log)
     })
 
-    describe("Test Schema", function () {
 
-        let graphql_schema_json;
+    const User = {
+        email: "tom.testa@example.com",
+        password: "secure_password"
+    }
 
-        before(async function () {
-            const graphql_schema_file = process.env.graphql_schema_file
-            console.log(graphql_schema_file)
-            graphql_schema_json = await fs.readFile(graphql_schema_file, { encoding: "UTF-8" })
-            const introspection = graphqlSync(graphql_schema_file, getIntrospectionQuery()).data;
-            console.log(introspection)
+    describe("Create Data.", function () {
+        it(`Test if application is running properly`, async function () {
+            let result = await graphql(`{
+                ping
+                }`)
 
+                expect(result?.data?.data?.ping).to.not.be.undefined
         })
 
-        it("GraphQL schema was created successfully", function () {
-            console.log(graphql_schema_json)
-            expect(graphql_schema_json).to.not.be.undefined
+        it(`Setup the application with super user`, async function () {
+
+            let result = await graphql(`mutation{
+            setup(data:{
+                email: ${User.email},
+                password: ${User.password}
+            })
+            }`)
+
+            console.log(result)
         })
 
 
     })
 
-    // describe("Shutting down Mocha", function(){
-    //     // process.exit()
-    // })
+    describe("Shutting down Mocha", function () {
+        // process.exit()
+    })
 })
 
 
