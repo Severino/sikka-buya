@@ -1,6 +1,5 @@
 export default class AxiosHelper {
 
-
     static ok(result) {
         if (result.data.errors && result.data.errors.length > 0) {
             return false
