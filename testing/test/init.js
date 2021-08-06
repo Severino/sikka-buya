@@ -5,10 +5,16 @@ const pgp = require('pg-promise')({
 });
 
 const { QueryFile } = pgp
-const mocha = require("mocha")
-const { expect } = require('chai');
+const fs = require("fs/promises")
+const { expect, should } = require('chai');
 const path = require("path")
 require('dotenv').config()
+import {
+    graphqlSync,
+    getIntrospectionQuery,
+    IntrospectionQuery
+} from 'graphql';
+
 
 let Database;
 
@@ -20,8 +26,10 @@ describe("Setup Test Environment", function () {
             port,
             host,
             database,
-            schema_file
+            database_schema_file
         } = process.env
+
+
 
         let dbconf = {
             user,
@@ -41,15 +49,29 @@ describe("Setup Test Environment", function () {
         Database = pgp(dbconf, {})
 
 
-        const schemaFile = new QueryFile(path.join(__dirname, schema_file))
-        await Database.any(schemaFile).catch(console.log)
+        const dbSchemaFile = new QueryFile(path.join(__dirname, database_schema_file))
+        await Database.any(dbSchemaFile).catch(console.log)
     })
 
-    describe("This is a test", function () {
+    describe("Test Schema", function () {
 
-        it("If this is a test, juhuu;", function () {
-            expect(true).to.be.true
+        let graphql_schema_json;
+
+        before(async function () {
+            const graphql_schema_file = process.env.graphql_schema_file
+            console.log(graphql_schema_file)
+            graphql_schema_json = await fs.readFile(graphql_schema_file, { encoding: "UTF-8" })
+            const introspection = graphqlSync(graphql_schema_file, getIntrospectionQuery()).data;
+            console.log(introspection)
+
         })
+
+        it("GraphQL schema was created successfully", function () {
+            console.log(graphql_schema_json)
+            expect(graphql_schema_json).to.not.be.undefined
+        })
+
+
     })
 
     // describe("Shutting down Mocha", function(){
