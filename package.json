@@ -11,5 +11,12 @@
     "frontend": "cd frontend && yarn run serve",
     "backend": "cd backend && yarn run dev",
     "install": "cd backend && yarn install && cd ../frontend && yarn install"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chai": "^4.3.4",
+    "dotenv": "^10.0.0",
+    "mocha": "^9.0.3",
+    "pg-promise": "^10.11.0"
   }
 }
