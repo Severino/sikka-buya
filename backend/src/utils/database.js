@@ -5,6 +5,8 @@ const pgp = require("pg-promise")({
     }
 })
 
+console.log("DB USER:", process.env.DB_USER)
+
 const Database = pgp({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,

@@ -1,18 +1,28 @@
 const pgp = require('pg-promise')({
+    connect(client) {
+        console.log("Connect to database...", client.connectionParameters.database)
+    },
+    disconnect(client) {
+        console.log("Disconnect from database...", client.connectionParameters.database)
+
+    },
     query: function (e) {
         // console.log(e.query);
     }
 });
 
+const { join: joinPath } = require("path")
 const { default: axios } = require('axios');
 const { expect } = require('chai');
+const { QueryFile } = require('pg-promise');
 const start = require('../../backend/express');
 require('dotenv').config()
+const { readdir } = require('fs').promises;
 
 let authToken;
 
 
-const {
+let {
     user,
     password,
     port,
@@ -20,8 +30,6 @@ const {
     database
 } = process.env
 
-const database_schema_file = "../coins_schema.sql"
-const graphql_schema_file = "../../backend/"
 
 async function main() {
     await setup()
@@ -38,21 +46,59 @@ async function setup() {
         database: user
     };
 
-    Database = pgp(dbconf, {})
+    SuperDatabase = pgp(dbconf, {})
 
     console.log(`Remove database ${database} if exists ...`)
-    await Database.none(`DROP DATABASE IF EXISTS $1:name`, database)
+    await SuperDatabase.none(`DROP DATABASE IF EXISTS $1:name`, database)
 
     console.log(`Create database ${database} ...`)
-    await Database.none(`CREATE DATABASE $1:name`, database)
+    await SuperDatabase.none(`CREATE DATABASE $1:name`, database)
 
-    // Switch to test database:
+    // Switch to the test database.
     dbconf.database = database
-    Database = pgp(dbconf, {})
+    let db = pgp(dbconf, {})
 
-    await start()
+    console.log(`Create database schema ...`)
+    let dbSchemaFile = new QueryFile(joinPath(__dirname, "..", "..", "backend", "migrations", "schema.sql"), { minify: true, compress: true })
+    await db.any(dbSchemaFile)
+
+    /**
+     * Probably the connection times out due to the schema file being quite big.
+     * Therefore we need to reconnect the db. 
+     * I'm not quite certain of this (SO)
+     */
+
+
+    db.connect()
+    await applyDummyData(db)
+
+
+
+
+    // Stat backend server on test database
+    await start({
+        dbUser: user,
+        dbPassword: password,
+        dbPort: port,
+        dbHost: host,
+        dbName: database,
+        expressPort: 4000,
+        jwtSecret: "totally_save_test_secret"
+    })
 }
 
+async function applyDummyData(Database) {
+    const sqlDummyDataPath = joinPath(__dirname, "..", "data")
+    const dummyFiles = await readdir(sqlDummyDataPath)
+    console.log(`Data files will be applied: ${dummyFiles.join(", ")}`)
+    for (const file of dummyFiles) {
+        const absFilePath = joinPath(sqlDummyDataPath, file)
+        console.log(`Apply SQL file: ${file} / ${absFilePath}`)
+        const queryFile = new QueryFile(absFilePath, { minify: true, compress: true, debug: true })
+        await Database.any(queryFile)
+    }
+    console.log("DONE")
+}
 
 
 class AxiosHelper {

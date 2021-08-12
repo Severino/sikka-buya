@@ -1,53 +1,62 @@
 
 
-/**
- * Express packages
- */
-const express = require("express")
-const cors = require("cors")
-const path = require("path")
-
-
-/**
- * GraphQL Imports
- */
-const { graphqlHTTP } = require("express-graphql")
-const { loadSchemaSync } = require('@graphql-tools/load');
-const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader');
-const { addResolversToSchema } = require('graphql-tools');
-
-/**
- * Custom GraphQL Extensions
- */
-const Resolver = require("./src/resolver.js")
-const MintResolver = require("./src/resolver/mintresolver.js");
-const PersonResolver = require("./src/resolver/personresolver.js");
-
-/**
- * Custom Utility Packages
- */
-const SQLUtils = require("./src/utils/sql.js");
-const Type = require("./src/utils/type.js");
-const Auth = require("./src/auth.js");
-
 
 async function start({
-    user,
-    password,
+    dbUser,
+    dbPassword,
+    dbName,
+    dbHost,
     dbPort,
-    host,
-    database,
     expressPort,
     jwtSecret
 } = {}) {
 
+    process.env.DB_USER = dbUser
+    process.env.DB_PASSWORD = dbPassword
+    process.env.DB_NAME = dbName
+    process.env.DB_HOST = dbHost
+    process.env.DB_PORT = dbPort
+    process.env.JWT_SECRET = jwtSecret
 
     /**
      * Database Packages
      */
-    const Database = require("./src/utils/database.js");
+    const { Database } = require("./src/utils/database.js")
 
-    console.log(process.env.JWT_SECRET)
+
+
+    /**
+     * Express packages
+     */
+    const express = require("express")
+    const cors = require("cors")
+    const path = require("path")
+
+
+    /**
+     * GraphQL Imports
+     */
+    const { graphqlHTTP } = require("express-graphql")
+    const { loadSchemaSync } = require('@graphql-tools/load');
+    const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader');
+    const { addResolversToSchema } = require('graphql-tools');
+
+    /**
+     * Custom GraphQL Extensions
+     */
+    const Resolver = require("./src/resolver.js")
+    const MintResolver = require("./src/resolver/mintresolver.js");
+    const PersonResolver = require("./src/resolver/personresolver.js");
+
+    /**
+     * Custom Utility Packages
+     */
+    const SQLUtils = require("./src/utils/sql.js");
+    const Type = require("./src/utils/type.js");
+    const Auth = require("./src/auth.js");
+
+
+
 
 
     return new Promise(resolve => {
@@ -422,8 +431,8 @@ async function start({
         })
 
 
-        app.listen(process.env.EXPRESS_PORT, () => {
-            console.log(`Express GraphQL Server Is Running On http://localhost:${process.env.EXPRESS_PORT}/graphql`)
+        app.listen(expressPort, () => {
+            console.log(`Express GraphQL Server Is Running On http://localhost:${expressPort}/graphql`)
             resolve()
         })
 
