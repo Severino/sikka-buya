@@ -624,13 +624,38 @@ class Type {
 
         if (request.length < 1) return []
 
-        const issuers = []
+        let issuers = result[0]
 
-        result[0].forEach(issuer => {
 
-            issuers.push(issuer)
-        })
+        const config = [
+            {
+                prefix: `person_`,
+                target: null,
+                keys: ["id", "name", "role"]
+            }
+        ]
 
+        SQLUtils.objectifyBulk(issuers, config)
+
+        const arrays = [
+            {
+                target: "honorifics",
+                prefix: `honorific_`,
+                keys: ["ids", "names"],
+                to: ["id", "name"]
+            },
+            {
+                target: "titles",
+                prefix: `title_`,
+                keys: ["ids", "names"],
+                to: ["id", "name"]
+            },
+        ]
+
+        SQLUtils.listifyBulk(issuers, arrays)
+
+        
+        console.log(issuers)
 
         return issuers
     }

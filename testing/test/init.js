@@ -4,15 +4,13 @@ const pgp = require('pg-promise')({
     }
 });
 
-const { QueryFile } = pgp
 const { default: axios } = require('axios');
 const { expect } = require('chai');
-const path = require("path")
+const start = require('../../backend/express');
 require('dotenv').config()
 
 let authToken;
 
-let Database;
 
 const {
     user,
@@ -24,6 +22,37 @@ const {
 
 const database_schema_file = "../coins_schema.sql"
 const graphql_schema_file = "../../backend/"
+
+async function main() {
+    await setup()
+    // await tests()
+}
+
+async function setup() {
+
+    let dbconf = {
+        user,
+        password,
+        port,
+        host,
+        database: user
+    };
+
+    Database = pgp(dbconf, {})
+
+    console.log(`Remove database ${database} if exists ...`)
+    await Database.none(`DROP DATABASE IF EXISTS $1:name`, database)
+
+    console.log(`Create database ${database} ...`)
+    await Database.none(`CREATE DATABASE $1:name`, database)
+
+    // Switch to test database:
+    dbconf.database = database
+    Database = pgp(dbconf, {})
+
+    await start()
+}
+
 
 
 class AxiosHelper {
@@ -53,6 +82,7 @@ function graphql(query, variables = {}, auth = false) {
     }
 
     return new Promise((resolve, reject) => {
+        console.log(query)
         axios({
             url: "http://localhost:4000/graphql",
             method: "post",
@@ -72,107 +102,98 @@ function graphql(query, variables = {}, auth = false) {
     })
 }
 
+async function tests() {
+    describe(`Run tests on GraphQL interface`, async function () {
 
-/**
- * The env file describes how the database is accessed!
- * 
- * We have to verify first, that it was created properly.
- */
-describe("Check .env variables", function () {
-    ["user",
-        "password",
-        "port",
-        "host",
-        "database"].forEach(var_name => {
-            it(`Test for variable ${var_name}`, function () {
-                expect(process.env[var_name]).to.not.be.undefined
+        // after(function () {
+        //     process.exit()
+        // })
+
+        /**
+         * The env file describes how the database is accessed!
+         * 
+         * We have to verify first, that it was created properly.
+         */
+        describe("Check .env variables", function () {
+            ["user",
+                "password",
+                "port",
+                "host",
+                "database"].forEach(var_name => {
+                    it(`Test for variable ${var_name}`, function () {
+                        expect(process.env[var_name]).to.not.be.undefined
+                    })
+                })
+        })
+
+        describe("Setup Test Environment", function () {
+            before(async function () {
+
             })
-        })
-})
-
-describe("Setup Test Environment", function () {
-    before(async function () {
 
 
-        await graphql(`{ping}`).catch((err) => {
-            console.log(err)
-            throw new Error(`Background process is not running. Start it and try again!`)
-        })
+            const User = {
+                email: "tom.testa@example.com",
+                password: "secure_password"
+            }
 
+            describe("Create Data.", function () {
 
-        let dbconf = {
-            user,
-            password,
-            port,
-            host,
-            database: user
-        };
+                let result;
 
-        Database = pgp(dbconf, {})
-
-        await Database.none(`DROP DATABASE IF EXISTS $1:name`, database)
-        await Database.none(`CREATE DATABASE $1:name`, database)
-
-        // Switch to test database:
-        dbconf.database = database
-        Database = pgp(dbconf, {})
-
-
-        const dbSchemaFile = new QueryFile(path.join(__dirname, database_schema_file))
-        await Database.any(dbSchemaFile).catch(console.log)
-    })
-
-
-    const User = {
-        email: "tom.testa@example.com",
-        password: "secure_password"
-    }
-
-    describe("Create Data.", function () {
-        it(`Test if application is running properly`, async function () {
-            let result = await graphql(`{
+                it(`Test if application is running properly`, async function () {
+                    let result = await graphql(`{
                 ping
                 }`)
 
-                expect(result?.data?.data?.ping).to.not.be.undefined
-        })
+                    expect(result?.data?.data?.ping).to.not.be.undefined
+                })
 
-        it(`Setup the application with super user`, async function () {
+                it(`Setup the application with super user`, async function () {
 
-            let result = await graphql(`mutation{
+                    result = await graphql(`mutation{
             setup(data:{
                 email: ${User.email},
                 password: ${User.password}
             })
             }`)
 
-            console.log(result)
+                    expect(result.success).to.be.true
+                })
+
+                it(`Token is set`, function () {
+                    expect(result.token).to.be.string;
+                })
+
+                it(`Setup user is super user`, async function () {
+                    let auth = await graphql(`{auth (token: ${result.token}){ id email super }}`)
+
+                    expect(auth.data.data.auth).to.deep.equal({
+                        id: 1,
+                        email: User.email,
+                        super: true
+                    })
+                })
+            })
+
+            // describe(`Test Login`, function () {
+
+            //     it()
+            // })
+
+
         })
 
-
     })
-
-    describe("Shutting down Mocha", function () {
-        // process.exit()
-    })
-})
+}
 
 
 
 
-// /**
-//  * Creates an async environment that allows us to
-//  * use await/async.
-//  */
-// async function before() {
 
-
-// }
-
-
-// // Create a async environment
-// (async function () {
-//     await main().catch(console.error)
-// })()
+// Create a async environment
+(async function () {
+    await main().catch(console.error)
+})()
 
 
