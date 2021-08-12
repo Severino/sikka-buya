@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt")
 const { RegExValidationRule, FunctionValidationRule } = require("./validation")
 const jwt = require("jsonwebtoken")
-const { Database } = require("./utils/database")
+const Database = require("./utils/database")
 const validator = require("email-validator")
 
 class Auth {
@@ -49,7 +49,7 @@ class Auth {
                     id: user.id,
                     email: user.email,
                     super: user.super
-                }, process.env.JWT_KEY, {
+                }, process.env.JWT_SECRET, {
                     expiresIn: "12h"
                 })
 
@@ -83,7 +83,7 @@ class Auth {
      */
     static verify(token) {
         try {
-            return jwt.verify(token, process.env.JWT_KEY)
+            return jwt.verify(token, process.env.JWT_SECRET)
         } catch (e) {
             throw new Error("401")
         }
@@ -91,7 +91,7 @@ class Auth {
 
     static verifyContext(context) {
         let token = (context && context.headers) ? context.headers.auth : null
-        
+
         if (!token) throw new Error("401")
         else return this.verify(token)
     }

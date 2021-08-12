@@ -95,6 +95,7 @@ export default {
       Query.raw(
         `{
   getTypes(yearOfMint:${this.timeline.value}){
+    projectId
     mint {
       id
       name
@@ -129,6 +130,7 @@ export default {
           for (let i = 0; i < oArr.length; i++) {
             overlords[oArr[i].id].color = this.getColor(i);
           }
+
 
           if (this.concentricCircles) this.concentricCircles.remove();
           this.concentricCircles = L.geoJSON(

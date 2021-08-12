@@ -420,13 +420,10 @@ export default {
                 overlords {
                   id
                   rank
-                  person {
-                    id,
                     name,
                     role {
                       id, name
                     }
-                  }
                   titles {
                     id,
                     name
@@ -506,6 +503,8 @@ export default {
             if (!type.issuers) type.issuers = [];
             type.issuers.forEach((issuer) => {
               issuer.key = this.key++;
+
+              console.log(issuer)
               issuer.titles.forEach((title) => (title.key = this.key++));
               issuer.honorifics.forEach(
                 (honorific) => (honorific.key = this.key++)
@@ -538,8 +537,6 @@ export default {
               : { id: null, name: "" };
             type.nominal = type.nominal ? type.nominal : { id: null, name: "" };
             type.caliph = type.caliph ? type.caliph : { id: null, name: "" };
-
-            console.log(type.mintUncertain, type.yearUncertain);
 
             Object.assign(this.$data.coin, type);
             this.initFormattedFields();
