@@ -1,5 +1,7 @@
-INSERT INTO coin_marks (name) VALUES 
-('Ᾱ'),
-('ὸ'),
-('Ῐ'),
-('בֿ');
+INSERT INTO
+    coin_marks (name)
+VALUES
+    ('Ä'),
+    ('Ü'),
+    ('ê'),
+    ('π');

@@ -45,18 +45,15 @@ class Auth {
             let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)
             let result = await Auth.checkPassword(password, user.password)
             if (result) {
-                const token = jwt.sign({
-                    id: user.id,
-                    email: user.email,
-                    super: user.super
-                }, process.env.JWT_SECRET, {
-                    expiresIn: "12h"
-                })
 
                 return {
                     success: true,
                     message: "Successfully authenticated.",
-                    token,
+                    token: this.sign({
+                        isSuper: user.super,
+                        id: user.id,
+                        email: user.email
+                    }),
                     user: {
                         id: user.id,
                         email: user.email,
@@ -72,6 +69,17 @@ class Auth {
             message: "Die Angaben waren Falsch! Bitte überprüfen Sie ihren Nutzernamen und das Passwort.",
             token: null
         }
+    }
+
+    static sign({ id = null, email = null, superUser = null } = {}) {
+        return jwt.sign({
+            id,
+            email,
+            super: superUser
+        }, process.env.JWT_SECRET, {
+            expiresIn: "12h"
+        })
+
     }
 
 

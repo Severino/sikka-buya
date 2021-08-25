@@ -254,13 +254,12 @@ type Query {
   getCoinType(id: ID!): CoinType
 
   getTypesByOverlord(id: ID!): [CoinType]
-  getTypes(yearOfMint:Int): [CoinType]
-  
+  getTypes(yearOfMint: Int): [CoinType]
 
   getTypeComplete(id: ID!): Boolean
 
   getDominion(year: Int): [Dominion]
-  ruledMint(year:Int): [RuledMint]
+  ruledMint(year: Int): [RuledMint]
 
   users: [User]
 
@@ -269,7 +268,7 @@ type Query {
 }
 
 type Mutation {
-  setup(data: UserInput): Boolean
+  setup(data: UserInput): AuthResponse
 
   addCoinMark(data: NameInput): Void
   updateCoinMark(data: NameInput): Void

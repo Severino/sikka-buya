@@ -3,5 +3,4 @@ INSERT INTO
 VALUES
     ('Prof.'),
     ('Dr.'),
-    ('XIV.'),
-    ('mᕷ');
+    ('Monsieur');
