@@ -10,7 +10,10 @@
       "**/bower_components": true,
       "**/*.code-search": true,
       "**/dist": true
-    }
+    },
+    "javascript.preferences.quoteStyle": "single",
+    "editor.formatOnSave": true,
+    "prettier.singleQuote": true
   },
   "tasks": {
     "version": "2.0.0",
@@ -33,7 +36,7 @@
         "command": "npm run frontend",
         "dependsOn": ["backend", "frontend"],
         "dependsOrder": "parallel",
-		    "isBackground": true,
+        "isBackground": true
       }
     ]
   },

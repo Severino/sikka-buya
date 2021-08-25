@@ -326,7 +326,21 @@ async function start({
 
                         if (password && email) {
                             const hashedPW = await Auth.hashPassword(password)
-                            return await Database.none("INSERT INTO app_user (email, password, super) VALUES ($[email], $[password], TRUE)", { email, password: hashedPW })
+                            let { id } = await Database.one("INSERT INTO app_user (email, password, super) VALUES ($[email], $[password], TRUE) RETURNING id", { email, password: hashedPW })
+
+
+                            let authResponse = {
+                                success: true,
+                                token: Auth.sign({ id, email, isSuper: true }),
+                                message: null,
+                                user: {
+                                    id,
+                                    email,
+                                    super: true
+                                }
+                            }
+
+                            return authResponse
                         } else {
                             throw new Error("You must provide an email and a password!")
                         }

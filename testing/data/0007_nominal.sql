@@ -1,6 +1,6 @@
 INSERT INTO
     nominal (name)
 VALUES
-    ('Dînar'),
-    ('Gụlde'),
-    ('Pint');
+    ('1 Mark'),
+    ('1 Taler'),
+    ('1 Pfund');
