@@ -80,7 +80,7 @@ class PersonResolver extends Resolver {
         LEFT JOIN person_role r ON p.role = r.id 
         LEFT JOIN dynasty d ON p.dynasty = d.id
         WHERE unaccent(p.name) 
-        ILIKE $[search] 
+        ILIKE unaccent($[search]) 
         ORDER BY p.name ASC
         `, {
             table: this.tableName,

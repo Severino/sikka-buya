@@ -262,7 +262,6 @@ type Query {
   ruledMint(year: Int): [RuledMint]
 
   users: [User]
-
   login(data: UserInput): AuthResponse
   auth(token: String): User
 }

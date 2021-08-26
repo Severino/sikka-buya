@@ -13,7 +13,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         mochaTest: {
             test: {
-                src: ["./test/**/*.js"]
+                src: ["./tests/**/*.js"]
             }
         }
     })
@@ -23,9 +23,13 @@ module.exports = function (grunt) {
     ])
 
     grunt.registerTask('setup-test', [
+        // Creates a test database as defined in .env
         'setup-test-database',
+        // The backend server must run to handle GraphQL requests
         'run-backend-server',
-        'test-setup',
+        // Run all mocha tests.
+        'run-mocha',
+        //// You may want to keep the server alive after the tests, to run some manual queries on the test database.
         'keepalive'
     ])
 
@@ -39,6 +43,11 @@ module.exports = function (grunt) {
             applyDummyData(db).then(done)
         })
     })
+
+    grunt.registerTask('backend', [
+        'run-backend-server',
+        'keepalive'
+    ])
 
     grunt.registerTask('run-backend-server', function () {
         let done = this.async()
@@ -57,5 +66,5 @@ module.exports = function (grunt) {
      * Test
      */
 
-    grunt.registerTask('test-setup', 'mochaTest')
+    grunt.registerTask('run-mocha', 'mochaTest')
 }
