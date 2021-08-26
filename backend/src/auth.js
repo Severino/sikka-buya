@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt")
 const { RegExValidationRule, FunctionValidationRule } = require("./validation")
 const jwt = require("jsonwebtoken")
-const Database = require("./utils/database")
+const { Database } = require("./utils/database")
 const validator = require("email-validator")
 
 class Auth {
@@ -45,7 +45,6 @@ class Auth {
             let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)
             let result = await Auth.checkPassword(password, user.password)
             if (result) {
-
                 return {
                     success: true,
                     message: "Successfully authenticated.",

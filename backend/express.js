@@ -284,12 +284,19 @@ async function start({
                         yearCount: count.years
                     }
                 },
-                login: Auth.login,
+                login: async function (_, args) {
+                    return Auth.login(_, args)
+                },
                 auth: async function (_, args) {
                     return Auth.verify(args.token)
                 },
-                users: async function () {
-                    return await Database.manyOrNone("SELECT id, email FROM app_user")
+                users: async function (_, args, context) {
+                    let auth = Auth.verifyContext(context)
+                    if (!auth) {
+                        throw new Error('You are not authenticated!')
+                    } else {
+                        return await Database.manyOrNone("SELECT id, email FROM app_user")
+                    }
                 },
 
             }, Mutation: {

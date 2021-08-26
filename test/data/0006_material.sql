@@ -1,6 +1,6 @@
 INSERT INTO
     material (name)
 VALUES
-    ('Gold'),
+    ('Gøld'),
     ('Kupfer'),
     ('Silber');

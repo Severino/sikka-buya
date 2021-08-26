@@ -40,7 +40,6 @@ class Resolver {
 
     async add(_, args, tableName) {
         const obj = args.data
-        console.dir(obj)
         return this.request(`INSERT INTO ${tableName} (${Object.keys(obj).join(",")}) VALUES (${Object.keys(obj).map((name) => `$[${name}]`)})`, obj)
     }
 
@@ -68,7 +67,7 @@ class Resolver {
     }
 
     async search(_, args) {
-        return Database.any(`SELECT * FROM ${this.tableName} WHERE unaccent(name) ILIKE $1 ORDER BY name ASC`, `%${args.text}%`)
+        return Database.any(`SELECT * FROM ${this.tableName} WHERE unaccent(name) ILIKE unaccent($1) ORDER BY name ASC`, `%${args.text}%`)
     }
 
     async request(query, params = []) {

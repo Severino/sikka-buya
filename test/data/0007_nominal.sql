@@ -3,4 +3,4 @@ INSERT INTO
 VALUES
     ('1 Mark'),
     ('1 Taler'),
-    ('1 Pfund');
+    ('1 Złoty');

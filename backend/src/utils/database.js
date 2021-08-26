@@ -1,11 +1,9 @@
 const pgp = require("pg-promise")({
     // This logs the queries that are executed.
     query: function (e) {
-        console.log(e.query);
+        // console.log(e.query);
     }
 })
-
-console.log("DB USER:", process.env.DB_USER)
 
 const Database = pgp({
     user: process.env.DB_USER,
@@ -15,4 +13,4 @@ const Database = pgp({
     port: process.env.DB_PORT
 })
 
-module.exports = { Database, pgp } 
+module.exports = { Database, pgp }

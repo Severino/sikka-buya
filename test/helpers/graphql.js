@@ -1,17 +1,13 @@
 const { default: axios } = require('axios');
 const AxiosHelper = require('./axios');
 
-let authToken = null
 
-function authenticate(token) {
-    authToken = token
-}
+function graphql(query, variables = {}, authToken = null) {
+    // console.log(query)
 
-function graphql(query, variables = {}, auth = false) {
     headers = {}
 
-    if (auth) {
-        if (!authToken) throw new Error("Requested auth, but auth was not set.")
+    if (authToken) {
         headers.auth = authToken
     }
 
@@ -36,5 +32,5 @@ function graphql(query, variables = {}, auth = false) {
 }
 
 
-module.exports = { graphql, authenticate }
+module.exports = { graphql }
 
