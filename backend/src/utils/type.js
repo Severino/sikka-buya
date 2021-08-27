@@ -153,8 +153,6 @@ class Type {
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
 
-        console.dir(data)
-
         this.cleanupHTMLFields(data)
 
         return Database.tx(async t => {
@@ -305,7 +303,7 @@ class Type {
         `, { searchText: "%" + text + "%" })
 
         for (let [idx, type] of result.entries()) {
-            result[idx] = this.postprocessType(type)
+            result[idx] = await this.postprocessType(type)
         }
 
         return result
@@ -346,7 +344,6 @@ class Type {
 
     static async getTypes(filters) {
 
-        console.log("FILTERS", filters)
         function objAsWhereClause(filterObj) {
             if (Object.keys(filterObj).length == 0) return ""
             let filterTxt = "WHERE "
@@ -376,7 +373,7 @@ class Type {
             `)
 
         for (let [idx, type] of result.entries()) {
-            result[idx] = this.postprocessType(type)
+            result[idx] = await this.postprocessType(type)
         }
 
         return result
@@ -485,7 +482,6 @@ class Type {
         SQLUtils.objectifyBulk(type, config)
 
         if (type?.mint?.location) {
-            console.log(type.mint.location)
             try {
                 type.mint.location = JSON.parse(type.mint.location)
             } catch (e) {
@@ -493,11 +489,8 @@ class Type {
             }
         }
 
-        console.log(type)
-
         type.avers = this.wrapCoinSideInformation(type, "front_side_")
         type.reverse = this.wrapCoinSideInformation(type, "back_side_")
-
 
         type.overlords = await Type.getOverlordsByType(type.id)
         type.issuers = await Type.getIssuerByType(type.id)
@@ -626,7 +619,6 @@ class Type {
 
         let issuers = result[0]
 
-
         const config = [
             {
                 prefix: `person_`,
@@ -635,7 +627,6 @@ class Type {
             }
         ]
 
-        SQLUtils.objectifyBulk(issuers, config)
 
         const arrays = [
             {
@@ -652,10 +643,10 @@ class Type {
             },
         ]
 
-        SQLUtils.listifyBulk(issuers, arrays)
-
-        
-        console.log(issuers)
+        issuers.forEach(obj => {
+            SQLUtils.objectifyBulk(obj, config)
+            SQLUtils.listifyBulk(obj, arrays)
+        })
 
         return issuers
     }

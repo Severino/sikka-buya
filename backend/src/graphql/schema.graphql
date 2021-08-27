@@ -240,6 +240,7 @@ type Query {
 
   getTypeComplete(id: ID!): Boolean
 
+  getRulers(year: Int): String
   getDominion(year: Int): [Dominion]
   ruledMint(year: Int): [RuledMint]
 

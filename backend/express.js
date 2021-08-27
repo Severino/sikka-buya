@@ -133,7 +133,6 @@ async function start({
 
                     if (range.length == 0) throw new Error("Could not get Range!")
 
-                    console.log(range)
                     return { from: range[0], to: range[range.length - 1] }
                 },
                 getOverlord: function (_, args) {
@@ -144,6 +143,46 @@ async function start({
                 },
                 getCoinType: async function (_, args) {
                     return Type.getType(args.id)
+                },
+
+                getRulers: async function (_, args) {
+                    if (!args.year) throw new Error("year is required")
+                    let types = await Type.getTypes({ year_of_mint: args.year })
+
+                    let overlord_ids = []
+                    let overlords = []
+
+                    types.forEach(type => {
+                        let rulers = [...type.issuers, ...type.overlords]
+
+
+                        for (let i = 0; i < rulers.length; i++) {
+                            const ruler = rulers[i]
+                            let overlord = { overlord: ruler.name, mints: new Set(), superiors: new Set() }
+                            const ov_index = overlord_ids.indexOf(ruler.id)
+                            console.log(ruler.id)
+                            if (ov_index == -1) {
+                                overlord_ids.push(ruler.id)
+                                overlords.push(overlord)
+                            } else {
+                                overlord = overlords[ov_index]
+                            }
+
+                            overlord.mints.add(type.mint.name)
+
+                            if (i < rulers.length - 1) {
+                                const superior = rulers[i + 1]
+                                overlord.superiors.add(superior.name)
+                            }
+
+                        }
+
+
+
+                    })
+
+                    console.log(overlords)
+
                 },
                 getDominion: async function (_, args) {
                     const year = args.year
@@ -171,7 +210,6 @@ async function start({
 
 
                     result.forEach(dominion => {
-                        console.log(dominion)
                         const separator = "_"
                         const objects = ["mint", "overlord"]
                         let obj = {}
@@ -191,8 +229,6 @@ async function start({
                                 obj[matchedObject][key] = val
                             }
                         }
-
-                        console.log(obj)
 
                         if (obj.mint?.location) {
                             try {
