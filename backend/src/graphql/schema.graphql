@@ -7,16 +7,6 @@ type AuthResponse {
   user: User
 }
 
-input GeoJSONInput {
-  type: String
-  coordinates: [Float]
-}
-
-type GeoJSON {
-  type: String
-  coordinates: [Float]
-}
-
 type Material {
   id: ID
   name: String
@@ -49,9 +39,9 @@ input PersonInput {
 input MintInput {
   id: ID
   name: String
-  location: GeoJSONInput
+  location: String
   uncertain: Boolean
-  uncertainLocation: GeoJSONInput
+  uncertainArea: String
 }
 
 type CoinSideInformation {
@@ -144,9 +134,9 @@ type CoinMark {
 type Mint {
   id: ID
   name: String
-  location: GeoJSON
+  location: String
   uncertain: Boolean
-  uncertainLocation: GeoJSON
+  uncertainArea: String
 }
 
 type Person {
@@ -226,15 +216,7 @@ type Query {
   searchPerson(text: String): [Person]!
   searchDynasty(text: String): [Dynasty]!
   searchRole(text: String): [Role]!
-
   searchTypes(text: String): [CoinType]!
-
-  searchPersonsWithRole(
-    text: String!
-    include: [String]
-    exclude: [String]
-  ): [Person]!
-  searchPersonsWithoutRole(text: String!): [Person]!
 
   getCoinMark(id: Int!): CoinMark
   getHonorific(id: Int!): Honorific
@@ -260,6 +242,13 @@ type Query {
 
   getDominion(year: Int): [Dominion]
   ruledMint(year: Int): [RuledMint]
+
+  searchPersonsWithRole(
+    text: String!
+    include: [String]
+    exclude: [String]
+  ): [Person]!
+  searchPersonsWithoutRole(text: String!): [Person]!
 
   users: [User]
   login(data: UserInput): AuthResponse

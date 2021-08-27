@@ -3,4 +3,5 @@ INSERT INTO
 VALUES
     ('Deutsche'),
     ('Franzosen'),
-    ('Briten');
+    ('Briten'),
+    ('Österreicher');

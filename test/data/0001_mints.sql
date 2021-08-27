@@ -20,7 +20,7 @@ VALUES
         NULL
     ),
     (
-        'Atlantis',
+        'Ǎtlantis',
         'POINT(40.45050569371125 6.154396449638281)',
         true,
         ST_AsGeoJson(

@@ -17,7 +17,7 @@ const map = {
 }
 
 for (let [target, source] of Object.entries(map)) {
-    if (!process.env[source]) throw new Error(`Property was not set on process.env '${prop}'.`)
+    if (!process.env[source]) throw new Error(`Property was not set on process.env '${source}'.`)
 
     process.env[target] = process.env[source]
 }
