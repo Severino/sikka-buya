@@ -4,7 +4,6 @@ const { Database } = require("../utils/database.js")
 class MintResolver extends Resolver {
 
     async add(_, args) {
-        console.log("ADD")
         this.fixGeoJSON(args.data)
         super.add(...arguments)
     }
@@ -55,34 +54,7 @@ class MintResolver extends Resolver {
         obj["uncertain_area"] = obj.uncertainArea
         delete obj.uncertainArea
 
-        // this.modifyGeoJSON(obj, "location")
-        // this.modifyGeoJSON(obj, "uncertain_area")
-        // console.log(obj)
     }
-
-    // modifyGeoJSON(obj, key) {
-    //     if (obj[key] != null) {
-
-    //         if (typeof obj[key] == "string") {
-    //             obj[key] = JSON.parse(obj[key])
-    //         }
-
-    //         console.log(obj[key])
-    //         if (obj[key].type.toLowerCase() == "polygon") {
-    //             let coords = []
-
-    //             for (let i = 0; i < obj[key].coordinates.length - 1; i += 2) {
-    //                 coords.push([obj[key].coordinates[i], obj[key].coordinates[i + 1]])
-    //             }
-    //             obj[key].coordinates = [coords]
-    //         }
-
-    //         if (obj[key].type && obj[key].type == "empty") obj[key] = null
-    //         else {
-    //             obj[key] = JSON.stringify(obj[key])
-    //         }
-    //     }
-    // }
 }
 
 module.exports = MintResolver
