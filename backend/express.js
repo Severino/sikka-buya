@@ -21,7 +21,7 @@ async function start({
     /**
      * Database Packages
      */
-    const { Database } = require("./src/utils/database.js")
+    const { pgp, Database } = require("./src/utils/database.js")
 
 
 
@@ -224,8 +224,9 @@ async function start({
                     const exclude = args.exclude
                     const search = `%${args.text}%`
 
-                    let query = pgp.as.format(`SELECT p.*, p.role AS role_id, r.name AS role_name FROM person p
+                    let query = pgp.as.format(`SELECT p.*, r.id AS role_id, r.name AS role_name, d.id AS dynasty_id, d.name AS dynasty_name FROM person p
             LEFT JOIN person_role r ON p.role = r.id
+            LEFT JOIN dynasty d ON p.dynasty = d.id
             WHERE r IS NOT NULL 
             AND unaccent(p.name) ILIKE $1`, search)
 
@@ -239,11 +240,18 @@ async function start({
                     result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
 
                     result.forEach((item, idx) => {
-                        result[idx] = SQLUtils.objectify(item, {
+
+                        result[idx].shortName = result[idx].short_name
+
+                        result[idx] = SQLUtils.objectifyBulk(item, [{
                             prefix: "role_",
                             target: "role",
                             keys: ["id", "name"]
-                        })
+                        }, {
+                            prefix: "dynasty_",
+                            target: "dynasty",
+                            keys: ["id", "name"]
+                        }])
                     })
 
                     return result

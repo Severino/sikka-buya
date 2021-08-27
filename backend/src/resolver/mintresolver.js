@@ -4,10 +4,10 @@ const { Database } = require("../utils/database.js")
 class MintResolver extends Resolver {
 
     async add(_, args) {
+        console.log("ADD")
         this.fixGeoJSON(args.data)
         super.add(...arguments)
     }
-
 
     async update(_, args) {
         const data = args.data
@@ -20,51 +20,69 @@ class MintResolver extends Resolver {
     }
 
     async get(_, args) {
-        let p = await Database.one(`SELECT *, ST_AsGeoJSON(location) AS location, ST_AsGeoJSON(uncertain_area) AS geo_uncertain_area FROM ${this.name} WHERE id=$1`, [args.id])
-
-
-
+        let p = await Database.one(`SELECT *, ST_AsGeoJSON(location) AS location, ST_AsGeoJSON(uncertain_area) AS uncertain_area FROM ${this.name} WHERE id=$1`, [args.id])
+        this.postProcessGet(p)
         return p
     }
 
+    async search(_, args) {
+        const text = args.text
+        if (text) {
+            let p = await Database.manyOrNone(`SELECT *, ST_AsGeoJSON(location) AS location, ST_AsGeoJSON(uncertain_area) AS uncertain_area FROM ${this.name} WHERE unaccent(name) ILIKE  unaccent($1) ORDER BY name ASC`, `%${text}%`)
+            return this.postProcessGetMany(p)
+        } else return []
+    }
+
     async list(_, args) {
-        let p = await Database.manyOrNone(`SELECT *, ST_AsGeoJSON(location) AS geo_location, ST_AsGeoJSON(uncertain_area) AS geo_uncertain_area FROM ${this.name}`, [args.id])
+        let p = await Database.manyOrNone(`SELECT *, ST_AsGeoJSON(location) AS location, ST_AsGeoJSON(uncertain_area) AS uncertain_area FROM ${this.name}`, [args.id])
+        return this.postProcessGetMany(p)
+    }
 
-        p.forEach(mint =>
-            mint.location = (mint.geo_location) ? JSON.parse(mint.geo_location) : null
-        )
+    async postProcessGetMany(arr) {
+        arr = arr.map(item => {
+            this.postProcessGet(item)
+            return item
+        })
+        return arr
+    }
 
-        return p
+    async postProcessGet(item) {
+        item.uncertainArea = item.uncertain_area
     }
 
     fixGeoJSON(obj) {
 
-        obj["uncertain_area"] = obj.uncertainLocation
-        delete obj.uncertainLocation
+        obj["uncertain_area"] = obj.uncertainArea
+        delete obj.uncertainArea
 
-        this.modifyGeoJSON(obj, "location")
-        this.modifyGeoJSON(obj, "uncertain_area")
+        // this.modifyGeoJSON(obj, "location")
+        // this.modifyGeoJSON(obj, "uncertain_area")
+        // console.log(obj)
     }
 
-    modifyGeoJSON(obj, key) {
-        if (obj[key] != null) {
+    // modifyGeoJSON(obj, key) {
+    //     if (obj[key] != null) {
 
-            if (obj[key].type.toLowerCase() == "polygon") {
-                let coords = []
+    //         if (typeof obj[key] == "string") {
+    //             obj[key] = JSON.parse(obj[key])
+    //         }
 
-                for (let i = 0; i < obj[key].coordinates.length - 1; i += 2) {
-                    coords.push([obj[key].coordinates[i], obj[key].coordinates[i + 1]])
-                }
-                obj[key].coordinates = [coords]
-            }
+    //         console.log(obj[key])
+    //         if (obj[key].type.toLowerCase() == "polygon") {
+    //             let coords = []
 
-            if (obj[key].type && obj[key].type == "empty") obj[key] = null
-            else {
-                obj[key] = JSON.stringify(obj[key])
-            }
-            console.log(obj[key])
-        }
-    }
+    //             for (let i = 0; i < obj[key].coordinates.length - 1; i += 2) {
+    //                 coords.push([obj[key].coordinates[i], obj[key].coordinates[i + 1]])
+    //             }
+    //             obj[key].coordinates = [coords]
+    //         }
+
+    //         if (obj[key].type && obj[key].type == "empty") obj[key] = null
+    //         else {
+    //             obj[key] = JSON.stringify(obj[key])
+    //         }
+    //     }
+    // }
 }
 
 module.exports = MintResolver
