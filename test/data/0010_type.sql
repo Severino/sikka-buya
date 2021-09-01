@@ -6,6 +6,7 @@ INSERT INTO
         mint,
         mint_as_on_coin,
         nominal,
+        procedure,
         year_of_mint,
         donativ,
         caliph,
@@ -33,10 +34,11 @@ VALUES
         1,
         /*Gold*/
         1,
-        /*Berline*/
+        /*Berlin*/
         'Börlin',
         1,
         /*1 Mark*/
+        'pressed',
         1989,
         true,
         4,
@@ -68,6 +70,7 @@ VALUES
         'Paris',
         2,
         /*1 Taler*/
+        'cast',
         1789,
         true,
         10,

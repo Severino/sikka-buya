@@ -71,19 +71,28 @@ class SQLUtils {
      * @param {ObjectifyConfig} config - Defines the operations the objectify function will perform.
      */
     static objectify(obj, config) {
+        if (!config.prefix) throw new Error("Object has no prefix!")
+
         if (config.target)
             obj[config.target] = {}
 
         config.keys.forEach(key => {
-            const targetKey = this.snakeToCamelCase(key)
-            if (obj[config.prefix + key] !== undefined) {
-                let targetValue = obj[config.prefix + key]
-                if (config.target)
-                    obj[config.target][targetKey] = targetValue
-                else
-                    obj[targetKey] = targetValue
-                delete obj[config.prefix + key]
-            } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
+            if (typeof key === 'string') {
+                const targetKey = this.snakeToCamelCase(key)
+                if (obj[config.prefix + key] !== undefined) {
+                    let targetValue = obj[config.prefix + key]
+                    if (config.target)
+                        obj[config.target][targetKey] = targetValue
+                    else
+                        obj[targetKey] = targetValue
+                    delete obj[config.prefix + key]
+                } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
+            } else if (typeof key === 'object') {
+                const child_conf = key
+                if (!child_conf.prefix) throw new Error("Wrong config. Child has no prefix!")
+                child_conf.prefix = config.prefix + child_conf.prefix
+                this.objectify(obj, child_conf)
+            } else console.error(`Key has wrong type: ` + typeof key)
         })
         return obj
     }

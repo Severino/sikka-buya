@@ -135,9 +135,6 @@ async function start({
 
                     return { from: range[0], to: range[range.length - 1] }
                 },
-                getOverlord: function (_, args) {
-                    return Type.getOverlord(args.id)
-                },
                 getReducedCoinTypeList: async function () {
                     return Type.getTypesReducedList()
                 },
@@ -308,7 +305,7 @@ async function start({
                 getTypesByOverlord: async function (_, args) {
                     return Type.getTypesByOverlord(args.id)
                 },
-                searchTypes: async function (_, args) {
+                searchType: async function (_, args) {
                     const text = args.text
                     return Type.searchType(text)
                 },

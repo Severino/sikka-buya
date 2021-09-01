@@ -196,47 +196,61 @@ type Range {
 type Query {
   ping: String
 
+  # Tested in 004_coin_mark
   coinMark: [CoinMark]
-  nominal: [Nominal]!
-  material: [Material]!
-  person: [Person]!
-  honorific: [Honorific]!
-  title: [Title]!
-  mint: [Mint]!
-  dynasty: [Dynasty]!
-  role: [Role]
-  timespan: Range
-
   searchCoinMark(text: String): [CoinMark]!
-  searchHonorific(text: String): [Honorific]!
-  searchMaterial(text: String): [Material]!
-  searchMint(text: String): [Mint]!
-  searchTitle(text: String): [Title]!
-  searchNominal(text: String): [Nominal]!
-  searchPerson(text: String): [Person]!
-  searchDynasty(text: String): [Dynasty]!
-  searchRole(text: String): [Role]!
-  searchTypes(text: String): [CoinType]!
-
   getCoinMark(id: Int!): CoinMark
-  getHonorific(id: Int!): Honorific
-  getMaterial(id: Int!): Material
-  getMint(id: Int!): Mint
-  getPerson(id: Int!): Person
-  getTitle(id: Int!): Title
+
+  # Tested in 005_nominal
+  nominal: [Nominal]!
+  searchNominal(text: String): [Nominal]!
   getNominal(id: Int!): Nominal
-  getDynasty(id: Int!): Dynasty
+
+  # Tested in 006_material
+  material: [Material]!
+  searchMaterial(text: String): [Material]!
+  getMaterial(id: Int!): Material
+
+  # Tested in 007_mint
+  mint: [Mint]!
+  searchMint(text: String): [Mint]!
+  getMint(id: Int!): Mint
+
+  # Tested in 008_role
+  role: [Role]
+  searchRole(text: String): [Role]!
   getRole(id: Int!): Role
+  # Tested in 009_dynasty
+  dynasty: [Dynasty]!
+  searchDynasty(text: String): [Dynasty]!
+  getDynasty(id: Int!): Dynasty
 
-  getAnalytics: Analytics
+  # Tested in 010_title
+  title: [Title]!
+  searchTitle(text: String): [Title]!
+  getTitle(id: Int!): Title
 
-  getOverlord(id: ID!): Overlord
+  # Tested in 011_honorifics
+  honorific: [Honorific]!
+  searchHonorific(text: String): [Honorific]!
+  getHonorific(id: Int!): Honorific
 
-  getReducedCoinTypeList(id: ID): [ReducedCoinType]
+  # Tested in 012_person
+  person: [Person]!
+  searchPerson(text: String): [Person]!
+  getPerson(id: Int!): Person
+
+  # Tested in 030_coin_type
   getCoinType(id: ID!): CoinType
 
+  # TODO: missing Tests ---------------------------------------------
+  getReducedCoinTypeList(id: ID): [ReducedCoinType]
+  searchType(text: String): [CoinType]!
   getTypesByOverlord(id: ID!): [CoinType]
   getTypes(yearOfMint: Int): [CoinType]
+
+  timespan: Range
+  getAnalytics: Analytics
 
   getTypeComplete(id: ID!): Boolean
 
@@ -257,53 +271,67 @@ type Query {
 }
 
 type Mutation {
+  # Tested in 002_setup
   setup(data: UserInput): AuthResponse
 
+  # Tested in 003_user
+  inviteUser(email: String): Boolean
+  acceptInvite(email: String, password: String): Void
+
+  # Tested in 004_coin_mark
   addCoinMark(data: NameInput): Void
   updateCoinMark(data: NameInput): Void
   deleteCoinMark(id: Int): Void
 
-  addHonorific(data: NameInput): Void
-  updateHonorific(data: NameInput): Void
-  deleteHonorific(id: Int): Void
-
-  addMaterial(data: NameInput): Void
-  updateMaterial(data: NameInput): Void
-  deleteMaterial(id: Int): Void
-
-  addMint(data: MintInput): Void
-  updateMint(data: MintInput): Void
-  deleteMint(id: Int): Void
-
-  addPerson(data: PersonInput): Void
-  updatePerson(data: PersonInput): Void
-  deletePerson(id: Int): Void
-
-  addTitle(data: NameInput): Void
-  updateTitle(data: NameInput): Void
-  deleteTitle(id: Int): Void
-
+  # Tested in 005_nominal
   addNominal(data: NameInput): Void
   updateNominal(data: NameInput): Void
   deleteNominal(id: Int): Void
 
-  addDynasty(data: NameInput): Void
-  updateDynasty(data: NameInput): Void
-  deleteDynasty(id: Int): Void
+  # Tested in 006_material
+  addMaterial(data: NameInput): Void
+  updateMaterial(data: NameInput): Void
+  deleteMaterial(id: Int): Void
 
+  # Tested in 007_mint
+  addMint(data: MintInput): Void
+  updateMint(data: MintInput): Void
+  deleteMint(id: Int): Void
+
+  # Tested in 008_role
   addRole(data: NameInput): Void
   updateRole(data: NameInput): Void
   deleteRole(id: Int): Void
 
+  # Tested in 009_dynasty
+  addDynasty(data: NameInput): Void
+  updateDynasty(data: NameInput): Void
+  deleteDynasty(id: Int): Void
+
+  # Tested in 010_title
+  addTitle(data: NameInput): Void
+  updateTitle(data: NameInput): Void
+  deleteTitle(id: Int): Void
+
+  # Tested in 011_honorifics
+  addHonorific(data: NameInput): Void
+  updateHonorific(data: NameInput): Void
+  deleteHonorific(id: Int): Void
+
+  # Tested in 012_person
+  addPerson(data: PersonInput): Void
+  updatePerson(data: PersonInput): Void
+  deletePerson(id: Int): Void
+
+  # Tested in 030_coin_type
   addCoinType(data: CoinTypeInput): Void
   removeCoinType(id: ID): Void
   updateCoinType(id: ID, data: CoinTypeInput): Void
 
+  # TODO: missing Tests ---------------------------------------------
+
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
-
-  inviteUser(email: String): Boolean
-  acceptInvite(email: String, password: String): Void
 }
 
 type Overlord {
@@ -319,9 +347,12 @@ type Overlord {
 
 type TitledPerson {
   id: ID
-  person: Person
-  titles: [Title]
-  honorifics: [Honorific]
+  name: String
+  shortName: String
+  role: Role
+  dynasty: Dynasty
+  titles: [Title]!
+  honorifics: [Honorific]!
 }
 
 input OverlordInput {

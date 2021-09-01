@@ -6,6 +6,7 @@ const HTMLSanitizer = require("./HTMLSanitizer")
 const Overlord = require("../../overlord")
 const Mint = require("../models/mint")
 const { objectifyList, camelCaseToSnakeCase } = require("./sql")
+const Person = require('../models/person')
 
 
 class Type {
@@ -299,7 +300,7 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-        WHERE unaccent(t.project_id) ILIKE $[searchText]
+        WHERE unaccent(t.project_id) ILIKE unaccent($[searchText])
         `, { searchText: "%" + text + "%" })
 
         for (let [idx, type] of result.entries()) {
@@ -388,20 +389,17 @@ class Type {
              ma.name AS material_name,
              ${Mint.query()}
              n.id AS nominal_id,
-             n.name AS nominal_name,
-             p.id AS caliph_id,
-             p.name AS caliph_name FROM type t 
+             n.name AS nominal_name
+             FROM type t
             LEFT JOIN material ma 
             ON t.material = ma.id
             LEFT JOIN mint mi 
             ON t.mint = mi.id
             LEFT JOIN nominal n 
             ON t.nominal = n.id
-            LEFT JOIN person p
-            ON t.caliph = p.id
             WHERE t.id = $1
-            `, id).catch(() => {
-            throw new Error("Requested type does not exist!")
+            `, id).catch((e) => {
+            throw new Error("Requested type does not exist: " + e)
         })
 
         return await this.postprocessType(result);
@@ -470,30 +468,18 @@ class Type {
                 prefix: "nominal_",
                 target: "nominal",
                 keys: ["id", "name"]
-            },
-            {
-                prefix: "caliph_",
-                target: "caliph",
-                keys: ["id", "name"]
             }
         ]
 
         config.forEach(conf => delete type[conf.target])
         SQLUtils.objectifyBulk(type, config)
 
-        if (type?.mint?.location) {
-            try {
-                type.mint.location = JSON.parse(type.mint.location)
-            } catch (e) {
-                console.error("Could not stringify location: ", e)
-            }
-        }
-
         type.avers = this.wrapCoinSideInformation(type, "front_side_")
         type.reverse = this.wrapCoinSideInformation(type, "back_side_")
 
         type.overlords = await Type.getOverlordsByType(type.id)
         type.issuers = await Type.getIssuerByType(type.id)
+        type.caliph = await Person.get(type.caliph)
         type.otherPersons = await Type.getOtherPersonsByType(type.id)
         type.pieces = await Type.getPieces(type.id)
         type.coinMarks = await Type.getCoinMarks(type.id)
@@ -556,15 +542,18 @@ class Type {
 
     static async getOverlordsByType(type_id) {
 
-        const request = await Database.multi(
+        const response = await Database.multi(
             `
             SELECT o.id,
             o.rank,
-            o.type,
             p.id as person_id,
             p.short_name as person_short_name,
             p.name as person_name,
             p.role as person_role,
+            r.id as person_role_id,
+            r.name as person_role_name,
+            d.id as person_dynasty_id,
+            d.name as person_dynasty_name,
             t.title_names,
             t.title_ids,
             h.honorific_names,
@@ -584,20 +573,32 @@ class Type {
             ) h USING(id)
             INNER JOIN person p
                 ON o.person = p.id
-			WHERE o.type = ${type_id}
+            LEFT JOIN dynasty d ON p.dynasty=d.id
+            LEFT JOIN person_role r ON p.role=r.id
+			WHERE o.type = $1
             ORDER BY o.rank ASC
             `, type_id)
 
 
-        let result = request[0]
-
+        let result = response[0]
         let overlords = Overlord.extractList(result)
         return overlords
     }
 
     static async getIssuerByType(type_id) {
-        const result = await Database.multi(`
-        SELECT i.id, i.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM issuer i
+        const response = await Database.multi(`
+        SELECT i.id, i.type,p.id as person_id,
+                p.short_name as person_short_name,
+                p.name as person_name,
+                r.id as person_role_id,
+                r.name as person_role_name,
+                d.id as person_dynasty_id,
+                d.name as person_dynasty_name,
+                t.title_names,
+                t.title_ids,
+                h.honorific_names,
+                h.honorific_ids 
+            FROM issuer i
             LEFT JOIN(
                 SELECT it.issuer AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
                  FROM issuer_titles it
@@ -612,42 +613,13 @@ class Type {
             ) h USING(id)
             INNER JOIN person p
                 ON i.person = p.id
+            LEFT JOIN dynasty d ON p.dynasty=d.id
+            LEFT JOIN person_role r ON p.role=r.id
 			WHERE i.type = $1
             `, type_id)
 
-        if (request.length < 1) return []
-
-        let issuers = result[0]
-
-        const config = [
-            {
-                prefix: `person_`,
-                target: null,
-                keys: ["id", "name", "role"]
-            }
-        ]
-
-
-        const arrays = [
-            {
-                target: "honorifics",
-                prefix: `honorific_`,
-                keys: ["ids", "names"],
-                to: ["id", "name"]
-            },
-            {
-                target: "titles",
-                prefix: `title_`,
-                keys: ["ids", "names"],
-                to: ["id", "name"]
-            },
-        ]
-
-        issuers.forEach(obj => {
-            SQLUtils.objectifyBulk(obj, config)
-            SQLUtils.listifyBulk(obj, arrays)
-        })
-
+        let result = response[0]
+        let issuers = Overlord.extractList(result)
         return issuers
     }
 
@@ -661,12 +633,29 @@ class Type {
     }
 
     static async getOtherPersonsByType(type_id) {
-        return await Database.manyOrNone(`
-        SELECT p.* FROM other_person op 
+        let result = await Database.manyOrNone(`
+        SELECT 
+            p.*,
+            d.id as dynasty_id,
+            d.name as dynasty_name,
+            r.id as role_id,
+            r.name as role_name
+        FROM 
+            other_person op 
         LEFT JOIN person p
             ON op.person = p.id
-			WHERE op.type = $1
+        LEFT JOIN 
+            dynasty d ON p.dynasty=d.id
+        LEFT JOIN 
+            person_role r ON p.role=r.id
+		WHERE 
+            op.type = $1
             `, type_id)
+
+
+
+
+        return result.map(person => Person.decomposePersonResult(person))
     }
 
     static async getPieces(type_id) {
