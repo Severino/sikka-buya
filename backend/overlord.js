@@ -2,7 +2,7 @@ const SQLUtils = require("./src/utils/sql")
 
 class Overlord {
 
-    static extractList(arr, options){
+    static extractList(arr, options) {
         arr.forEach((obj, idx) => {
             arr[idx] = this.extract(obj, options)
         });
@@ -10,11 +10,20 @@ class Overlord {
     }
 
     static extract(result) {
+        console.log(result)
         const config = [
             {
                 prefix: `person_`,
                 target: null,
-                keys: ["id", "name", "role", "short_name"]
+                keys: ["id", "name", {
+                    prefix: "role_",
+                    target: "role",
+                    keys: ["id", "name"]
+                }, {
+                        prefix: "dynasty_",
+                        target: "dynasty",
+                        keys: ["id", "name"]
+                    }, "short_name"]
             }
         ]
 

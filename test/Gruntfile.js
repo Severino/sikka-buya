@@ -7,8 +7,8 @@ module.exports = function (grunt) {
 
     // Add the grunt-mocha-test tasks.
     grunt.loadNpmTasks('grunt-mocha-test');
-
     grunt.loadNpmTasks('grunt-keepalive');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.initConfig({
         mochaTest: {
@@ -17,6 +17,15 @@ module.exports = function (grunt) {
             },
             test: {
                 src: ["./tests/**/*.js"]
+            }
+        },
+        watch: {
+            gruntfile: {
+                tasks: ['backend'],
+                files: ['../**/*.js'],
+                options: {
+                    reload: true
+                }
             }
         }
     })
@@ -37,7 +46,7 @@ module.exports = function (grunt) {
     ])
 
     /**
-     * Setup
+     * Setup 
      */
 
     grunt.registerTask('setup-test-database', function () {
@@ -48,6 +57,11 @@ module.exports = function (grunt) {
     })
 
     grunt.registerTask('backend', [
+        'run-backend-server',
+        'keepalive'
+    ])
+
+    grunt.registerTask('backend:watch', [
         'run-backend-server',
         'keepalive'
     ])
