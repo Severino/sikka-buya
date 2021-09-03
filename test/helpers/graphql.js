@@ -3,7 +3,7 @@ const AxiosHelper = require('./axios');
 
 
 function graphql(query, variables = {}, authToken = null) {
-    // console.log(query)
+    console.log(query)
 
     headers = {}
 

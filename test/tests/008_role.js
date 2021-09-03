@@ -2,37 +2,38 @@ const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
 
+const startData = {
+    "data": {
+        "role": [
+            {
+                "name": "caliph",
+                "id": "1"
+            },
+            {
+                "name": "cutter",
+                "id": "2"
+            },
+            {
+                "id": "3",
+                "name": "Dāula"
+            }
+        ]
+    }
+}
+
+const body = `{id,name}`
+
 describe(`Role Queries`, function () {
     it(`List`, async function () {
-        let result = await graphql(`{role{id,name}}`)
+        let result = await graphql(`{role ${body}}`)
 
-        expect(result.data).to.deep.equal({
-            "data": {
-                "role": [
-                    {
-                        "name": "caliph",
-                        "id": "1"
-                    },
-                    {
-                        "name": "cutter",
-                        "id": "2"
-                    },
-                    {
-                        "id": "3",
-                        "name": "Dāula"
-                    }
-                ]
-            }
-        })
+        expect(result.data).to.deep.equal(startData)
     })
 
     it("Get", async function () {
         let result = await graphql(`
         {
-            getRole(id:2) {
-                id,
-                name
-            }
+            getRole(id:2) ${body}
         }
 `)
 
@@ -48,10 +49,7 @@ describe(`Role Queries`, function () {
 
     it("Search with regular characters", async function () {
         let result = await graphql(`
-            {searchRole(text: "da") {
-                id,
-                name
-              }}`)
+            {searchRole(text: "da") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -67,10 +65,7 @@ describe(`Role Queries`, function () {
 
     it("Search with exact characters", async function () {
         let result = await graphql(`
-            {searchRole(text: "Dā") {
-                id,
-                name
-              }}`)
+            {searchRole(text: "Dā") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -114,5 +109,11 @@ describe(`Role Queries`, function () {
         let promise = graphql(`mutation{deleteRole(id:4)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
+
+    it("Table is the same as when started", async function () {
+        let result = await graphql(`{role${body}}`)
+        expect(result.data).to.deep.equal(startData)
+    })
+
 
 })

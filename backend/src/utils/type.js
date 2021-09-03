@@ -5,11 +5,18 @@ const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
 const Overlord = require("../../overlord")
 const Mint = require("../models/mint")
-const { objectifyList, camelCaseToSnakeCase } = require("./sql")
+const { camelCaseToSnakeCase } = require("./sql")
 const Person = require('../models/person')
+const Material = require('../models/material')
+const Nominal = require('../models/nominal')
 
 
 class Type {
+
+
+    static async list() {
+        return this.getTypes(null)
+    }
 
 
     static async updateType(id, data) {
@@ -285,21 +292,10 @@ class Type {
     static async searchType(text) {
         let result = await Database.manyOrNone(
             `
-        SELECT t.*,
-        ${Mint.query()}
-         mi.name AS mint_name,
-         n.id AS nominal_id,
-         n.name AS nominal_name,
-         p.id AS caliph_id,
-         p.name AS caliph_name FROM type t 
-        LEFT JOIN material ma 
-        ON t.material = ma.id
-        LEFT JOIN mint mi 
-        ON t.mint = mi.id
-        LEFT JOIN nominal n 
-        ON t.nominal = n.id
-        LEFT JOIN person p
-        ON t.caliph = p.id
+        SELECT 
+            ${this.rows}
+        FROM type t
+            ${this.joins}
         WHERE unaccent(t.project_id) ILIKE unaccent($[searchText])
         `, { searchText: "%" + text + "%" })
 
@@ -343,10 +339,10 @@ class Type {
         return typeList
     }
 
-    static async getTypes(filters) {
+    static async getTypes(filters = {}) {
 
         function objAsWhereClause(filterObj) {
-            if (Object.keys(filterObj).length == 0) return ""
+            if (!filterObj || Object.keys(filterObj).length == 0) return ""
             let filterTxt = "WHERE "
             for (let [key, val] of Object.entries(filterObj)) {
                 filterTxt += `${camelCaseToSnakeCase(key)}='${val}'`
@@ -355,22 +351,11 @@ class Type {
         }
 
         const result = await Database.manyOrNone(`
-        SELECT t.*, ma.id AS material_id,
-         ma.name AS material_name,
-         ${Mint.query()}
-         n.id AS nominal_id,
-         n.name AS nominal_name,
-         p.id AS caliph_id,
-         p.name AS caliph_name FROM type t 
-        LEFT JOIN material ma 
-        ON t.material = ma.id
-        LEFT JOIN mint mi 
-        ON t.mint = mi.id
-        LEFT JOIN nominal n 
-        ON t.nominal = n.id
-        LEFT JOIN person p
-        ON t.caliph = p.id
-        ${objAsWhereClause(filters)}
+        SELECT 
+            ${this.rows}         
+         FROM type t 
+            ${this.joins}
+            ${objAsWhereClause(filters)}
             `)
 
         for (let [idx, type] of result.entries()) {
@@ -384,19 +369,10 @@ class Type {
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
-            SELECT t.*,
-             ma.id AS material_id,
-             ma.name AS material_name,
-             ${Mint.query()}
-             n.id AS nominal_id,
-             n.name AS nominal_name
+            SELECT 
+                ${this.rows}
              FROM type t
-            LEFT JOIN material ma 
-            ON t.material = ma.id
-            LEFT JOIN mint mi 
-            ON t.mint = mi.id
-            LEFT JOIN nominal n 
-            ON t.nominal = n.id
+                ${this.joins}
             WHERE t.id = $1
             `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
@@ -416,29 +392,14 @@ class Type {
 
 
         const result = await Database.manyOrNone(`
-        WITH blah AS(
+        WITH overlords AS(
                 SELECT type FROM overlord WHERE person = $1
             )
-        SELECT t.*, ma.id AS material_id,
-         ma.name AS material_name,
-         mi.id AS mint_id,
-         mi.name AS mint_name,
-         ST_AsGeoJSON(mi.location) AS mint_location,
-         mi.name AS mint_name,
-         mi.id AS mint_id,
-         n.id AS nominal_id,
-         n.name AS nominal_name,
-         p.id AS caliph_id,
-         p.name AS caliph_name FROM type t 
-        LEFT JOIN material ma 
-        ON t.material = ma.id
-        LEFT JOIN mint mi 
-        ON t.mint = mi.id
-        LEFT JOIN nominal n 
-        ON t.nominal = n.id
-        LEFT JOIN person p
-        ON t.caliph = p.id
-        WHERE t.id IN(SELECT type FROM blah)
+        SELECT 
+            ${this.rows}
+        FROM type t
+            ${this.joins}
+        WHERE t.id IN(SELECT type FROM overlords)
             `, person);
 
         for (let [key, value] of result.entries()) {
@@ -447,6 +408,27 @@ class Type {
 
 
         return result
+    }
+
+    static get rows() {
+        return ` t.*, 
+        ${Material.query()}
+        ${Mint.query()}
+        ${Nominal.query()}
+        p.id AS caliph_id`
+    }
+
+    static get joins() {
+        return `
+        LEFT JOIN material ma 
+        ON t.material = ma.id
+        LEFT JOIN mint mi 
+        ON t.mint = mi.id
+        LEFT JOIN nominal n 
+        ON t.nominal = n.id
+        LEFT JOIN person p
+        ON t.caliph = p.id
+        `
     }
 
     static async postprocessType(type) {

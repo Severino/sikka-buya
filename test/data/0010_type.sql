@@ -73,7 +73,7 @@ VALUES
         'cast',
         1789,
         true,
-        10,
+        11,
         /* Louis XVI */
         '<div>Abb. Französische Flagge</div>',
         '<div>Contre nous de la tyrannie</div>',

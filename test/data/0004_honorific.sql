@@ -6,4 +6,9 @@ VALUES
     ('bulldozer'),
     ('le Français'),
     ('le générale'),
-    ('von Deutschland');
+    /* ^5 */
+    ('von Deutschland'),
+    ('Meerjungfrau'),
+    ('der Große'),
+    ('Wesen des Meeres')
+    ;

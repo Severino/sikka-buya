@@ -64,6 +64,11 @@ type ReducedCoinType {
   id: ID
   projectId: String
   treadwellId: String
+  yearOfMint: String
+  material: Material
+  nominal: Nominal
+  donativ: Boolean
+  procedure: String
   completed: Boolean
   reviewed: Boolean
 }
@@ -241,11 +246,12 @@ type Query {
   getPerson(id: Int!): Person
 
   # Tested in 030_coin_type
+  coinType: [CoinType]
+  searchType(text: String): [CoinType]!
   getCoinType(id: ID!): CoinType
 
   # TODO: missing Tests ---------------------------------------------
   getReducedCoinTypeList(id: ID): [ReducedCoinType]
-  searchType(text: String): [CoinType]!
   getTypesByOverlord(id: ID!): [CoinType]
   getTypes(yearOfMint: Int): [CoinType]
 

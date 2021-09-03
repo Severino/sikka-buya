@@ -4,4 +4,8 @@ VALUES
     ('Prof.'),
     ('Dr.'),
     ('Monsieur'),
-    ('König');
+    ('König'),
+    ('Königin'),
+    /* ^5 */
+    ('Tier')
+    ;

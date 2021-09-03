@@ -2,41 +2,47 @@ const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
 
+const startData = {
+    "data": {
+        "coinMark": [
+            {
+                "id": "1",
+                "name": "Ä"
+            },
+            {
+                "id": "3",
+                "name": "ê"
+            },
+            {
+                "id": "2",
+                "name": "Ü"
+            },
+            {
+                "id": "4",
+                "name": "π"
+            }
+        ]
+    }
+}
+
+const body = `{
+        id,
+        name
+    }`
+
+
+
 describe(`CoinMark Queries`, function () {
     it(`List`, async function () {
-        let result = await graphql(`{coinMark{id,name}}`)
+        let result = await graphql(`{coinMark ${body}}`)
 
-        expect(result.data).to.deep.equal({
-            "data": {
-                "coinMark": [
-                    {
-                        "id": "1",
-                        "name": "Ä"
-                    },
-                    {
-                        "id": "3",
-                        "name": "ê"
-                    },
-                    {
-                        "id": "2",
-                        "name": "Ü"
-                    },
-                    {
-                        "id": "4",
-                        "name": "π"
-                    }
-                ]
-            }
-        })
+        expect(result.data).to.deep.equal(startData)
     })
 
     it("Get", async function () {
         let result = await graphql(`
         {
-            getCoinMark(id:3) {
-                id,
-                name
-            }
+            getCoinMark(id:3) ${body}
         }
 `)
 
@@ -52,10 +58,7 @@ describe(`CoinMark Queries`, function () {
 
     it("Search with regular characters", async function () {
         let result = await graphql(`
-            {searchCoinMark(text: "e") {
-                id,
-                name
-              }}`)
+            {searchCoinMark(text: "e") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -71,10 +74,7 @@ describe(`CoinMark Queries`, function () {
 
     it("Search with exact characters", async function () {
         let result = await graphql(`
-            {searchCoinMark(text: "ê") {
-                id,
-                name
-              }}`)
+            {searchCoinMark(text: "ê") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -116,6 +116,11 @@ describe(`CoinMark Queries`, function () {
     it("Delete", async function () {
         let promise = graphql(`mutation{deleteCoinMark(id:5)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
+    })
+
+    it("Table is the same as when started", async function () {
+        let result = await graphql(`{coinMark ${body}}`)
+        expect(result.data).to.deep.equal(startData)
     })
 
 })

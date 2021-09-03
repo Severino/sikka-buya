@@ -60,7 +60,7 @@ class Auth {
                     }
                 }
             }
-        } catch (e) { /*Wrong user was passed. Thats fine! */ console.log(e) }
+        } catch (e) { /*Wrong user was passed. Thats fine! */ }
 
 
         return {

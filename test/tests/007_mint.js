@@ -40,15 +40,17 @@ const startData = {
     }
 }
 
+const body = `{id,name,location , uncertain,uncertainArea}`
+
 
 describe(`Mint Queries`, function () {
     it(`List`, async function () {
-        let result = await graphql(`{mint{id,name,location , uncertain,uncertainArea}}`)
+        let result = await graphql(`{mint ${body}}`)
         expect(result.data).to.deep.equal(startData)
     })
 
     it("Get", async function () {
-        let result = await graphql(`{getMint(id:4){id name location uncertain uncertainArea}}`)
+        let result = await graphql(`{getMint(id:4)${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -65,7 +67,7 @@ describe(`Mint Queries`, function () {
 
     it("Search with regular characters", async function () {
         let result = await graphql(`
-            {searchMint(text: "at") {id name location uncertain uncertainArea}}`)
+            {searchMint(text: "at") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -84,7 +86,7 @@ describe(`Mint Queries`, function () {
 
     it("Search with exact characters", async function () {
         let result = await graphql(`
-            {searchMint(text: "Ǎt") {id name location uncertain uncertainArea}}`)
+            {searchMint(text: "Ǎt") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -253,7 +255,7 @@ describe(`Mint Queries`, function () {
     })
 
     it("Table is the same as when started", async function () {
-        let result = await graphql(`{mint{id,name,location , uncertain,uncertainArea}}`)
+        let result = await graphql(`{mint${body}}`)
         expect(result.data).to.deep.equal(startData)
     })
 

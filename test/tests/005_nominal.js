@@ -2,37 +2,41 @@ const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
 
+const startData = {
+    "data": {
+        "nominal": [
+            {
+                "id": "1",
+                "name": "1 Mark"
+            },
+            {
+                "id": "2",
+                "name": "1 Taler"
+            },
+            {
+                "id": "3",
+                "name": "1 Złoty"
+            }, {
+                "id": "4",
+                "name": "⅟₂ ₳die"
+            }
+        ]
+    }
+}
+
+const body = `{id,name}`
+
 describe(`Nominal Queries`, function () {
     it(`List`, async function () {
-        let result = await graphql(`{nominal{id,name}}`)
+        let result = await graphql(`{nominal ${body}}`)
 
-        expect(result.data).to.deep.equal({
-            "data": {
-                "nominal": [
-                    {
-                        "id": "1",
-                        "name": "1 Mark"
-                    },
-                    {
-                        "id": "2",
-                        "name": "1 Taler"
-                    },
-                    {
-                        "id": "3",
-                        "name": "1 Złoty"
-                    }
-                ]
-            }
-        })
+        expect(result.data).to.deep.equal(startData)
     })
 
     it("Get", async function () {
         let result = await graphql(`
         {
-            getNominal(id:1) {
-                id,
-                name
-            }
+            getNominal(id:1) ${body}
         }
 `)
 
@@ -48,10 +52,7 @@ describe(`Nominal Queries`, function () {
 
     it("Search with regular characters", async function () {
         let result = await graphql(`
-            {searchNominal(text: "zl") {
-                id,
-                name
-              }}`)
+            {searchNominal(text: "zl") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -67,10 +68,7 @@ describe(`Nominal Queries`, function () {
 
     it("Search with exact characters", async function () {
         let result = await graphql(`
-            {searchNominal(text: "Zł") {
-                id,
-                name
-              }}`)
+            {searchNominal(text: "Zł") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -96,25 +94,28 @@ describe(`Nominal Queries`, function () {
 
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateNominal(data:{id:5, name: "changed"})}`)
+        let promise = graphql(`mutation{updateNominal(data:{id:6, name: "changed"})}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateNominal(data:{id:5, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateNominal(data:{id:6, name: "changed"})}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
     it("Unauthorized Delete Rejected", async function () {
-        let promise = graphql(`mutation{deleteNominal(id:4)}`)
+        let promise = graphql(`mutation{deleteNominal(id:5)}`)
         await expect(promise).to.be.rejectedWith(["404"])
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteNominal(id:4)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteNominal(id:5)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
-
+    it("Table is the same as when started", async function () {
+        let result = await graphql(`{nominal ${body}}`)
+        expect(result.data).to.deep.equal(startData)
+    })
 
 })

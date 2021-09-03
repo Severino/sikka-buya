@@ -20,4 +20,15 @@ VALUES
     ('Elizabeth II', 'The Queen', 1, 3),
     /*^ 15*/
     ('William Turner', 'Turner', 2, 3),
-    ('Guido Westerwelle', 'Westerwelle', null, 1);
+    ('Guido Westerwelle', 'Westerwelle', null, 1),
+    ('Poseidon', 'Neptun', 1, 5),
+    ('Plankton', null, null, 5),
+    ('Fisch', null, null, 5),
+    /*^ 20*/
+    ('Wal', null, null, 5),
+    ('Arielle', 'Ari', null, 5),
+    ('Sebastian', 'Sebi', null, null),
+    ('Michelangelo', 'Miquel', 2, 5),
+    ('Gian Lorenzo Bernini', 'Bernini', 2, 5)
+    /*^ 25*/
+;

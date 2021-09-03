@@ -141,7 +141,9 @@ async function start({
                 getCoinType: async function (_, args) {
                     return Type.getType(args.id)
                 },
-
+                coinType: async function (_, args) {
+                    return Type.list(args)
+                },
                 getRulers: async function (_, args) {
                     if (!args.year) throw new Error("year is required")
                     let types = await Type.getTypes({ year_of_mint: args.year })

@@ -35,7 +35,6 @@ export default class Query {
 
 
     async raw(query, variables = {}) {
-        console.log(query)
         return new Promise((resolve, reject) => {
             axios({
                 url: host,
@@ -50,7 +49,7 @@ export default class Query {
                     resolve(result)
                 } else {
                     let erros = AxiosHelper.getErrors(result)
-                    if(erros[0] === "401"){
+                    if (erros[0] === "401") {
                         store.commit("showLoginForm")
                     }
 

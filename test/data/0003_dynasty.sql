@@ -4,4 +4,5 @@ VALUES
     ('Deutsche'),
     ('Franzosen'),
     ('Briten'),
-    ('Österreicher');
+    ('Österreicher'),
+    ('Atlant');

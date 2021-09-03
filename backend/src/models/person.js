@@ -3,7 +3,6 @@ const { transformPropertyToCamelCase, objectifyBulk } = require('../utils/sql')
 
 
 class Person {
-
     static async get(id) {
         let result = await Database.one(`
         SELECT p.id, p.name, p.short_name,
