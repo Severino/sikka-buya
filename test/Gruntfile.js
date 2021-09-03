@@ -13,7 +13,8 @@ module.exports = function (grunt) {
     grunt.initConfig({
         mochaTest: {
             options: {
-                noFail: true
+                noFail: true,
+                showDiff: true
             },
             test: {
                 src: ["./tests/**/*.js"]

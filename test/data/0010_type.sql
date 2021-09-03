@@ -36,7 +36,7 @@ VALUES
         1,
         /*Berlin*/
         'Börlin',
-        1,
+        2,
         /*1 Mark*/
         'pressed',
         1989,
@@ -63,12 +63,12 @@ VALUES
     (
         'FRévô1789',
         'FR1789',
-        3,
+        4,
         /*Silber*/
         2,
         /*Paris*/
         'Paris',
-        2,
+        3,
         /*1 Taler*/
         'cast',
         1789,

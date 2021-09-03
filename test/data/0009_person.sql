@@ -22,10 +22,10 @@ VALUES
     ('William Turner', 'Turner', 2, 3),
     ('Guido Westerwelle', 'Westerwelle', null, 1),
     ('Poseidon', 'Neptun', 1, 5),
-    ('Plankton', null, null, 5),
+    ('Plankton', 'Planki', null, 5),
     ('Fisch', null, null, 5),
     /*^ 20*/
-    ('Wal', null, null, 5),
+    ('Wal', null, 2, 5),
     ('Arielle', 'Ari', null, 5),
     ('Sebastian', 'Sebi', null, null),
     ('Michelangelo', 'Miquel', 2, 5),

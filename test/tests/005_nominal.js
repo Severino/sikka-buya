@@ -6,18 +6,18 @@ const startData = {
     "data": {
         "nominal": [
             {
-                "id": "1",
+                "id": "2",
                 "name": "1 Mark"
             },
             {
-                "id": "2",
+                "id": "3",
                 "name": "1 Taler"
             },
             {
-                "id": "3",
+                "id": "4",
                 "name": "1 Złoty"
             }, {
-                "id": "4",
+                "id": "1",
                 "name": "⅟₂ ₳die"
             }
         ]
@@ -36,14 +36,14 @@ describe(`Nominal Queries`, function () {
     it("Get", async function () {
         let result = await graphql(`
         {
-            getNominal(id:1) ${body}
+            getNominal(id:2) ${body}
         }
 `)
 
         expect(result.data).to.deep.equal({
             "data": {
                 "getNominal": {
-                    "id": "1",
+                    "id": "2",
                     "name": "1 Mark"
                 }
             }
@@ -58,7 +58,7 @@ describe(`Nominal Queries`, function () {
             "data": {
                 "searchNominal": [
                     {
-                        "id": "3",
+                        "id": "4",
                         "name": '1 Złoty'
                     }
                 ]
@@ -74,7 +74,7 @@ describe(`Nominal Queries`, function () {
             "data": {
                 "searchNominal": [
                     {
-                        "id": "3",
+                        "id": "4",
                         "name": '1 Złoty'
                     }
                 ]

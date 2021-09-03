@@ -14,11 +14,11 @@ const startData = {
                 "name": "Kupfer"
             },
             {
-                "id": "4",
+                "id": "3",
                 "name": "Perlmutt"
             },
             {
-                "id": "3",
+                "id": "4",
                 "name": "Silber"
             }
         ]
@@ -40,13 +40,13 @@ describe(`Material Queries`, function () {
     it("Get", async function () {
         let result = await graphql(`
         {
-            getMaterial(id:3) ${body}
+            getMaterial(id:4) ${body}
         }`)
 
         expect(result.data).to.deep.equal({
             "data": {
                 "getMaterial": {
-                    "id": "3",
+                    "id": "4",
                     "name": "Silber"
                 }
             }
