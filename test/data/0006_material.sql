@@ -3,4 +3,5 @@ INSERT INTO
 VALUES
     ('Gøld'),
     ('Kupfer'),
-    ('Perlmutt') ('Silber');
+    ('Perlmutt'),
+    ('Silber');

@@ -415,6 +415,11 @@ class Type {
         ${Material.query()}
         ${Mint.query()}
         ${Nominal.query()}
+        exclude_from_type_catalogue,
+        exclude_from_map_app,
+        internal_notes,
+        year_uncertain,
+        mint_uncertain as guessed_mint,
         p.id AS caliph_id`
     }
 
@@ -489,7 +494,7 @@ class Type {
             exclude_from_type_catalogue: "excludeFromTypeCatalogue",
             exclude_from_map_app: "excludeFromMapApp",
             internal_notes: "internalNotes",
-            mint_uncertain: "mintUncertain",
+            guessed_mint: "mintUncertain",
             year_uncertain: "yearUncertain"
         }
     }

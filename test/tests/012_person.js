@@ -1,7 +1,8 @@
-const { expect } = require('chai')
+const { expect, config } = require('chai')
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
 
+// config.truncateThreshold = 0
 
 const startData = {
     "data": {
@@ -243,7 +244,7 @@ const startData = {
             {
                 "id": "19",
                 "name": "Plankton",
-                "shortName": null,
+                "shortName": "Planki",
                 "role": {
                     "id": null,
                     "name": null
@@ -297,8 +298,8 @@ const startData = {
                 "name": "Wal",
                 "shortName": null,
                 "role": {
-                    "id": null,
-                    "name": null
+                    "id": "2",
+                    "name": "cutter"
                 },
                 "dynasty": {
                     "id": "5",
@@ -551,6 +552,19 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
+                        }
+                    },
+                    {
+                        "id": "21",
+                        "name": "Wal",
+                        "shortName": null,
+                        "role": {
+                            "id": "2",
+                            "name": "cutter"
+                        },
+                        "dynasty": {
+                            "id": "5",
+                            "name": "Atlant"
                         }
                     },
                     {
