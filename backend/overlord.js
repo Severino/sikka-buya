@@ -10,7 +10,6 @@ class Overlord {
     }
 
     static extract(result) {
-        console.log(result)
         const config = [
             {
                 prefix: `person_`,

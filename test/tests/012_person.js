@@ -46,6 +46,19 @@ const startData = {
                 }
             },
             {
+                "id": "22",
+                "name": "Arielle",
+                "shortName": "Ari",
+                "role": {
+                    "id": null,
+                    "name": null
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
+                }
+            },
+            {
                 "id": "10",
                 "name": "Charles de Gaulle",
                 "shortName": "de Gaulle",
@@ -85,6 +98,19 @@ const startData = {
                 }
             },
             {
+                "id": "20",
+                "name": "Fisch",
+                "shortName": null,
+                "role": {
+                    "id": null,
+                    "name": null
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
+                }
+            },
+            {
                 "id": "7",
                 "name": "François Hollande",
                 "shortName": "Hollande",
@@ -95,6 +121,19 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
+                }
+            },
+            {
+                "id": "25",
+                "name": "Gian Lorenzo Bernini",
+                "shortName": "Bernini",
+                "role": {
+                    "id": "2",
+                    "name": "cutter"
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
                 }
             },
             {
@@ -176,6 +215,19 @@ const startData = {
                 }
             },
             {
+                "id": "24",
+                "name": "Michelangelo",
+                "shortName": "Miquel",
+                "role": {
+                    "id": "2",
+                    "name": "cutter"
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
+                }
+            },
+            {
                 "id": "8",
                 "name": "Nicolas Sarkozy",
                 "shortName": "Sarkozy",
@@ -189,6 +241,32 @@ const startData = {
                 }
             },
             {
+                "id": "19",
+                "name": "Plankton",
+                "shortName": null,
+                "role": {
+                    "id": null,
+                    "name": null
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
+                }
+            },
+            {
+                "id": "18",
+                "name": "Poseidon",
+                "shortName": "Neptun",
+                "role": {
+                    "id": "1",
+                    "name": "caliph"
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
+                }
+            },
+            {
                 "id": "13",
                 "name": "René Goscinny",
                 "shortName": "Goscinny",
@@ -199,6 +277,32 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
+                }
+            },
+            {
+                "id": "23",
+                "name": "Sebastian",
+                "shortName": "Sebi",
+                "role": {
+                    "id": null,
+                    "name": null
+                },
+                "dynasty": {
+                    "id": null,
+                    "name": null
+                }
+            },
+            {
+                "id": "21",
+                "name": "Wal",
+                "shortName": null,
+                "role": {
+                    "id": null,
+                    "name": null
+                },
+                "dynasty": {
+                    "id": "5",
+                    "name": "Atlant"
                 }
             },
             {
@@ -231,8 +335,7 @@ const startData = {
     }
 }
 
-const body =
-    `{
+const body = `{
     id name shortName role {
         id
         name
@@ -373,6 +476,19 @@ describe(`Person Queries`, function () {
                         }
                     },
                     {
+                        "id": "25",
+                        "name": "Gian Lorenzo Bernini",
+                        "shortName": "Bernini",
+                        "role": {
+                            "id": "2",
+                            "name": "cutter"
+                        },
+                        "dynasty": {
+                            "id": "5",
+                            "name": "Atlant"
+                        }
+                    },
+                    {
                         "id": "4",
                         "name": "Karl der Große",
                         "shortName": "Karl",
@@ -396,6 +512,32 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
+                        }
+                    },
+                    {
+                        "id": "24",
+                        "name": "Michelangelo",
+                        "shortName": "Miquel",
+                        "role": {
+                            "id": "2",
+                            "name": "cutter"
+                        },
+                        "dynasty": {
+                            "id": "5",
+                            "name": "Atlant"
+                        }
+                    },
+                    {
+                        "id": "18",
+                        "name": "Poseidon",
+                        "shortName": "Neptun",
+                        "role": {
+                            "id": "1",
+                            "name": "caliph"
+                        },
+                        "dynasty": {
+                            "id": "5",
+                            "name": "Atlant"
                         }
                     },
                     {
@@ -446,23 +588,23 @@ describe(`Person Queries`, function () {
     })
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updatePerson(data:{id:18, name: "changed"})}`)
+        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed"})}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updatePerson(data:{id:18, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed"})}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
 
     it("Unauthorized Delete Rejected", async function () {
-        let promise = graphql(`mutation{deletePerson(id:18)}`)
+        let promise = graphql(`mutation{deletePerson(id:26)}`)
         await expect(promise).to.be.rejectedWith(["404"])
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deletePerson(id:18)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deletePerson(id:26)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 

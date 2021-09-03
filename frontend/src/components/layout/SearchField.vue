@@ -51,7 +51,6 @@ export default {
         // search, that may happen before the callback is triggered.
         this.timeout = setTimeout(() => {
           this.asyncSearch(this.value).finally(() => {
-            console.log("ASYNC SEARCH")
             // Only change it back, when no input has occured in the meantime!
             if (this.i == this.pendingI) {
               this.pending = false;

@@ -2,39 +2,46 @@ const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
 
+const startData = {
+    "data": {
+        "material": [
+            {
+                "id": "1",
+                "name": "Gøld"
+            },
+            {
+                "id": "2",
+                "name": "Kupfer"
+            },
+            {
+                "id": "4",
+                "name": "Perlmutt"
+            },
+            {
+                "id": "3",
+                "name": "Silber"
+            }
+        ]
+    }
+}
+
+const body = `{
+    id,
+    name
+}`
+
 describe(`Material Queries`, function () {
     it(`List`, async function () {
         let result = await graphql(`{material{id,name}}`)
 
-        expect(result.data).to.deep.equal({
-            "data": {
-                "material": [
-                    {
-                        "id": "1",
-                        "name": "Gøld"
-                    },
-                    {
-                        "id": "2",
-                        "name": "Kupfer"
-                    },
-                    {
-                        "id": "3",
-                        "name": "Silber"
-                    }
-                ]
-            }
-        })
+        expect(result.data).to.deep.equal(startData)
     })
 
     it("Get", async function () {
         let result = await graphql(`
         {
-            getMaterial(id:3) {
-                id,
-                name
-            }
-        }
-`)
+            getMaterial(id:3) ${body}
+        }`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -48,10 +55,7 @@ describe(`Material Queries`, function () {
 
     it("Search with regular characters", async function () {
         let result = await graphql(`
-            {searchMaterial(text: "go") {
-                id,
-                name
-              }}`)
+            {searchMaterial(text: "go") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -67,10 +71,7 @@ describe(`Material Queries`, function () {
 
     it("Search with exact characters", async function () {
         let result = await graphql(`
-            {searchMaterial(text: "Gø") {
-                id,
-                name
-              }}`)
+            {searchMaterial(text: "Gø") ${body}}`)
 
         expect(result.data).to.deep.equal({
             "data": {
@@ -106,15 +107,18 @@ describe(`Material Queries`, function () {
     })
 
     it("Unauthorized Delete Rejected", async function () {
-        let promise = graphql(`mutation{deleteMaterial(id:4)}`)
+        let promise = graphql(`mutation{deleteMaterial(id:5)}`)
         await expect(promise).to.be.rejectedWith(["404"])
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteMaterial(id:4)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteMaterial(id:5)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
-
+    it("Table is the same as when started", async function () {
+        let result = await graphql(`{material ${body}}`)
+        expect(result.data).to.deep.equal(startData)
+    })
 
 })

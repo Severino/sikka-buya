@@ -58,7 +58,7 @@ export default {
 
         createCorner("top", "left");
         createCorner("top", "right");
-        
+
         createCorner("bottom", "left");
         createCorner("bottom", "right");
 
@@ -91,7 +91,6 @@ export default {
 
     this.$data.map = map;
     this.ready = true;
-    console.log("MAP IS SET", this.map);
   },
 };
 </script>

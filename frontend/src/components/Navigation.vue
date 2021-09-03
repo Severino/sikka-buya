@@ -21,8 +21,8 @@
           <span class="version">{{ version }}</span>
           <div class="languages">DE</div>
         </div>
-        
-        <div v-if="loggedIn"  class="user">
+
+        <div v-if="loggedIn" class="user">
           <router-link :to="{ name: 'Editor' }">
             <Pencil />
           </router-link>
@@ -30,7 +30,7 @@
         </div>
         <div class="nav-toggle" @click="toggleMenu()">
           <Close v-if="active" />
-          <Menu  v-else />
+          <Menu v-else />
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@ export default {
       active: false,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: "Karte", target: { name: "MapPage" }, auth:true },
+        { name: "Karte", target: { name: "MapPage" }, auth: true },
         { name: "Typekatalog", target: { name: "Catalog" }, auth: true },
         { name: "Analytics", target: { name: "Analytics" }, auth: true },
       ],
@@ -72,9 +72,6 @@ export default {
       this.$store.commit("logout");
       this.$router.push({ name: "Home" });
     },
-  },
-  created: function () {
-    console.log("NAVIGATION CREATED");
   },
   ////TODO: Remove if this was not necessary.
   //// User is now stored in VUEX.
@@ -92,13 +89,13 @@ export default {
       if (this.loggedIn) {
         items = this.items;
       } else {
-        items = this.items.filter(item => !item.auth)
+        items = this.items.filter((item) => !item.auth);
       }
-      return items
+      return items;
     },
-    loggedIn: function(){
-      return this.$store.getters.loggedIn
-    }
+    loggedIn: function () {
+      return this.$store.getters.loggedIn;
+    },
   },
 };
 </script>

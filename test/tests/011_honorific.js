@@ -7,28 +7,40 @@ const startData = {
     "data": {
         "honorific": [
             {
-                "name": "bulldozer",
-                "id": "3"
+                "id": "3",
+                "name": "bulldozer"
             },
             {
-                "name": "der Schwarze Riese",
-                "id": "1"
+                "id": "8",
+                "name": "der Große"
             },
             {
-                "name": "die Birne",
-                "id": "2"
+                "id": "1",
+                "name": "der Schwarze Riese"
             },
             {
-                "name": "le Français",
-                "id": "4"
+                "id": "2",
+                "name": "die Birne"
             },
             {
-                "name": "le générale",
-                "id": "5"
+                "id": "4",
+                "name": "le Français"
             },
             {
-                "name": "von Deutschland",
-                "id": "6"
+                "id": "5",
+                "name": "le générale"
+            },
+            {
+                "id": "7",
+                "name": "Meerjungfrau"
+            },
+            {
+                "id": "6",
+                "name": "von Deutschland"
+            },
+            {
+                "id": "9",
+                "name": "Wesen des Meeres"
             }
         ]
     }
@@ -119,6 +131,10 @@ describe(`Honorific Queries`, function () {
                         "name": "bulldozer"
                     },
                     {
+                        "id": "8",
+                        "name": "der Große"
+                    },
+                    {
                         "id": "1",
                         "name": "der Schwarze Riese"
                     },
@@ -136,11 +152,19 @@ describe(`Honorific Queries`, function () {
                     },
                     {
                         "id": "7",
+                        "name": "Meerjungfrau"
+                    },
+                    {
+                        "id": "10",
                         "name": "test"
                     },
                     {
                         "id": "6",
                         "name": "von Deutschland"
+                    },
+                    {
+                        "id": "9",
+                        "name": "Wesen des Meeres"
                     }
                 ]
             }
@@ -149,13 +173,13 @@ describe(`Honorific Queries`, function () {
 
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateHonorific(data:{id:7, name: "changed"})}`)
+        let promise = graphql(`mutation{updateHonorific(data:{id:10, name: "changed"})}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateHonorific(data:{id:7, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateHonorific(data:{id:10, name: "changed"})}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -167,10 +191,13 @@ describe(`Honorific Queries`, function () {
                     {
                         "id": "3",
                         "name": "bulldozer"
+                    }, {
+                        "id": "10",
+                        "name": "changed"
                     },
                     {
-                        "id": "7",
-                        "name": "changed"
+                        "id": "8",
+                        "name": "der Große"
                     },
                     {
                         "id": "1",
@@ -189,8 +216,17 @@ describe(`Honorific Queries`, function () {
                         "name": "le générale"
                     },
                     {
+                        "id": "7",
+                        "name": "Meerjungfrau"
+                    },
+
+                    {
                         "id": "6",
                         "name": "von Deutschland"
+                    },
+                    {
+                        "id": "9",
+                        "name": "Wesen des Meeres"
                     }
                 ]
             }
@@ -198,12 +234,12 @@ describe(`Honorific Queries`, function () {
     })
 
     it("Unauthorized Delete Rejected", async function () {
-        let promise = graphql(`mutation{deleteHonorific(id:7)}`)
+        let promise = graphql(`mutation{deleteHonorific(id:10)}`)
         await expect(promise).to.be.rejectedWith(["404"])
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteHonorific(id:7)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteHonorific(id:10)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
