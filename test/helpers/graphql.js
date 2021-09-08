@@ -2,8 +2,9 @@ const { default: axios } = require('axios');
 const AxiosHelper = require('./axios');
 
 
-function graphql(query, variables = {}, authToken = null) {
-    // console.log(query)
+function graphql(query, variables = {}, authToken = null, debug = false) {
+    if (debug)
+        console.log(query)
 
     headers = {}
 
@@ -30,6 +31,7 @@ function graphql(query, variables = {}, authToken = null) {
         }).catch(reject)
     })
 }
+
 
 
 module.exports = { graphql }

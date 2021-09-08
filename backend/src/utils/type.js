@@ -35,6 +35,7 @@ class Type {
 
         this.cleanupHTMLFields(data)
 
+        console.log(data)
 
         return Database.tx(async t => {
 
@@ -45,7 +46,8 @@ class Type {
             project_id = $[projectId],
             treadwell_id = $[treadwellId],
             material = $[material],
-            ${Mint.query()}
+            mint = $[mint],
+            mint_as_on_coin = $[mintAsOnCoin],
             nominal = $[nominal],
             year_of_mint = $[yearOfMint],
             donativ = $[donativ],
