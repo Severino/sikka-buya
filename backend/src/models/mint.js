@@ -1,3 +1,5 @@
+const { pgp } = require('../utils/database')
+
 class Mint {
     static extract(result, prefix = "") {
         return {
@@ -39,6 +41,8 @@ class Mint {
         ST_AsGeoJSON( ${tableName}.location) AS mint_location,
     `
     }
+
+
 }
 
 module.exports = Mint

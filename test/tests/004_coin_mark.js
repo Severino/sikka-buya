@@ -10,6 +10,10 @@ const startData = {
                 "name": "Ä"
             },
             {
+                "id": "5",
+                "name": "Ẳ"
+            },
+            {
                 "id": "3",
                 "name": "ê"
             },
@@ -99,22 +103,22 @@ describe(`CoinMark Queries`, function () {
     })
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateCoinMark(data:{id:5, name: "changed"})}`)
+        let promise = graphql(`mutation{updateCoinMark(data:{id:6, name: "changed"})}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateCoinMark(data:{id:5, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateCoinMark(data:{id:6, name: "changed"})}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
     it("Unauthorized Delete Rejected", async function () {
-        let promise = graphql(`mutation{deleteCoinMark(id:5)}`)
+        let promise = graphql(`mutation{deleteCoinMark(id:6)}`)
         await expect(promise).to.be.rejectedWith(["404"])
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteCoinMark(id:5)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteCoinMark(id:6)}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 

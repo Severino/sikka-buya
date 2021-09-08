@@ -1,6 +1,14 @@
-const { expect } = require('chai')
+const chai = require('chai')
+const expect = chai.expect
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
+
+const fs = require("fs")
+
+
+
+chai.config.truncateThreshold = 0
+chai.config.showDiff = true
 
 const body = ` 
       id
@@ -189,38 +197,50 @@ describe(`Type Queries`, function () {
   })
 
   it("Add was successfull", async function () {
-    console.log(TestUser.users)
     let result = await graphql(`{coinType{${body}}}`)
 
-    expect(result.data).to.deep.equal({
-      "data": {
-        "coinType": [
-          ATLANTIS_TYPE,
-          GERMAN_TYPE,
-          FRENCH_TYPE,
-        ]
-      }
+    expect(result.data.data).to.deep.equal({
+      "coinType": [
+        ATLANTIS_TYPE,
+        GERMAN_TYPE,
+        FRENCH_TYPE,
+      ]
     })
   })
 
-
   it("Unauthorized Update Rejected", async function () {
-    let promise = graphql(`mutation{updateType(data: ${ATLANTIS_INPUT_UPDATED} )}`)
+    let promise = graphql(`mutation{updateCoinType(id:3,data: ${ATLANTIS_INPUT_UPDATED} )}`)
     await expect(promise).to.be.rejectedWith(["401"])
   })
 
-  // it("Update", async function () {
-  //     let promise = graphql(`mutation{updateType(data:{id:5, name: "changed"})}`, {}, TestUser.users[0].token)
-  //     await expect(promise).to.be.fulfilled
-  // })
+  it("Update", async function () {
+    let promise = graphql(`mutation{updateCoinType(id:3,data:${ATLANTIS_INPUT_UPDATED})}`, {}, TestUser.users[0].token)
+    await expect(promise).to.be.fulfilled
+  })
+
+  it("Updated Values are correct", async function () {
+    let result = await graphql(`
+          {
+              getCoinType(id:3) {
+                  ${body}
+              }
+          }`)
+
+
+
+    fs.writeFileSync(__dirname + "/_response.json", JSON.stringify(result.data.data.getCoinType))
+    fs.writeFileSync(__dirname + "/_truth.json", JSON.stringify(ATLANTIS_TYPE_UPDATED))
+
+    expect(result.data.data.getCoinType).to.deep.equal(ATLANTIS_TYPE_UPDATED)
+  })
 
   // it("Unauthorized Delete Rejected", async function () {
-  //     let promise = graphql(`mutation{deleteType(id:4)}`)
+  //     let promise = graphql(`mutation{ deleteType(id: 4) }`)
   //     await expect(promise).to.be.rejectedWith(["404"])
   // })
 
   // it("Delete", async function () {
-  //     let promise = graphql(`mutation{deleteType(id:4)}`, {}, TestUser.users[0].token)
+  //     let promise = graphql(`mutation{ deleteType(id: 4) }`, {}, TestUser.users[0].token)
   //     await expect(promise).to.be.fulfilled
   // })
 
@@ -935,396 +955,374 @@ const ATLANTIS_TYPE = {
 
 
 const ATLANTIS_INPUT = `{
-  projectId: "ẲTLxxx",
-  treadwellId: "Ẳx",
-  mint: 4,
-  mintAsOnCoin: "Ẳtlảntis",
-  material: 3,
-  nominal: 1,
-  yearOfMint: "xxx",
-  donativ: true,
-  procedure: "cast",
-  issuers: [
-    {
-      person: 22,
-      titles: [5],
-      honorifics: [7, 9]
-    }, {
-      person: 23,
-      titles: [3, 6],
-      honorifics: [9]
-    }
-  ],
-  overlords: [
-    {
-      person: 19,
-      rank: 1,
-      titles: [3,6],
-      honorifics: [9,7],
-    },
-    {
-      person: 20,
-      rank: 2,
-      titles: [6],
-      honorifics: [8,9],
-    },
-    {
-      person: 21,
-      rank: 3,
-      titles: [6
+      projectId: "ẲTLxxx",
+      treadwellId: "Ẳx",
+      mint: 4,
+      mintAsOnCoin: "Ẳtlảntis",
+      material: 3,
+      nominal: 1,
+      yearOfMint: "xxx",
+      donativ: true,
+      procedure: "cast",
+      issuers: [
+        {
+          person: 22,
+          titles: [5],
+          honorifics: [7, 9]
+        }, {
+          person: 23,
+          titles: [3, 6],
+          honorifics: [9]
+        }
       ],
-      honorifics: [9
-      ]
-    }
-  ],
-  otherPersons: [
-    24, 25
-  ],
-  caliph: 18,
-  avers: {
-    fieldText: "<div>Ein Mann in Lokführermontur vor einer Dampflokomotive.</div>",
-    innerInscript: "<div>Eine Insel mit zwei Bergen,</div>",
-    intermediateInscript: "<div>und dem tiefen weiten Meer,</div>",
-    outerInscript: "<div>mit viel Tunnels und Gleisen.</div>",
-    misc: "<div>Lokführer scheint an Fäden zu hängen.</div>"
-  },
-  reverse: {
-    fieldText: "<div>Großes '₳'</div>",
-    innerInscript: "<div>Die Währung</div>",
-    intermediateInscript: "<div>des Landes</div>",
-    outerInscript: "<div>unter dem Meer.</div>",
-    misc: "<div>Jahreszahl unter '₳' nicht lesbar.</div>"
-  },
-  cursiveScript: true,
-  coinMarks: [1, 3, 2],
-  literature: "<div>Keine Literatur vorhanden</div>",
-  pieces: [
-    "https://de.wikipedia.org/wiki/Atlantis",
-    "https://de.wikipedia.org/wiki/Poseidon"
-  ],
-  specials: "<div>Einzige bekannte Münze aus Atlantis</div>",
-  excludeFromTypeCatalogue: true,
-  excludeFromMapApp: true,
-  internalNotes: "Ziemlich sicher eine Fäschung!",
-  yearUncertain: true,
-  mintUncertain: true,
-}`
+      overlords: [
+        {
+          person: 19,
+          rank: 1,
+          titles: [3, 6],
+          honorifics: [9, 7],
+        },
+        {
+          person: 20,
+          rank: 2,
+          titles: [6],
+          honorifics: [8, 9],
+        },
+        {
+          person: 21,
+          rank: 3,
+          titles: [6
+          ],
+          honorifics: [9
+          ]
+        }
+      ],
+      otherPersons: [
+        24, 25
+      ],
+      caliph: 18,
+      avers: {
+        fieldText: "<div>Ein Mann in Lokführermontur vor einer Dampflokomotive.</div>",
+        innerInscript: "<div>Eine Insel mit zwei Bergen,</div>",
+        intermediateInscript: "<div>und dem tiefen weiten Meer,</div>",
+        outerInscript: "<div>mit viel Tunnels und Gleisen.</div>",
+        misc: "<div>Lokführer scheint an Fäden zu hängen.</div>"
+      },
+      reverse: {
+        fieldText: "<div>Großes '₳'</div>",
+        innerInscript: "<div>Die Währung</div>",
+        intermediateInscript: "<div>des Landes</div>",
+        outerInscript: "<div>unter dem Meer.</div>",
+        misc: "<div>Jahreszahl unter '₳' nicht lesbar.</div>"
+      },
+      cursiveScript: true,
+      coinMarks: [1, 3, 2],
+      literature: "<div>Keine Literatur vorhanden</div>",
+      pieces: [
+        "https://de.wikipedia.org/wiki/Atlantis",
+        "https://de.wikipedia.org/wiki/Poseidon"
+      ],
+      specials: "<div>Einzige bekannte Münze aus Atlantis</div>",
+      excludeFromTypeCatalogue: true,
+      excludeFromMapApp: true,
+      internalNotes: "Ziemlich sicher eine Fäschung!",
+      yearUncertain: true,
+      mintUncertain: true,
+    }`
 
 const ATLANTIS_INPUT_UPDATED = `{
-  "projectId": "ẲT",
-  "treadwellId": "Ẳ",
-  mint: 1,
-  mintAsOnCoin: "Ẳtl",
-  material: 4,
-  nominal: 3,
-  yearOfMint: "100",
-  donativ: false,
-  procedure: "pressed",
-  issuers: [
-   {
-      person: 23,
-      titles: [3, 6],
-      honorifics: [9]
-    }
-  ],
-  overlords: [
-    {
-      person: 1,
-      rank: 1,
-      titles: [1,2],
-      honorifics: [2,3],
-    }
-  ],
-  otherPersons: [
-    3, 4
-  ],
-  caliph: {
-    person: 22,
-    titles: [4,5],
-    honorifics: [7, 9]
-  },
-  avers: {
-    fieldText: "<div>Dampflokomotive</div>",
-    innerInscript: "<div>Bergen</div>",
-    intermediateInscript: "<div>Meer</div>",
-    outerInscript: "<div>Gleisen</div>",
-    misc: "<div>Lokführer</div>"
-  },
-  reverse: {
-    fieldText: "<div>₳</div>",
-    innerInscript: "<div>Die</div>",
-    intermediateInscript: "<div>des</div>",
-    outerInscript: "<div>unter</div>",
-    misc: "<div>nicht lesbar.</div>"
-  },
-  cursiveScript: false,
-  coinMarks: [2],
-  literature: "<div>vorhanden</div>",
-  pieces: [
-    "https://de.wikipedia.org/wiki/Pompei"
-  ],
-  specials: "<div>Eis</div>",
-  excludeFromTypeCatalogue: false,
-  excludeFromMapApp: false,
-  internalNotes: "Fäschung!",
-  yearUncertain: false,
-  mintUncertain: false,
-}`
+      projectId: "ẲT",
+      treadwellId: "Ẳ",
+      mint: 1,
+      mintAsOnCoin: "Ẳtl",
+      material: 4,
+      nominal: 3,
+      yearOfMint: "100",
+      donativ: false,
+      procedure: "pressed",
+      issuers: [
+        {
+          person: 1,
+          titles: [2, 4],
+          honorifics: [1, 2]
+        },
+        {
+          person: 9,
+          titles: [1, 3],
+          honorifics: [4, 5]
+        }
+      ],
+      overlords: [
+        {
+          person: 2,
+          rank: 1,
+          titles: [1, 2, 5],
+          honorifics: [6, 8],
+        },
+        {
+          person: 6,
+          rank: 2,
+          titles: [2],
+          honorifics: [4]
+        }
+      ],
+      otherPersons: [
+        3, 5
+      ],
+      caliph: 15,
+      avers: {
+        fieldText: "<div>Dampflokomotive</div>",
+        innerInscript: "<div>Bergen</div>",
+        intermediateInscript: "<div>Meer</div>",
+        outerInscript: "<div>Gleisen</div>",
+        misc: "<div>Lokführer</div>"
+      },
+      reverse: {
+        fieldText: "<div>₳</div>",
+        innerInscript: "<div>Die</div>",
+        intermediateInscript: "<div>des</div>",
+        outerInscript: "<div>unter</div>",
+        misc: "<div>nicht lesbar.</div>"
+      },
+      cursiveScript: false,
+      coinMarks: [4, 5],
+      literature: "<div>vorhanden</div>",
+      pieces: [
+        "https://de.wikipedia.org/wiki/Pompeji"
+      ],
+      specials: "<div>Eis</div>",
+      excludeFromTypeCatalogue: false,
+      excludeFromMapApp: false,
+      internalNotes: "Fäschung!",
+      yearUncertain: false,
+      mintUncertain: false,
+    }`
 
 
 const ATLANTIS_TYPE_UPDATED = {
+  "id": "3",
   "projectId": "ẲT",
   "treadwellId": "Ẳ",
   "mint": {
-    "id": "4",
-    "name": "Ǎtlantis",
-    "location": "{\"type\":\"Point\",\"coordinates\":[40.450505694,6.15439645]}",
-    "uncertain": true,
-    "uncertainArea": "{\"type\":\"Polygon\",\"coordinates\":[[[5.2734375,41.697525911],[3.779296875,40.838749138],[5.438232422,39.300299186],[6.877441406,39.283293869],[7.492675781,40.513799155],[6.701660156,41.557921578],[5.2734375,41.697525911]]]}"
+    "id": "1",
+    "name": "Berlin",
+    "location": "{\"type\":\"Point\",\"coordinates\":[52.51968196,13.376689258]}",
+    "uncertain": false,
+    "uncertainArea": null
   },
-  "mintAsOnCoin": "Ẳtlảntis",
+  "mintAsOnCoin": "Ẳtl",
   "material": {
-    "id": "3",
-    "name": "Perlmutt"
+    "id": "4",
+    "name": "Silber"
   },
   "nominal": {
-    "id": "1",
-    "name": "⅟₂ ₳die"
+    "id": "3",
+    "name": "1 Taler"
   },
-  "yearOfMint": "xxx",
-  "donativ": true,
-  "procedure": "cast",
+  "yearOfMint": "100",
+  "donativ": false,
+  "procedure": "pressed",
   "issuers": [
     {
-      "id": "22",
+      "id": "1",
       "titles": [
         {
+          "id": "2",
+          "name": "Dr."
+        },
+        {
+          "id": "4",
+          "name": "König"
+        }
+      ],
+      "honorifics": [
+        {
+          "id": "1",
+          "name": "der Schwarze Riese"
+        },
+        {
+          "id": "2",
+          "name": "die Birne"
+        }
+      ],
+      "name": "Helmut Kohl",
+      "shortName": "Kohl",
+      "role": {
+        "id": null,
+        "name": null
+      },
+      "dynasty": {
+        "id": "1",
+        "name": "Deutsche"
+      }
+    },
+    {
+      "id": "9",
+      "titles": [
+        {
+          "id": "1",
+          "name": "Prof."
+        },
+        {
+          "id": "3",
+          "name": "Monsieur"
+        }
+      ],
+      "honorifics": [
+        {
+          "id": "4",
+          "name": "le Français"
+        },
+        {
+          "id": "5",
+          "name": "le générale"
+        }
+      ],
+      "name": "Jaques Chirac",
+      "shortName": "Chirac",
+      "role": {
+        "id": null,
+        "name": null
+      },
+      "dynasty": {
+        "id": "2",
+        "name": "Franzosen"
+      }
+    }
+
+  ],
+  "overlords": [
+    {
+      "id": 2,
+      "name": "Angela Merkel",
+      "shortName": "Merkel",
+      "rank": 1,
+      "role": {
+        "id": null,
+        "name": null
+      },
+      "dynasty": {
+        "id": "1",
+        "name": "Deutsche"
+      },
+      "titles": [
+        {
+          "id": "1",
+          "name": "Prof."
+        },
+        {
+          "id": "2",
+          "name": "Dr."
+        }, {
           "id": "5",
           "name": "Königin"
         }
       ],
-      "honorifics": [
-        {
-          "id": "7",
-          "name": "Meerjungfrau"
-        },
-        {
-          "id": "9",
-          "name": "Wesen des Meeres"
-        }
-      ],
-      "name": "Arielle",
-      "shortName": "Ari",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
+      "honorifics": [{
+        "id": "6",
+        "name": "von Deutschland"
+      }, {
+        "id": "8",
+        "name": "der Große"
       }
+      ]
     },
     {
-      "id": "23",
-      "titles": [
-        {
-          "id": "3",
-          "name": "Monsieur"
-        },
-        {
-          "id": "6",
-          "name": "Tier"
-        }
-      ],
-      "honorifics": [
-        {
-          "id": "9",
-          "name": "Wesen des Meeres"
-        }
-      ],
-      "name": "Sebastian",
-      "shortName": "Sebi",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": null,
-        "name": null
-      }
-    }
-  ],
-  "overlords": [
-    {
-      "id": "19",
-      "rank": 1,
-      "name": "Plankton",
-      "titles": [
-        {
-          "id": "3",
-          "name": "Monsieur"
-        },
-        {
-          "id": "6",
-          "name": "Tier"
-        }
-      ],
-      "honorifics": [
-        {
-          "id": "9",
-          "name": "Wesen des Meeres"
-        },
-        {
-          "id": "7",
-          "name": "Meerjungfrau"
-        }
-      ],
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      },
-      "shortName": "Planki",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    },
-    {
-      "id": "20",
+      "id": "6",
       "rank": 2,
-      "name": "Fisch",
-      "titles": [
-        {
-          "id": "6",
-          "name": "Tier"
-        }
-      ],
-      "honorifics": [
-        {
-          "id": "8",
-          "name": "der Große"
-        },
-        {
-          "id": "9",
-          "name": "Wesen des Meeres"
-        }
-      ],
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      },
-      "shortName": null,
+      "name": "Emmanuel Macron",
+      "shortName": "Macron",
       "role": {
         "id": null,
         "name": null
-      }
-    },
-    {
-      "id": "21",
-      "rank": 3,
-      "name": "Wal",
-      "titles": [
-        {
-          "id": "6",
-          "name": "Tier"
-        }
-      ],
-      "honorifics": [
-        {
-          "id": "9",
-          "name": "Wesen des Meeres"
-        }
-      ],
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
       },
-      "shortName": null,
-      "role": {
+      "dynasty": {
         "id": "2",
-        "name": "cutter"
-      }
+        "name": "Franzosen"
+      },
+      "titles": [{
+        "id": "2",
+        "name": "Dr."
+      }],
+      "honorifics": [{
+        "id": "4",
+        "name": "le Français"
+      }]
     }
   ],
   "otherPersons": [
     {
-      "id": "24",
-      "name": "Michelangelo",
-      "shortName": "Miquel",
+      "id": "3",
+      "name": "Joachim Gauck",
+      "shortName": "Gauck",
       "role": {
-        "id": "2",
-        "name": "cutter"
+        "id": null,
+        "name": null
       },
       "dynasty": {
-        "id": "5",
-        "name": "Atlant"
+        "id": "1",
+        "name": "Deutsche"
       }
-    },
-    {
-      "id": "25",
-      "name": "Gian Lorenzo Bernini",
-      "shortName": "Bernini",
+    }, {
+      "id": "5",
+      "name": "Albrecht Dürer",
+      "shortName": "Dürer",
       "role": {
         "id": "2",
         "name": "cutter"
       },
       "dynasty": {
-        "id": "5",
-        "name": "Atlant"
+        "id": "1",
+        "name": "Deutsche"
       }
     }
+
   ],
   "caliph": {
-    "id": "18",
-    "name": "Poseidon",
-    "shortName": "Neptun",
+    "id": "15",
+    "name": "Elizabeth II",
+    "shortName": "The Queen",
     "role": {
       "id": "1",
       "name": "caliph"
     },
     "dynasty": {
-      "id": "5",
-      "name": "Atlant"
+      "id": "3",
+      "name": "Briten"
     }
   },
   "avers": {
-    "fieldText": "<div>Ein Mann in Lokführermontur vor einer Dampflokomotive.</div>",
-    "innerInscript": "<div>Eine Insel mit zwei Bergen,</div>",
-    "intermediateInscript": "<div>und dem tiefen weiten Meer,</div>",
-    "outerInscript": "<div>mit viel Tunnels und Gleisen.</div>",
-    "misc": "<div>Lokführer scheint an Fäden zu hängen.</div>"
+    "fieldText": "<div>Dampflokomotive</div>",
+    "innerInscript": "<div>Bergen</div>",
+    "intermediateInscript": "<div>Meer</div>",
+    "outerInscript": "<div>Gleisen</div>",
+    "misc": "<div>Lokführer</div>"
   },
   "reverse": {
-    "fieldText": "<div>Großes '₳'</div>",
-    "innerInscript": "<div>Die Währung</div>",
-    "intermediateInscript": "<div>des Landes</div>",
-    "outerInscript": "<div>unter dem Meer.</div>",
-    "misc": "<div>Jahreszahl unter '₳' nicht lesbar.</div>"
+    "fieldText": "<div>₳</div>",
+    "innerInscript": "<div>Die</div>",
+    "intermediateInscript": "<div>des</div>",
+    "outerInscript": "<div>unter</div>",
+    "misc": "<div>nicht lesbar.</div>"
   },
-  "cursiveScript": true,
+  "cursiveScript": false,
   "coinMarks": [
     {
-      "id": "1",
-      "name": "Ä"
-    },
-    {
-      "id": "2",
-      "name": "Ü"
-    },
-    {
-      "id": "3",
-      "name": "ê"
+      "id": "4",
+      "name": "π"
+    }, {
+      "id": "5",
+      "name": "Ẳ"
     }
   ],
-  "literature": "<div>Keine Literatur vorhanden</div>",
+  "literature": "<div>vorhanden</div>",
   "pieces": [
-    "https://de.wikipedia.org/wiki/Atlantis",
-    "https://de.wikipedia.org/wiki/Poseidon"
+    "https://de.wikipedia.org/wiki/Pompeji"
   ],
-  "specials": "<div>Einzige bekannte Münze aus Atlantis</div>",
-  "excludeFromTypeCatalogue": true,
-  "excludeFromMapApp": true,
-  "internalNotes": "Ziemlich sicher eine Fäschung!",
-  "yearUncertain": true,
-  "mintUncertain": true
+  "specials": "<div>Eis</div>",
+  "excludeFromTypeCatalogue": false,
+  "excludeFromMapApp": false,
+  "internalNotes": "Fäschung!",
+  "yearUncertain": false,
+  "mintUncertain": false
 }
