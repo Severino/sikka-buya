@@ -34,7 +34,6 @@ export default {
   },
   created: async function () {
     let user = await Auth.init();
-    console.log(user);
     this.$store.commit("login", user);
 
     this.popupHandler = new PopupHandler(this);

@@ -25,6 +25,20 @@ class SQLUtils {
      * @param {*} obj 
      * @param {*} config 
      */
+    static objectifyBulkList(arr, config) {
+        arr.forEach((obj, idx) => {
+            config.forEach(conf => {
+                arr[idx] = SQLUtils.objectify(obj, conf)
+            })
+        })
+        return arr
+    }
+
+    /**
+     * 
+     * @param {*} obj 
+     * @param {*} config 
+     */
     static objectifyBulk(obj, config) {
         config.forEach(conf => {
             SQLUtils.objectify(obj, conf)
@@ -57,14 +71,45 @@ class SQLUtils {
      * @param {ObjectifyConfig} config - Defines the operations the objectify function will perform.
      */
     static objectify(obj, config) {
-        obj[config.target] = {}
+        if (!config.prefix) throw new Error("Object has no prefix!")
+
+        if (config.target)
+            obj[config.target] = {}
+
         config.keys.forEach(key => {
-            if (obj[config.prefix + key] !== undefined) {
-                obj[config.target][key] = obj[config.prefix + key]
-                delete obj[config.prefix + key]
-            } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
+            if (typeof key === 'string') {
+                const targetKey = this.snakeToCamelCase(key)
+                if (obj[config.prefix + key] !== undefined) {
+                    let targetValue = obj[config.prefix + key]
+                    if (config.target)
+                        obj[config.target][targetKey] = targetValue
+                    else
+                        obj[targetKey] = targetValue
+                    delete obj[config.prefix + key]
+                } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
+            } else if (typeof key === 'object') {
+                const child_conf = key
+                if (!child_conf.prefix) throw new Error("Wrong config. Child has no prefix!")
+                child_conf.prefix = config.prefix + child_conf.prefix
+                this.objectify(obj, child_conf)
+            } else console.error(`Key has wrong type: ` + typeof key)
         })
         return obj
+    }
+
+
+    /**
+     * Performs an objectify on a list of elements.
+     * 
+     * @param {[object]} arr 
+     * @param {ObjectifyConfig} config - Defines the operations the objectify function will perform.
+     * @returns 
+     */
+    static objectifyList(arr, config) {
+        arr.forEach((obj, idx) => {
+            arr[idx] = this.objectify(obj, config)
+        })
+        return arr
     }
 
     static listifyBulk(obj, config) {

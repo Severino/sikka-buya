@@ -1,9 +1,18 @@
 <template>
-  <form @submit.prevent="submit">
+  <fieldset>
     <h3 v-if="title">{{ title }}</h3>
 
     <label for="username">Email</label>
-    <input id="username" name="username" type="email" :value="email" @input="emailChanged" required  autocomplete="username" autofocus/>
+    <input
+      id="username"
+      name="username"
+      type="email"
+      :value="email"
+      @input="emailChanged"
+      required
+      autocomplete="username"
+      autofocus
+    />
 
     <label for="cpassword">Password</label>
     <input
@@ -16,13 +25,14 @@
       required
     />
     <p v-if="loginError">{{ loginError }}</p>
-    <button :disabled="disabled" type="submit">{{$t("system.login")}}</button>
-  </form>
+  </fieldset>
 </template>
 
 <script>
+import AsyncButton from '../layout/buttons/AsyncButton.vue';
 export default {
-  name: "UserForm",
+  components: { AsyncButton },
+  name: 'UserForm',
   props: {
     title: String,
     email: String,
@@ -31,13 +41,13 @@ export default {
     disabled: Boolean,
   },
   methods: {
-    passwordChanged: function (event) {
+    passwordChanged: function(event) {
       this.changed({ password: event.currentTarget.value });
     },
-    emailChanged: function (event) {
+    emailChanged: function(event) {
       this.changed({ email: event.currentTarget.value });
     },
-    changed: function (args) {
+    changed: function(args) {
       const inputObject = Object.assign(
         {},
         {
@@ -47,17 +57,25 @@ export default {
         args
       );
 
-      this.$emit("input", inputObject);
-    },
-    submit(event) {
-      this.$emit("submit", event);
+      this.$emit('input', inputObject);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-form > *:not(:first-child, input, button) {
+fieldset {
+  border: none;
+  padding: 0;
+  width: 100%;
+}
+
+input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+fieldset > *:not(:first-child, input, button) {
   display: block;
   margin-top: $padding;
 }

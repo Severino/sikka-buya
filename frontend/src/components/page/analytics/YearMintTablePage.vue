@@ -35,7 +35,7 @@ export default {
   created: function() {
     Query.raw(
       `{
-            getTypes{projectId, yearOfMinting, mint{name} }
+            getTypes{projectId, yearOfMint, mint{name} }
         }`
     )
       .then((result) => {
@@ -50,7 +50,7 @@ export default {
           data.forEach((d) => {
             if (d.mint !== null && d.mint.name !== null) {
               const mint = d.mint.name;
-              const year = d.yearOfMinting;
+              const year = d.yearOfMint;
               if (!map[mint]) map[mint] = new Set();
               map[mint].add(year);
 

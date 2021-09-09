@@ -11,7 +11,7 @@
       </div>
       <div class="property-group">
         <div class="label">Jahr</div>
-        <div class="value">{{ this.data.yearOfMinting || "Kein Eintrag" }}</div>
+        <div class="value">{{ this.data.yearOfMint || "Kein Eintrag" }}</div>
       </div>
       <div class="property-group">
         <div class="label">Herstellungsart</div>

@@ -4,8 +4,19 @@ const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
 const Overlord = require("../../overlord")
+const Mint = require("../models/mint")
+const { camelCaseToSnakeCase } = require("./sql")
+const Person = require('../models/person')
+const Material = require('../models/material')
+const Nominal = require('../models/nominal')
+
 
 class Type {
+
+
+    static async list() {
+        return this.getTypes(null)
+    }
 
 
     static async updateType(id, data) {
@@ -24,7 +35,6 @@ class Type {
 
         this.cleanupHTMLFields(data)
 
-
         return Database.tx(async t => {
 
             data.id = id
@@ -37,7 +47,7 @@ class Type {
             mint = $[mint],
             mint_as_on_coin = $[mintAsOnCoin],
             nominal = $[nominal],
-            year_of_mint = $[yearOfMinting],
+            year_of_mint = $[yearOfMint],
             donativ = $[donativ],
             procedure = $[procedure],
             caliph = $[caliph],
@@ -151,8 +161,6 @@ class Type {
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
 
-        console.dir(data)
-
         this.cleanupHTMLFields(data)
 
         return Database.tx(async t => {
@@ -194,7 +202,7 @@ class Type {
                $[mint],
                $[mintAsOnCoin],
                $[nominal],
-               $[yearOfMinting],
+               $[yearOfMint],
                $[donativ],
                $[procedure],
                $[caliph],
@@ -254,7 +262,7 @@ class Type {
             issuer.type = +type
             this.removeEmptyTitlesAndHonorifics(issuer)
             let { id: issuer_id } = await t.one(pgp.helpers.insert(issuer, ["type", "person"], "issuer") + " RETURNING id")
-            
+
             for (let title of issuer.titles.values()) {
                 await t.none("INSERT INTO issuer_titles(issuer, title) VALUES($1, $2)", [issuer_id, title])
             }
@@ -284,20 +292,15 @@ class Type {
     static async searchType(text) {
         let result = await Database.manyOrNone(
             `
-        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
-        LEFT JOIN material ma 
-        ON t.material = ma.id
-        LEFT JOIN mint mi 
-        ON t.mint = mi.id
-        LEFT JOIN nominal n 
-        ON t.nominal = n.id
-        LEFT JOIN person p
-        ON t.caliph = p.id
-        WHERE unaccent(t.project_id) ILIKE $[searchText]
+        SELECT 
+            ${this.rows}
+        FROM type t
+            ${this.joins}
+        WHERE unaccent(t.project_id) ILIKE unaccent($[searchText])
         `, { searchText: "%" + text + "%" })
 
         for (let [idx, type] of result.entries()) {
-            result[idx] = this.postprocessType(type)
+            result[idx] = await this.postprocessType(type)
         }
 
         return result
@@ -336,22 +339,27 @@ class Type {
         return typeList
     }
 
-    static async getTypes() {
+    static async getTypes(filters = {}) {
+
+        function objAsWhereClause(filterObj) {
+            if (!filterObj || Object.keys(filterObj).length == 0) return ""
+            let filterTxt = "WHERE "
+            for (let [key, val] of Object.entries(filterObj)) {
+                filterTxt += `${camelCaseToSnakeCase(key)}='${val}'`
+            }
+            return filterTxt
+        }
+
         const result = await Database.manyOrNone(`
-        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
-        LEFT JOIN material ma 
-        ON t.material = ma.id
-        LEFT JOIN mint mi 
-        ON t.mint = mi.id
-        LEFT JOIN nominal n 
-        ON t.nominal = n.id
-        LEFT JOIN person p
-        ON t.caliph = p.id
+        SELECT 
+            ${this.rows}         
+         FROM type t 
+            ${this.joins}
+            ${objAsWhereClause(filters)}
             `)
 
-
         for (let [idx, type] of result.entries()) {
-            result[idx] = this.postprocessType(type)
+            result[idx] = await this.postprocessType(type)
         }
 
         return result
@@ -361,18 +369,13 @@ class Type {
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
-            SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
-            LEFT JOIN material ma 
-            ON t.material = ma.id
-            LEFT JOIN mint mi 
-            ON t.mint = mi.id
-            LEFT JOIN nominal n 
-            ON t.nominal = n.id
-            LEFT JOIN person p
-            ON t.caliph = p.id
+            SELECT 
+                ${this.rows}
+             FROM type t
+                ${this.joins}
             WHERE t.id = $1
-            `, id).catch(() => {
-            throw new Error("Requested type does not exist!")
+            `, id).catch((e) => {
+            throw new Error("Requested type does not exist: " + e)
         })
 
         return await this.postprocessType(result);
@@ -389,19 +392,14 @@ class Type {
 
 
         const result = await Database.manyOrNone(`
-        WITH blah AS(
+        WITH overlords AS(
                 SELECT type FROM overlord WHERE person = $1
             )
-        SELECT t.*, ma.id AS material_id, ma.name AS material_name, mi.id AS mint_id, mi.name AS mint_name, n.id AS nominal_id, n.name AS nominal_name, p.id AS caliph_id, p.name AS caliph_name FROM type t 
-        LEFT JOIN material ma 
-        ON t.material = ma.id
-        LEFT JOIN mint mi 
-        ON t.mint = mi.id
-        LEFT JOIN nominal n 
-        ON t.nominal = n.id
-        LEFT JOIN person p
-        ON t.caliph = p.id
-        WHERE t.id IN(SELECT type FROM blah)
+        SELECT 
+            ${this.rows}
+        FROM type t
+            ${this.joins}
+        WHERE t.id IN(SELECT type FROM overlords)
             `, person);
 
         for (let [key, value] of result.entries()) {
@@ -410,6 +408,32 @@ class Type {
 
 
         return result
+    }
+
+    static get rows() {
+        return ` t.*, 
+        ${Material.query()}
+        ${Mint.query()}
+        ${Nominal.query()}
+        exclude_from_type_catalogue,
+        exclude_from_map_app,
+        internal_notes,
+        year_uncertain,
+        mint_uncertain as guessed_mint,
+        p.id AS caliph_id`
+    }
+
+    static get joins() {
+        return `
+        LEFT JOIN material ma 
+        ON t.material = ma.id
+        LEFT JOIN mint mi 
+        ON t.mint = mi.id
+        LEFT JOIN nominal n 
+        ON t.nominal = n.id
+        LEFT JOIN person p
+        ON t.caliph = p.id
+        `
     }
 
     static async postprocessType(type) {
@@ -424,16 +448,11 @@ class Type {
             {
                 prefix: "mint_",
                 target: "mint",
-                keys: ["id", "name"]
+                keys: ["id", "name", "location", "uncertain", "uncertain_area"]
             },
             {
                 prefix: "nominal_",
                 target: "nominal",
-                keys: ["id", "name"]
-            },
-            {
-                prefix: "caliph_",
-                target: "caliph",
                 keys: ["id", "name"]
             }
         ]
@@ -446,6 +465,7 @@ class Type {
 
         type.overlords = await Type.getOverlordsByType(type.id)
         type.issuers = await Type.getIssuerByType(type.id)
+        type.caliph = await Person.get(type.caliph)
         type.otherPersons = await Type.getOtherPersonsByType(type.id)
         type.pieces = await Type.getPieces(type.id)
         type.coinMarks = await Type.getCoinMarks(type.id)
@@ -466,12 +486,12 @@ class Type {
             project_id: "projectId",
             treadwell_id: "treadwellId",
             mint_as_on_coin: "mintAsOnCoin",
-            year_of_mint: "yearOfMinting",
+            year_of_mint: "yearOfMint",
             cursive_script: "cursiveScript",
             exclude_from_type_catalogue: "excludeFromTypeCatalogue",
             exclude_from_map_app: "excludeFromMapApp",
             internal_notes: "internalNotes",
-            mint_uncertain: "mintUncertain",
+            guessed_mint: "mintUncertain",
             year_uncertain: "yearUncertain"
         }
     }
@@ -518,14 +538,18 @@ class Type {
 
     static async getOverlordsByType(type_id) {
 
-        const result = await Database.multi(
+        const response = await Database.multi(
             `
             SELECT o.id,
             o.rank,
-            o.type,
             p.id as person_id,
+            p.short_name as person_short_name,
             p.name as person_name,
             p.role as person_role,
+            r.id as person_role_id,
+            r.name as person_role_name,
+            d.id as person_dynasty_id,
+            d.name as person_dynasty_name,
             t.title_names,
             t.title_ids,
             h.honorific_names,
@@ -545,20 +569,32 @@ class Type {
             ) h USING(id)
             INNER JOIN person p
                 ON o.person = p.id
+            LEFT JOIN dynasty d ON p.dynasty=d.id
+            LEFT JOIN person_role r ON p.role=r.id
 			WHERE o.type = $1
             ORDER BY o.rank ASC
             `, type_id)
 
-        Overlord.extract(result)
-        console.log("asd", result)
-        let overlords = []
-        overlords.push(result)
-        return Promise.resolve(overlords)
+
+        let result = response[0]
+        let overlords = Overlord.extractList(result)
+        return overlords
     }
 
     static async getIssuerByType(type_id) {
-        const result = await Database.multi(`
-        SELECT i.id, i.type, p.id as person_id, p.name as person_name, p.role as person_role, t.title_names, t.title_ids, h.honorific_names, h.honorific_ids FROM issuer i
+        const response = await Database.multi(`
+        SELECT i.id, i.type,p.id as person_id,
+                p.short_name as person_short_name,
+                p.name as person_name,
+                r.id as person_role_id,
+                r.name as person_role_name,
+                d.id as person_dynasty_id,
+                d.name as person_dynasty_name,
+                t.title_names,
+                t.title_ids,
+                h.honorific_names,
+                h.honorific_ids 
+            FROM issuer i
             LEFT JOIN(
                 SELECT it.issuer AS id, array_agg(t.name) AS title_names, array_agg(t.id) AS title_ids
                  FROM issuer_titles it
@@ -573,18 +609,13 @@ class Type {
             ) h USING(id)
             INNER JOIN person p
                 ON i.person = p.id
+            LEFT JOIN dynasty d ON p.dynasty=d.id
+            LEFT JOIN person_role r ON p.role=r.id
 			WHERE i.type = $1
             `, type_id)
 
-        if (request.length < 1) return []
-
-        const issuers = []
-
-        result[0].forEach(issuer => {
-
-            issuers.push(issuer)
-        })
-
+        let result = response[0]
+        let issuers = Overlord.extractList(result)
         return issuers
     }
 
@@ -598,12 +629,29 @@ class Type {
     }
 
     static async getOtherPersonsByType(type_id) {
-        return await Database.manyOrNone(`
-        SELECT p.* FROM other_person op 
+        let result = await Database.manyOrNone(`
+        SELECT 
+            p.*,
+            d.id as dynasty_id,
+            d.name as dynasty_name,
+            r.id as role_id,
+            r.name as role_name
+        FROM 
+            other_person op 
         LEFT JOIN person p
             ON op.person = p.id
-			WHERE op.type = $1
+        LEFT JOIN 
+            dynasty d ON p.dynasty=d.id
+        LEFT JOIN 
+            person_role r ON p.role=r.id
+		WHERE 
+            op.type = $1
             `, type_id)
+
+
+
+
+        return result.map(person => Person.decomposePersonResult(person))
     }
 
     static async getPieces(type_id) {

@@ -2,15 +2,27 @@ const SQLUtils = require("./src/utils/sql")
 
 class Overlord {
 
-    static extract(result, {
-        target = null,
-        prefix = "" } = {}) {
+    static extractList(arr, options) {
+        arr.forEach((obj, idx) => {
+            arr[idx] = this.extract(obj, options)
+        });
+        return arr
+    }
 
+    static extract(result) {
         const config = [
             {
-                prefix: `${prefix}`,
-                target: target,
-                keys: ["role", "rank"]
+                prefix: `person_`,
+                target: null,
+                keys: ["id", "name", {
+                    prefix: "role_",
+                    target: "role",
+                    keys: ["id", "name"]
+                }, {
+                        prefix: "dynasty_",
+                        target: "dynasty",
+                        keys: ["id", "name"]
+                    }, "short_name"]
             }
         ]
 
@@ -19,13 +31,13 @@ class Overlord {
         const arrays = [
             {
                 target: "honorifics",
-                prefix: `${prefix}honorific_`,
+                prefix: `honorific_`,
                 keys: ["ids", "names"],
                 to: ["id", "name"]
             },
             {
                 target: "titles",
-                prefix: `${prefix}title_`,
+                prefix: `title_`,
                 keys: ["ids", "names"],
                 to: ["id", "name"]
             },
