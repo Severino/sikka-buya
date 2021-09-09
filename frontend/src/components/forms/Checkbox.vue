@@ -7,9 +7,9 @@
       :checked="value"
       @input="input"
     />
-    <label :for="id" v-if="label"
-      >
-      <span>{{ label }}</span>
+
+    <span class="label">{{ label }}</span>
+    <label :for="id" v-if="label">
       <div class="check">
         <CheckboxMarked v-if="value" />
         <CheckboxBlankOutline v-else />
@@ -19,12 +19,12 @@
 </template>
 
 <script>
-import Row from "../layout/Row.vue";
-import CheckboxBlankOutline from "vue-material-design-icons/CheckboxBlankOutline";
-import CheckboxMarked from "vue-material-design-icons/CheckboxMarked";
+import Row from '../layout/Row.vue';
+import CheckboxBlankOutline from 'vue-material-design-icons/CheckboxBlankOutline';
+import CheckboxMarked from 'vue-material-design-icons/CheckboxMarked';
 
 export default {
-  name: "Checkbox",
+  name: 'Checkbox',
   components: {
     Row,
     CheckboxMarked,
@@ -41,16 +41,20 @@ export default {
     label: String,
   },
   methods: {
-    input: function (event) {
+    input: function(event) {
       const checked = event.target.checked;
-      this.$emit("input", checked);
+      this.$emit('input', checked);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
+
+label {
+  display: inline;
+}
 
 input {
   display: none;

@@ -15,58 +15,57 @@
 </template>
 
 <script>
-import Vue from "vue";
-import LoginForm from "./components/auth/LoginForm.vue";
-import ButtonGroup from "./components/forms/ButtonGroup.vue";
-import Modal from "./components/layout/Modal.vue";
-import Auth from "./utils/Auth";
-import PopupHandler from "./popup";
-import Confirmation from "./components/misc/Confirmation.vue";
+import Vue from 'vue';
+import LoginForm from './components/auth/LoginForm.vue';
+import ButtonGroup from './components/forms/ButtonGroup.vue';
+import Modal from './components/layout/Modal.vue';
+import Auth from './utils/Auth';
+import PopupHandler from './popup';
+import Confirmation from './components/misc/Confirmation.vue';
 
 export default {
   components: { ButtonGroup, LoginForm, Modal, Confirmation },
-  name: "App",
-  data: function () {
+  name: 'App',
+  data: function() {
     return {
       popupHandler: null,
-      language: "de",
+      language: 'de',
     };
   },
-  created: async function () {
+  created: async function() {
     let user = await Auth.init();
-    this.$store.commit("login", user);
+    this.$store.commit('login', user);
 
     this.popupHandler = new PopupHandler(this);
     this.popupHandler.init(document.body);
   },
-  beforeDestroy: function () {
+  beforeDestroy: function() {
     this.popupHandler.cleanup();
   },
-  mounted: function () {
-
-    const lang = window.localStorage.getItem("language", this.$i18n.locale);
+  mounted: function() {
+    const lang = window.localStorage.getItem('language', this.$i18n.locale);
     if (lang) {
       this.languageChanged(lang);
     } else {
-      this.languageChanged("de");
+      this.languageChanged('de');
     }
   },
   methods: {
-    languageChanged: function (lang) {
+    languageChanged: function(lang) {
       this.language = lang;
       this.$i18n.locale = lang;
-      window.localStorage.setItem("language", this.$i18n.locale);
+      window.localStorage.setItem('language', this.$i18n.locale);
     },
-    goHome: function () {
-      if (this.$router.route != "/") this.$router.push("/");
+    goHome: function() {
+      if (this.$router.route != '/') this.$router.push('/');
     },
-    closeLoginForm: function () {
-      this.$store.commit("closeLoginForm");
-      this.$store.commit("increment");
+    closeLoginForm: function() {
+      this.$store.commit('closeLoginForm');
+      this.$store.commit('increment');
       console.log(this.$store.state.showLoginForm);
     },
-    plusOne: function () {
-      this.$store.commit("increment");
+    plusOne: function() {
+      this.$store.commit('increment');
     },
   },
   computed: {
@@ -89,7 +88,7 @@ body {
   color: $text-color;
 }
 
-$fonts: "TimesNewRoman", "Arimo", sans-serif;
+$fonts: 'TimesNewRoman', 'Arimo', sans-serif;
 
 body {
   font-family: $fonts;
@@ -158,7 +157,7 @@ section {
 }
 
 #app-name:after {
-  content: "|";
+  content: '|';
   color: white;
   margin: 0 20px;
 }
@@ -174,7 +173,7 @@ button {
   @include input;
 }
 
-button[type="submit"] {
+button[type='submit'] {
   color: white;
   background-color: $primary-color;
 
@@ -195,17 +194,19 @@ button {
   background-color: transparent;
   border: none;
 
-  &:hover{
+  &:hover {
     background-color: rgba(#000000, 0.1);
   }
 }
 
+.label,
 label {
   font-weight: bold;
-  // color: $primary-color;
   font-size: $regular-font;
   display: block;
+}
 
+label {
   @include interactive();
 }
 
