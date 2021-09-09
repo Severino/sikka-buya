@@ -35,8 +35,6 @@ class Type {
 
         this.cleanupHTMLFields(data)
 
-        console.log(data)
-
         return Database.tx(async t => {
 
             data.id = id
