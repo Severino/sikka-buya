@@ -4,7 +4,7 @@
       {{ guardActive }}
     </div> -->
     <error-box :message="errorMessage" />
-    <Heading>{{ $tc("general.type") }}</Heading>
+    <Heading>{{ $tc('general.type') }}</Heading>
     <LoadingSpinner v-if="loading" />
     <div v-if="!loading" class="loading-area">
       <Row>
@@ -56,7 +56,7 @@
       <Row>
         <LabeledInputContainer :label="$t('property.mint_year')">
           <RestrictedInputField
-            v-model="coin.yearOfMinting"
+            v-model="coin.yearOfMint"
             pattern="^-?[0-9x]{0,3}$"
           />
         </LabeledInputContainer>
@@ -87,7 +87,7 @@
 
       <List v-on:add="addIssuer" :title="$t('property.issuer')">
         <div v-if="coin.issuers.length == 0" class="info">
-          {{ $t("warning.list_is_empty") }}
+          {{ $t('warning.list_is_empty') }}
         </div>
         <ListItem
           v-for="(issuer, issuer_idx) in coin.issuers"
@@ -117,7 +117,7 @@
         class="overlords needs-spacing"
       >
         <div v-if="coin.overlords.length == 0" class="info">
-          {{ $t("warning.list_is_empty") }}
+          {{ $t('warning.list_is_empty') }}
         </div>
         <ListItem
           v-for="(overlord, index) of coin.overlords"
@@ -156,7 +156,7 @@
         v-on:add="addOtherPerson"
       >
         <div v-if="coin.otherPersons.length == 0" class="info">
-          {{ $t("warning.list_is_empty") }}
+          {{ $t('warning.list_is_empty') }}
         </div>
 
         <ListItem
@@ -217,7 +217,7 @@
         class="coin-mark-list"
       >
         <div v-if="coin.coinMarks.length == 0" class="info">
-          {{ $t("warning.list_is_empty") }}
+          {{ $t('warning.list_is_empty') }}
         </div>
         <ListItem
           v-for="(coinmark, idx) in coin.coinMarks"
@@ -243,7 +243,7 @@
         class="pieces-list"
       >
         <div v-if="coin.pieces.length == 0" class="info">
-          {{ $t("warning.list_is_empty") }}
+          {{ $t('warning.list_is_empty') }}
         </div>
         <ListItem
           v-for="(piece, idx) in coin.pieces"
@@ -297,9 +297,9 @@
       </div>
 
       <Row>
-        <button @click.stop.prevent="cancel">{{ $t("form.cancel") }}</button>
+        <button @click.stop.prevent="cancel">{{ $t('form.cancel') }}</button>
         <button @click.stop="submitForm" type="submit">
-          {{ $t("form.submit") }}
+          {{ $t('form.submit') }}
         </button>
       </Row>
     </div>
@@ -307,29 +307,31 @@
 </template>
 
 <script>
-import Heading from "@/components/Heading.vue";
-import DataSelectField from "@/components/forms/DataSelectField.vue";
-import LabeledInputContainer from "@/components/LabeledInputContainer.vue";
-import Row from "@/components/layout/Row.vue";
-import RestrictedInputField from "../forms/RestrictedInputField.vue";
-import Checkbox from "../forms/Checkbox.vue";
-import ButtonGroup from "../forms/ButtonGroup.vue";
-import List from "../forms/List.vue";
-import ListItem from "../forms/ListItem.vue";
-import TitledPersonSelect from "../forms/TitledPersonSelect.vue";
-import CoinSideField from "../forms/coins/CoinSideField.vue";
-import SimpleFormattedField from "../forms/SimpleFormattedField.vue";
-import Query from "../../database/query.js";
-import LoadingSpinner from "../misc/LoadingSpinner.vue";
+import Heading from '@/components/Heading.vue';
+import DataSelectField from '@/components/forms/DataSelectField.vue';
+import LabeledInputContainer from '@/components/LabeledInputContainer.vue';
+import Row from '@/components/layout/Row.vue';
+import RestrictedInputField from '../forms/RestrictedInputField.vue';
+import Checkbox from '../forms/Checkbox.vue';
+import ButtonGroup from '../forms/ButtonGroup.vue';
+import List from '../forms/List.vue';
+import ListItem from '../forms/ListItem.vue';
+import TitledPersonSelect from '../forms/TitledPersonSelect.vue';
+import CoinSideField from '../forms/coins/CoinSideField.vue';
+import SimpleFormattedField from '../forms/SimpleFormattedField.vue';
+import Query from '../../database/query.js';
+import LoadingSpinner from '../misc/LoadingSpinner.vue';
 
-import baseTemplate from "@/assets/template_types/base.json";
-import RemovableInputField from "../forms/RemovableInputField.vue";
-import AxiosHelper from "../../utils/AxiosHelper";
-import NavigationGuard from "../../utils/NavigationGuard";
-import ErrorBox from "./system/ErrorBox.vue";
+import baseTemplate from '@/assets/template_types/base.json';
+import RemovableInputField from '../forms/RemovableInputField.vue';
+import AxiosHelper from '../../utils/AxiosHelper';
+import NavigationGuard from '../../utils/NavigationGuard';
+import ErrorBox from './system/ErrorBox.vue';
+
+import { TypeQueries } from '../../graphql/type-queries';
 
 export default {
-  name: "CreateTypePage",
+  name: 'CreateTypePage',
   components: {
     Heading,
     DataSelectField,
@@ -350,8 +352,8 @@ export default {
   computed: {
     productionLabels: function() {
       return [
-        this.$t("property.procedures.pressed"),
-        this.$t("property.procedures.cast"),
+        this.$t('property.procedures.pressed'),
+        this.$t('property.procedures.cast'),
       ];
     },
   },
@@ -379,109 +381,8 @@ export default {
     let id = this.$route.params.id;
     if (id != null) {
       this.$data.coin.id = id;
-      Query.raw(
-        `
-        {
-            getCoinType(id:${id}){
-                id
-                projectId
-                treadwellId
-                mint {
-                  id,
-                  name
-                }
-                mintAsOnCoin
-                material {
-                  id,
-                  name
-                }
-                nominal {
-                  id,
-                  name
-                }
-                yearOfMinting
-                donativ
-                procedure
-                issuers {
-                  id
-                  person {
-                    id,
-                    name,
-                    role {
-                      id, name
-                    }
-                  }
-                  titles {
-                    id,
-                    name
-                  }
-                  honorifics{
-                    id,
-                    name}
-                }
-                overlords {
-                  id
-                  rank
-                    name,
-                    role {
-                      id, name
-                    }
-                  titles {
-                    id,
-                    name
-                  }
-                  honorifics{
-                    id,
-                    name}
-                }
-                otherPersons {
-                  id
-                  name
-                  role {
-                    id, name
-                  }
-                }
-                caliph {
-                  id
-                  name
-                  role {
-                    id, name
-                  }
-                }
-                avers {
-                  fieldText
-                  innerInscript
-                  intermediateInscript
-                  outerInscript
-                  misc
-                }
-                reverse {
-                  fieldText
-                  innerInscript
-                  intermediateInscript
-                  outerInscript
-                  misc
-                }
-                cursiveScript
-                coinMarks {
-                  id
-                  name
-                }
-                literature
-                pieces
-                specials
-                excludeFromTypeCatalogue
-                excludeFromMapApp
-                internalNotes
-                mintUncertain
-                yearUncertain
-        }
-      }
-      `
-      )
+      Query.raw(TypeQueries.get(id))
         .then((obj) => {
-
-          console.log(obj)
           if (
             obj.message &&
             obj.message.errors &&
@@ -506,7 +407,7 @@ export default {
             if (!type.issuers) type.issuers = [];
             type.issuers.forEach((issuer) => {
               issuer.key = this.key++;
-              console.log(issuer)
+              console.log(issuer);
               issuer.titles.forEach((title) => (title.key = this.key++));
               issuer.honorifics.forEach(
                 (honorific) => (honorific.key = this.key++)
@@ -526,21 +427,19 @@ export default {
             if (!type.coinMarks) type.coinMarks = [];
             type.coinMarks.forEach((coinMark, index) => {
               if (coinMark == null)
-                type.coinMarks[index] = { id: null, name: "" };
+                type.coinMarks[index] = { id: null, name: '' };
               type.coinMarks[index].key = this.key++;
             });
 
             /**
              * Provide them with an initial value.
              */
-            type.mint = type.mint ? type.mint : { id: null, name: "" };
+            type.mint = type.mint ? type.mint : { id: null, name: '' };
             type.material = type.material
               ? type.material
-              : { id: null, name: "" };
-            type.nominal = type.nominal ? type.nominal : { id: null, name: "" };
-            type.caliph = type.caliph ? type.caliph : { id: null, name: "" };
-
-            console.log(type.mintUncertain, type.yearUncertain);
+              : { id: null, name: '' };
+            type.nominal = type.nominal ? type.nominal : { id: null, name: '' };
+            type.caliph = type.caliph ? type.caliph : { id: null, name: '' };
 
             Object.assign(this.$data.coin, type);
             this.initFormattedFields();
@@ -554,7 +453,7 @@ export default {
             error.response.data.errors
           ) {
             const errors = error.response.data.errors;
-            this.errorMessage = errors.map((err) => err.message).join("\n");
+            this.errorMessage = errors.map((err) => err.message).join('\n');
           } else this.errorMessage = error;
         })
         .finally((this.loading = false));
@@ -568,59 +467,58 @@ export default {
       navigationGuard: null,
       coin: {
         id: null,
-        projectId: "",
-        treadwellId: "",
-        mint: { id: null, name: "" },
-        mintAsOnCoin: "",
-        material: { id: null, name: "" },
-        nominal: { id: null, name: "" },
-        yearOfMinting: "",
+        projectId: '',
+        treadwellId: '',
+        mint: { id: null, name: '' },
+        mintAsOnCoin: '',
+        material: { id: null, name: '' },
+        nominal: { id: null, name: '' },
+        yearOfMint: '',
         donativ: false,
-        procedure: "pressed",
+        procedure: 'pressed',
         issuers: [],
         overlords: [],
         otherPersons: [],
-        caliph: { id: null, name: "", role: null },
+        caliph: { id: null, name: '', role: null },
         avers: {
-          fieldText: "",
-          innerInscript: "",
-          intermediateInscript: "",
-          outerInscript: "",
-          misc: "",
+          fieldText: '',
+          innerInscript: '',
+          intermediateInscript: '',
+          outerInscript: '',
+          misc: '',
         },
         reverse: {
-          fieldText: "",
-          innerInscript: "",
-          intermediateInscript: "",
-          outerInscript: "",
-          misc: "",
+          fieldText: '',
+          innerInscript: '',
+          intermediateInscript: '',
+          outerInscript: '',
+          misc: '',
         },
         cursiveScript: false,
         coinMarks: [],
         pieces: [],
-        specials: "",
+        specials: '',
         excludeFromTypeCatalogue: false,
         excludeFromMapApp: false,
-        internalNotes: "",
+        internalNotes: '',
         yearUncertain: false,
         mintUncertain: false,
       },
       errorMessages: [],
       submitted: false,
-      errorMessage: "",
+      errorMessage: '',
       validationErrors: [],
       loading: true,
-      productionOptions: ["pressed", "cast"],
+      productionOptions: ['pressed', 'cast'],
       key: 0,
     };
   },
   beforeRouteLeave(to, from, next) {
-    console.log("BEFOREROUTELEAVE");
     this.navigationGuard.beforeRouteLeave(
       to,
       from,
       next,
-      this.$t("warning.leave_without_saving")
+      this.$t('warning.leave_without_saving')
     );
   },
   methods: {
@@ -630,11 +528,11 @@ export default {
     addError(msg) {
       this.errorMessages.push({
         message: msg,
-        key: "error-" + this.key++,
+        key: 'error-' + this.key++,
       });
     },
     cancel: function() {
-      this.$router.push({ name: "TypeOverview" });
+      this.$router.push({ name: 'TypeOverview' });
     },
     reverseChanged: function(coinSideObject) {
       this.coin.reverse = coinSideObject;
@@ -645,9 +543,9 @@ export default {
     },
     addCoinMark: function() {
       this.coin.coinMarks.push({
-        key: "coin-mark-" + this.key++,
+        key: 'coin-mark-' + this.key++,
         id: null,
-        name: "",
+        name: '',
       });
     },
     removeCoinMark: function(index) {
@@ -655,8 +553,8 @@ export default {
     },
     addPiece: function() {
       this.coin.pieces.push({
-        key: "piece-" + this.key++,
-        value: "",
+        key: 'piece-' + this.key++,
+        value: '',
       });
     },
     pieceChanged: function(piece) {
@@ -667,11 +565,11 @@ export default {
     },
     addIssuer: function() {
       this.coin.issuers.push({
-        key: "issuer-" + this.key++,
+        key: 'issuer-' + this.key++,
         person: {
           id: null,
-          name: "",
-          role: "",
+          name: '',
+          role: '',
         },
         titles: [],
         honorifics: [],
@@ -696,10 +594,10 @@ export default {
     },
     addOverlord: function() {
       this.coin.overlords.push({
-        key: "overlord-" + this.key++,
+        key: 'overlord-' + this.key++,
         rank: this.coin.overlords.length + 1,
         id: null,
-        name: "",
+        name: '',
         titles: [],
         honorifics: [],
       });
@@ -708,8 +606,8 @@ export default {
       this.coin.otherPersons.push({
         id: null,
         key: this.key++,
-        name: "",
-        role: "",
+        name: '',
+        role: '',
       });
     },
     overlordChanged: function(overlord, index) {
@@ -758,7 +656,7 @@ export default {
       this.coin.issuers.forEach((issuer, index) => {
         if (!validateTitledPerson(issuer)) {
           issuer.error =
-            "Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.";
+            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           this.coin.issuers.splice(index, 1, issuer);
           invalid = true;
         } else {
@@ -769,7 +667,7 @@ export default {
       this.coin.overlords.forEach((overlord, index) => {
         if (!validateTitledPerson(overlord)) {
           overlord.error =
-            "Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.";
+            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           invalid = true;
           this.coin.overlords.splice(index, 1, overlord);
         } else {
@@ -780,7 +678,7 @@ export default {
       this.coin.otherPersons.forEach((otherPerson, index) => {
         if (!validatePeron(otherPerson)) {
           otherPerson.error =
-            "Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.";
+            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           invalid = true;
           this.coin.otherPersons.splice(index, 1, otherPerson);
         } else {
@@ -789,7 +687,7 @@ export default {
       });
 
       const elementError =
-        "Das Element ist nicht valide. Geben Sie ein Element an oder löschen Sie das Element.";
+        'Das Element ist nicht valide. Geben Sie ein Element an oder löschen Sie das Element.';
 
       this.coin.coinMarks.forEach((coinMark, index) => {
         if (coinMark.id == null) {
@@ -800,7 +698,7 @@ export default {
       });
 
       this.coin.pieces.forEach((piece, index) => {
-        if (piece.value == "") {
+        if (piece.value == '') {
           piece.error = elementError;
           invalid = true;
           this.coin.pieces.splice(index, 1, piece);
@@ -811,11 +709,11 @@ export default {
 
       if (invalid) {
         setTimeout(() => {
-          const target = document.querySelector(".invalid-error");
+          const target = document.querySelector('.invalid-error');
           if (target) {
             target.scrollIntoView({
-              block: "start",
-              behavior: "smooth",
+              block: 'start',
+              behavior: 'smooth',
             });
           }
         }, 10);
@@ -846,7 +744,7 @@ export default {
 
             if (AxiosHelper.ok(result)) {
               this.submitted = true;
-              this.$router.push({ name: "TypeOverview" });
+              this.$router.push({ name: 'TypeOverview' });
             } else {
               AxiosHelper.getErrors(result).forEach((err) =>
                 this.addError(err)
@@ -860,64 +758,6 @@ export default {
     },
 
     addCoinType(data) {
-      // TODO ADA
-      const query = `
-        mutation ($projectId:String,
-            $treadwellId:String,
-            $mint:ID,
-            $mintAsOnCoin:String,
-            $material:ID,
-            $nominal:ID,
-            $yearOfMinting:String,
-            $donativ:Boolean,
-            $procedure:String,
-            $issuers:[TitledPersonInput],
-            $otherPersons:[ID],
-            $overlords:[OverlordInput],
-            $caliph:ID,
-            $avers:CoinSideInformationInput,
-            $reverse:CoinSideInformationInput,
-            $cursiveScript:Boolean,
-            $coinMarks:[ID],
-            $literature:String,
-            $pieces:[String],
-            $specials:String,
-            $excludeFromTypeCatalogue: Boolean
-            $excludeFromMapApp: Boolean,
-            $internalNotes: String,
-            $yearUncertain:Boolean,
-            $mintUncertain:Boolean
-            ){
-        addCoinType(data: {
-            projectId: $projectId,
-            treadwellId: $treadwellId,
-            mint: $mint,
-            mintAsOnCoin: $mintAsOnCoin,
-            material: $material,
-            nominal: $nominal,
-            yearOfMinting: $yearOfMinting,
-            donativ: $donativ,
-            procedure: $procedure,
-            issuers: $issuers,
-            otherPersons: $otherPersons,
-            overlords: $overlords,
-            caliph: $caliph,
-            avers: $avers,
-            reverse: $reverse,
-            cursiveScript: $cursiveScript,
-            coinMarks: $coinMarks,
-            literature: $literature,
-            pieces: $pieces,
-            specials: $specials,
-            excludeFromTypeCatalogue:$excludeFromTypeCatalogue,
-            excludeFromMapApp:$excludeFromMapApp,
-            internalNotes:$internalNotes,
-            yearUncertain: $yearUncertain,
-            mintUncertain: $mintUncertain
-         })
-         }
-   `;
-
       const variables = {
         projectId: data.projectId,
         treadwellId: data.treadwellId,
@@ -925,7 +765,7 @@ export default {
         mintAsOnCoin: data.mintAsOnCoin,
         material: data.material && data.material.id ? data.material.id : null,
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
-        yearOfMinting: data.yearOfMinting,
+        yearOfMint: data.yearOfMint,
         donativ: data.donativ,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
@@ -951,10 +791,9 @@ export default {
         coinMarks: data.coinMarks.map((coinMark) => coinMark.id),
         literature: data.literature,
         pieces: data.pieces.map((piece) => {
-          console.log(piece.value);
           return piece.value;
         }),
-        specials: data.specials || "",
+        specials: data.specials || '',
         excludeFromTypeCatalogue: data.excludeFromTypeCatalogue,
         excludeFromMapApp: data.excludeFromMapApp,
         internalNotes: data.internalNotes,
@@ -962,69 +801,9 @@ export default {
         mintUncertain: data.mintUncertain,
       };
 
-      return Query.raw(query, variables);
+      return Query.raw(TypeQueries.add(), variables);
     },
     updateCoinType(data) {
-      // TODO ADA
-      const query = `
-        mutation (
-          $id:ID,
-          $projectId:String,
-          $treadwellId:String,
-          $mint:ID,
-          $mintAsOnCoin:String,
-          $material:ID,
-          $nominal:ID,
-          $yearOfMinting:String,
-          $donativ:Boolean,
-          $procedure:String,
-          $issuers:[TitledPersonInput],
-          $otherPersons:[ID],
-          $overlords:[OverlordInput],
-          $caliph:ID,
-          $avers:CoinSideInformationInput,
-          $reverse:CoinSideInformationInput,
-          $cursiveScript:Boolean,
-          $coinMarks:[ID],
-          $literature:String,
-          $pieces:[String],
-          $specials:String,
-          $excludeFromTypeCatalogue:Boolean,
-          $excludeFromMapApp:Boolean
-          $internalNotes: String,
-          $yearUncertain:Boolean,
-          $mintUncertain:Boolean
-        ){
-        updateCoinType(id: $id, data: {
-            projectId: $projectId,
-            treadwellId: $treadwellId,
-            mint: $mint,
-            mintAsOnCoin: $mintAsOnCoin,
-            material: $material,
-            nominal: $nominal,
-            yearOfMinting: $yearOfMinting,
-            donativ: $donativ,
-            procedure: $procedure,
-            issuers: $issuers,
-            otherPersons: $otherPersons,
-            overlords: $overlords,
-            caliph: $caliph,
-            avers: $avers,
-            reverse: $reverse,
-            cursiveScript: $cursiveScript,
-            coinMarks: $coinMarks,
-            literature: $literature,
-            pieces: $pieces,
-            specials: $specials,
-            excludeFromTypeCatalogue: $excludeFromTypeCatalogue,
-            excludeFromMapApp: $excludeFromMapApp
-            internalNotes: $internalNotes,
-            yearUncertain: $yearUncertain,
-            mintUncertain: $mintUncertain
-         })
-         }
-   `;
-
       const variables = {
         id: data.id,
         projectId: data.projectId,
@@ -1033,7 +812,7 @@ export default {
         mintAsOnCoin: data.mintAsOnCoin,
         material: data.material && data.material.id ? data.material.id : null,
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
-        yearOfMinting: data.yearOfMinting,
+        yearOfMint: data.yearOfMint,
         donativ: data.donativ,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
@@ -1059,10 +838,9 @@ export default {
         coinMarks: data.coinMarks.map((coinMark) => coinMark.id),
         literature: data.literature,
         pieces: data.pieces.map((piece) => {
-          console.log(piece.value);
           return piece.value;
         }),
-        specials: data.specials || "",
+        specials: data.specials || '',
         excludeFromTypeCatalogue:
           data.excludeFromTypeCatalogue == null
             ? false
@@ -1074,14 +852,14 @@ export default {
         mintUncertain: data.mintUncertain || false,
       };
 
-      return Query.raw(query, variables);
+      return Query.raw(TypeQueries.update(), variables);
     },
   },
 };
 </script>
 
 <style lang="scss">
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .coin-side-field > *,
 .loading-area > * {

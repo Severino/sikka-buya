@@ -34,14 +34,14 @@ export default class Auth {
         return sessionStorage.getItem(this.tokenStore)
     }
 
-    static load(){
+    static load() {
         return {
             user: this.loadUser(),
             token: this.loadToken()
         }
     }
 
-    static async init(){
+    static async init() {
         const token = this.loadToken()
         if (token) {
             let response = await Query.raw(`{
@@ -80,8 +80,8 @@ export default class Auth {
         sessionStorage.removeItem(this.userStore)
     }
 
-    static async login(email, password) {
-        let result = await Query.raw(`{
+    static async queryLogin(email, password) {
+        return Query.raw(`{
             login(data: {
               email: "${email}",
               password: "${password}"
@@ -96,9 +96,11 @@ export default class Auth {
                 }
               }
             }`);
+    }
 
+    static async login(email, password) {
 
-
+        let result = await this.queryLogin(email, password)
         let response = { success: false, message: "Interner Fehler, melden Sie das Problem dem Admin. ", user: null }
 
         if (result && result.data && result.data.data && result.data.data.login) {

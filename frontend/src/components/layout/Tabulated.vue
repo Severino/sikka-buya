@@ -3,7 +3,7 @@
     <header>
       <div
         v-for="(tab, idx) of tabs"
-        :class="{'tab-header': true, active: active==idx}"
+        :class="{ 'tab-header': true, active: active == idx }"
         :key="`tab-${idx}-${tab}`"
         @click="changeTab(idx)"
       >
@@ -21,14 +21,13 @@ export default {
   props: {
     tabs: Array,
   },
-  data: function() {
+  data: function () {
     return {
       active: 0,
     };
   },
   methods: {
-    changeTab: function(index) {
-      console.log("CHANGE TAB", index);
+    changeTab: function (index) {
       this.active = index;
     },
   },
@@ -44,18 +43,18 @@ export default {
     > * {
       flex: 1;
       background-color: rgb(41, 41, 41);
-      
+
       border: none;
       border-radius: 2px;
       &.active {
-          background-color: #333;
+        background-color: #333;
       }
     }
   }
 
-  .body{
-      background-color: #333;
-      padding: 20px;
+  .body {
+    background-color: #333;
+    padding: 20px;
   }
 }
 </style>

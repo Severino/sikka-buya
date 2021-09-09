@@ -45,18 +45,14 @@ class Auth {
             let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)
             let result = await Auth.checkPassword(password, user.password)
             if (result) {
-                const token = jwt.sign({
-                    id: user.id,
-                    email: user.email,
-                    super: user.super
-                }, process.env.JWT_KEY, {
-                    expiresIn: "12h"
-                })
-
                 return {
                     success: true,
                     message: "Successfully authenticated.",
-                    token,
+                    token: this.sign({
+                        isSuper: user.super,
+                        id: user.id,
+                        email: user.email
+                    }),
                     user: {
                         id: user.id,
                         email: user.email,
@@ -64,7 +60,7 @@ class Auth {
                     }
                 }
             }
-        } catch (e) { /*Wrong user was passed. Thats fine! */ console.log(e) }
+        } catch (e) { /*Wrong user was passed. Thats fine! */ }
 
 
         return {
@@ -72,6 +68,17 @@ class Auth {
             message: "Die Angaben waren Falsch! Bitte überprüfen Sie ihren Nutzernamen und das Passwort.",
             token: null
         }
+    }
+
+    static sign({ id = null, email = null, superUser = null } = {}) {
+        return jwt.sign({
+            id,
+            email,
+            super: superUser
+        }, process.env.JWT_SECRET, {
+            expiresIn: "12h"
+        })
+
     }
 
 
@@ -83,7 +90,7 @@ class Auth {
      */
     static verify(token) {
         try {
-            return jwt.verify(token, process.env.JWT_KEY)
+            return jwt.verify(token, process.env.JWT_SECRET)
         } catch (e) {
             throw new Error("401")
         }
@@ -91,7 +98,7 @@ class Auth {
 
     static verifyContext(context) {
         let token = (context && context.headers) ? context.headers.auth : null
-        
+
         if (!token) throw new Error("401")
         else return this.verify(token)
     }
