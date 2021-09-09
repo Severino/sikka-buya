@@ -67,7 +67,7 @@ class Resolver {
     }
 
     async search(_, args) {
-        return Database.any(`SELECT * FROM ${this.tableName} WHERE unaccent(name) ILIKE unaccent($1) ORDER BY name ASC`, `%${args.text}%`)
+        return Database.any(`SELECT * FROM ${this.tableName} WHERE unaccent(name) ILIKE unaccent($1) ORDER BY name ASC LIMIT ${process.env.MAX_SEARCH}`, `%${args.text}%`)
     }
 
     async request(query, params = []) {

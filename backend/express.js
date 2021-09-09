@@ -263,7 +263,7 @@ async function start({
             LEFT JOIN person_role r ON p.role = r.id
             LEFT JOIN dynasty d ON p.dynasty = d.id
             WHERE r IS NOT NULL 
-            AND unaccent(p.name) ILIKE $1`, search)
+            AND unaccent(p.name) ILIKE $1 LIMIT ${process.env.MAX_SEARCH}`, search)
 
 
                     if (include) {
@@ -295,7 +295,7 @@ async function start({
                     const searchString = args.text
                     let result = await Database.manyOrNone(`
             SELECT * FROM person WHERE role IS NULL AND unaccent(name) ILIKE $1 ORDER BY name ASC
-            
+            LIMIT ${process.env.MAX_SEARCH}
             `, `%${searchString}%`)
 
                     result.forEach((item, idx) => {

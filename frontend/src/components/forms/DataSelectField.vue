@@ -14,13 +14,6 @@
       <Alert v-if="invalid" class="alert" />
       <Check v-else class="check" />
     </div>
-    <!-- <input
-      class="id-field"
-      type="text"
-      tabindex="-1"
-      :value="value.id"
-      readonly
-    /> -->
     <ul :class="'search-box ' + (listVisible ? 'visible' : 'hidden')">
       <li v-if="error" class="error non-selectable">{{ error }}</li>
       <li
@@ -29,7 +22,7 @@
         "
         class="non-selectable"
       >
-        {{ $t("message.list_empty") }}
+        {{ $t('message.list_empty') }}
       </li>
       <li
         v-for="search of searchResults"
@@ -46,36 +39,36 @@
 </template>
 
 <script>
-import GraphQLUtils from "../../utils/GraphQLUtils";
-import Query from "../../../src/database/query";
+import GraphQLUtils from '../../utils/GraphQLUtils';
+import Query from '../../../src/database/query';
 
-import Alert from "vue-material-design-icons/Alert";
-import Check from "vue-material-design-icons/Check";
+import Alert from 'vue-material-design-icons/Alert';
+import Check from 'vue-material-design-icons/Check';
 
 export default {
-  name: "DataSelectField",
+  name: 'DataSelectField',
   components: { Alert, Check },
-  data: function () {
+  data: function() {
     return {
       id: null,
       listVisible: false,
       hideTimeout: null,
       searchResults: [],
       loading: false,
-      error: "",
+      error: '',
     };
   },
   props: {
     value: {
       type: Object,
-      validator: function (obj) {
+      validator: function(obj) {
         return obj.id == null || !isNaN(parseInt(obj.id));
       },
     },
     queryParams: {
       type: Array,
-      default: function () {
-        return ["id", "name"];
+      default: function() {
+        return ['id', 'name'];
       },
     },
     additionalParameters: Object,
@@ -105,31 +98,31 @@ export default {
     placeholder: String,
   },
   computed: {
-    invalid: function () {
+    invalid: function() {
       return this.value.id == null;
     },
   },
   methods: {
-    setValue: function (event) {
+    setValue: function(event) {
       const target = event.target;
       const value = this.value;
       this.listVisible = false;
-      value.id = target.getAttribute("data-id", this.id);
+      value.id = target.getAttribute('data-id', this.id);
       value[this.attribute] = target.textContent;
-      this.$emit("input", value);
-      this.$emit("select", value);
+      this.$emit('input', value);
+      this.$emit('select', value);
     },
-    input: async function (event, preventSimiliarityCheck = false) {
+    input: async function(event, preventSimiliarityCheck = false) {
       let value = this.value;
       value[this.attribute] = event.target.value;
       value.id = null;
       this.checkMatch(value);
-      this.$emit("input", value);
+      this.$emit('input', value);
     },
-    checkMatch: async function (value) {
+    checkMatch: async function(value) {
       await this.searchEntry(value[this.attribute]);
       for (let entry of this.searchResults.values()) {
-        let regex = new RegExp("^" + value.name + "$", "i");
+        let regex = new RegExp('^' + value.name + '$', 'i');
 
         if (regex.test(entry.name)) {
           value = entry;
@@ -137,15 +130,15 @@ export default {
         }
       }
     },
-    focus: async function () {
-      await this.checkMatch(this.value)
+    focus: async function() {
+      await this.checkMatch(this.value);
       this.showList();
     },
-    showList: function () {
+    showList: function() {
       if (this.hideTimeout) clearTimeout(this.hideTimeout);
       this.listVisible = true;
     },
-    hideList: function () {
+    hideList: function() {
       this.hideTimeout = setTimeout(() => {
         this.listVisible = false;
 
@@ -156,12 +149,12 @@ export default {
         // }
       }, 200);
     },
-    initId: function () {
+    initId: function() {
       this.getData().forEach((el) => {
         if (el.id > this.$data.id) this.$data.id = el.id + 1;
       });
     },
-    getData: function () {
+    getData: function() {
       let loaded;
       try {
         loaded = JSON.parse(window.localStorage.getItem(this.$props.table));
@@ -171,8 +164,8 @@ export default {
 
       return loaded || [];
     },
-    searchEntry: async function (str = null) {
-      let searchString = str !== null ? str : this.value[this.attribute] || "";
+    searchEntry: async function(str = null) {
+      let searchString = str !== null ? str : this.value[this.attribute] || '';
 
       const queryCommand = this.queryCommand
         ? this.queryCommand
@@ -184,7 +177,7 @@ export default {
           ? Object.entries(this.additionalParameters).map(
               ([key, value]) => `,${key}:${JSON.stringify(value)}`
             )
-          : ""
+          : ''
       } ){
         ${GraphQLUtils.buildQueryBody(this.queryParams)}
       }
@@ -193,7 +186,8 @@ export default {
       Query.raw(query)
         .then((result) => {
           this.searchResults = result.data.data[queryCommand];
-          this.error = "";
+          this.error = '';
+          console.log(this.searchResults.length);
         })
         .catch((error) => {
           this.error = error;
@@ -202,19 +196,19 @@ export default {
           this.loading = false;
         });
     },
-    transformTextContent: function (search) {
+    transformTextContent: function(search) {
       if (this.text) {
-        return this.text.replace(/\${(.+?)}/g, function (match, name) {
-          const path = name.split(".");
+        return this.text.replace(/\${(.+?)}/g, function(match, name) {
+          const path = name.split('.');
           let target = search;
           for (let i = 0; i < path.length && target != null; i++) {
             target = target[path[i]];
           }
 
-          return target ? target : "";
+          return target ? target : '';
         });
       } else {
-        return search[this.attribute] || "";
+        return search[this.attribute] || '';
       }
     },
   },
@@ -223,7 +217,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import "../../scss/_import.scss";
+@import '../../scss/_import.scss';
 
 .visible {
   display: block;

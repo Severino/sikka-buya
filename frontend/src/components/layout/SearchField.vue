@@ -12,14 +12,14 @@
 </template>
 
 <script>
-import Magnify from "vue-material-design-icons/Magnify";
-import LoadingSpinner from "../misc/LoadingSpinner.vue";
+import Magnify from 'vue-material-design-icons/Magnify';
+import LoadingSpinner from '../misc/LoadingSpinner.vue';
 export default {
   components: {
     Magnify,
     LoadingSpinner,
   },
-  data: function () {
+  data: function() {
     return {
       timeout: null,
       delay: 750,
@@ -36,7 +36,7 @@ export default {
     input(event) {
       let value = event.target.value;
 
-      if (value != "" && this.asyncSearch) {
+      if (value != '' && this.asyncSearch) {
         this.i++;
 
         this.pending = true;
@@ -58,20 +58,20 @@ export default {
           });
         }, this.delay);
       }
-      this.$emit("input", value);
+      this.$emit('input', value);
     },
   },
 
   computed: {
-    active: function () {
-      return this.value != "";
+    active: function() {
+      return this.value != '';
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 .search {
   display: flex;
   position: relative;
@@ -97,6 +97,11 @@ export default {
     position: absolute;
     top: 4px;
     left: $padding - 3;
+
+    &::before,
+    &::after {
+      background-color: $primary-color;
+    }
   }
 
   .material-design-icon {
