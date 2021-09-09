@@ -36,6 +36,9 @@ export default class Query {
 
     async raw(query, variables = {}) {
         return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                reject('Operation timed out.')
+            }, 5000)
             axios({
                 url: host,
                 method: "post",
@@ -48,14 +51,15 @@ export default class Query {
                 if (AxiosHelper.ok(result)) {
                     resolve(result)
                 } else {
-                    let erros = AxiosHelper.getErrors(result)
-                    if (erros[0] === "401") {
+                    let errors = AxiosHelper.getErrors(result)
+                    if (errors[0] === "401") {
                         store.commit("showLoginForm")
                     }
 
-                    reject(erros)
+                    reject(errors)
                 }
             }).catch(reject)
+                .finally(() => clearTimeout(timeout))
         })
     }
 

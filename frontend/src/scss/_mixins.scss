@@ -14,46 +14,45 @@
   padding: 10px;
   color: gray;
   border: 1px solid rgb(204, 204, 204);
-  transition: 0.2s border;
   box-sizing: border-box;
   background-color: white;
 
-  transition:  background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 
   &:hover {
     color: black;
     background-color: rgb(250, 250, 250);
   }
 
-  
+  &:active {
+    color: black;
+    background-color: rgb(218, 218, 218);
+  }
 
   @include focus();
 }
 @mixin disabled_input {
-    border: 1px solid rgb(204, 204, 204);
-    background-color: rgb(204, 204, 204);
-    user-select: none;
-    color: white;
-    user-select: none;
-    cursor: pointer;
+  border: 1px solid rgb(204, 204, 204);
+  background-color: rgb(204, 204, 204);
+  user-select: none;
+  color: white;
+  user-select: none;
+  cursor: pointer;
 }
 
-@mixin box-padding($size){
-  padding: $size 1.75*$size;
+@mixin box-padding($size) {
+  padding: $size 1.75 * $size;
 }
 
 @mixin media-tablet {
   /* Portrait and Landscape */
-  @media only screen 
-  and (max-width: 1024px)  {
+  @media only screen and (max-width: 1024px) {
     @content;
   }
 }
 
-
 @mixin media-phone {
-  @media only screen 
-  and (max-width: 720px) {
+  @media only screen and (max-width: 720px) {
     @content;
   }
 }
