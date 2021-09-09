@@ -297,11 +297,16 @@ class Type {
         FROM type t
             ${this.joins}
         WHERE unaccent(t.project_id) ILIKE unaccent($[searchText])
+        LIMIT ${process.env.MAX_SEARCH}
         `, { searchText: "%" + text + "%" })
+
+
+        console.log(result)
 
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type)
         }
+        console.log("END")
 
         return result
     }

@@ -31,38 +31,50 @@
 </template>
 
 <script>
-import Query from "../../../database/query";
-import SearchField from "../../layout/SearchField.vue";
-import List from "../../layout/List.vue";
-import ListItemCell from "../../layout/list/ListItemCell.vue";
-import ListItem from "../../layout/ListItem.vue";
-import Row from "../../layout/Row.vue";
-import Column from "../../layout/tabs/Column.vue";
+import Query from '../../../database/query';
+import SearchField from '../../layout/SearchField.vue';
+import List from '../../layout/List.vue';
+import ListItemCell from '../../layout/list/ListItemCell.vue';
+import ListItem from '../../layout/ListItem.vue';
+import Row from '../../layout/Row.vue';
+import Column from '../../layout/tabs/Column.vue';
 export default {
   components: { Column, Row, List, ListItem, ListItemCell, SearchField },
-  name: "CatalogLanding",
+  name: 'CatalogLanding',
   data: function() {
     return {
       types: [],
-      searchText: "",
-      columns: ["projectId", "material", "nominal", "mint"],
+      searchText: '',
+      columns: ['projectId', 'material', 'nominal', 'mint'],
     };
   },
   methods: {
     input: function(value) {
-      console.log("value");
-      if (value == "") {
-        console.log("CLEAR");
+      console.log('value');
+      if (value == '') {
+        console.log('CLEAR');
         this.types = [];
       }
       this.searchText = value;
     },
     search: function(value) {
-      console.log("SEARCH", value);
+      console.log(
+        `
+            {
+                searchType(text: "${value}") {
+                    id
+                    projectId
+                    mint{name}
+                    material {name}
+                    nominal{name}
+                }
+            }
+          `
+      );
       return Query.raw(
         `
             {
-                searchTypes(text: "${value}") {
+                searchType(text: "${value}") {
                     id
                     projectId
                     mint{name}
@@ -73,7 +85,8 @@ export default {
           `
       )
         .then((result) => {
-          const data = result.data.data.searchTypes;
+          const data = result.data.data.searchType;
+          console.log(data);
 
           this.types = data.map((item) => {
             return {
@@ -93,7 +106,7 @@ export default {
       return Date.now() - this.lastBlockTime < this.blockTime;
     },
     empty: function() {
-      return this.searchText == "";
+      return this.searchText == '';
     },
   },
 };
