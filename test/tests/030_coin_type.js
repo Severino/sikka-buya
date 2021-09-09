@@ -3,10 +3,6 @@ const expect = chai.expect
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
 
-const fs = require("fs")
-
-
-
 chai.config.truncateThreshold = 0
 chai.config.showDiff = true
 
@@ -226,23 +222,8 @@ describe(`Type Queries`, function () {
               }
           }`)
 
-
-
-    fs.writeFileSync(__dirname + "/_response.json", JSON.stringify(result.data.data.getCoinType))
-    fs.writeFileSync(__dirname + "/_truth.json", JSON.stringify(ATLANTIS_TYPE_UPDATED))
-
     expect(result.data.data.getCoinType).to.deep.equal(ATLANTIS_TYPE_UPDATED)
   })
-
-  // it("Unauthorized Delete Rejected", async function () {
-  //     let promise = graphql(`mutation{ deleteType(id: 4) }`)
-  //     await expect(promise).to.be.rejectedWith(["404"])
-  // })
-
-  // it("Delete", async function () {
-  //     let promise = graphql(`mutation{ deleteType(id: 4) }`, {}, TestUser.users[0].token)
-  //     await expect(promise).to.be.fulfilled
-  // })
 
 
 
@@ -1193,7 +1174,7 @@ const ATLANTIS_TYPE_UPDATED = {
   ],
   "overlords": [
     {
-      "id": 2,
+      "id": "2",
       "name": "Angela Merkel",
       "shortName": "Merkel",
       "rank": 1,
