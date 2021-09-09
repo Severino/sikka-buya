@@ -85,7 +85,7 @@ export default {
 .box {
   align-items: stretch;
   max-width: 100%;
-  width: 720px;
+  width: 512px;
   background-color: $white;
   @include box-padding($big-padding);
 
