@@ -1,10 +1,13 @@
 <template>
-  <div class="spinner" :style="{ width: `${size}px`, height:`${size}px` }"></div>
+  <div
+    class="spinner"
+    :style="{ width: `${size}px`, height: `${size}px` }"
+  ></div>
 </template>
 
 <script>
 export default {
-  name: "LoadingSpinner",
+  name: 'LoadingSpinner',
   props: {
     size: Number,
   },
@@ -12,8 +15,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$color: #48ac48;
-
 .spinner {
   position: relative;
 
@@ -21,21 +22,21 @@ $color: #48ac48;
     position: absolute;
     top: 0;
     left: 0;
-    content: "";
+    content: '';
     display: block;
     width: 100%;
     height: 100%;
     border-radius: 50%;
+    background-color: white;
 
     animation: $time infinite growing;
-animation-timing-function: linear;
+    animation-timing-function: linear;
 
     animation-delay: $delay;
   }
 
   &:after {
     @include circle(2s, 0);
-
   }
 
   &:before {
@@ -45,20 +46,14 @@ animation-timing-function: linear;
 
 @keyframes growing {
   0% {
-    background-color: $white;
-    transform: scale(0.3);
-    opacity: 0;
+    transform: scale(0.1);
     z-index: 100;
+    opacity: 0;
   }
-  20%{
-    
-    background-color: $white;
+  20% {
     opacity: 1;
-    }
-  80% {opacity: 1;}
-  100%{    
-    background-color: $color;
-
+  }
+  100% {
     opacity: 0;
     transform: scale(0.8);
     z-index: 0;

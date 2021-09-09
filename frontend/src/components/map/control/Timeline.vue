@@ -20,12 +20,11 @@
 </template>
 
 <script>
-import Info from "../../forms/Info.vue";
-var L = require("leaflet");
+var L = require('leaflet');
 
 export default {
-  components: { Info },
-  inject: ["getMap"],
+  components: {},
+  inject: ['getMap'],
   props: {
     from: Number,
     to: Number,
@@ -33,10 +32,10 @@ export default {
   },
   methods: {
     input(event) {
-      this.$emit("input", parseFloat(event.target.value));
+      this.$emit('input', parseFloat(event.target.value));
     },
     change(event) {
-      this.$emit("change", parseFloat(event.target.value));
+      this.$emit('change', parseFloat(event.target.value));
     },
     enableMap() {
       this.getMap().dragging.enable();
@@ -47,19 +46,19 @@ export default {
     down(event) {
       event.preventDefault();
       event.stopPropagation();
-      this.$emit("change", parseFloat(this.value - 1));
+      this.$emit('change', parseFloat(this.value - 1));
     },
     up(event) {
       event.preventDefault();
       event.stopPropagation();
-      this.$emit("change", parseFloat(this.value + 1));
+      this.$emit('change', parseFloat(this.value + 1));
     },
   },
-  mounted: function () {
+  mounted: function() {
     this.$nextTick(() => {
       L.Control.Timeline = L.Control.extend({
         options: {
-          position: "middlecenter",
+          position: 'middlecenter',
         },
         onAdd: () => {
           return this.$refs.element;
