@@ -263,7 +263,7 @@ async function start({
             LEFT JOIN person_role r ON p.role = r.id
             LEFT JOIN dynasty d ON p.dynasty = d.id
             WHERE r IS NOT NULL 
-            AND unaccent(p.name) ILIKE $1 LIMIT ${process.env.MAX_SEARCH}`, search)
+            AND unaccent(p.name) ILIKE $1`, search)
 
 
                     if (include) {
@@ -272,7 +272,7 @@ async function start({
                         query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", exclude)}`
                     }
 
-                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
+                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC LIMIT ${process.env.MAX_SEARCH}`)
 
                     result.forEach((item, idx) => {
 
