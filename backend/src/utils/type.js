@@ -470,7 +470,7 @@ class Type {
 
         type.overlords = await Type.getOverlordsByType(type.id)
         type.issuers = await Type.getIssuerByType(type.id)
-        type.caliph = await Person.get(type.caliph)
+        type.caliph = (type.caliph == null) ? null : await Person.get(type.caliph)
         type.otherPersons = await Type.getOtherPersonsByType(type.id)
         type.pieces = await Type.getPieces(type.id)
         type.coinMarks = await Type.getCoinMarks(type.id)
