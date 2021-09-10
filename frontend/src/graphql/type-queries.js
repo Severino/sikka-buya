@@ -1,7 +1,7 @@
 export class TypeQueries {
 
-    static add() {
-        return `
+  static add() {
+    return `
         mutation ($projectId:String,
             $treadwellId:String,
             $mint:ID,
@@ -57,10 +57,10 @@ export class TypeQueries {
          })
          }
    `;
-    }
+  }
 
-    static update() {
-        return `
+  static update() {
+    return `
         mutation (
           $id:ID,
           $projectId:String,
@@ -118,11 +118,12 @@ export class TypeQueries {
          })
          }
    `
-    }
+  }
 
-    static get(id) {
-        {
-            return `getCoinType(id:${id}){
+  static get(id) {
+    {
+      return `{
+              getCoinType(id:${id}){
                 id
                 projectId
                 treadwellId
@@ -143,14 +144,11 @@ export class TypeQueries {
                 donativ
                 procedure
                 issuers {
-                  id
-                  person {
-                    id,
-                    name,
+                  id,
+                  name,
                     role {
                       id, name
                     }
-                  }
                   titles {
                     id,
                     name
@@ -217,6 +215,6 @@ export class TypeQueries {
                 yearUncertain
         }
       }`
-        }
     }
+  }
 }
