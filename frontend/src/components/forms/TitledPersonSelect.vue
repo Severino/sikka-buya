@@ -27,6 +27,7 @@
             attribute="name"
             id="title"
             :value="title"
+            :error="title.error"
             @input="titleChanged($event, title_index)"
           />
         </ListItem>
@@ -58,12 +59,12 @@
 </template>
 
 <script>
-import DataSelectField from "./DataSelectField.vue";
-import List from "./List.vue";
-import ListItem from "./ListItem.vue";
+import DataSelectField from './DataSelectField.vue';
+import List from './List.vue';
+import ListItem from './ListItem.vue';
 
 export default {
-  name: "TitledPersonSelect",
+  name: 'TitledPersonSelect',
   components: {
     DataSelectField,
     List,
@@ -77,66 +78,61 @@ export default {
     value: {
       type: Object,
       required: true,
-      validator: function (prop) {
-        return (
-          // prop.id != undefined &&
-          prop.person != undefined &&
-          prop.titles != undefined &&
-          prop.honorifics != undefined
-        );
+      validator: function(prop) {
+        return prop.titles != undefined && prop.honorifics != undefined;
       },
     },
   },
-  created: function () {
+  created: function() {
     this.titles.forEach((element) => {
-      element.key = this.buildKey("title");
+      element.key = this.buildKey('title');
     });
   },
-  data: function () {
+  data: function() {
     return {
       listKey: 0,
     };
   },
   computed: {
-    person: function () {
-      return this.value && this.value.person
-        ? this.value.person
-        : { id: null, name: "" };
+    person: function() {
+      return this.value
+        ? { id: this.value.id, name: this.value.name }
+        : { id: null, name: '' };
     },
-    titles: function () {
+    titles: function() {
       return this.value && this.value.titles ? this.value.titles : [];
     },
-    honorifics: function () {
+    honorifics: function() {
       return this.value && this.value.honorifics ? this.value.honorifics : [];
     },
-    titlesLength: function () {
+    titlesLength: function() {
       return this.titles.length;
     },
-    honorificsLength: function () {
+    honorificsLength: function() {
       return this.honorifics.length;
     },
   },
   methods: {
-    buildKey: function (name) {
+    buildKey: function(name) {
       const key = `${this.$vnode.key}_${name}_${this.listKey++}`;
       return key;
     },
-    personChanged: function (person) {
+    personChanged: function(person) {
       this.changed({ person });
     },
-    addTitle: function () {
+    addTitle: function() {
       const titles = this.titles;
-      titles.push({ key: this.buildKey("title"), id: null, name: "" });
+      titles.push({ key: this.buildKey('title'), id: null, name: '' });
       this.changed({ titles });
     },
-    removeTitle: function (title_index) {
+    removeTitle: function(title_index) {
       const titles = this.titles;
       titles.splice(title_index, 1);
       this.changed({ titles });
     },
-    addHonorific: function () {
+    addHonorific: function() {
       const honorifics = this.honorifics;
-      honorifics.push({ key: this.buildKey("honorific"), id: null, name: "" });
+      honorifics.push({ key: this.buildKey('honorific'), id: null, name: '' });
       this.changed({ honorifics });
     },
     removeHonorific(honorific_index) {
@@ -144,25 +140,27 @@ export default {
       honorifics.splice(honorific_index, 1);
       this.changed({ honorifics });
     },
-    honorificChanged: function (honorific, index) {
+    honorificChanged: function(honorific, index) {
       const honorifics = this.honorifics;
       honorifics.splice(index, 1, honorific);
       this.changed({ honorifics });
     },
-    titleChanged: function (title, index) {
+    titleChanged: function(title, index) {
       const titles = this.titles;
       titles.splice(index, 1, title);
       this.changed({ titles });
     },
-    changed: function ({
+    changed: function({
       key = this.value.key,
       person = this.person,
       titles = this.titles,
       honorifics = this.honorifics,
     } = {}) {
-      this.$emit("input", {
+      let { name, id } = person;
+      this.$emit('input', {
         key,
-        person,
+        name,
+        id,
         titles,
         honorifics,
       });
@@ -171,9 +169,8 @@ export default {
 };
 </script>
 
-
-<style  lang="scss">
-@import "@/scss/_import.scss";
+<style lang="scss">
+@import '@/scss/_import.scss';
 
 // .titled-person-select .title-row {
 //   // margin-left: 10px;
@@ -185,11 +182,11 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .icon {
   background-color: $gray;
-  padding: $padding;
+  // padding: $padding;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -198,7 +195,7 @@ export default {
 }
 
 .titled-person-select {
-  padding: 5px;
+  // padding: 5px;
   // display: flex;
   // border: 1px solid whitesmoke;
   // border-radius: 10px;

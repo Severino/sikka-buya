@@ -5,24 +5,24 @@
         <div class="property-row">
           <div class="title-group">
             <h1>
-              {{ this.getTypeProperty("projectId") }}
+              {{ this.getTypeProperty('projectId') }}
             </h1>
             <div class="subtitle">
-              {{ this.getTypeProperty("treadwellId") }}
+              {{ this.getTypeProperty('treadwellId') }}
             </div>
           </div>
 
           <labeled-property :label="$tc('property.mint')">
-            {{ this.getTypePropertyKey("mintAsOnCoin") }}
+            {{ this.getTypePropertyKey('mintAsOnCoin') }}
           </labeled-property>
           <labeled-property :label="$tc('property.material')">{{
-            this.getTypePropertyKey("material")
+            this.getTypePropertyKey('material')
           }}</labeled-property>
           <labeled-property :label="$tc('property.nominal')">
-            {{ this.getTypePropertyKey("nominal") }}
+            {{ this.getTypePropertyKey('nominal') }}
           </labeled-property>
           <labeled-property :label="$tc('property.year')">
-            {{ this.getTypePropertyKey("yearOfMint") }}
+            {{ this.getTypePropertyKey('yearOfMint') }}
           </labeled-property>
         </div>
 
@@ -47,13 +47,13 @@
                 v-for="overlord of this.type.overlords"
                 :key="`overlord-${overlord.id}`"
               >
-                {{ overlord.person.name }}
+                {{ overlord.name }}
               </li>
             </ol>
           </labeled-property>
 
           <labeled-property :label="$tc('role.caliph')">
-            {{ this.getTypePropertyKey("caliph") }}
+            {{ this.getTypePropertyKey('caliph') }}
           </labeled-property>
         </section>
 
@@ -84,16 +84,15 @@
       </section>
     </div>
 
-
     <div class="labeled-group">
-      <h3>{{ $t("property.cursive_script") }}</h3>
-      {{ type.cursiveScript ? $t("general.yes") : $t("general.no") }}
+      <h3>{{ $t('property.cursive_script') }}</h3>
+      {{ type.cursiveScript ? $t('general.yes') : $t('general.no') }}
     </div>
 
     <div class="labeled-group">
-      <h3>{{ $tc("property.coin_mark", 2) }}</h3>
+      <h3>{{ $tc('property.coin_mark', 2) }}</h3>
       <p v-if="type.coinMarks || type.coinMarks.length == 0">
-        {{ $t("message.no_pieces_in_list") }}
+        {{ $t('message.no_pieces_in_list') }}
       </p>
       <ul>
         <li
@@ -106,9 +105,9 @@
     </div>
 
     <div class="labeled-group">
-      <h3>{{ $t("property.pieces") }}</h3>
+      <h3>{{ $t('property.pieces') }}</h3>
       <p v-if="type.pieces || type.pieces.length == 0">
-        {{ $t("message.no_pieces_in_list") }}
+        {{ $t('message.no_pieces_in_list') }}
       </p>
       <ul>
         <li v-for="(piece, index) of type.pieces" :key="`piece-${index}`">
@@ -117,61 +116,60 @@
       </ul>
     </div>
     <div class="labeled-group">
-      <h3>{{ $t("property.specials") }}</h3>
+      <h3>{{ $t('property.specials') }}</h3>
       <div v-html="type.specials" />
     </div>
   </div>
 </template>
 
 <script>
-import CoinSideGroup from "../display/CoinSideGroup.vue";
-import LabeledProperty from "../display/LabeledProperty.vue";
-import Tabulated from "../layout/Tabulated.vue";
-import Query from "/src/database/query.js";
+import CoinSideGroup from '../display/CoinSideGroup.vue';
+import LabeledProperty from '../display/LabeledProperty.vue';
+import Tabulated from '../layout/Tabulated.vue';
+import Query from '/src/database/query.js';
 export default {
   components: { LabeledProperty, Tabulated, CoinSideGroup },
-  name: "TypePage",
+  name: 'TypePage',
   data: function() {
     return {
       navigationGuard: null,
       type: {
         id: null,
-        projectId: "",
-        treadwellId: "",
-        mint: { id: null, name: "" },
-        mintAsOnCoin: "",
-        material: { id: null, name: "" },
-        nominal: { id: null, name: "" },
-        yearOfMint: "",
+        projectId: '',
+        treadwellId: '',
+        mint: { id: null, name: '' },
+        mintAsOnCoin: '',
+        material: { id: null, name: '' },
+        nominal: { id: null, name: '' },
+        yearOfMint: '',
         donativ: false,
-        procedure: "pressed",
+        procedure: 'pressed',
         issuers: [],
         overlords: [],
         otherPersons: [],
-        caliph: { id: null, name: "", role: null },
+        caliph: { id: null, name: '', role: null },
         avers: {
-          fieldText: "",
-          innerInscript: "",
-          intermediateInscript: "",
-          outerInscript: "",
-          misc: "",
+          fieldText: '',
+          innerInscript: '',
+          intermediateInscript: '',
+          outerInscript: '',
+          misc: '',
         },
         reverse: {
-          fieldText: "",
-          innerInscript: "",
-          intermediateInscript: "",
-          outerInscript: "",
-          misc: "",
+          fieldText: '',
+          innerInscript: '',
+          intermediateInscript: '',
+          outerInscript: '',
+          misc: '',
         },
         cursiveScript: false,
         coinMarks: [],
         pieces: [],
-        specials: "",
+        specials: '',
       },
     };
   },
   created: function() {
-
     Query.raw(
       `{
             getCoinType(id:${this.$route.params.id}){
@@ -278,7 +276,7 @@ export default {
   },
   methods: {
     getUndefinedString() {
-      return "Nicht Erfasst";
+      return 'Nicht Erfasst';
     },
     getTypeProperty(name) {
       if (!this.type || !this.type[name]) {
@@ -287,7 +285,7 @@ export default {
         return this.type[name];
       }
     },
-    getTypePropertyKey: function(name, key = "name") {
+    getTypePropertyKey: function(name, key = 'name') {
       let result = this.getTypeProperty(name);
       if (!result[key]) {
         return this.getUndefinedString();

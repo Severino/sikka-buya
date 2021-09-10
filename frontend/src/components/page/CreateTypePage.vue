@@ -100,7 +100,7 @@
             table="persons"
             attribute="name"
             :value="issuer"
-            :key="`issuer-${issuer.key}`"
+            :key="`issuers-${issuer.key}`"
             @input="issuerChanged($event, issuer_idx)"
             queryCommand="searchPersonsWithoutRole"
             :queryParams="['id', 'name']"
@@ -358,10 +358,33 @@ export default {
     },
   },
   mounted: function() {
+    /**
+     * Draft saving
+     */
+    // this.backupInterval = setInterval(() => {
+    //   let coin = JSON.stringify(this.$data.coin);
+    //   window.localStorage.setItem('coin', coin);
+    //   console.log('Saved backup locally.');
+    // }, 5000);
+
     this.navigationGuard = new NavigationGuard(this);
-    this.navigationGuard.enable();
+    // this.navigationGuard.enable();
 
     if (!this.$data.coin.id) {
+      /**
+       * Draft loading
+       */
+      // let coinBackup = window.localStorage.getItem('coin');
+      // if (coinBackup) {
+      //   try {
+      //     let coin = JSON.parse(coinBackup);
+      //     this.$data.coin = coin;
+      //     console.log(`Loaded backup: `, coin.projectId);
+      //   } catch (e) {
+      //     console.error('Could not restore backup from data.');
+      //   }
+      // }
+
       /**
        * Somehow the child object is not empties correctly.
        * Therefore we clone it here.
@@ -407,7 +430,6 @@ export default {
             if (!type.issuers) type.issuers = [];
             type.issuers.forEach((issuer) => {
               issuer.key = this.key++;
-              console.log(issuer);
               issuer.titles.forEach((title) => (title.key = this.key++));
               issuer.honorifics.forEach(
                 (honorific) => (honorific.key = this.key++)
@@ -507,13 +529,14 @@ export default {
       errorMessages: [],
       submitted: false,
       errorMessage: '',
-      validationErrors: [],
       loading: true,
       productionOptions: ['pressed', 'cast'],
       key: 0,
+      backupInterval: null,
     };
   },
   beforeRouteLeave(to, from, next) {
+    clearInterval(this.backupInterval);
     this.navigationGuard.beforeRouteLeave(
       to,
       from,
@@ -644,10 +667,36 @@ export default {
     },
     submitForm: function() {
       function validateTitledPerson(titledPerson) {
-        return !!titledPerson.person.id;
+        let valid = true;
+        let titledPersonError = '';
+
+        if (!titledPerson.id) {
+          titledPersonError +=
+            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element. \n';
+          valid = false;
+        }
+
+        for (let i = 0; i < titledPerson.titles.length; i++) {
+          if (!titledPerson.titles[i].id) {
+            valid = false;
+            titledPersonError += `Nicht alle Titel enthalten einen gültigen Wert enthalten. Passen Sie diesen an oder löschen Sie das Element! \n`;
+            break;
+          }
+        }
+
+        for (let i = 0; i < titledPerson.honorifics.length; i++) {
+          if (!titledPerson.honorifics[i].id) {
+            valid = false;
+            titledPersonError += `Nicht alle Ehrennamen enthalten einen gültigen Wert enthalten. Passen Sie diesen an oder löschen Sie das Element! \n`;
+            break;
+          }
+        }
+
+        titledPerson.error = titledPersonError;
+        return valid;
       }
 
-      function validatePeron(person) {
+      function validatePerson(person) {
         return !!person.id;
       }
 
@@ -655,9 +704,8 @@ export default {
 
       this.coin.issuers.forEach((issuer, index) => {
         if (!validateTitledPerson(issuer)) {
-          issuer.error =
-            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           this.coin.issuers.splice(index, 1, issuer);
+          console.log('UPDATE IT!!!');
           invalid = true;
         } else {
           delete issuer.error;
@@ -676,7 +724,7 @@ export default {
       });
 
       this.coin.otherPersons.forEach((otherPerson, index) => {
-        if (!validatePeron(otherPerson)) {
+        if (!validatePerson(otherPerson)) {
           otherPerson.error =
             'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           invalid = true;
@@ -770,7 +818,7 @@ export default {
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
-            person: issuer.person.id,
+            person: issuer.id,
             titles: issuer.titles.map((title) => +title.id),
             honorifics: issuer.honorifics.map((honorific) => +honorific.id),
           };
@@ -778,7 +826,7 @@ export default {
         otherPersons: data.otherPersons.map((person) => person.id),
         overlords: data.overlords.map((overlord) => {
           return {
-            person: overlord.person.id,
+            person: overlord.id,
             rank: overlord.rank,
             titles: overlord.titles.map((title) => +title.id),
             honorifics: overlord.honorifics.map((honorific) => +honorific.id),
@@ -817,7 +865,7 @@ export default {
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
-            person: issuer.person.id,
+            person: issuer.id,
             titles: issuer.titles.map((title) => +title.id),
             honorifics: issuer.honorifics.map((honorific) => +honorific.id),
           };
@@ -825,7 +873,7 @@ export default {
         otherPersons: data.otherPersons.map((person) => person.id),
         overlords: data.overlords.map((overlord) => {
           return {
-            person: overlord.person.id,
+            person: overlord.id,
             rank: overlord.rank,
             titles: overlord.titles.map((title) => +title.id),
             honorifics: overlord.honorifics.map((honorific) => +honorific.id),
