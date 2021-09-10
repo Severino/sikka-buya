@@ -7,11 +7,6 @@ type AuthResponse {
   user: User
 }
 
-type Material {
-  id: ID
-  name: String
-}
-
 input UserInput {
   email: String!
   password: String!
@@ -21,6 +16,11 @@ type User {
   id: ID
   email: String
   super: Boolean
+}
+
+type Name {
+  id: ID
+  name: String
 }
 
 input NameInput {
@@ -65,8 +65,8 @@ type ReducedCoinType {
   projectId: String
   treadwellId: String
   yearOfMint: String
-  material: Material
-  nominal: Nominal
+  material: Name
+  nominal: String
   donativ: Boolean
   procedure: String
   completed: Boolean
@@ -79,8 +79,8 @@ type CoinType {
   treadwellId: String
   mint: Mint
   mintAsOnCoin: String
-  material: Material
-  nominal: Nominal
+  material: Name
+  nominal: Name
   yearOfMint: String
   donativ: Boolean
   procedure: String
@@ -148,39 +148,14 @@ type Person {
   id: ID
   name: String
   shortName: String
-  role: Role
-  dynasty: Dynasty
-}
-
-type Role {
-  id: ID
-  name: String
-}
-
-type Dynasty {
-  id: ID
-  name: String
+  role: Name
+  dynasty: Name
 }
 
 input TitledPersonInput {
   person: ID!
   titles: [ID]!
   honorifics: [ID]!
-}
-
-type Title {
-  id: ID
-  name: String!
-}
-
-type Honorific {
-  id: ID
-  name: String!
-}
-
-type Nominal {
-  id: ID
-  name: String!
 }
 
 type Dominion {
@@ -207,14 +182,14 @@ type Query {
   getCoinMark(id: Int!): CoinMark
 
   # Tested in 005_nominal
-  nominal: [Nominal]!
-  searchNominal(text: String): [Nominal]!
-  getNominal(id: Int!): Nominal
+  nominal: [Name]!
+  searchNominal(text: String): [Name]!
+  getNominal(id: Int!): Name
 
   # Tested in 006_material
-  material: [Material]!
-  searchMaterial(text: String): [Material]!
-  getMaterial(id: Int!): Material
+  material: [Name]!
+  searchMaterial(text: String): [Name]!
+  getMaterial(id: Int!): Name
 
   # Tested in 007_mint
   mint: [Mint]!
@@ -222,27 +197,27 @@ type Query {
   getMint(id: Int!): Mint
 
   # Tested in 008_role
-  role: [Role]
-  searchRole(text: String): [Role]!
-  getRole(id: Int!): Role
+  role: [Name]
+  searchRole(text: String): [Name]!
+  getRole(id: Int!): Name
   # Tested in 009_dynasty
-  dynasty: [Dynasty]!
-  searchDynasty(text: String): [Dynasty]!
-  getDynasty(id: Int!): Dynasty
+  dynasty: [Name]!
+  searchDynasty(text: String): [Name]!
+  getDynasty(id: Int!): Name
 
   # Tested in 010_title
-  title: [Title]!
-  searchTitle(text: String): [Title]!
-  getTitle(id: Int!): Title
+  title: [Name]!
+  searchTitle(text: String): [Name]!
+  getTitle(id: Int!): Name
 
   # Tested in 011_honorifics
-  honorific: [Honorific]!
-  searchHonorific(text: String): [Honorific]!
-  getHonorific(id: Int!): Honorific
+  honorific: [Name]!
+  searchHonorific(text: String): [Name]!
+  getHonorific(id: Int!): Name
 
   # Tested in 012_person
   person: [Person]!
-  searchPerson(text: String): [Person]!
+  searchPerson(text: String, paginate: Pagination): [Person]!
   getPerson(id: Int!): Person
 
   # Tested in 030_coin_type
@@ -344,10 +319,10 @@ type Overlord {
   id: ID
   name: String
   shortName: String
-  role: Role
-  dynasty: Dynasty
-  titles: [Title]!
-  honorifics: [Honorific]!
+  role: Name
+  dynasty: Name
+  titles: [Name]!
+  honorifics: [Name]!
   rank: Int
 }
 
@@ -355,10 +330,10 @@ type TitledPerson {
   id: ID
   name: String
   shortName: String
-  role: Role
-  dynasty: Dynasty
-  titles: [Title]!
-  honorifics: [Honorific]!
+  role: Name
+  dynasty: Name
+  titles: [Name]!
+  honorifics: [Name]!
 }
 
 input OverlordInput {
