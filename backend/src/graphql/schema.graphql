@@ -217,7 +217,7 @@ type Query {
 
   # Tested in 012_person
   person: [Person]!
-  searchPerson(text: String, paginate: Pagination): [Person]!
+  searchPerson(text: String): [Person]!
   getPerson(id: Int!): Person
 
   # Tested in 030_coin_type
