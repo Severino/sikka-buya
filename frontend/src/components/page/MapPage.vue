@@ -40,10 +40,7 @@ export default {
         }
     mint {
     name
-    location {
-      type
-      coordinates
-    }
+    location
   }
 }`
     )
@@ -55,6 +52,7 @@ export default {
         this.update();
 
         window.map = this.map;
+        this.map.doubleClickZoom.disable();
       })
       .catch(console.error);
   },
@@ -62,7 +60,7 @@ export default {
     getColor(i) {
       const colors = [
         '#ff6542',
-        '#0b1d51',
+        'red',
         '#f092dd',
         '#ffaff0',
         '#9ece9a',
@@ -99,11 +97,13 @@ export default {
     mint {
       id
       name
-      location {
-        type
-        coordinates
-      }
+      location
     },
+    issuers {
+      id
+      name
+      shortName
+    }
     overlords {
       id
       name
@@ -116,46 +116,79 @@ export default {
         .then((result) => {
           let data = result.data.data.getTypes;
 
+          let issuers = {};
           let overlords = {};
+
+          data.forEach((type) => {
+            if (type?.mint.location) {
+              try {
+                type.mint.location = JSON.parse(type.mint.location);
+                type.issuers.forEach((issuer) => (issuers[issuer.id] = issuer));
+                type.overlords.forEach(
+                  (overlord) => (overlords[overlord.id] = overlord)
+                );
+              } catch (e) {
+                console.error('Could not parse GeoJSON.', type.mint.location);
+              }
+            }
+          });
 
           data = data.filter(
             (d) => d.mint?.location && d.mint.location.coordinates != null
           );
 
-          data.forEach((type) => {
-            type.overlords.forEach((o) => (overlords[o.id] = o));
+          let rulerColorMap = {};
+          let i = 0;
+          let oArr = Object.values(overlords);
+          let iArr = Object.values(issuers);
+
+          [...iArr, ...oArr].forEach((ruler) => {
+            rulerColorMap[ruler.id] = this.getColor(i);
+            console.log(
+              `%c ${ruler.shortName} `,
+              `background: ${ruler.color} ;`,
+              ruler
+            );
+            i++;
           });
 
-          let oArr = Object.values(overlords);
-          for (let i = 0; i < oArr.length; i++) {
-            overlords[oArr[i].id].color = this.getColor(i);
-          }
-
           if (this.concentricCircles) this.concentricCircles.remove();
+
+          const types = data.map((obj) => {
+            let mint = obj.mint;
+            let geo = mint.location;
+            geo.coin = obj;
+            return geo;
+          });
+
           this.concentricCircles = L.geoJSON(
-            data.map((obj) => {
-              let mint = obj.mint;
-              let geo = mint.location;
-              geo.coin = obj;
-              return geo;
-            }),
+            types,
+
             {
               pointToLayer: function(feature, latlng) {
                 let circles = [];
-                let radius = 10;
-                const increment = 5;
-                for (let ov of feature.coin.overlords) {
-                  const overlord = overlords[ov.id];
+                let radius = 30;
+                const increment = 10;
 
+                if (feature.coin.issuers.length > 1)
+                  console.error(
+                    'MORE THAN ONE ISSUER ON MINT THIS LEADS TO A WRONG REPRESENTATION'
+                  );
+
+                let rulers = [
+                  ...feature.coin.issuers,
+                  ...feature.coin.overlords,
+                ];
+
+                for (let [index, ruler] of rulers.entries()) {
                   circles.push(
                     L.circleMarker(latlng, {
                       radius,
-                      // color: "#ffffff",
                       weight: 0.1,
                       stroke: false,
-                      fillColor: overlord.color,
+                      fillColor: rulerColorMap[ruler.id],
                       fillOpacity: 1,
-                    }).bindTooltip(overlord.name, {
+                    }).bindTooltip(ruler.name, {
                       className: 'map-label',
                       // permanent: true,
                       direction: 'top',
@@ -171,7 +204,6 @@ export default {
               },
               style: {
                 stroke: false,
-                fillColor: '#629bf0',
                 fillOpacity: 1,
               },
               tooltip: function(feature) {
@@ -227,10 +259,7 @@ export default {
   ruledMint(year: ${this.timeline.value}) {
     mint {
       name
-      location {
-        type
-        coordinates
-      }
+      location
     }
     overlords {
       name
@@ -249,19 +278,11 @@ export default {
     }
     mints {
       name
-      location {
-        type
-        coordinates
-      }
+      location
     }
   }}`
       )
         .then((result) => {
-          let rms = result.data.data.ruledMint.filter(
-            (rm) =>
-              rm.mint.location != null && rm.mint.location.coordinates != null
-          );
-
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
             coordsToLatLng: function(coords) {
@@ -276,9 +297,15 @@ export default {
             },
           }).addTo(this.map);
 
-          rms.forEach((rm) => {
-            console.log(rm.mint.location);
-            this.mintGeoJSONLayer.addData(rm.mint.location);
+          result.data.data.ruledMint.forEach((mint) => {
+            if (mint.location) {
+              try {
+                mint.location = JSON.parse(mint.location);
+                this.mintGeoJSONLayer.addData(mint.location);
+              } catch (e) {
+                console.error('Could not parse GeoJSON from mint.', mint);
+              }
+            }
           });
 
           let dominionData = result.data.data.getDominion;

@@ -1,30 +1,35 @@
 <template>
   <div class="back-header">
-    <router-link :to="to"
-      ><ArrowLeft />{{ $t("navigation.back") }}</router-link
+    <router-link @click="debug" :to="to"
+      ><ArrowLeft />{{ $t('navigation.back') }}</router-link
     >
   </div>
 </template>
 
 <script>
-import ArrowLeft from "vue-material-design-icons/KeyboardBackspace";
+import ArrowLeft from 'vue-material-design-icons/KeyboardBackspace';
 export default {
-  name: "ValueWrapper",
+  name: 'ValueWrapper',
   components: {
     ArrowLeft,
   },
   props: {
     to: {
       type: Object,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
+  methods: {
+    debug: function() {
+      console.log('CLICKED');
+    },
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .back-header {
   width: 100%;
