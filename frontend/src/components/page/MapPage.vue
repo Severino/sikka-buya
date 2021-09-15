@@ -11,27 +11,27 @@
 </template>
 
 <script>
-var L = require('leaflet');
-var turf = require('@turf/turf');
+var L = require("leaflet");
+var turf = require("@turf/turf");
 console.log(turf);
-import Query from '../../database/query';
-import Timeline from '../map/control/Timeline.vue';
-import MapView from '../map/MapView.vue';
+import Query from "../../database/query";
+import Timeline from "../map/control/Timeline.vue";
+import MapView from "../map/MapView.vue";
 
 export default {
   components: { MapView, Timeline },
   computed: {
-    map: function() {
+    map: function () {
       return this.$refs.map.map;
     },
   },
-  data: function() {
+  data: function () {
     return {
       timeline: null,
       mints: [],
     };
   },
-  mounted: function() {
+  mounted: function () {
     Query.raw(
       `{
         timespan {
@@ -61,17 +61,17 @@ export default {
   methods: {
     getColor(i) {
       const colors = [
-        '#ff6542',
-        '#0b1d51',
-        '#f092dd',
-        '#ffaff0',
-        '#9ece9a',
-        '#f1e8b8',
-        '#e2c044',
-        '#1b4079',
-        '#2ba84a',
+        "#ff6542",
+        "#0b1d51",
+        "#f092dd",
+        "#ffaff0",
+        "#9ece9a",
+        "#f1e8b8",
+        "#e2c044",
+        "#1b4079",
+        "#2ba84a",
       ];
-      if (i > colors.length) console.error('RAN OUT OF COLORS', i);
+      if (i > colors.length) console.error("RAN OUT OF COLORS", i);
       return colors[i % colors.length];
     },
     update() {
@@ -79,11 +79,11 @@ export default {
       // this.updateMint();
       this.updateConcentricCircles();
     },
-    changed: function(val) {
+    changed: function (val) {
       this.timeline.value = val;
       this.update();
     },
-    queryMint: function() {
+    queryMint: function () {
       Query.raw(`{mint {name location { type coordinates} } }`)
         .then((result) => {
           this.mints = result.data.data.mint;
@@ -91,7 +91,7 @@ export default {
         })
         .catch(console.error);
     },
-    updateConcentricCircles: function() {
+    updateConcentricCircles: function () {
       Query.raw(
         `{
   getTypes(yearOfMint:${this.timeline.value}){
@@ -140,7 +140,7 @@ export default {
               return geo;
             }),
             {
-              pointToLayer: function(feature, latlng) {
+              pointToLayer: function (feature, latlng) {
                 let circles = [];
                 let radius = 10;
                 const increment = 5;
@@ -156,9 +156,9 @@ export default {
                       fillColor: overlord.color,
                       fillOpacity: 1,
                     }).bindTooltip(overlord.name, {
-                      className: 'map-label',
+                      className: "map-label",
                       // permanent: true,
-                      direction: 'top',
+                      direction: "top",
                     })
                   );
                   radius += increment;
@@ -166,15 +166,15 @@ export default {
                 circles.reverse();
                 return L.layerGroup(circles);
               },
-              coordsToLatLng: function(coords) {
+              coordsToLatLng: function (coords) {
                 return new L.LatLng(coords[0], coords[1], coords[2]);
               },
               style: {
                 stroke: false,
-                fillColor: '#629bf0',
+                fillColor: "#629bf0",
                 fillOpacity: 1,
               },
-              tooltip: function(feature) {
+              tooltip: function (feature) {
                 return feature.mint.name;
               },
             }
@@ -184,7 +184,7 @@ export default {
         })
         .catch(console.error);
     },
-    updateMint: function() {
+    updateMint: function () {
       let mintData = this.mints.filter((mint) => {
         return (
           mint.location?.coordinates &&
@@ -204,15 +204,15 @@ export default {
           pointToLayer: (point, latlng) => {
             return L.circleMarker(latlng);
           },
-          coordsToLatLng: function(coords) {
+          coordsToLatLng: function (coords) {
             return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
             stroke: false,
-            fillColor: '#629bf0',
+            fillColor: "#629bf0",
             fillOpacity: 1,
           },
-          tooltip: function(feature) {
+          tooltip: function (feature) {
             return feature.mint.name;
           },
         }
@@ -220,7 +220,7 @@ export default {
 
       this.mintLayer.addTo(this.map);
     },
-    updateDominion: function() {
+    updateDominion: function () {
       Query.raw(
         `
       {
@@ -264,14 +264,14 @@ export default {
 
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
               stroke: true,
               opacity: 0.75,
-              color: 'red',
-              fillColor: '#48ac48',
+              color: "red",
+              fillColor: "#48ac48",
               fillOpacity: 0.1,
             },
           }).addTo(this.map);
@@ -314,14 +314,14 @@ export default {
           });
           if (this.dominionLayer) this.dominionLayer.remove();
           this.dominionLayer = L.geoJSON(dominionData, {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
               stroke: true,
               opacity: 0.75,
-              color: '#48ac48',
-              fillColor: '#48ac48',
+              color: "#48ac48",
+              fillColor: "#48ac48",
               fillOpacity: 0.5,
             },
           }).addTo(this.map);
@@ -331,7 +331,7 @@ export default {
             },
             {
               sticky: true,
-              direction: 'top',
+              direction: "top",
             }
           );
         })
