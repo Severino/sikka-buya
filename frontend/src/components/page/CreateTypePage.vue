@@ -1,9 +1,14 @@
 <template>
   <form class="types-page" @submit.prevent="">
-    <!-- <div class="navigation-guard-info" :class="{ guardActive }">
-      {{ guardActive }}
-    </div> -->
+    <modal :active="confirmVisible" @close="() => forceRedirect(false)">
+      <confirmation @result="forceRedirect"
+        >Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabe
+        verloren!</confirmation
+      >
+    </modal>
     <error-box :message="errorMessage" />
+    <BackHeader :to="{ name: 'TypeOverview' }" />
+
     <Heading>{{ $tc('general.type') }}</Heading>
     <LoadingSpinner v-if="loading" />
     <div v-if="!loading" class="loading-area">
@@ -325,10 +330,12 @@ import LoadingSpinner from '../misc/LoadingSpinner.vue';
 import baseTemplate from '@/assets/template_types/base.json';
 import RemovableInputField from '../forms/RemovableInputField.vue';
 import AxiosHelper from '../../utils/AxiosHelper';
-import NavigationGuard from '../../utils/NavigationGuard';
 import ErrorBox from './system/ErrorBox.vue';
 
 import { TypeQueries } from '../../graphql/type-queries';
+import Modal from '../layout/Modal.vue';
+import Confirmation from '../misc/Confirmation.vue';
+import BackHeader from '../layout/BackHeader.vue';
 
 export default {
   name: 'CreateTypePage',
@@ -348,6 +355,9 @@ export default {
     LoadingSpinner,
     RemovableInputField,
     ErrorBox,
+    Confirmation,
+    Modal,
+    BackHeader,
   },
   computed: {
     productionLabels: function() {
@@ -366,9 +376,6 @@ export default {
     //   window.localStorage.setItem('coin', coin);
     //   console.log('Saved backup locally.');
     // }, 5000);
-
-    this.navigationGuard = new NavigationGuard(this);
-    // this.navigationGuard.enable();
 
     if (!this.$data.coin.id) {
       /**
@@ -486,7 +493,6 @@ export default {
 
   data: function() {
     return {
-      navigationGuard: null,
       coin: {
         id: null,
         projectId: '',
@@ -533,20 +539,31 @@ export default {
       productionOptions: ['pressed', 'cast'],
       key: 0,
       backupInterval: null,
+      confirmVisible: false,
     };
   },
   beforeRouteLeave(to, from, next) {
-    clearInterval(this.backupInterval);
-    this.navigationGuard.beforeRouteLeave(
-      to,
-      from,
-      next,
-      this.$t('warning.leave_without_saving')
-    );
+    // clearInterval(this.backupInterval);
+
+    if (this.submitted) next();
+
+    this.next = next;
+    this.confirmVisible = true;
   },
   methods: {
+    debug: function() {
+      console.log('DEBUGGGG');
+    },
     guard() {
       return true;
+    },
+    forceRedirect(result) {
+      if (this.next != null && result) {
+        this.next();
+      } else {
+        this.confirmVisible = false;
+        this.next = null;
+      }
     },
     addError(msg) {
       this.errorMessages.push({
@@ -788,8 +805,6 @@ export default {
 
         operation(submitData)
           .then((result) => {
-            this.navigationGuard.disable();
-
             if (AxiosHelper.ok(result)) {
               this.submitted = true;
               this.$router.push({ name: 'TypeOverview' });
@@ -800,6 +815,7 @@ export default {
             }
           })
           .catch((errors) => {
+            console.log(errors);
             errors.forEach((err) => this.addError(err));
           });
       }

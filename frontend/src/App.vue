@@ -1,11 +1,5 @@
 <template>
   <div id="app">
-    <modal :active="false" ref="confirm">
-      <confirmation
-        text="Wollen Sie die Seite wirklich verlassen? Änderungen gehen dabei verloren!"
-      />
-    </modal>
-
     <modal :active="loginActive" @close="closeLoginForm">
       <login-form @login="closeLoginForm" />
       {{ getCount }}
@@ -15,16 +9,14 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import LoginForm from './components/auth/LoginForm.vue';
 import ButtonGroup from './components/forms/ButtonGroup.vue';
 import Modal from './components/layout/Modal.vue';
 import Auth from './utils/Auth';
 import PopupHandler from './popup';
-import Confirmation from './components/misc/Confirmation.vue';
 
 export default {
-  components: { ButtonGroup, LoginForm, Modal, Confirmation },
+  components: { ButtonGroup, LoginForm, Modal },
   name: 'App',
   data: function() {
     return {

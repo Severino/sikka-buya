@@ -11,7 +11,7 @@
         @keydown.enter="create"
       >
         <PlusCircleOutline />
-        <span>{{ $t("form.create") }}</span>
+        <span>{{ $t('form.create') }}</span>
       </div>
 
       <SearchField v-model="textFilter" />
@@ -41,23 +41,23 @@
 </template>
 
 <script>
-import SearchUtils from "../../utils/SearchUtils.js";
-import AxiosHelper from "../../utils/AxiosHelper.js";
+import SearchUtils from '../../utils/SearchUtils.js';
+import AxiosHelper from '../../utils/AxiosHelper.js';
 
-import PlusCircleOutline from "vue-material-design-icons/PlusCircleOutline";
+import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
 
-import List from "../layout/List.vue";
-import Query from "../../database/query.js";
-import BackHeader from "../layout/BackHeader.vue";
-import SearchField from "../layout/SearchField.vue";
-import ListItemIdField from "../layout/list/ListItemIdField.vue";
+import List from '../layout/List.vue';
+import Query from '../../database/query.js';
+import BackHeader from '../layout/BackHeader.vue';
+import SearchField from '../layout/SearchField.vue';
+import ListItemIdField from '../layout/list/ListItemIdField.vue';
 
-import ListItemCell from "../layout/list/ListItemCell.vue";
-import ListItem from "../layout/ListItem.vue";
-import DynamicDeleteButton from "../layout/DynamicDeleteButton.vue";
+import ListItemCell from '../layout/list/ListItemCell.vue';
+import ListItem from '../layout/ListItem.vue';
+import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 
 export default {
-  name: "OverviewPage",
+  name: 'OverviewPage',
   components: {
     PlusCircleOutline,
     List,
@@ -70,12 +70,12 @@ export default {
   },
   created: function() {
     new Query(this.queryName)
-      .list(["id", "name"])
+      .list(['id', 'name'])
       .then((obj) => {
         this.$data.items = obj.data.data[this.queryName];
       })
       .catch(() => {
-        this.error = this.$t("error.loading_list");
+        this.error = this.$t('error.loading_list');
       })
       .finally(() => {
         this.$data.loading = false;
@@ -117,8 +117,8 @@ export default {
       loading: true,
       items: [],
       error_id: 0,
-      error: "",
-      textFilter: "",
+      error: '',
+      textFilter: '',
     };
   },
 
@@ -140,7 +140,7 @@ export default {
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((err) => {
-          this.displayError(this.$t("error.delete_list_item_prevented"));
+          this.displayError(this.$t('error.delete_list_item_prevented'));
           console.error(err);
         });
     },
@@ -152,7 +152,7 @@ export default {
       // Delete the error message if its the same message after X seconds.
       setTimeout(() => {
         if ((this.error_id = current_id)) {
-          this.error = "";
+          this.error = '';
         }
       }, 3000);
     },
@@ -161,7 +161,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 .list {
   display: flex;
   flex-direction: column;
