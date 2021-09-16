@@ -7,6 +7,29 @@
       v-model="timeline.value"
       @change="changed"
     />
+
+    <div class="side-bar side-bar-right">
+      <div id="rulers">
+        <ul>
+          <li
+            v-for="ruler of rulers"
+            :key="`ruler-list-item-${ruler.id}`"
+            :style="
+              `background-color: ${
+                activeRuler
+                  ? ruler.id == activeRuler.id
+                    ? rulerColorMap[ruler.id]
+                    : 'transparent'
+                  : rulerColorMap[ruler.id] || 'transparent'
+              };`
+            "
+            @click="setActiveRuler(ruler)"
+          >
+            {{ ruler.name }}
+          </li>
+        </ul>
+      </div>
+    </div>
   </map-view>
 </template>
 
@@ -19,6 +42,7 @@ import Timeline from '../map/control/Timeline.vue';
 import MapView from '../map/MapView.vue';
 
 export default {
+  name: 'MapPage',
   components: { MapView, Timeline },
   computed: {
     map: function() {
@@ -29,6 +53,9 @@ export default {
     return {
       timeline: null,
       mints: [],
+      rulers: [],
+      rulerColorMap: {},
+      activeRuler: null,
     };
   },
   mounted: function() {
@@ -57,17 +84,21 @@ export default {
       .catch(console.error);
   },
   methods: {
+    setActiveRuler(ruler) {
+      if (this.activeRuler && this.activeRuler.id == ruler.id) {
+        this.activeRuler = null;
+      } else this.activeRuler = ruler;
+      this.update();
+    },
     getColor(i) {
       const colors = [
-        '#ff6542',
-        'red',
-        '#f092dd',
-        '#ffaff0',
-        '#9ece9a',
+        '#7CCC7B',
+        '#FFB581',
+        '#89B0AE',
+        '#A1DAA0',
+        '#FEDFCA',
         '#f1e8b8',
-        '#e2c044',
-        '#1b4079',
-        '#2ba84a',
+        '#BEE3DB',
       ];
       if (i > colors.length) console.error('RAN OUT OF COLORS', i);
       return colors[i % colors.length];
@@ -116,16 +147,15 @@ export default {
         .then((result) => {
           let data = result.data.data.getTypes;
 
-          let issuers = {};
-          let overlords = {};
+          let rulers = {};
 
           data.forEach((type) => {
             if (type?.mint.location) {
               try {
                 type.mint.location = JSON.parse(type.mint.location);
-                type.issuers.forEach((issuer) => (issuers[issuer.id] = issuer));
+                type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
                 type.overlords.forEach(
-                  (overlord) => (overlords[overlord.id] = overlord)
+                  (overlord) => (rulers[overlord.id] = overlord)
                 );
               } catch (e) {
                 console.error('Could not parse GeoJSON.', type.mint.location);
@@ -137,18 +167,12 @@ export default {
             (d) => d.mint?.location && d.mint.location.coordinates != null
           );
 
-          let rulerColorMap = {};
+          this.rulerColorMap = {};
           let i = 0;
-          let oArr = Object.values(overlords);
-          let iArr = Object.values(issuers);
 
-          [...iArr, ...oArr].forEach((ruler) => {
-            rulerColorMap[ruler.id] = this.getColor(i);
-            console.log(
-              `%c ${ruler.shortName} `,
-              `background: ${ruler.color} ;`,
-              ruler
-            );
+          this.rulers = rulers;
+          Object.values(rulers).forEach((ruler) => {
+            this.rulerColorMap[ruler.id] = this.getColor(i);
             i++;
           });
 
@@ -161,14 +185,16 @@ export default {
             return geo;
           });
 
+          let that = this;
+
           this.concentricCircles = L.geoJSON(
             types,
 
             {
               pointToLayer: function(feature, latlng) {
                 let circles = [];
-                let radius = 30;
-                const increment = 10;
+                let radius = 15;
+                const increment = 7;
 
                 if (feature.coin.issuers.length > 1)
                   console.error(
@@ -181,19 +207,31 @@ export default {
                 ];
 
                 for (let [index, ruler] of rulers.entries()) {
-                  circles.push(
-                    L.circleMarker(latlng, {
-                      radius,
-                      weight: 0.1,
-                      stroke: false,
-                      fillColor: rulerColorMap[ruler.id],
-                      fillOpacity: 1,
-                    }).bindTooltip(ruler.name, {
-                      className: 'map-label',
-                      // permanent: true,
-                      direction: 'top',
-                    })
-                  );
+                  console.log(that.activeRuler);
+                  let fillColor = that.activeRuler
+                    ? ruler.id !== that.activeRuler.id
+                      ? '#ccc'
+                      : that.rulerColorMap[ruler.id]
+                    : that.rulerColorMap[ruler.id];
+
+                  let circle = L.circleMarker(latlng, {
+                    radius,
+                    weight: 0.75,
+                    stroke: true,
+                    color: '#fff',
+                    fillColor,
+                    fillOpacity: 1,
+                  }).bindTooltip(ruler.name, {
+                    className: 'map-label',
+                    // permanent: true,
+                    direction: 'top',
+                  });
+
+                  circle.on('click', () => {
+                    that.setActiveRuler(ruler);
+                  });
+
+                  circles.push(circle);
                   radius += increment;
                 }
                 circles.reverse();
@@ -240,7 +278,8 @@ export default {
             return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
-            stroke: false,
+            // stroke: false,
+            color: 'black',
             fillColor: '#629bf0',
             fillOpacity: 1,
           },
@@ -385,5 +424,29 @@ export default {
   &::before {
     border-top-color: transparent !important;
   }
+}
+
+.side-bar {
+  position: fixed;
+  z-index: 1000;
+  background-color: white;
+  padding: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  ul {
+    padding: 0;
+    list-style-type: none;
+  }
+
+  li {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border-radius: 10px;
+  }
+}
+
+.side-bar-right {
+  right: 0;
 }
 </style>
