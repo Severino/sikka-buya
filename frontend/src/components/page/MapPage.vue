@@ -11,18 +11,17 @@
     <div class="side-bar side-bar-right">
       <div id="rulers">
         <ul>
+          <h3>Herrscher</h3>
           <li
             v-for="ruler of rulers"
             :key="`ruler-list-item-${ruler.id}`"
-            :style="
-              `background-color: ${
-                activeRuler
-                  ? ruler.id == activeRuler.id
-                    ? rulerColorMap[ruler.id]
-                    : 'transparent'
-                  : rulerColorMap[ruler.id] || 'transparent'
-              };`
-            "
+            :style="`background-color: ${
+              activeRuler
+                ? ruler.id == activeRuler.id
+                  ? rulerColorMap[ruler.id]
+                  : 'transparent'
+                : rulerColorMap[ruler.id] || 'transparent'
+            };`"
             @click="setActiveRuler(ruler)"
           >
             {{ ruler.name }}
@@ -45,11 +44,11 @@ export default {
   name: 'MapPage',
   components: { MapView, Timeline },
   computed: {
-    map: function() {
+    map: function () {
       return this.$refs.map.map;
     },
   },
-  data: function() {
+  data: function () {
     return {
       timeline: null,
       mints: [],
@@ -58,7 +57,7 @@ export default {
       activeRuler: null,
     };
   },
-  mounted: function() {
+  mounted: function () {
     Query.raw(
       `{
         timespan {
@@ -108,11 +107,11 @@ export default {
       // this.updateMint();
       this.updateConcentricCircles();
     },
-    changed: function(val) {
+    changed: function (val) {
       this.timeline.value = val;
       this.update();
     },
-    queryMint: function() {
+    queryMint: function () {
       Query.raw(`{mint {name location { type coordinates} } }`)
         .then((result) => {
           this.mints = result.data.data.mint;
@@ -120,7 +119,7 @@ export default {
         })
         .catch(console.error);
     },
-    updateConcentricCircles: function() {
+    updateConcentricCircles: function () {
       Query.raw(
         `{
   getTypes(yearOfMint:${this.timeline.value}){
@@ -191,7 +190,7 @@ export default {
             types,
 
             {
-              pointToLayer: function(feature, latlng) {
+              pointToLayer: function (feature, latlng) {
                 let circles = [];
                 let radius = 15;
                 const increment = 7;
@@ -207,7 +206,6 @@ export default {
                 ];
 
                 for (let [index, ruler] of rulers.entries()) {
-                  console.log(that.activeRuler);
                   let fillColor = that.activeRuler
                     ? ruler.id !== that.activeRuler.id
                       ? '#ccc'
@@ -237,14 +235,14 @@ export default {
                 circles.reverse();
                 return L.layerGroup(circles);
               },
-              coordsToLatLng: function(coords) {
+              coordsToLatLng: function (coords) {
                 return new L.LatLng(coords[0], coords[1], coords[2]);
               },
               style: {
                 stroke: false,
                 fillOpacity: 1,
               },
-              tooltip: function(feature) {
+              tooltip: function (feature) {
                 return feature.mint.name;
               },
             }
@@ -254,7 +252,7 @@ export default {
         })
         .catch(console.error);
     },
-    updateMint: function() {
+    updateMint: function () {
       let mintData = this.mints.filter((mint) => {
         return (
           mint.location?.coordinates &&
@@ -274,7 +272,7 @@ export default {
           pointToLayer: (point, latlng) => {
             return L.circleMarker(latlng);
           },
-          coordsToLatLng: function(coords) {
+          coordsToLatLng: function (coords) {
             return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
@@ -283,7 +281,7 @@ export default {
             fillColor: '#629bf0',
             fillOpacity: 1,
           },
-          tooltip: function(feature) {
+          tooltip: function (feature) {
             return feature.mint.name;
           },
         }
@@ -291,7 +289,7 @@ export default {
 
       this.mintLayer.addTo(this.map);
     },
-    updateDominion: function() {
+    updateDominion: function () {
       Query.raw(
         `
       {
@@ -324,7 +322,7 @@ export default {
         .then((result) => {
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -380,7 +378,7 @@ export default {
           });
           if (this.dominionLayer) this.dominionLayer.remove();
           this.dominionLayer = L.geoJSON(dominionData, {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
