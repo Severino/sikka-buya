@@ -86,7 +86,8 @@ async function start({
             new Resolver("honorific"),
             new Resolver("nominal"),
             new Resolver("dynasty"),
-            new Resolver("role", { tableName: "person_role" })
+            new Resolver("role", { tableName: "person_role" }),
+            new Resolver("province")
         ]
 
 

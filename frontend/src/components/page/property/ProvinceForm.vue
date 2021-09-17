@@ -1,0 +1,76 @@
+<template>
+  <div class="dynasty-form">
+    <PropertyFormWrapper
+      @submit="submit"
+      @cancel="cancel"
+      :loading="loading"
+      property="province"
+      :title="$tc('property.province')"
+      :error="error"
+    >
+      <input v-model="province.id" type="hidden" />
+      <input
+        type="text"
+        v-model="province.name"
+        :placeholder="$tc('attribute.name')"
+        autofocus
+        required
+      />
+    </PropertyFormWrapper>
+  </div>
+</template>
+
+<script>
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
+
+export default {
+  components: { PropertyFormWrapper },
+  name: 'ProvinceForm',
+  created: function () {
+    let id = this.$route.params.id;
+    if (id != null) {
+      new Query('province')
+        .get(id, ['id', 'name'])
+        .then((result) => {
+          this.province = result.data.data.getDynasty;
+        })
+        .catch((err) => {
+          this.$data.error = this.$t('error.loading_element');
+          console.log(err);
+        })
+        .finally(() => {
+          this.$data.loading = false;
+        });
+    } else {
+      this.$data.loading = false;
+    }
+  },
+  methods: {
+    submit: function () {
+      new Query('province')
+        .update(this.province)
+        .then(() => {
+          this.$router.push({
+            name: 'Property',
+            params: { property: 'province' },
+          });
+        })
+        .catch((err) => {
+          this.error = this.$t('error.could_not_update_element');
+          console.error(err);
+        });
+    },
+    cancel: function () {
+      this.$router.push({ path: '/province' });
+    },
+  },
+  data: function () {
+    return {
+      error: '',
+      loading: true,
+      province: { id: -1, name: '' },
+    };
+  },
+};
+</script>
