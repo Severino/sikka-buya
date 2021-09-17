@@ -300,13 +300,9 @@ class Type {
         LIMIT ${process.env.MAX_SEARCH}
         `, { searchText: "%" + text + "%" })
 
-
-        console.log(result)
-
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type)
         }
-        console.log("END")
 
         return result
     }
