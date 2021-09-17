@@ -3,8 +3,8 @@ const AxiosHelper = require('./axios');
 
 
 function graphql(query, variables = {}, authToken = null, debug = false) {
-    if (debug)
-        console.log(query)
+    // if (debug)
+    //     console.log(JSON.stringify(query))
 
     headers = {}
 
