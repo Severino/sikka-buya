@@ -55,7 +55,7 @@ const property = {
         "isolierter Buchstabe | isolierte Buchstaben",
     issuer:
         "Münzherr",
-    intermediate_inscript :
+    intermediate_inscript:
         "Mittlere Umschrift",
     internal_notes:
         "Interne Anmerkungen",
@@ -92,6 +92,7 @@ const property = {
         pressed:
             "geprägt",
     },
+    province: "Provinz | Provinzen",
     role:
         "Rolle | Rollen",
     sides:
