@@ -302,6 +302,9 @@
       </div>
 
       <Row>
+        <input type="file" @change="compareJSON" />
+        <button @click="applyJSON">Apply</button>
+        <button @click="exportJSON">Export</button>
         <button @click.stop.prevent="cancel">{{ $t('form.cancel') }}</button>
         <button @click.stop="submitForm" type="submit">
           {{ $t('form.submit') }}
@@ -360,14 +363,19 @@ export default {
     BackHeader,
   },
   computed: {
-    productionLabels: function() {
+    productionLabels: function () {
       return [
         this.$t('property.procedures.pressed'),
         this.$t('property.procedures.cast'),
       ];
     },
   },
-  mounted: function() {
+  mounted: function () {
+    window.onbeforeunload = function (event) {
+      event.returnValue = 'Navigation prevented!';
+      return '';
+    };
+
     /**
      * Draft saving
      */
@@ -407,7 +415,7 @@ export default {
       this.initFormattedFields.call(this);
     }
   },
-  created: function() {
+  created: function () {
     let id = this.$route.params.id;
     if (id != null) {
       this.$data.coin.id = id;
@@ -491,7 +499,7 @@ export default {
     }
   },
 
-  data: function() {
+  data: function () {
     return {
       coin: {
         id: null,
@@ -543,22 +551,77 @@ export default {
     };
   },
   beforeRouteLeave(to, from, next) {
-    // clearInterval(this.backupInterval);
-
-    if (this.submitted) next();
+    if (this.submitted) {
+      window.onbeforeunload = null;
+      next();
+    }
 
     this.next = next;
     this.confirmVisible = true;
   },
   methods: {
-    debug: function() {
-      console.log('DEBUGGGG');
+    compareJSON: function (event) {
+      var input, file, fr;
+
+      if (typeof window.FileReader !== 'function') {
+        alert("The file API isn't supported on this browser yet.");
+        return;
+      }
+
+      input = event.target;
+      if (!input) {
+        alert("Um, couldn't find the fileinput element.");
+      } else if (!input.files) {
+        alert(
+          "This browser doesn't seem to support the `files` property of file inputs."
+        );
+      } else if (!input.files[0]) {
+        alert("Please select a file before clicking 'Load'");
+      } else {
+        file = input.files[0];
+        fr = new FileReader();
+        fr.onload = receivedText;
+        fr.readAsText(file);
+      }
+
+      let that = this;
+      function receivedText(e) {
+        let lines = e.target.result;
+        var obj = JSON.parse(lines);
+
+        if (JSON.stringify(obj) == JSON.stringify(that.coin)) {
+          console.log('EQUAL', obj, that.coin);
+        } else {
+          console.log('DIFFERENT', obj, that.coin);
+        }
+
+        window.loadedCoin = obj;
+      }
+    },
+    applyJSON: function () {
+      if (window.loadedCoin) {
+        this.coin = window.loadedCoin;
+        this.initFormattedFields();
+      } else console.error('You must import a file first.');
+    },
+    exportJSON: function () {
+      this.initFormattedFields();
+      let data = JSON.stringify(this.coin);
+      const blob = new Blob([data], { type: 'text/plain' });
+      const e = document.createEvent('MouseEvents'),
+        a = document.createElement('a');
+      a.download = 'test.json';
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+      e.initEvent('click');
+      a.dispatchEvent(e);
     },
     guard() {
       return true;
     },
     forceRedirect(result) {
       if (this.next != null && result) {
+        window.onbeforeunload = null;
         this.next();
       } else {
         this.confirmVisible = false;
@@ -571,39 +634,39 @@ export default {
         key: 'error-' + this.key++,
       });
     },
-    cancel: function() {
+    cancel: function () {
       this.$router.push({ name: 'TypeOverview' });
     },
-    reverseChanged: function(coinSideObject) {
+    reverseChanged: function (coinSideObject) {
       this.coin.reverse = coinSideObject;
     },
-    issuerChanged: function(issuer, index) {
+    issuerChanged: function (issuer, index) {
       delete issuer.error;
       this.coin.issuers.splice(index, 1, issuer);
     },
-    addCoinMark: function() {
+    addCoinMark: function () {
       this.coin.coinMarks.push({
         key: 'coin-mark-' + this.key++,
         id: null,
         name: '',
       });
     },
-    removeCoinMark: function(index) {
+    removeCoinMark: function (index) {
       this.coin.coinMarks.splice(index, 1);
     },
-    addPiece: function() {
+    addPiece: function () {
       this.coin.pieces.push({
         key: 'piece-' + this.key++,
         value: '',
       });
     },
-    pieceChanged: function(piece) {
+    pieceChanged: function (piece) {
       delete piece.error;
     },
-    removePiece: function(index) {
+    removePiece: function (index) {
       this.coin.pieces.splice(index, 1);
     },
-    addIssuer: function() {
+    addIssuer: function () {
       this.coin.issuers.push({
         key: 'issuer-' + this.key++,
         person: {
@@ -615,7 +678,7 @@ export default {
         honorifics: [],
       });
     },
-    removeIssuer: function(item) {
+    removeIssuer: function (item) {
       const idx = this.coin.issuers.indexOf(item);
       if (idx != -1) {
         this.coin.issuers.splice(idx, 1);
@@ -624,7 +687,7 @@ export default {
         });
       }
     },
-    initFormattedFields: function() {
+    initFormattedFields: function () {
       this.$refs.internalNotesField.setContent(this.coin.internalNotes);
       this.$refs.literatureField.setContent(this.coin.literature);
       this.$refs.specialsField.setContent(this.coin.specials);
@@ -632,7 +695,7 @@ export default {
       this.$refs.aversField.setFieldContent(this.coin.avers);
       this.$refs.reverseField.setFieldContent(this.coin.reverse);
     },
-    addOverlord: function() {
+    addOverlord: function () {
       this.coin.overlords.push({
         key: 'overlord-' + this.key++,
         rank: this.coin.overlords.length + 1,
@@ -642,7 +705,7 @@ export default {
         honorifics: [],
       });
     },
-    addOtherPerson: function() {
+    addOtherPerson: function () {
       this.coin.otherPersons.push({
         id: null,
         key: this.key++,
@@ -650,13 +713,13 @@ export default {
         role: '',
       });
     },
-    overlordChanged: function(overlord, index) {
+    overlordChanged: function (overlord, index) {
       const old = this.coin.overlords[index];
       Object.assign(old, overlord);
       delete old.error;
       this.coin.overlords.splice(index, 1, old);
     },
-    removeOverlord: function(item) {
+    removeOverlord: function (item) {
       const idx = this.coin.overlords.indexOf(item);
       if (idx != -1) {
         this.coin.overlords.splice(idx, 1);
@@ -665,24 +728,24 @@ export default {
         });
       }
     },
-    removeOtherPerson: function(item) {
+    removeOtherPerson: function (item) {
       const idx = this.coin.otherPersons.indexOf(item);
       if (idx != -1) {
         this.coin.otherPersons.splice(idx, 1);
       }
     },
-    mintSelected: function(mint) {
+    mintSelected: function (mint) {
       if (!this.coin.mintAsOnCoin) {
         this.coin.mintAsOnCoin = mint.name;
       }
     },
-    otherPersonChanged: function(otherPerson, index) {
+    otherPersonChanged: function (otherPerson, index) {
       const op = this.coin.otherPersons[index];
       Object.assign(op, otherPerson);
       delete op.error;
       this.coin.otherPersons.splice(index, 1, op);
     },
-    submitForm: function() {
+    submitForm: function () {
       function validateTitledPerson(titledPerson) {
         let valid = true;
         let titledPersonError = '';
@@ -722,7 +785,6 @@ export default {
       this.coin.issuers.forEach((issuer, index) => {
         if (!validateTitledPerson(issuer)) {
           this.coin.issuers.splice(index, 1, issuer);
-          console.log('UPDATE IT!!!');
           invalid = true;
         } else {
           delete issuer.error;

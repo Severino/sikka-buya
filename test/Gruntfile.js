@@ -76,7 +76,8 @@ module.exports = function (grunt) {
             dbHost: process.env.host,
             dbName: process.env.database,
             expressPort: 4000,
-            jwtSecret: "totally_save_test_secret"
+            jwtSecret: "totally_save_test_secret",
+            testEnvironment: true
         }).then(done)
     })
 

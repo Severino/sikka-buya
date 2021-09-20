@@ -177,6 +177,7 @@ type Range {
 
 type Query {
   ping: String
+  environment: String
 
   # Tested in 004_coin_mark
   coinMark: [CoinMark]
