@@ -8,7 +8,8 @@ async function start({
     dbHost,
     dbPort,
     expressPort,
-    jwtSecret
+    jwtSecret,
+    testEnvironment
 } = {}) {
 
     process.env.DB_USER = dbUser
@@ -17,6 +18,7 @@ async function start({
     process.env.DB_HOST = dbHost
     process.env.DB_PORT = dbPort
     process.env.JWT_SECRET = jwtSecret
+    process.env.TEST_ENVIRONMENT = testEnvironment || false
 
     /**
      * Database Packages
@@ -86,7 +88,8 @@ async function start({
             new Resolver("honorific"),
             new Resolver("nominal"),
             new Resolver("dynasty"),
-            new Resolver("role", { tableName: "person_role" })
+            new Resolver("role", { tableName: "person_role" }),
+            new Resolver("province")
         ]
 
 
@@ -97,6 +100,9 @@ async function start({
         const resolvers = {
             Query: {
                 ping: () => Date.now(),
+                environment: () => {
+                    return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
+                },
                 ruledMint: async function (_, { year } = {}) {
                     if (!year) throw new Error("Year is a required parameter")
 

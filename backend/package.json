@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Backend for the coin collection.",
   "main": "index.js",
   "scripts": {
@@ -8,10 +8,7 @@
     "serve": "node index.js",
     "dev": "nodemon index.js --ext js,graphql",
     "init": "npm i && npm run setup",
-    "setup": "node ./scripts/setup.js",
-    "migrate": "db-migrate up --config ./database.json -m ./migrations -e",
-    "migrate:down": "db-migrate down --config ./database.json -m ./migrations",
-    "create-migration": "db-migrate create --config './database.json' -m ./migrations"
+    "setup": "node ./scripts/setup.js"
   },
   "author": "Severin Opel",
   "license": "MIT",

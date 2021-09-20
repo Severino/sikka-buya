@@ -1,9 +1,14 @@
 <template>
   <form class="types-page" @submit.prevent="">
-    <!-- <div class="navigation-guard-info" :class="{ guardActive }">
-      {{ guardActive }}
-    </div> -->
+    <modal :active="confirmVisible" @close="() => forceRedirect(false)">
+      <confirmation @result="forceRedirect"
+        >Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabe
+        verloren!</confirmation
+      >
+    </modal>
     <error-box :message="errorMessage" />
+    <BackHeader :to="{ name: 'TypeOverview' }" />
+
     <Heading>{{ $tc('general.type') }}</Heading>
     <LoadingSpinner v-if="loading" />
     <div v-if="!loading" class="loading-area">
@@ -100,7 +105,7 @@
             table="persons"
             attribute="name"
             :value="issuer"
-            :key="`issuer-${issuer.key}`"
+            :key="`issuers-${issuer.key}`"
             @input="issuerChanged($event, issuer_idx)"
             queryCommand="searchPersonsWithoutRole"
             :queryParams="['id', 'name']"
@@ -297,6 +302,9 @@
       </div>
 
       <Row>
+        <input type="file" @change="compareJSON" v-if="debug" />
+        <button @click="applyJSON" v-if="debug">Apply {{ debug }}</button>
+        <button @click="exportJSON" v-if="debug">Export</button>
         <button @click.stop.prevent="cancel">{{ $t('form.cancel') }}</button>
         <button @click.stop="submitForm" type="submit">
           {{ $t('form.submit') }}
@@ -325,10 +333,12 @@ import LoadingSpinner from '../misc/LoadingSpinner.vue';
 import baseTemplate from '@/assets/template_types/base.json';
 import RemovableInputField from '../forms/RemovableInputField.vue';
 import AxiosHelper from '../../utils/AxiosHelper';
-import NavigationGuard from '../../utils/NavigationGuard';
 import ErrorBox from './system/ErrorBox.vue';
 
 import { TypeQueries } from '../../graphql/type-queries';
+import Modal from '../layout/Modal.vue';
+import Confirmation from '../misc/Confirmation.vue';
+import BackHeader from '../layout/BackHeader.vue';
 
 export default {
   name: 'CreateTypePage',
@@ -348,20 +358,48 @@ export default {
     LoadingSpinner,
     RemovableInputField,
     ErrorBox,
+    Confirmation,
+    Modal,
+    BackHeader,
   },
   computed: {
-    productionLabels: function() {
+    productionLabels: function () {
       return [
         this.$t('property.procedures.pressed'),
         this.$t('property.procedures.cast'),
       ];
     },
   },
-  mounted: function() {
-    this.navigationGuard = new NavigationGuard(this);
-    this.navigationGuard.enable();
+  mounted: function () {
+    window.onbeforeunload = function (event) {
+      event.returnValue = 'Navigation prevented!';
+      return '';
+    };
+
+    /**
+     * Draft saving
+     */
+    // this.backupInterval = setInterval(() => {
+    //   let coin = JSON.stringify(this.$data.coin);
+    //   window.localStorage.setItem('coin', coin);
+    //   console.log('Saved backup locally.');
+    // }, 5000);
 
     if (!this.$data.coin.id) {
+      /**
+       * Draft loading
+       */
+      // let coinBackup = window.localStorage.getItem('coin');
+      // if (coinBackup) {
+      //   try {
+      //     let coin = JSON.parse(coinBackup);
+      //     this.$data.coin = coin;
+      //     console.log(`Loaded backup: `, coin.projectId);
+      //   } catch (e) {
+      //     console.error('Could not restore backup from data.');
+      //   }
+      // }
+
       /**
        * Somehow the child object is not empties correctly.
        * Therefore we clone it here.
@@ -377,7 +415,7 @@ export default {
       this.initFormattedFields.call(this);
     }
   },
-  created: function() {
+  created: function () {
     let id = this.$route.params.id;
     if (id != null) {
       this.$data.coin.id = id;
@@ -407,7 +445,6 @@ export default {
             if (!type.issuers) type.issuers = [];
             type.issuers.forEach((issuer) => {
               issuer.key = this.key++;
-              console.log(issuer);
               issuer.titles.forEach((title) => (title.key = this.key++));
               issuer.honorifics.forEach(
                 (honorific) => (honorific.key = this.key++)
@@ -462,9 +499,9 @@ export default {
     }
   },
 
-  data: function() {
+  data: function () {
     return {
-      navigationGuard: null,
+      debug: false,
       coin: {
         id: null,
         projectId: '',
@@ -507,23 +544,90 @@ export default {
       errorMessages: [],
       submitted: false,
       errorMessage: '',
-      validationErrors: [],
       loading: true,
       productionOptions: ['pressed', 'cast'],
       key: 0,
+      backupInterval: null,
+      confirmVisible: false,
     };
   },
   beforeRouteLeave(to, from, next) {
-    this.navigationGuard.beforeRouteLeave(
-      to,
-      from,
-      next,
-      this.$t('warning.leave_without_saving')
-    );
+    if (this.submitted) {
+      window.onbeforeunload = null;
+      next();
+    }
+
+    this.next = next;
+    this.confirmVisible = true;
   },
   methods: {
+    compareJSON: function (event) {
+      var input, file, fr;
+
+      if (typeof window.FileReader !== 'function') {
+        alert("The file API isn't supported on this browser yet.");
+        return;
+      }
+
+      input = event.target;
+      if (!input) {
+        alert("Um, couldn't find the fileinput element.");
+      } else if (!input.files) {
+        alert(
+          "This browser doesn't seem to support the `files` property of file inputs."
+        );
+      } else if (!input.files[0]) {
+        alert("Please select a file before clicking 'Load'");
+      } else {
+        file = input.files[0];
+        fr = new FileReader();
+        fr.onload = receivedText;
+        fr.readAsText(file);
+      }
+
+      let that = this;
+      function receivedText(e) {
+        let lines = e.target.result;
+        var obj = JSON.parse(lines);
+
+        if (JSON.stringify(obj) == JSON.stringify(that.coin)) {
+          console.log('EQUAL', obj, that.coin);
+        } else {
+          console.log('DIFFERENT', obj, that.coin);
+        }
+
+        window.loadedCoin = obj;
+      }
+    },
+    applyJSON: function () {
+      if (window.loadedCoin) {
+        this.coin = window.loadedCoin;
+        this.initFormattedFields();
+      } else console.error('You must import a file first.');
+    },
+    exportJSON: function () {
+      this.initFormattedFields();
+      let data = JSON.stringify(this.coin);
+      const blob = new Blob([data], { type: 'text/plain' });
+      const e = document.createEvent('MouseEvents'),
+        a = document.createElement('a');
+      a.download = 'test.json';
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+      e.initEvent('click');
+      a.dispatchEvent(e);
+    },
     guard() {
       return true;
+    },
+    forceRedirect(result) {
+      if (this.next != null && result) {
+        window.onbeforeunload = null;
+        this.next();
+      } else {
+        this.confirmVisible = false;
+        this.next = null;
+      }
     },
     addError(msg) {
       this.errorMessages.push({
@@ -531,39 +635,39 @@ export default {
         key: 'error-' + this.key++,
       });
     },
-    cancel: function() {
+    cancel: function () {
       this.$router.push({ name: 'TypeOverview' });
     },
-    reverseChanged: function(coinSideObject) {
+    reverseChanged: function (coinSideObject) {
       this.coin.reverse = coinSideObject;
     },
-    issuerChanged: function(issuer, index) {
+    issuerChanged: function (issuer, index) {
       delete issuer.error;
       this.coin.issuers.splice(index, 1, issuer);
     },
-    addCoinMark: function() {
+    addCoinMark: function () {
       this.coin.coinMarks.push({
         key: 'coin-mark-' + this.key++,
         id: null,
         name: '',
       });
     },
-    removeCoinMark: function(index) {
+    removeCoinMark: function (index) {
       this.coin.coinMarks.splice(index, 1);
     },
-    addPiece: function() {
+    addPiece: function () {
       this.coin.pieces.push({
         key: 'piece-' + this.key++,
         value: '',
       });
     },
-    pieceChanged: function(piece) {
+    pieceChanged: function (piece) {
       delete piece.error;
     },
-    removePiece: function(index) {
+    removePiece: function (index) {
       this.coin.pieces.splice(index, 1);
     },
-    addIssuer: function() {
+    addIssuer: function () {
       this.coin.issuers.push({
         key: 'issuer-' + this.key++,
         person: {
@@ -575,7 +679,7 @@ export default {
         honorifics: [],
       });
     },
-    removeIssuer: function(item) {
+    removeIssuer: function (item) {
       const idx = this.coin.issuers.indexOf(item);
       if (idx != -1) {
         this.coin.issuers.splice(idx, 1);
@@ -584,7 +688,7 @@ export default {
         });
       }
     },
-    initFormattedFields: function() {
+    initFormattedFields: function () {
       this.$refs.internalNotesField.setContent(this.coin.internalNotes);
       this.$refs.literatureField.setContent(this.coin.literature);
       this.$refs.specialsField.setContent(this.coin.specials);
@@ -592,7 +696,7 @@ export default {
       this.$refs.aversField.setFieldContent(this.coin.avers);
       this.$refs.reverseField.setFieldContent(this.coin.reverse);
     },
-    addOverlord: function() {
+    addOverlord: function () {
       this.coin.overlords.push({
         key: 'overlord-' + this.key++,
         rank: this.coin.overlords.length + 1,
@@ -602,7 +706,7 @@ export default {
         honorifics: [],
       });
     },
-    addOtherPerson: function() {
+    addOtherPerson: function () {
       this.coin.otherPersons.push({
         id: null,
         key: this.key++,
@@ -610,13 +714,13 @@ export default {
         role: '',
       });
     },
-    overlordChanged: function(overlord, index) {
+    overlordChanged: function (overlord, index) {
       const old = this.coin.overlords[index];
       Object.assign(old, overlord);
       delete old.error;
       this.coin.overlords.splice(index, 1, old);
     },
-    removeOverlord: function(item) {
+    removeOverlord: function (item) {
       const idx = this.coin.overlords.indexOf(item);
       if (idx != -1) {
         this.coin.overlords.splice(idx, 1);
@@ -625,29 +729,55 @@ export default {
         });
       }
     },
-    removeOtherPerson: function(item) {
+    removeOtherPerson: function (item) {
       const idx = this.coin.otherPersons.indexOf(item);
       if (idx != -1) {
         this.coin.otherPersons.splice(idx, 1);
       }
     },
-    mintSelected: function(mint) {
+    mintSelected: function (mint) {
       if (!this.coin.mintAsOnCoin) {
         this.coin.mintAsOnCoin = mint.name;
       }
     },
-    otherPersonChanged: function(otherPerson, index) {
+    otherPersonChanged: function (otherPerson, index) {
       const op = this.coin.otherPersons[index];
       Object.assign(op, otherPerson);
       delete op.error;
       this.coin.otherPersons.splice(index, 1, op);
     },
-    submitForm: function() {
+    submitForm: function () {
       function validateTitledPerson(titledPerson) {
-        return !!titledPerson.person.id;
+        let valid = true;
+        let titledPersonError = '';
+
+        if (!titledPerson.id) {
+          titledPersonError +=
+            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element. \n';
+          valid = false;
+        }
+
+        for (let i = 0; i < titledPerson.titles.length; i++) {
+          if (!titledPerson.titles[i].id) {
+            valid = false;
+            titledPersonError += `Nicht alle Titel enthalten einen gültigen Wert enthalten. Passen Sie diesen an oder löschen Sie das Element! \n`;
+            break;
+          }
+        }
+
+        for (let i = 0; i < titledPerson.honorifics.length; i++) {
+          if (!titledPerson.honorifics[i].id) {
+            valid = false;
+            titledPersonError += `Nicht alle Ehrennamen enthalten einen gültigen Wert enthalten. Passen Sie diesen an oder löschen Sie das Element! \n`;
+            break;
+          }
+        }
+
+        titledPerson.error = titledPersonError;
+        return valid;
       }
 
-      function validatePeron(person) {
+      function validatePerson(person) {
         return !!person.id;
       }
 
@@ -655,8 +785,6 @@ export default {
 
       this.coin.issuers.forEach((issuer, index) => {
         if (!validateTitledPerson(issuer)) {
-          issuer.error =
-            'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           this.coin.issuers.splice(index, 1, issuer);
           invalid = true;
         } else {
@@ -676,7 +804,7 @@ export default {
       });
 
       this.coin.otherPersons.forEach((otherPerson, index) => {
-        if (!validatePeron(otherPerson)) {
+        if (!validatePerson(otherPerson)) {
           otherPerson.error =
             'Person ist nicht valide. Geben Sie eine Person an oder löschen Sie das Element.';
           invalid = true;
@@ -740,8 +868,6 @@ export default {
 
         operation(submitData)
           .then((result) => {
-            this.navigationGuard.disable();
-
             if (AxiosHelper.ok(result)) {
               this.submitted = true;
               this.$router.push({ name: 'TypeOverview' });
@@ -752,6 +878,7 @@ export default {
             }
           })
           .catch((errors) => {
+            console.log(errors);
             errors.forEach((err) => this.addError(err));
           });
       }
@@ -770,7 +897,7 @@ export default {
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
-            person: issuer.person.id,
+            person: issuer.id,
             titles: issuer.titles.map((title) => +title.id),
             honorifics: issuer.honorifics.map((honorific) => +honorific.id),
           };
@@ -778,7 +905,7 @@ export default {
         otherPersons: data.otherPersons.map((person) => person.id),
         overlords: data.overlords.map((overlord) => {
           return {
-            person: overlord.person.id,
+            person: overlord.id,
             rank: overlord.rank,
             titles: overlord.titles.map((title) => +title.id),
             honorifics: overlord.honorifics.map((honorific) => +honorific.id),
@@ -817,7 +944,7 @@ export default {
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
-            person: issuer.person.id,
+            person: issuer.id,
             titles: issuer.titles.map((title) => +title.id),
             honorifics: issuer.honorifics.map((honorific) => +honorific.id),
           };
@@ -825,7 +952,7 @@ export default {
         otherPersons: data.otherPersons.map((person) => person.id),
         overlords: data.overlords.map((overlord) => {
           return {
-            person: overlord.person.id,
+            person: overlord.id,
             rank: overlord.rank,
             titles: overlord.titles.map((title) => +title.id),
             honorifics: overlord.honorifics.map((honorific) => +honorific.id),

@@ -1,7 +1,6 @@
 export default class NavigationGuard {
 
     constructor(component) {
-        console.log("HELLO WORLD")
         if (!component || !component.guard) throw new Error("Your component must implement a guard prop, data property, method or computed value!")
         this.component = component
         this.active = true

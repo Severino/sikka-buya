@@ -68,8 +68,6 @@ class PersonResolver extends Resolver {
 
     async search(_, args) {
 
-        console.log(process.env.MAX_SEARCH)
-
         let result = await Database.manyOrNone(`
         SELECT p.id, p.name, p.short_name,
         r.id AS role_id, r.name AS role_name,

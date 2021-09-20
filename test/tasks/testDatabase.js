@@ -1,5 +1,6 @@
 const { QueryFile } = require('pg-promise');
-const { join: joinPath } = require("path")
+const { join: joinPath, extname } = require("path")
+const fs = require("fs")
 
 const pgp = require('pg-promise')({
     connect(client) {
@@ -46,8 +47,19 @@ async function setupDatabase() {
     let db = pgp(dbconf, {})
 
     console.log(`Create database schema ...`)
-    let dbSchemaFile = new QueryFile(joinPath(__dirname, "..", "..", "backend", "migrations", "schema.sql"), { minify: true, compress: true })
+    const migrationPath = joinPath(__dirname, "..", "..", "backend", "migrations")
+
+    let dbSchemaFile = new QueryFile(joinPath(migrationPath, "schema.sql"), { minify: true, compress: true })
     await db.any(dbSchemaFile)
+
+    let fileDirents = fs.readdirSync(migrationPath, { withFileTypes: true })
+    for (let dir of fileDirents) {
+        if (dir.isFile() && extname(dir.name) == ".sql" && dir.name != "schema.sql") {
+            const migrationFile = joinPath(migrationPath, dir.name)
+            let migrationsFile = new QueryFile(migrationFile, { minify: true, compress: true })
+            await db.any(migrationsFile).catch((e) => console.log("COULD NOT APPLY:" + migrationFile, e.message))
+        }
+    }
 
     return db;
 }

@@ -58,6 +58,7 @@ import MaterialForm from "@/components/page/property/MaterialForm"
 import MintForm from "@/components/page/property/MintForm"
 import NominalForm from "@/components/page/property/NominalForm"
 import PersonForm from "@/components/page/property/PersonForm"
+import ProvinceForm from "@/components/page/property/ProvinceForm"
 import RoleForm from "@/components/page/property/RoleForm"
 import TitleForm from "@/components/page/property/TitleForm"
 import Auth from "../utils/Auth.js"
@@ -253,6 +254,14 @@ const routes = [
             path: "dynasty/:id",
             name: "EditDynasty",
             component: DynastyForm
+          }, {
+            path: "province/create",
+            name: "CreateProvince",
+            component: ProvinceForm
+          }, {
+            path: "province/:id",
+            name: "EditProvince",
+            component: ProvinceForm
           },
           {
             path: "*",

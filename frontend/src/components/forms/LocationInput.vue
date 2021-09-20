@@ -40,12 +40,12 @@
 </template>
 
 <script>
-import Close from "vue-material-design-icons/Close.vue";
-import MapView from "../map/MapView.vue";
-var L = require("leaflet");
+import Close from 'vue-material-design-icons/Close.vue';
+import MapView from '../map/MapView.vue';
+var L = require('leaflet');
 
 export default {
-  name: "LocationInput",
+  name: 'LocationInput',
   components: {
     MapView,
     Close,
@@ -59,7 +59,6 @@ export default {
     },
     coordinates: {
       type: Array,
-      required: true,
     },
   },
   watch: {
@@ -96,7 +95,7 @@ export default {
 
       if (old != null) {
         this.handles[old].setStyle({
-          fillColor: "#3388ff",
+          fillColor: '#3388ff',
         });
       }
 
@@ -104,13 +103,13 @@ export default {
 
       console.log(this.handles[this.activeMarkerIndex], this.activeMarkerIndex);
       this.handles[this.activeMarkerIndex].setStyle({
-        fillColor: "#ff0000",
+        fillColor: '#ff0000',
       });
 
       this.updateMarker();
     },
     radiusChanged(event) {
-      this.$emit("radiusChanged", event.target.value);
+      this.$emit('radiusChanged', event.target.value);
     },
     focus() {
       this.focused = true;
@@ -121,8 +120,10 @@ export default {
       this.updateMarker();
     },
     keydown(e) {
+      if (this.coordinates == null) return;
+
       if (this.focused) {
-        if (e.ctrlKey && e.key.toLowerCase() == "z") {
+        if (e.ctrlKey && e.key.toLowerCase() == 'z') {
           let prevPosition;
           if (this.markerHistory.length > 1) {
             prevPosition = this.markerHistory.shift();
@@ -138,8 +139,8 @@ export default {
         }
 
         if (
-          (e.key.toLowerCase() == "backspace" ||
-            e.key.toLowerCase() == "delete") &&
+          (e.key.toLowerCase() == 'backspace' ||
+            e.key.toLowerCase() == 'delete') &&
           this.activeMarkerIndex != null
         ) {
           const coordinates = this.coordinates;
@@ -156,12 +157,12 @@ export default {
       this.map = this.$refs.map.map;
       this.map.doubleClickZoom.disable();
 
-      this.map.on("click", (e) => {
+      this.map.on('click', (e) => {
         if (e.originalEvent.ctrlKey == true) {
           const location = e.latlng;
           this.markerHistory.unshift(location);
 
-          let coordinates = this.coordinates;
+          let coordinates = this.coordinates === null ? [] : this.coordinates;
 
           if (this.isPolygon) {
             coordinates.push([location.lat, location.lng]);
@@ -177,14 +178,14 @@ export default {
       });
 
       this.$refs.root.addEventListener(
-        "wheel",
+        'wheel',
         (e) => {
           if (this.isCircle && e.ctrlKey == true) {
             e.preventDefault();
             e.stopPropagation();
 
             this.$emit(
-              "radiusChanged",
+              'radiusChanged',
               this.radius + -e.deltaY * this.circleZoomFactor
             );
           }
@@ -207,25 +208,26 @@ export default {
       }
     },
     drawLineHandles() {
-      if (this.coordinates.length > 1) {
+      if (this.coordinates !== null && this.coordinates.length > 1) {
         this.coordinates.forEach((point, idx) => {
           let nextPoint = this.coordinates[(idx + 1) % this.coordinates.length];
 
           let lineHandle = L.polyline([point, nextPoint], {
-            color: "#ff0000",
+            color: '#ff0000',
             weight: 15,
             opacity: 0,
           }).addTo(this.map);
 
-          lineHandle.on("mousedown", (evt) => {
+          lineHandle.on('mousedown', (evt) => {
             const point = [evt.latlng.lat, evt.latlng.lng];
 
-            const coordinates = this.coordinates;
+            const coordinates =
+              this.coordinates === null ? [] : this.coordinates;
             coordinates.splice(idx + 1, 0, point);
 
             this.updateMarker();
             this.setActiveMarker(idx + 1);
-            this.handles[this.activeMarkerIndex].fire("mousedown", evt);
+            this.handles[this.activeMarkerIndex].fire('mousedown', evt);
 
             this.emitUpdate(coordinates);
           });
@@ -236,14 +238,16 @@ export default {
     },
 
     emitUpdate(coordinates) {
-      this.$emit("update", {
+      this.$emit('update', {
         type: this.type,
         coordinates,
       });
     },
     updateMarker() {
       this.removeMarker();
-      if (this.coordinates.length > 0) {
+      if (this.coordinates === null) {
+        return;
+      } else if (this.coordinates.length > 0) {
         if (this.isCircle) {
           this.marker = L.circle(this.coordinates[0], this.radius).addTo(
             this.map
@@ -259,7 +263,7 @@ export default {
             let marker = L.circleMarker(point, {
               radius: 10,
               fillOpacity: 1,
-              fillColor: this.activeMarkerIndex == i ? "#ffffff" : "#3388ff",
+              fillColor: this.activeMarkerIndex == i ? '#ffffff' : '#3388ff',
               draggable: true,
             }).addTo(this.map);
 
@@ -289,16 +293,16 @@ export default {
               }
             };
 
-            marker.on("mousedown", (e) => {
+            marker.on('mousedown', (e) => {
               this.map.dragging.disable();
               this.setActiveMarker(i);
-              this.map.on("mousemove", trackCursor);
+              this.map.on('mousemove', trackCursor);
               e.originalEvent.preventDefault();
             });
 
-            this.map.on("mouseup", () => {
+            this.map.on('mouseup', () => {
               this.map.dragging.enable();
-              this.map.off("mousemove", trackCursor);
+              this.map.off('mousemove', trackCursor);
               if (this.activeMarkerIndex !== null)
                 this.coordinates.splice(0, 0);
             });
@@ -307,10 +311,10 @@ export default {
           });
         } else {
           const defaultMarker =
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAFgUlEQVR4Aa1XA5BjWRTN2oW17d3YaZtr2962HUzbDNpjszW24mRt28p47v7zq/bXZtrp/lWnXr337j3nPCe85NcypgSFdugCpW5YoDAMRaIMqRi6aKq5E3YqDQO3qAwjVWrD8Ncq/RBpykd8oZUb/kaJutow8r1aP9II0WmLKLIsJyv1w/kqw9Ch2MYdB++12Onxee/QMwvf4/Dk/Lfp/i4nxTXtOoQ4pW5Aj7wpici1A9erdAN2OH64x8OSP9j3Ft3b7aWkTg/Fm91siTra0f9on5sQr9INejH6CUUUpavjFNq1B+Oadhxmnfa8RfEmN8VNAsQhPqF55xHkMzz3jSmChWU6f7/XZKNH+9+hBLOHYozuKQPxyMPUKkrX/K0uWnfFaJGS1QPRtZsOPtr3NsW0uyh6NNCOkU3Yz+bXbT3I8G3xE5EXLXtCXbbqwCO9zPQYPRTZ5vIDXD7U+w7rFDEoUUf7ibHIR4y6bLVPXrz8JVZEql13trxwue/uDivd3fkWRbS6/IA2bID4uk0UpF1N8qLlbBlXs4Ee7HLTfV1j54APvODnSfOWBqtKVvjgLKzF5YdEk5ewRkGlK0i33Eofffc7HT56jD7/6U+qH3Cx7SBLNntH5YIPvODnyfIXZYRVDPqgHtLs5ABHD3YzLuespb7t79FY34DjMwrVrcTuwlT55YMPvOBnRrJ4VXTdNnYug5ucHLBjEpt30701A3Ts+HEa73u6dT3FNWwflY86eMHPk+Yu+i6pzUpRrW7SNDg5JHR4KapmM5Wv2E8Tfcb1HoqqHMHU+uWDD7zg54mz5/2BSnizi9T1Dg4QQXLToGNCkb6tb1NU+QAlGr1++eADrzhn/u8Q2YZhQVlZ5+CAOtqfbhmaUCS1ezNFVm2imDbPmPng5wmz+gwh+oHDce0eUtQ6OGDIyR0uUhUsoO3vfDmmgOezH0mZN59x7MBi++WDL1g/eEiU3avlidO671bkLfwbw5XV2P8Pzo0ydy4t2/0eu33xYSOMOD8hTf4CrBtGMSoXfPLchX+J0ruSePw3LZeK0juPJbYzrhkH0io7B3k164hiGvawhOKMLkrQLyVpZg8rHFW7E2uHOL888IBPlNZ1FPzstSJM694fWr6RwpvcJK60+0HCILTBzZLFNdtAzJaohze60T8qBzyh5ZuOg5e7uwQppofEmf2++DYvmySqGBuKaicF1blQjhuHdvCIMvp8whTTfZzI7RldpwtSzL+F1+wkdZ2TBOW2gIF88PBTzD/gpeREAMEbxnJcaJHNHrpzji0gQCS6hdkEeYt9DF/2qPcEC8RM28Hwmr3sdNyht00byAut2k3gufWNtgtOEOFGUwcXWNDbdNbpgBGxEvKkOQsxivJx33iow0Vw5S6SVTrpVq11ysA2Rp7gTfPfktc6zhtXBBC+adRLshf6sG2RfHPZ5EAc4sVZ83yCN00Fk/4kggu40ZTvIEm5g24qtU4KjBrx/BTTH8ifVASAG7gKrnWxJDcU7x8X6Ecczhm3o6YicvsLXWfh3Ch1W0k8x0nXF+0fFxgt4phz8QvypiwCCFKMqXCnqXExjq10beH+UUA7+nG6mdG/Pu0f3LgFcGrl2s0kNNjpmoJ9o4B29CMO8dMT4Q5ox8uitF6fqsrJOr8qnwNbRzv6hSnG5wP+64C7h9lp30hKNtKdWjtdkbuPA19nJ7Tz3zR/ibgARbhb4AlhavcBebmTHcFl2fvYEnW0ox9xMxKBS8btJ+KiEbq9zA4RthQXDhPa0T9TEe69gWupwc6uBUphquXgf+/FrIjweHQS4/pduMe5ERUMHUd9xv8ZR98CxkS4F2n3EUrUZ10EYNw7BWm9x1GiPssi3GgiGRDKWRYZfXlON+dfNbM+GgIwYdwAAAAASUVORK5CYII=";
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAApCAYAAADAk4LOAAAFgUlEQVR4Aa1XA5BjWRTN2oW17d3YaZtr2962HUzbDNpjszW24mRt28p47v7zq/bXZtrp/lWnXr337j3nPCe85NcypgSFdugCpW5YoDAMRaIMqRi6aKq5E3YqDQO3qAwjVWrD8Ncq/RBpykd8oZUb/kaJutow8r1aP9II0WmLKLIsJyv1w/kqw9Ch2MYdB++12Onxee/QMwvf4/Dk/Lfp/i4nxTXtOoQ4pW5Aj7wpici1A9erdAN2OH64x8OSP9j3Ft3b7aWkTg/Fm91siTra0f9on5sQr9INejH6CUUUpavjFNq1B+Oadhxmnfa8RfEmN8VNAsQhPqF55xHkMzz3jSmChWU6f7/XZKNH+9+hBLOHYozuKQPxyMPUKkrX/K0uWnfFaJGS1QPRtZsOPtr3NsW0uyh6NNCOkU3Yz+bXbT3I8G3xE5EXLXtCXbbqwCO9zPQYPRTZ5vIDXD7U+w7rFDEoUUf7ibHIR4y6bLVPXrz8JVZEql13trxwue/uDivd3fkWRbS6/IA2bID4uk0UpF1N8qLlbBlXs4Ee7HLTfV1j54APvODnSfOWBqtKVvjgLKzF5YdEk5ewRkGlK0i33Eofffc7HT56jD7/6U+qH3Cx7SBLNntH5YIPvODnyfIXZYRVDPqgHtLs5ABHD3YzLuespb7t79FY34DjMwrVrcTuwlT55YMPvOBnRrJ4VXTdNnYug5ucHLBjEpt30701A3Ts+HEa73u6dT3FNWwflY86eMHPk+Yu+i6pzUpRrW7SNDg5JHR4KapmM5Wv2E8Tfcb1HoqqHMHU+uWDD7zg54mz5/2BSnizi9T1Dg4QQXLToGNCkb6tb1NU+QAlGr1++eADrzhn/u8Q2YZhQVlZ5+CAOtqfbhmaUCS1ezNFVm2imDbPmPng5wmz+gwh+oHDce0eUtQ6OGDIyR0uUhUsoO3vfDmmgOezH0mZN59x7MBi++WDL1g/eEiU3avlidO671bkLfwbw5XV2P8Pzo0ydy4t2/0eu33xYSOMOD8hTf4CrBtGMSoXfPLchX+J0ruSePw3LZeK0juPJbYzrhkH0io7B3k164hiGvawhOKMLkrQLyVpZg8rHFW7E2uHOL888IBPlNZ1FPzstSJM694fWr6RwpvcJK60+0HCILTBzZLFNdtAzJaohze60T8qBzyh5ZuOg5e7uwQppofEmf2++DYvmySqGBuKaicF1blQjhuHdvCIMvp8whTTfZzI7RldpwtSzL+F1+wkdZ2TBOW2gIF88PBTzD/gpeREAMEbxnJcaJHNHrpzji0gQCS6hdkEeYt9DF/2qPcEC8RM28Hwmr3sdNyht00byAut2k3gufWNtgtOEOFGUwcXWNDbdNbpgBGxEvKkOQsxivJx33iow0Vw5S6SVTrpVq11ysA2Rp7gTfPfktc6zhtXBBC+adRLshf6sG2RfHPZ5EAc4sVZ83yCN00Fk/4kggu40ZTvIEm5g24qtU4KjBrx/BTTH8ifVASAG7gKrnWxJDcU7x8X6Ecczhm3o6YicvsLXWfh3Ch1W0k8x0nXF+0fFxgt4phz8QvypiwCCFKMqXCnqXExjq10beH+UUA7+nG6mdG/Pu0f3LgFcGrl2s0kNNjpmoJ9o4B29CMO8dMT4Q5ox8uitF6fqsrJOr8qnwNbRzv6hSnG5wP+64C7h9lp30hKNtKdWjtdkbuPA19nJ7Tz3zR/ibgARbhb4AlhavcBebmTHcFl2fvYEnW0ox9xMxKBS8btJ+KiEbq9zA4RthQXDhPa0T9TEe69gWupwc6uBUphquXgf+/FrIjweHQS4/pduMe5ERUMHUd9xv8ZR98CxkS4F2n3EUrUZ10EYNw7BWm9x1GiPssi3GgiGRDKWRYZfXlON+dfNbM+GgIwYdwAAAAASUVORK5CYII=';
 
           const defaultMarkerShadow =
-            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAQAAAACach9AAACMUlEQVR4Ae3ShY7jQBAE0Aoz/f9/HTMzhg1zrdKUrJbdx+Kd2nD8VNudfsL/Th///dyQN2TH6f3y/BGpC379rV+S+qqetBOxImNQXL8JCAr2V4iMQXHGNJxeCfZXhSRBcQMfvkOWUdtfzlLgAENmZDcmo2TVmt8OSM2eXxBp3DjHSMFutqS7SbmemzBiR+xpKCNUIRkdkkYxhAkyGoBvyQFEJEefwSmmvBfJuJ6aKqKWnAkvGZOaZXTUgFqYULWNSHUckZuR1HIIimUExutRxwzOLROIG4vKmCKQt364mIlhSyzAf1m9lHZHJZrlAOMMztRRiKimp/rpdJDc9Awry5xTZCte7FHtuS8wJgeYGrex28xNTd086Dik7vUMscQOa8y4DoGtCCSkAKlNwpgNtphjrC6MIHUkR6YWxxs6Sc5xqn222mmCRFzIt8lEdKx+ikCtg91qS2WpwVfBelJCiQJwvzixfI9cxZQWgiSJelKnwBElKYtDOb2MFbhmUigbReQBV0Cg4+qMXSxXSyGUn4UbF8l+7qdSGnTC0XLCmahIgUHLhLOhpVCtw4CzYXvLQWQbJNmxoCsOKAxSgBJno75avolkRw8iIAFcsdc02e9iyCd8tHwmeSSoKTowIgvscSGZUOA7PuCN5b2BX9mQM7S0wYhMNU74zgsPBj3HU7wguAfnxxjFQGBE6pwN+GjME9zHY7zGp8wVxMShYX9NXvEWD3HbwJf4giO4CFIQxXScH1/TM+04kkBiAAAAAElFTkSuQmCC";
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAQAAAACach9AAACMUlEQVR4Ae3ShY7jQBAE0Aoz/f9/HTMzhg1zrdKUrJbdx+Kd2nD8VNudfsL/Th///dyQN2TH6f3y/BGpC379rV+S+qqetBOxImNQXL8JCAr2V4iMQXHGNJxeCfZXhSRBcQMfvkOWUdtfzlLgAENmZDcmo2TVmt8OSM2eXxBp3DjHSMFutqS7SbmemzBiR+xpKCNUIRkdkkYxhAkyGoBvyQFEJEefwSmmvBfJuJ6aKqKWnAkvGZOaZXTUgFqYULWNSHUckZuR1HIIimUExutRxwzOLROIG4vKmCKQt364mIlhSyzAf1m9lHZHJZrlAOMMztRRiKimp/rpdJDc9Awry5xTZCte7FHtuS8wJgeYGrex28xNTd086Dik7vUMscQOa8y4DoGtCCSkAKlNwpgNtphjrC6MIHUkR6YWxxs6Sc5xqn222mmCRFzIt8lEdKx+ikCtg91qS2WpwVfBelJCiQJwvzixfI9cxZQWgiSJelKnwBElKYtDOb2MFbhmUigbReQBV0Cg4+qMXSxXSyGUn4UbF8l+7qdSGnTC0XLCmahIgUHLhLOhpVCtw4CzYXvLQWQbJNmxoCsOKAxSgBJno75avolkRw8iIAFcsdc02e9iyCd8tHwmeSSoKTowIgvscSGZUOA7PuCN5b2BX9mQM7S0wYhMNU74zgsPBj3HU7wguAfnxxjFQGBE6pwN+GjME9zHY7zGp8wVxMShYX9NXvEWD3HbwJf4giO4CFIQxXScH1/TM+04kkBiAAAAAElFTkSuQmCC';
 
           var defaultIcon = new L.Icon({
             iconUrl: defaultMarker,
@@ -327,44 +331,44 @@ export default {
   },
   computed: {
     isCircle: function () {
-      return this.type == "circle";
+      return this.type == 'circle';
     },
     isPolygon: function () {
-      return this.type == "polygon";
+      return this.type == 'polygon';
     },
     lat: function () {
-      if (this.coordinates.length == 0) {
-        return "-";
+      if (this.coordinates === null || this.coordinates.length == 0) {
+        return '-';
       } else {
         return this.coordinates[0];
       }
     },
     lng: function () {
-      if (this.coordinates.length == 0) {
-        return "-";
+      if (this.coordinates === null || this.coordinates.length == 0) {
+        return '-';
       } else {
         return this.coordinates[1];
       }
     },
     coordinateString: function () {
       switch (this.type) {
-        case "polygon":
+        case 'polygon':
           return this.polygonString;
-        case "point":
+        case 'point':
           return this.pointString;
         default:
           console.error(`Undefined type in coordinateString ${this.type}!`);
-          return "undefined";
+          return 'undefined';
       }
     },
     polygonString: function () {
+      if (this.coordinates === null) return '';
       return this.coordinates.reduce((acc, value) => {
-        console.log(value);
         return `${acc} [${value[0].toFixed(2)}, ${value[1].toFixed(2)}]`;
-      }, "");
+      }, '');
     },
     pointString: function () {
-      if (this.coordinates.length < 2) return "";
+      if (this.coordinates === null || this.coordinates.length < 2) return '';
       else
         return `[${this.coordinates[0].toFixed(
           2
