@@ -14,11 +14,16 @@
       <Alert v-if="invalid" class="alert" />
       <Check v-else class="check" />
     </div>
+
     <ul :class="'search-box ' + (listVisible ? 'visible' : 'hidden')">
-      <li v-if="error" class="error non-selectable">{{ error }}</li>
+      <li v-if="internal_error" class="error non-selectable">
+        {{ internal_error }}
+      </li>
+
       <li
         v-if="
-          (!error && !loading && !searchResults) || searchResults.length == 0
+          (!internal_error && !loading && !searchResults) ||
+            searchResults.length == 0
         "
         class="non-selectable"
       >
@@ -35,6 +40,8 @@
         }}<!--
       --></li>
     </ul>
+
+    <div v-if="error" class="error non-selectable">{{ error }}</div>
   </div>
 </template>
 
@@ -55,7 +62,7 @@ export default {
       hideTimeout: null,
       searchResults: [],
       loading: false,
-      error: '',
+      internal_error: '',
     };
   },
   props: {
@@ -65,6 +72,8 @@ export default {
         return obj.id == null || !isNaN(parseInt(obj.id));
       },
     },
+
+    error: String,
     queryParams: {
       type: Array,
       default: function() {
@@ -186,11 +195,11 @@ export default {
       Query.raw(query)
         .then((result) => {
           this.searchResults = result.data.data[queryCommand];
-          this.error = '';
+          this.internal_error = '';
           console.log(this.searchResults.length);
         })
         .catch((error) => {
-          this.error = error;
+          this.internal_error = error;
         })
         .finally(() => {
           this.loading = false;
@@ -218,6 +227,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 @import '../../scss/_import.scss';
+
+.error {
+  position: static;
+}
 
 .visible {
   display: block;
@@ -263,7 +276,14 @@ export default {
 }
 
 .error {
-  background-color: $red;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-100%);
+
+  // display: flex;
+  // align-items: center;
+  padding: 5px 20px;
 }
 
 .name-field {

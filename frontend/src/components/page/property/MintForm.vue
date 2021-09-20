@@ -17,6 +17,12 @@
         required
       />
 
+      <DataSelectField
+        table="Province"
+        attribute="name"
+        v-model="mint.province"
+      />
+
       <label for="location">Location</label>
       <location-input
         id="location"
@@ -38,7 +44,7 @@
         <location-input
           type="polygon"
           :coordinates="mint.uncertainLocation.coordinates"
-          @update="updateUncertainLocation"
+          @update="updateUncertainArea"
         />
       </div>
     </PropertyFormWrapper>
@@ -46,19 +52,21 @@
 </template>
 
 <script>
-import Query from "../../../database/query.js";
-import PropertyFormWrapper from "../PropertyFormWrapper.vue";
-import Checkbox from "../../forms/Checkbox";
-import LocationInput from "../../forms/LocationInput.vue";
-import GraphQLUtils from "../../../utils/GraphQLUtils.js";
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
+import Checkbox from '../../forms/Checkbox';
+import LocationInput from '../../forms/LocationInput.vue';
+import GraphQLUtils from '../../../utils/GraphQLUtils.js';
+import DataSelectField from '../../forms/DataSelectField.vue';
 
 export default {
   components: {
     Checkbox,
     PropertyFormWrapper,
     LocationInput,
+    DataSelectField,
   },
-  name: "MintForm",
+  name: 'MintForm',
   created: function () {
     let id = this.$route.params.id;
     if (id != null) {
@@ -67,45 +75,70 @@ export default {
                 getMint (id:${id})  {
                     id,
                     name,
-                    location {
-                      type,
-                      coordinates
-                    },
-                    uncertain,
-                    uncertainLocation {
-                      type,
-                      coordinates
+                    province {
+                      id, name
                     }
+                    location 
+                    uncertain,
+                    uncertainArea
                 }
               }
       `
       )
         .then((result) => {
           let data = result.data.data.getMint;
-          console.log(data.uncertainLocation?.type);
 
-          if (data.uncertainLocation?.type.toLowerCase() == "polygon") {
-            console.log("HELLO");
+          let locations = ['location', 'uncertainArea'];
+
+          locations.forEach((locationProperty) => {
+            if (data[locationProperty]) {
+              try {
+                data[locationProperty] = JSON.parse(data[locationProperty]);
+              } catch (e) {
+                console.error(
+                  `Could not parse ${locationProperty}. This should never happen, contact a developer!`
+                );
+                data[locationProperty] = null;
+              }
+            }
+          });
+
+          if (!data.location) {
+            data.location = {
+              type: 'Point',
+              coordinates: null,
+            };
+          }
+
+          if (!data.uncertainArea) {
+            data.uncertainArea = {
+              type: 'Polygon',
+              coordinates: [[[]]],
+            };
+          }
+
+          if (data.uncertainArea?.type.toLowerCase() == 'polygon') {
             let coords = [];
             for (
               let i = 0;
-              i < data.uncertainLocation.coordinates.length - 1;
+              i < data.uncertainArea.coordinates.length - 1;
               i += 2
             ) {
               coords.push([
-                data.uncertainLocation.coordinates[i],
-                data.uncertainLocation.coordinates[i + 1],
+                data.uncertainArea.coordinates[i],
+                data.uncertainArea.coordinates[i + 1],
               ]);
             }
-            data.uncertainLocation.coordinates = coords;
+            data.uncertainArea.coordinates = coords;
           }
 
-          console.log(data.uncertainLocation);
+          console.log(data.uncertainArea);
 
           this.mint = data;
         })
         .catch((err) => {
-          this.$data.error = this.$t("error.loading_element");
+          console.log('asdasd');
+          this.$data.error = this.$t('error.loading_element');
           console.log(err);
         })
         .finally(() => {
@@ -117,8 +150,8 @@ export default {
   },
   methods: {
     submit: function () {
-      let { type, coordinates } = this.mint.uncertainLocation;
-      coordinates = this.mint?.uncertainLocation?.coordinates
+      let { type, coordinates } = this.mint.uncertainArea;
+      coordinates = this.mint?.uncertainArea?.coordinates
         ? (coordinates = coordinates.flatMap((point) => [point[0], point[1]]))
         : null;
 
@@ -126,14 +159,14 @@ export default {
         uncertain: this.mint.uncertain,
         name: this.mint.name,
         location: this.mint.location,
-        uncertainLocation: { type, coordinates },
+        uncertainArea: { type, coordinates },
       };
 
       if (this.mint.id == -1) {
-        this.query("addMint", data);
+        this.query('addMint', data);
       } else {
         data.id = this.mint.id;
-        this.query("updateMint", data);
+        this.query('updateMint', data);
       }
     },
     radiusChanged: function (radius) {
@@ -147,40 +180,40 @@ export default {
       Query.raw(query)
         .then(() => {
           this.$router.push({
-            name: "Property",
-            params: { property: "mint" },
+            name: 'Property',
+            params: { property: 'mint' },
           });
         })
         .catch((err) => {
-          this.error = this.$t("error.could_not_update_element");
+          this.error = this.$t('error.could_not_update_element');
           console.error(err);
         });
     },
     cancel: function () {
-      this.$router.push({ path: "/mint" });
+      this.$router.push({ path: '/mint' });
     },
     updateLocation: function (geoJson) {
       this.mint.location = geoJson;
     },
-    updateUncertainLocation: function (geoJson) {
-      this.mint.uncertainLocation = geoJson;
+    updateUncertainArea: function (geoJson) {
+      this.mint.uncertainArea = geoJson;
     },
   },
   data: function () {
     return {
-      error: "",
+      error: '',
       loading: true,
       radius: 1000,
       mint: {
         id: -1,
-        name: "",
+        name: '',
         uncertain: false,
         location: {
-          type: "empty",
+          type: 'empty',
           coordinates: [],
         },
-        uncertainLocation: {
-          type: "empty",
+        uncertainArea: {
+          type: 'empty',
           coordinates: [],
         },
       },

@@ -3,36 +3,36 @@
     <h3 v-if="!type">Wählen Sie einen Typ aus der Liste aus ...</h3>
 
     <div v-if="type">
-      <h1>{{ this.getTypeProperty("projectId") }}</h1>
+      <h1>{{ this.getTypeProperty('projectId') }}</h1>
 
       <div class="grid">
         <div class="labeled-group">
-          <h3>{{ $tc("property.treadwell_id") }}</h3>
-          <span>{{ this.getTypeProperty("treadwellId") }}</span>
+          <h3>{{ $tc('property.treadwell_id') }}</h3>
+          <span>{{ this.getTypeProperty('treadwellId') }}</span>
         </div>
 
         <div class="labeled-group">
-          <h3>{{ $t("property.mint_as_on_coin") }}</h3>
-          <span>{{ this.getTypeProperty("mintAsOnCoin") }}</span>
+          <h3>{{ $t('property.mint_as_on_coin') }}</h3>
+          <span>{{ this.getTypeProperty('mintAsOnCoin') }}</span>
         </div>
 
         <div class="labeled-group">
-          <h3>{{ $tc("property.material") }}</h3>
-          <span>{{ this.getTypePropertyKey("material") }}</span>
+          <h3>{{ $tc('property.material') }}</h3>
+          <span>{{ this.getTypePropertyKey('material') }}</span>
         </div>
 
         <div class="labeled-group">
-          <h3>{{ $tc("property.nominal") }}</h3>
-          <span>{{ this.getTypePropertyKey("nominal") }}</span>
+          <h3>{{ $tc('property.nominal') }}</h3>
+          <span>{{ this.getTypePropertyKey('nominal') }}</span>
         </div>
 
         <div class="persons labeled-group">
-          <h3>{{ $tc("role.caliph") }}</h3>
-          <span>{{ this.getTypePropertyKey("caliph") }}</span>
+          <h3>{{ $tc('role.caliph') }}</h3>
+          <span>{{ this.getTypePropertyKey('caliph') }}</span>
         </div>
 
         <div class="persons labeled-group">
-          <h3>{{ $tc("property.issuer") }}</h3>
+          <h3>{{ $tc('property.issuer') }}</h3>
           <span
             v-for="issuer of this.type.issuers"
             :key="`issuer-${issuer.id}`"
@@ -41,19 +41,19 @@
         </div>
 
         <div class="persons labeled-group">
-          <h3>{{ $tc("property.overlord", 2) }}</h3>
+          <h3>{{ $tc('property.overlord', 2) }}</h3>
           <ol>
             <li
               v-for="overlord of this.type.overlords"
               :key="`overlord-${overlord.id}`"
             >
-              {{ overlord.person.name }}
+              {{ overlord.name }}
             </li>
           </ol>
         </div>
 
         <div class="persons labeled-group">
-          <h3>{{ $tc("property.other_persons") }}</h3>
+          <h3>{{ $tc('property.other_persons') }}</h3>
           <ul>
             <li
               v-for="otherPerson of this.type.otherPersons"
@@ -65,14 +65,14 @@
         </div>
 
         <div class="frontside">
-          <h3>{{ $t("property.sides.front") }}</h3>
+          <h3>{{ $t('property.sides.front') }}</h3>
           <div v-html="type.avers.fieldText" />
 
           <h4 v-if="type.avers.innerInscript.textContent">
             {{
               type.avers.outerInscript
-                ? $t("property.inner_inscript")
-                : $t("property.circular_text")
+                ? $t('property.inner_inscript')
+                : $t('property.circular_text')
             }}
           </h4>
           <p
@@ -81,7 +81,7 @@
           ></p>
 
           <h4 v-if="type.avers.intermediateInscript.textContent">
-            {{ $t("property.intermediate_inscript ") }}
+            {{ $t('property.intermediate_inscript ') }}
           </h4>
           <p
             v-if="type.avers.intermediateInscript.textContent"
@@ -89,7 +89,7 @@
           ></p>
 
           <h4 v-if="type.avers.innerInscript.textContent">
-            {{ $t("property.outer_inscript") }}
+            {{ $t('property.outer_inscript') }}
           </h4>
           <p
             v-if="type.avers.innerInscript.textContent"
@@ -97,21 +97,21 @@
           />
 
           <h4 v-if="type.avers.misc.textContent">
-            {{ $t("property.misc") }}
+            {{ $t('property.misc') }}
           </h4>
           <p v-if="type.avers.misc.textContent" v-html="type.avers.misc" />
         </div>
 
         <!-- START BACKSIDE -->
- <div class="backside">
-          <h3>{{ $t("property.sides.back") }}</h3>
+        <div class="backside">
+          <h3>{{ $t('property.sides.back') }}</h3>
           <div v-html="type.reverse.fieldText" />
 
           <h4 v-if="type.reverse.innerInscript.textContent">
             {{
               type.reverse.outerInscript
-                ? $t("property.inner_inscript")
-                : $t("property.circular_text")
+                ? $t('property.inner_inscript')
+                : $t('property.circular_text')
             }}
           </h4>
           <p
@@ -120,7 +120,7 @@
           ></p>
 
           <h4 v-if="type.reverse.intermediateInscript.textContent">
-            {{ $t("property.intermediate_inscript ") }}
+            {{ $t('property.intermediate_inscript ') }}
           </h4>
           <p
             v-if="type.reverse.intermediateInscript.textContent"
@@ -128,7 +128,7 @@
           ></p>
 
           <h4 v-if="type.reverse.innerInscript.textContent">
-            {{ $t("property.outer_inscript") }}
+            {{ $t('property.outer_inscript') }}
           </h4>
           <p
             v-if="type.reverse.innerInscript.textContent"
@@ -136,15 +136,15 @@
           />
 
           <h4 v-if="type.reverse.misc.textContent">
-            {{ $t("property.misc") }}
+            {{ $t('property.misc') }}
           </h4>
           <p v-if="type.reverse.misc.textContent" v-html="type.reverse.misc" />
         </div>
-<!-- END BACKSIDE -->
+        <!-- END BACKSIDE -->
 
         <div class="labeled-group">
-          <h3>{{ $t("property.cursive_script") }}</h3>
-          {{ type.cursiveScript ? $t("general.yes") : $t("general.no") }}
+          <h3>{{ $t('property.cursive_script') }}</h3>
+          {{ type.cursiveScript ? $t('general.yes') : $t('general.no') }}
         </div>
 
         <!-- <div class="labeled-group">
@@ -163,9 +163,9 @@
       </div> -->
 
         <div class="labeled-group" v-if="type.pieces.length > 0">
-          <h3>{{ $t("property.pieces") }}</h3>
+          <h3>{{ $t('property.pieces') }}</h3>
           <p v-if="type.pieces || type.pieces.length == 0">
-            {{ $t("message.no_pieces_in_list") }}
+            {{ $t('message.no_pieces_in_list') }}
           </p>
           <ul>
             <li v-for="(piece, index) of type.pieces" :key="`piece-${index}`">
@@ -201,7 +201,7 @@
 
 <script>
 export default {
-  name: "TypeView",
+  name: 'TypeView',
   props: {
     type: {
       type: Object,
@@ -209,7 +209,7 @@ export default {
   },
   methods: {
     getUndefinedString() {
-      return "Nicht Erfasst";
+      return 'Nicht Erfasst';
     },
     getTypeProperty(name) {
       if (!this.type || !this.type[name]) {
@@ -218,7 +218,7 @@ export default {
         return this.type[name];
       }
     },
-    getTypePropertyKey(name, key = "name") {
+    getTypePropertyKey(name, key = 'name') {
       let result = this.getTypeProperty(name);
       if (!result[key]) {
         return this.getUndefinedString();
@@ -249,7 +249,7 @@ h3 {
   margin: 10px 0;
   padding: 20px 30px;
   background-color: whitesmoke;
-  
+
   h3:first-child {
     margin-top: 0;
   }

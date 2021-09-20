@@ -42,6 +42,7 @@ input MintInput {
   location: String
   uncertain: Boolean
   uncertainArea: String
+  province: ID
 }
 
 type CoinSideInformation {
@@ -142,6 +143,7 @@ type Mint {
   location: String
   uncertain: Boolean
   uncertainArea: String
+  province: Name
 }
 
 type Person {
@@ -175,6 +177,7 @@ type Range {
 
 type Query {
   ping: String
+  environment: String
 
   # Tested in 004_coin_mark
   coinMark: [CoinMark]
@@ -226,6 +229,11 @@ type Query {
   getCoinType(id: ID!): CoinType
 
   # TODO: missing Tests ---------------------------------------------
+
+  province: [Name]
+  searchProvince(text: String): [Name]
+  getProvince(id: ID!): [Name]
+
   getReducedCoinTypeList(id: ID): [ReducedCoinType]
   getTypesByOverlord(id: ID!): [CoinType]
   getTypes(yearOfMint: Int): [CoinType]
@@ -310,6 +318,10 @@ type Mutation {
   updateCoinType(id: ID, data: CoinTypeInput): Void
 
   # TODO: missing Tests ---------------------------------------------
+
+  addProvince(data: NameInput): Void
+  updateProvince(data: NameInput): Void
+  deleteProvince(id: Int): Void
 
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean

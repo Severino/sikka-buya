@@ -9,13 +9,13 @@
 
     <div class="property gm2 gd2">
       <catalog-property :label="mapText('year')">
-        {{ printTypeProperty("year") }}
+        {{ printTypeProperty('year') }}
         <!-- <template v-if="type.yearUncertain">?</template> -->
       </catalog-property>
     </div>
     <div class="property gm2 gd2">
       <catalog-property :label="mapText('mint')">
-        {{ printTypeProperty("mint") }}
+        {{ printTypeProperty('mint') }}
         <template v-if="type.mintUncertain">?</template>
       </catalog-property>
     </div>
@@ -29,7 +29,7 @@
       >
     </div>
 
-     <h2>{{ $tc("property.person", 2) }}</h2>
+    <h2>{{ $tc('property.person', 2) }}</h2>
     <div class="person-container gm1 gt1 gd1">
       <catalog-property
         v-for="(personObj, idx) of persons"
@@ -57,8 +57,8 @@
 
     <div
       v-for="(sideObj, sideIdx) in [
-        { prop: 'avers', label: 'frontside', prefix:'Av.-' },
-        { prop: 'reverse', label: 'backside', prefix:'Rev.-' },
+        { prop: 'avers', label: 'frontside', prefix: 'Av.-' },
+        { prop: 'reverse', label: 'backside', prefix: 'Rev.-' },
       ]"
       :key="`coin-sides-${sideIdx}`"
       class="coin-side avers gm1 gt2 gd2"
@@ -88,23 +88,20 @@
         >
       </div>
     </catalog-property>
-    
 
-     <catalog-property
-     v-if="type.cursive"
-     :label="$t('property.cursive')"
-     class="coin-marks gm2"
-     >
-      {{$t("general.yes")}}
-     </catalog-property>
+    <catalog-property
+      v-if="type.cursive"
+      :label="$t('property.cursive')"
+      class="coin-marks gm2"
+    >
+      {{ $t('general.yes') }}
+    </catalog-property>
 
     <catalog-property
       :label="$t('property.specialities_and_variants')"
       :html="type.specials"
       class="gm1"
     />
-
-   
 
     <h2>Sonstiges</h2>
 
@@ -130,24 +127,24 @@
       :label="$tc('property.treadwell_id')"
       class="gm2"
     >
-      {{ type.treadwellId ? type.treadwellId : "-" }}
+      {{ type.treadwellId ? type.treadwellId : '-' }}
     </catalog-property>
   </div>
 </template>
 
 <script>
-import Query from "../../../database/query";
-import CatalogItem from "../../catalog/CatalogItem.vue";
-import LabeledField from "../../display/LabeledField.vue";
-import CoinSideField from "../../forms/coins/CoinSideField.vue";
-import CaseHelper from "../../../utils/CaseHelper";
+import Query from '../../../database/query';
+import CatalogItem from '../../catalog/CatalogItem.vue';
+import LabeledField from '../../display/LabeledField.vue';
+import CoinSideField from '../../forms/coins/CoinSideField.vue';
+import CaseHelper from '../../../utils/CaseHelper';
 
-import Gift from "vue-material-design-icons/GiftOutline";
-import Italic from "vue-material-design-icons/FormatItalic.vue";
-import CatalogProperty from "../../catalog/CatalogProperty.vue";
-import Row from "../../layout/Row.vue";
-import Tag from "../../Tag.vue";
-import Web from "../../../utils/Web";
+import Gift from 'vue-material-design-icons/GiftOutline';
+import Italic from 'vue-material-design-icons/FormatItalic.vue';
+import CatalogProperty from '../../catalog/CatalogProperty.vue';
+import Row from '../../layout/Row.vue';
+import Tag from '../../Tag.vue';
+import Web from '../../../utils/Web';
 
 export default {
   components: {
@@ -160,42 +157,42 @@ export default {
     Row,
     Tag,
   },
-  name: "CatalogEntry",
+  name: 'CatalogEntry',
   data: function () {
     return {
       type: {
         id: null,
-        projectId: "",
-        treadwellId: "",
-        mint: { id: null, name: "", uncertain: false },
-        mintAsOnCoin: "",
-        material: { id: null, name: "" },
-        nominal: { id: null, name: "" },
-        yearOfMint: "",
+        projectId: '',
+        treadwellId: '',
+        mint: { id: null, name: '', uncertain: false },
+        mintAsOnCoin: '',
+        material: { id: null, name: '' },
+        nominal: { id: null, name: '' },
+        yearOfMint: '',
         donativ: false,
-        procedure: "pressed",
+        procedure: 'pressed',
         issuers: [],
         overlords: [],
         otherPersons: [],
-        caliph: { id: null, name: "", role: null },
+        caliph: { id: null, name: '', role: null },
         avers: {
-          fieldText: "",
-          innerInscript: "",
-          intermediateInscript: "",
-          outerInscript: "",
-          misc: "",
+          fieldText: '',
+          innerInscript: '',
+          intermediateInscript: '',
+          outerInscript: '',
+          misc: '',
         },
         reverse: {
-          fieldText: "",
-          innerInscript: "",
-          intermediateInscript: "",
-          outerInscript: "",
-          misc: "",
+          fieldText: '',
+          innerInscript: '',
+          intermediateInscript: '',
+          outerInscript: '',
+          misc: '',
         },
         cursiveScript: false,
         coinMarks: [],
         pieces: [],
-        specials: "",
+        specials: '',
       },
     };
   },
@@ -227,13 +224,11 @@ export default {
                 donativ
                 procedure
                 issuers {
-                  id
-                  person {
                     id,
                     name,
                     role {
                       id, name
-                    }
+                    
                   }
                   titles {
                     id,
@@ -315,18 +310,18 @@ export default {
       console.log(path, site);
       return site
         ? `/img/logos/${site}.png`
-        : "https://www.fint-ikmk.uni-tuebingen.de/ikmk/special/favicons/android-chrome-256x256.png";
+        : 'https://www.fint-ikmk.uni-tuebingen.de/ikmk/special/favicons/android-chrome-256x256.png';
     },
-    printTypeProperty(key, attr = "name") {
-      let value = "Unbekannt";
+    printTypeProperty(key, attr = 'name') {
+      let value = 'Unbekannt';
 
-      let map = { year: "yearOfMint" };
+      let map = { year: 'yearOfMint' };
 
       if (map[key]) {
         key = map[key];
       }
 
-      if (typeof this.$data.type[key] == "object") {
+      if (typeof this.$data.type[key] == 'object') {
         if (this.$data.type[key]) {
           if (this.$data.type[key][attr] !== null) {
             value = this.$data.type[key][attr];
@@ -338,11 +333,11 @@ export default {
         value = this.$data.type[key];
       }
 
-      if (typeof value == "boolean") {
-        value = value ? "Ja" : "Nein";
+      if (typeof value == 'boolean') {
+        value = value ? 'Ja' : 'Nein';
       }
-      if (value == "pressed") value = this.$tc("property.procedures.pressed");
-      if (value == "struck") value = this.$tc("property.procedures.struck");
+      if (value == 'pressed') value = this.$tc('property.procedures.pressed');
+      if (value == 'struck') value = this.$tc('property.procedures.struck');
 
       return value;
     },
@@ -363,19 +358,19 @@ export default {
     },
     htmlHasContent(val) {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(val, "text/html");
+      const doc = parser.parseFromString(val, 'text/html');
       return doc.documentElement.innerText;
     },
     mapText: function (val, num = 1) {
       let map = {
-        overlords: "overlord",
-        year: "mint_year",
-        issuers: "issuer",
-        caliph: { property: "role", value: "caliph" },
+        overlords: 'overlord',
+        year: 'mint_year',
+        issuers: 'issuer',
+        caliph: { property: 'role', value: 'caliph' },
       };
 
       if (map[val]) {
-        if (typeof map[val] == "object")
+        if (typeof map[val] == 'object')
           val = `${map[val].property}.${map[val].value}`;
         else val = `property.${map[val]}`;
       } else val = `property.${val}`;
@@ -386,12 +381,12 @@ export default {
   computed: {
     persons: function () {
       let personType = [
-        "issuers",
-        "overlords",
-        "caliph",
-        "heir",
-        "warden",
-        "cutter",
+        'issuers',
+        'overlords',
+        'caliph',
+        'heir',
+        'warden',
+        'cutter',
       ];
 
       let filteredPersons = [];
@@ -463,11 +458,10 @@ h2 {
   display: flex;
   flex-direction: column;
 
-  .catalog-property{
-    flex:1;
+  .catalog-property {
+    flex: 1;
     display: flex;
     flex-direction: column;
   }
 }
-
 </style>

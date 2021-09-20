@@ -7,18 +7,41 @@
       v-model="timeline.value"
       @change="changed"
     />
+
+    <div class="side-bar side-bar-right">
+      <div id="rulers">
+        <ul>
+          <h3>Herrscher</h3>
+          <li
+            v-for="ruler of rulers"
+            :key="`ruler-list-item-${ruler.id}`"
+            :style="`background-color: ${
+              activeRuler
+                ? ruler.id == activeRuler.id
+                  ? rulerColorMap[ruler.id]
+                  : 'transparent'
+                : rulerColorMap[ruler.id] || 'transparent'
+            };`"
+            @click="setActiveRuler(ruler)"
+          >
+            {{ ruler.name }}
+          </li>
+        </ul>
+      </div>
+    </div>
   </map-view>
 </template>
 
 <script>
-var L = require("leaflet");
-var turf = require("@turf/turf");
+var L = require('leaflet');
+var turf = require('@turf/turf');
 console.log(turf);
-import Query from "../../database/query";
-import Timeline from "../map/control/Timeline.vue";
-import MapView from "../map/MapView.vue";
+import Query from '../../database/query';
+import Timeline from '../map/control/Timeline.vue';
+import MapView from '../map/MapView.vue';
 
 export default {
+  name: 'MapPage',
   components: { MapView, Timeline },
   computed: {
     map: function () {
@@ -29,6 +52,9 @@ export default {
     return {
       timeline: null,
       mints: [],
+      rulers: [],
+      rulerColorMap: {},
+      activeRuler: null,
     };
   },
   mounted: function () {
@@ -40,10 +66,7 @@ export default {
         }
     mint {
     name
-    location {
-      type
-      coordinates
-    }
+    location
   }
 }`
     )
@@ -55,23 +78,28 @@ export default {
         this.update();
 
         window.map = this.map;
+        this.map.doubleClickZoom.disable();
       })
       .catch(console.error);
   },
   methods: {
+    setActiveRuler(ruler) {
+      if (this.activeRuler && this.activeRuler.id == ruler.id) {
+        this.activeRuler = null;
+      } else this.activeRuler = ruler;
+      this.update();
+    },
     getColor(i) {
       const colors = [
-        "#ff6542",
-        "#0b1d51",
-        "#f092dd",
-        "#ffaff0",
-        "#9ece9a",
-        "#f1e8b8",
-        "#e2c044",
-        "#1b4079",
-        "#2ba84a",
+        '#7CCC7B',
+        '#FFB581',
+        '#89B0AE',
+        '#A1DAA0',
+        '#FEDFCA',
+        '#f1e8b8',
+        '#BEE3DB',
       ];
-      if (i > colors.length) console.error("RAN OUT OF COLORS", i);
+      if (i > colors.length) console.error('RAN OUT OF COLORS', i);
       return colors[i % colors.length];
     },
     update() {
@@ -99,11 +127,13 @@ export default {
     mint {
       id
       name
-      location {
-        type
-        coordinates
-      }
+      location
     },
+    issuers {
+      id
+      name
+      shortName
+    }
     overlords {
       id
       name
@@ -116,62 +146,98 @@ export default {
         .then((result) => {
           let data = result.data.data.getTypes;
 
-          let overlords = {};
+          let rulers = {};
+
+          data.forEach((type) => {
+            if (type?.mint.location) {
+              try {
+                type.mint.location = JSON.parse(type.mint.location);
+                type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
+                type.overlords.forEach(
+                  (overlord) => (rulers[overlord.id] = overlord)
+                );
+              } catch (e) {
+                console.error('Could not parse GeoJSON.', type.mint.location);
+              }
+            }
+          });
 
           data = data.filter(
             (d) => d.mint?.location && d.mint.location.coordinates != null
           );
 
-          data.forEach((type) => {
-            type.overlords.forEach((o) => (overlords[o.id] = o));
+          this.rulerColorMap = {};
+          let i = 0;
+
+          this.rulers = rulers;
+          Object.values(rulers).forEach((ruler) => {
+            this.rulerColorMap[ruler.id] = this.getColor(i);
+            i++;
           });
 
-          let oArr = Object.values(overlords);
-          for (let i = 0; i < oArr.length; i++) {
-            overlords[oArr[i].id].color = this.getColor(i);
-          }
-
           if (this.concentricCircles) this.concentricCircles.remove();
+
+          const types = data.map((obj) => {
+            let mint = obj.mint;
+            let geo = mint.location;
+            geo.coin = obj;
+            return geo;
+          });
+
+          let that = this;
+
           this.concentricCircles = L.geoJSON(
-            data.map((obj) => {
-              let mint = obj.mint;
-              let geo = mint.location;
-              geo.coin = obj;
-              return geo;
-            }),
+            types,
+
             {
               pointToLayer: function (feature, latlng) {
                 let circles = [];
                 let radius = 10;
                 const increment = 5;
-                for (let ov of feature.coin.overlords) {
-                  const overlord = overlords[ov.id];
+                for (let overlord of feature.coin.overlords) {
+                  let rulers = [
+                    ...feature.coin.issuers,
+                    ...feature.coin.overlords,
+                  ];
 
-                  circles.push(
-                    L.circleMarker(latlng, {
+                  for (let [index, ruler] of rulers.entries()) {
+                    let fillColor = that.activeRuler
+                      ? ruler.id !== that.activeRuler.id
+                        ? '#ccc'
+                        : that.rulerColorMap[ruler.id]
+                      : that.rulerColorMap[ruler.id];
+
+                    let circle = L.circleMarker(latlng, {
                       radius,
-                      // color: "#ffffff",
-                      weight: 0.1,
-                      stroke: false,
-                      fillColor: overlord.color,
+                      weight: 0.75,
+                      stroke: true,
+                      color: '#fff',
+                      fillColor,
                       fillOpacity: 1,
-                    }).bindTooltip(overlord.name, {
-                      className: "map-label",
+                    }).bindTooltip(ruler.name, {
+                      className: 'map-label',
                       // permanent: true,
-                      direction: "top",
-                    })
-                  );
-                  radius += increment;
+                      direction: 'top',
+                    });
+
+                    circle.on('click', () => {
+                      that.setActiveRuler(ruler);
+                    });
+
+                    circles.push(circle);
+                    radius += increment;
+                  }
+                  circles.reverse();
+                  return L.layerGroup(circles);
                 }
-                circles.reverse();
-                return L.layerGroup(circles);
               },
+
               coordsToLatLng: function (coords) {
                 return new L.LatLng(coords[0], coords[1], coords[2]);
               },
               style: {
                 stroke: false,
-                fillColor: "#629bf0",
+                fillColor: '#629bf0',
                 fillOpacity: 1,
               },
               tooltip: function (feature) {
@@ -209,7 +275,7 @@ export default {
           },
           style: {
             stroke: false,
-            fillColor: "#629bf0",
+            fillColor: '#629bf0',
             fillOpacity: 1,
           },
           tooltip: function (feature) {
@@ -227,10 +293,7 @@ export default {
   ruledMint(year: ${this.timeline.value}) {
     mint {
       name
-      location {
-        type
-        coordinates
-      }
+      location
     }
     overlords {
       name
@@ -249,19 +312,11 @@ export default {
     }
     mints {
       name
-      location {
-        type
-        coordinates
-      }
+      location
     }
   }}`
       )
         .then((result) => {
-          let rms = result.data.data.ruledMint.filter(
-            (rm) =>
-              rm.mint.location != null && rm.mint.location.coordinates != null
-          );
-
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
             coordsToLatLng: function (coords) {
@@ -270,15 +325,21 @@ export default {
             style: {
               stroke: true,
               opacity: 0.75,
-              color: "red",
-              fillColor: "#48ac48",
+              color: 'red',
+              fillColor: '#48ac48',
               fillOpacity: 0.1,
             },
           }).addTo(this.map);
 
-          rms.forEach((rm) => {
-            console.log(rm.mint.location);
-            this.mintGeoJSONLayer.addData(rm.mint.location);
+          result.data.data.ruledMint.forEach((mint) => {
+            if (mint.location) {
+              try {
+                mint.location = JSON.parse(mint.location);
+                this.mintGeoJSONLayer.addData(mint.location);
+              } catch (e) {
+                console.error('Could not parse GeoJSON from mint.', mint);
+              }
+            }
           });
 
           let dominionData = result.data.data.getDominion;
@@ -313,6 +374,7 @@ export default {
             dominionData[idx] = area;
           });
           if (this.dominionLayer) this.dominionLayer.remove();
+
           this.dominionLayer = L.geoJSON(dominionData, {
             coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
@@ -320,8 +382,8 @@ export default {
             style: {
               stroke: true,
               opacity: 0.75,
-              color: "#48ac48",
-              fillColor: "#48ac48",
+              color: '#48ac48',
+              fillColor: '#48ac48',
               fillOpacity: 0.5,
             },
           }).addTo(this.map);
@@ -331,7 +393,7 @@ export default {
             },
             {
               sticky: true,
-              direction: "top",
+              direction: 'top',
             }
           );
         })
@@ -358,5 +420,29 @@ export default {
   &::before {
     border-top-color: transparent !important;
   }
+}
+
+.side-bar {
+  position: fixed;
+  z-index: 1000;
+  background-color: white;
+  padding: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  ul {
+    padding: 0;
+    list-style-type: none;
+  }
+
+  li {
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border-radius: 10px;
+  }
+}
+
+.side-bar-right {
+  right: 0;
 }
 </style>

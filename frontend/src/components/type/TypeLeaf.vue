@@ -3,30 +3,30 @@
     <section>
       <div class="property-group">
         <div class="label">Treadwell-ID</div>
-        <div class="value">{{ this.data.treadwellId || "Kein Eintrag" }}</div>
+        <div class="value">{{ this.data.treadwellId || 'Kein Eintrag' }}</div>
       </div>
       <div class="property-group">
         <div class="label">Prägeort</div>
-        <div class="value">{{ this.data.mintAsOnCoin || "Kein Eintrag" }}</div>
+        <div class="value">{{ this.data.mintAsOnCoin || 'Kein Eintrag' }}</div>
       </div>
       <div class="property-group">
         <div class="label">Jahr</div>
-        <div class="value">{{ this.data.yearOfMint || "Kein Eintrag" }}</div>
+        <div class="value">{{ this.data.yearOfMint || 'Kein Eintrag' }}</div>
       </div>
       <div class="property-group">
         <div class="label">Herstellungsart</div>
-        <div class="value">{{ $t(this.data.procedure) || "Kein Eintrag" }}</div>
+        <div class="value">{{ $t(this.data.procedure) || 'Kein Eintrag' }}</div>
       </div>
       <div class="property-group">
         <div class="label">Material</div>
         <div class="value">
-          {{ this.data.material ? this.data.material.name : "Kein Eintrag" }}
+          {{ this.data.material ? this.data.material.name : 'Kein Eintrag' }}
         </div>
       </div>
       <div class="property-group">
         <div class="label">Nominal</div>
         <div class="value">
-          {{ this.data.nominal ? this.data.nominal.name : "Kein Eintrag" }}
+          {{ this.data.nominal ? this.data.nominal.name : 'Kein Eintrag' }}
         </div>
       </div>
     </section>
@@ -38,7 +38,7 @@
           {{
             this.data.caliph && this.data.caliph.name
               ? this.data.caliph.name
-              : "Kein Eintrag"
+              : 'Kein Eintrag'
           }}
         </div>
       </div>
@@ -46,7 +46,7 @@
       <div class="property-group" v-if="this.heir">
         <div class="label">Designierter Thronfolger</div>
         <div class="value">
-          {{ this.heir ? this.heir.name : "Kein Eintrag" }}
+          {{ this.heir ? this.heir.name : 'Kein Eintrag' }}
         </div>
       </div>
 
@@ -57,7 +57,7 @@
 
         <ol v-if="issuers.length > 1">
           <li v-for="(issuer, index) in issuers" :key="'issuer-' + index">
-            {{ issuer.person ? issuer.person.name : "Keine Person angegeben" }}
+            {{ issuer.person ? issuer.person.name : 'Keine Person angegeben' }}
           </li>
         </ol>
       </div>
@@ -66,9 +66,7 @@
         <div class="label">Oberherren</div>
         <ol>
           <li v-for="(overlord, index) in overlords" :key="'overlord-' + index">
-            {{
-              overlord.person ? overlord.person.name : "Keine Person angegeben"
-            }}
+            {{ overlord.name }}
             ({{ overlord.rank }})
           </li>
         </ol>
@@ -77,40 +75,38 @@
       <div class="property-group" v-if="this.cutter">
         <div class="label">Münzschneider</div>
         <div class="value">
-          {{ this.cutter ? this.cutter.name : "Kein Eintrag" }}
+          {{ this.cutter ? this.cutter.name : 'Kein Eintrag' }}
         </div>
       </div>
 
       <div class="property-group" v-if="this.warden">
         <div class="label">Münzwardei</div>
         <div class="value">
-          {{ this.warden ? this.warden.name : "Kein Eintrag" }}
+          {{ this.warden ? this.warden.name : 'Kein Eintrag' }}
         </div>
       </div>
-
-
-    </section >
+    </section>
 
     <section class="column coin-side-column">
-    <Tabs :tabs="[$t('property.frontside'), $t('property.backside')]">
-      <template #tab-0>
-        <TypeLeafCoinContent :value="data.avers" />
-      </template>
+      <Tabs :tabs="[$t('property.frontside'), $t('property.backside')]">
+        <template #tab-0>
+          <TypeLeafCoinContent :value="data.avers" />
+        </template>
 
-      <template #tab-1>
-        <TypeLeafCoinContent :value="data.reverse" />
-      </template>
-    </Tabs>
+        <template #tab-1>
+          <TypeLeafCoinContent :value="data.reverse" />
+        </template>
+      </Tabs>
     </section>
   </div>
 </template>
 
 <script>
-import Tabs from "../layout/tabs/Tabs.vue";
-import TypeLeafCoinContent from "./TypeLeafCoinContent.vue";
+import Tabs from '../layout/tabs/Tabs.vue';
+import TypeLeafCoinContent from './TypeLeafCoinContent.vue';
 
 export default {
-  name: "TypeLeaf",
+  name: 'TypeLeaf',
   props: {
     data: Object,
   },
@@ -122,7 +118,7 @@ export default {
     heir: function() {
       let res = null;
       if (this.data && this.data.otherPersons) {
-        res = this.data.otherPersons.find((person) => person.role == "heir");
+        res = this.data.otherPersons.find((person) => person.role == 'heir');
       }
 
       return res;
@@ -146,12 +142,12 @@ export default {
     },
     cutter: function() {
       return this.data && this.data.otherPersons
-        ? this.data.otherPersons.find((person) => person.role == "cutter")
+        ? this.data.otherPersons.find((person) => person.role == 'cutter')
         : null;
     },
     warden: function() {
       return this.data && this.data.otherPersons
-        ? this.data.otherPersons.find((person) => person.role == "warden")
+        ? this.data.otherPersons.find((person) => person.role == 'warden')
         : null;
     },
   },
@@ -172,7 +168,6 @@ export default {
     color: white;
     background-color: gray;
   }
-
 }
 
 .leaf {
@@ -185,5 +180,4 @@ export default {
 section {
   margin: 0;
 }
-
 </style>

@@ -679,7 +679,7 @@ const ATLANTIS_TYPE = {
   "projectId": "ẲTLxxx",
   "treadwellId": "Ẳx",
   "mint": {
-    "id": "4",
+    "id": "3",
     "name": "Ǎtlantis",
     "location": "{\"type\":\"Point\",\"coordinates\":[40.450505694,6.15439645]}",
     "uncertain": true,
@@ -938,7 +938,7 @@ const ATLANTIS_TYPE = {
 const ATLANTIS_INPUT = `{
       projectId: "ẲTLxxx",
       treadwellId: "Ẳx",
-      mint: 4,
+      mint: 3,
       mintAsOnCoin: "Ẳtlảntis",
       material: 3,
       nominal: 1,
