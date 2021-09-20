@@ -119,7 +119,8 @@ export default {
         'honorific',
         'coin_mark',
         'material',
-        'mint',
+        // TODO: Implement mint correctly.
+        // 'mint',
         'nominal',
         'person',
         'title',
