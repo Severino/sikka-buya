@@ -302,9 +302,9 @@
       </div>
 
       <Row>
-        <input type="file" @change="compareJSON" />
-        <button @click="applyJSON">Apply</button>
-        <button @click="exportJSON">Export</button>
+        <input type="file" @change="compareJSON" v-if="debug" />
+        <button @click="applyJSON" v-if="debug">Apply {{ debug }}</button>
+        <button @click="exportJSON" v-if="debug">Export</button>
         <button @click.stop.prevent="cancel">{{ $t('form.cancel') }}</button>
         <button @click.stop="submitForm" type="submit">
           {{ $t('form.submit') }}
@@ -501,6 +501,7 @@ export default {
 
   data: function () {
     return {
+      debug: false,
       coin: {
         id: null,
         projectId: '',
