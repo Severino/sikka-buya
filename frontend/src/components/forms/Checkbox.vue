@@ -41,7 +41,7 @@ export default {
     label: String,
   },
   methods: {
-    input: function(event) {
+    input: function (event) {
       const checked = event.target.checked;
       this.$emit('input', checked);
     },
@@ -52,8 +52,13 @@ export default {
 <style lang="scss" scoped>
 @import '@/scss/_import.scss';
 
-label {
-  display: inline;
+// label {
+//   display: inline;
+// }
+
+label,
+#check {
+  display: inline-block;
 }
 
 input {
