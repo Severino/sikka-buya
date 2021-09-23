@@ -125,17 +125,54 @@ export default {
       if (this.focused) {
         if (e.ctrlKey && e.key.toLowerCase() == 'z') {
           let prevPosition;
-          if (this.markerHistory.length > 1) {
+          if (this.markerHistory.length > 0) {
             prevPosition = this.markerHistory.shift();
           }
 
-          let coordinates = this.coordinates;
-          if (this.isPolygon) {
-            if (coordinates.length > 0) coordinates.pop();
-          } else if (prevPosition) {
-            coordinates[0] = prevPosition;
+          if (prevPosition) {
+            let coordinates = this.coordinates;
+            console.log('UNDO', prevPosition);
+            switch (prevPosition.action) {
+              case 'set': {
+                if (!this.isPolygon) {
+                  coordinates = prevPosition.coordinates;
+                } else {
+                  if (coordinates.length > 0) coordinates.pop();
+                }
+                break;
+              }
+              case 'move': {
+                coordinates.splice(
+                  prevPosition.index,
+                  1,
+                  prevPosition.coordinates
+                );
+                break;
+              }
+              case 'insert': {
+                console.log('INSERT:', prevPosition.index);
+                coordinates.splice(prevPosition.index, 1);
+                break;
+              }
+              case 'remove': {
+                coordinates.splice(
+                  prevPosition.index,
+                  0,
+                  prevPosition.coordinates
+                );
+                break;
+              }
+            }
+
+            // if (this.isPolygon) {
+            //   if (coordinates.length > 0) {
+
+            //   }
+            // } else {
+            //   coordinates = prevPosition.coordinates;
+            // }
+            this.emitUpdate(coordinates);
           }
-          this.emitUpdate(coordinates);
         }
 
         if (
@@ -144,6 +181,13 @@ export default {
           this.activeMarkerIndex != null
         ) {
           const coordinates = this.coordinates;
+
+          this.markerHistory.unshift({
+            action: 'remove',
+            index: this.activeMarkerIndex,
+            coordinates: coordinates[this.activeMarkerIndex],
+          });
+
           coordinates.splice(this.activeMarkerIndex, 1);
           this.activeMarkerIndex = null;
           this.emitUpdate(coordinates);
@@ -160,8 +204,6 @@ export default {
       this.map.on('click', (e) => {
         if (e.originalEvent.ctrlKey == true) {
           const location = e.latlng;
-          this.markerHistory.unshift(location);
-
           let coordinates = this.coordinates === null ? [] : this.coordinates;
 
           if (this.isPolygon) {
@@ -169,6 +211,11 @@ export default {
           } else {
             coordinates = [location.lat, location.lng];
           }
+
+          this.markerHistory.unshift({
+            action: 'set',
+            coordinates: [location.lat, location.lng],
+          });
 
           while (this.markerHistory.length > this.historyLimit)
             this.markerHistory.pop();
@@ -224,6 +271,11 @@ export default {
             const coordinates =
               this.coordinates === null ? [] : this.coordinates;
             coordinates.splice(idx + 1, 0, point);
+
+            this.markerHistory.unshift({
+              action: 'insert',
+              index: idx + 1,
+            });
 
             this.updateMarker();
             this.setActiveMarker(idx + 1);
@@ -296,6 +348,14 @@ export default {
             marker.on('mousedown', (e) => {
               this.map.dragging.disable();
               this.setActiveMarker(i);
+
+              let location = e.latlng;
+              this.markerHistory.unshift({
+                action: 'move',
+                index: i,
+                coordinates: [location.lat, location.lng],
+              });
+
               this.map.on('mousemove', trackCursor);
               e.originalEvent.preventDefault();
             });

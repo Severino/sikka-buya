@@ -301,19 +301,21 @@ router.beforeEach(async (to, from, next) => {
     if (auth) {
       next()
     } else {
-      console.log("LOGIN")
       router.push({ name: "Login" })
     }
   } else {
 
-    // await Login
+    let redirect = false
+    if (to.name == "Login") {
+      let auth = await Auth.check()
+      if (auth) {
+        redirect = true
+        router.push({ name: "Editor" })
+      }
+    }
 
-    // if (to.name == "Login") {
-
-    //   let auth = await Auth.check()
-    //   if (auth) router.push({ name: "Editor" })
-    // }
-    next()
+    if (!redirect)
+      next()
   }
 })
 

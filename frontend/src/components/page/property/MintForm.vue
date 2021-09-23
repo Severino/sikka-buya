@@ -17,11 +17,13 @@
         required
       />
 
-      <DataSelectField
-        table="Province"
-        attribute="name"
-        v-model="mint.province"
-      />
+      <labeled-input-container :label="$tc('property.province')">
+        <DataSelectField
+          table="Province"
+          attribute="name"
+          v-model="mint.province"
+        />
+      </labeled-input-container>
 
       <label for="location">Location</label>
       <location-input
@@ -43,7 +45,7 @@
         <label for="location">Geschätzte Verortung</label>
         <location-input
           type="polygon"
-          :coordinates="mint.uncertainLocation.coordinates"
+          :coordinates="mint.uncertainArea.coordinates"
           @update="updateUncertainArea"
         />
       </div>
@@ -58,6 +60,7 @@ import Checkbox from '../../forms/Checkbox';
 import LocationInput from '../../forms/LocationInput.vue';
 import GraphQLUtils from '../../../utils/GraphQLUtils.js';
 import DataSelectField from '../../forms/DataSelectField.vue';
+import LabeledInputContainer from '../../LabeledInputContainer.vue';
 
 export default {
   components: {
@@ -65,6 +68,7 @@ export default {
     PropertyFormWrapper,
     LocationInput,
     DataSelectField,
+    LabeledInputContainer,
   },
   name: 'MintForm',
   created: function () {
@@ -113,33 +117,17 @@ export default {
           if (!data.uncertainArea) {
             data.uncertainArea = {
               type: 'Polygon',
-              coordinates: [[[]]],
+              coordinates: [[]],
             };
           }
 
-          if (data.uncertainArea?.type.toLowerCase() == 'polygon') {
-            let coords = [];
-            for (
-              let i = 0;
-              i < data.uncertainArea.coordinates.length - 1;
-              i += 2
-            ) {
-              coords.push([
-                data.uncertainArea.coordinates[i],
-                data.uncertainArea.coordinates[i + 1],
-              ]);
-            }
-            data.uncertainArea.coordinates = coords;
-          }
-
-          console.log(data.uncertainArea);
+          data.uncertainArea.coordinates = data.uncertainArea.coordinates[0];
 
           this.mint = data;
         })
         .catch((err) => {
-          console.log('asdasd');
           this.$data.error = this.$t('error.loading_element');
-          console.log(err);
+          console.error(err);
         })
         .finally(() => {
           this.$data.loading = false;
@@ -151,15 +139,21 @@ export default {
   methods: {
     submit: function () {
       let { type, coordinates } = this.mint.uncertainArea;
-      coordinates = this.mint?.uncertainArea?.coordinates
-        ? (coordinates = coordinates.flatMap((point) => [point[0], point[1]]))
-        : null;
+      // coordinates = this.mint?.uncertainArea?.coordinates
+      //   ? (coordinates = coordinates.flatMap((point) => [point[0], point[1]]))
+      //   : null;
+
+      console.log('coordinates', coordinates);
 
       let data = {
         uncertain: this.mint.uncertain,
         name: this.mint.name,
-        location: this.mint.location,
-        uncertainArea: { type, coordinates },
+        location: `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`,
+        uncertainArea: `${JSON.stringify({
+          type,
+          coordinates: [coordinates],
+        }).replace(/"/g, "'")}`,
+        province: this.mint.province?.id,
       };
 
       if (this.mint.id == -1) {
@@ -173,8 +167,6 @@ export default {
       this.radius = parseInt(radius);
     },
     query: function (name, data = {}) {
-      console.log(GraphQLUtils.buildMutationParams(data));
-
       const body = GraphQLUtils.buildMutationParams(data);
       const query = `mutation {${name}(data: ${body})}`;
       Query.raw(query)
@@ -193,6 +185,7 @@ export default {
       this.$router.push({ path: '/mint' });
     },
     updateLocation: function (geoJson) {
+      console.log(geoJson);
       this.mint.location = geoJson;
     },
     updateUncertainArea: function (geoJson) {
@@ -208,6 +201,10 @@ export default {
         id: -1,
         name: '',
         uncertain: false,
+        province: {
+          id: null,
+          name: '',
+        },
         location: {
           type: 'empty',
           coordinates: [],

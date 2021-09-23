@@ -278,7 +278,7 @@ async function start({
                         query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", exclude)}`
                     }
 
-                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC LIMIT ${process.env.MAX_SEARCH}`)
+                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
 
                     result.forEach((item, idx) => {
 

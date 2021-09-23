@@ -1,7 +1,8 @@
 <template>
-  <map-view class="mapview" ref="map">
+  <div class="map-page">
     <timeline
-      v-if="timeline"
+      ref="timeline"
+      v-show="timeline"
       :from="timeline.from"
       :to="timeline.to"
       v-model="timeline.value"
@@ -24,12 +25,25 @@
             };`"
             @click="setActiveRuler(ruler)"
           >
-            {{ ruler.name }}
+            {{ ruler.shortName }}
           </li>
         </ul>
       </div>
     </div>
-  </map-view>
+
+    <div class="side-bar side-bar-left">
+      <div id="mints">
+        <ul>
+          <h3>Prägeorte</h3>
+          <li v-for="mint of mints" :key="`mint-list-item-${mint.id}`">
+            {{ mint.name }}
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <map-view class="mapview" ref="map" @mapChanged="mapChanged"> </map-view>
+  </div>
 </template>
 
 <script>
@@ -43,46 +57,47 @@ import MapView from '../map/MapView.vue';
 export default {
   name: 'MapPage',
   components: { MapView, Timeline },
-  computed: {
-    map: function () {
-      return this.$refs.map.map;
-    },
-  },
   data: function () {
     return {
-      timeline: null,
+      timeline: { from: null, to: null, value: null },
       mints: [],
       rulers: [],
+      map: null,
       rulerColorMap: {},
       activeRuler: null,
+      activeMint: null,
     };
   },
-  mounted: function () {
-    Query.raw(
-      `{
+  provide() {
+    return {
+      map: this.map || null,
+    };
+  },
+
+  methods: {
+    mapChanged: function (map) {
+      console.log(map);
+      this.map = map;
+      Query.raw(
+        `{
         timespan {
           from
           to
         }
-    mint {
-    name
-    location
-  }
 }`
-    )
-      .then((result) => {
-        let timeline = result.data.data.timespan;
-        timeline.value = 363;
-        this.timeline = timeline;
-        this.mints = result.data.data.mint;
-        this.update();
+      )
+        .then((result) => {
+          let timeline = result.data.data.timespan;
+          timeline.value = 363;
+          this.timeline = timeline;
+          this.$refs.timeline.init();
+          this.update();
 
-        window.map = this.map;
-        this.map.doubleClickZoom.disable();
-      })
-      .catch(console.error);
-  },
-  methods: {
+          window.map = this.map;
+          this.map.doubleClickZoom.disable();
+        })
+        .catch(console.error);
+    },
     setActiveRuler(ruler) {
       if (this.activeRuler && this.activeRuler.id == ruler.id) {
         this.activeRuler = null;
@@ -147,11 +162,14 @@ export default {
           let data = result.data.data.getTypes;
 
           let rulers = {};
+          let mints = {};
 
           data.forEach((type) => {
             if (type?.mint.location) {
               try {
                 type.mint.location = JSON.parse(type.mint.location);
+                mints[type.mint.id] = type.mint;
+
                 type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
                 type.overlords.forEach(
                   (overlord) => (rulers[overlord.id] = overlord)
@@ -165,6 +183,8 @@ export default {
           data = data.filter(
             (d) => d.mint?.location && d.mint.location.coordinates != null
           );
+
+          this.mints = Object.values(mints);
 
           this.rulerColorMap = {};
           let i = 0;
@@ -249,42 +269,6 @@ export default {
           this.concentricCircles.addTo(this.map);
         })
         .catch(console.error);
-    },
-    updateMint: function () {
-      let mintData = this.mints.filter((mint) => {
-        return (
-          mint.location?.coordinates &&
-          Array.isArray(mint.location.coordinates) &&
-          mint.location.coordinates.length > 0
-        );
-      });
-      if (this.mintLayer) this.mintLayer.remove();
-
-      this.mintLayer = L.geoJSON(
-        mintData.map((mint) => {
-          let geo = mint.location;
-          geo.mint = mint;
-          return geo;
-        }),
-        {
-          pointToLayer: (point, latlng) => {
-            return L.circleMarker(latlng);
-          },
-          coordsToLatLng: function (coords) {
-            return new L.LatLng(coords[0], coords[1], coords[2]);
-          },
-          style: {
-            stroke: false,
-            fillColor: '#629bf0',
-            fillOpacity: 1,
-          },
-          tooltip: function (feature) {
-            return feature.mint.name;
-          },
-        }
-      );
-
-      this.mintLayer.addTo(this.map);
     },
     updateDominion: function () {
       Query.raw(
@@ -404,9 +388,18 @@ export default {
 </script>
 
 <style lang="scss">
-.mapview {
-  min-height: 100px;
+.map-page {
+  position: relative;
   flex: 1;
+}
+
+.mapview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .map-label {
@@ -423,14 +416,21 @@ export default {
 }
 
 .side-bar {
-  position: fixed;
+  position: absolute;
+  box-sizing: border-box;
   z-index: 1000;
-  background-color: white;
+  background-color: rgba($color: $white, $alpha: 0.8);
   padding: 20px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0px;
+  max-height: 100%;
+  overflow-y: auto;
+
+  h3 {
+    margin-top: 0;
+  }
 
   ul {
+    margin: 0;
     padding: 0;
     list-style-type: none;
   }
@@ -444,5 +444,9 @@ export default {
 
 .side-bar-right {
   right: 0;
+}
+
+#rulers {
+  width: 250px;
 }
 </style>
