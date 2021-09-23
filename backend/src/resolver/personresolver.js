@@ -78,7 +78,6 @@ class PersonResolver extends Resolver {
         WHERE unaccent(p.name) 
         ILIKE unaccent($[search]) 
         ORDER BY p.name ASC
-        LIMIT ${process.env.MAX_SEARCH}
         `, {
             table: this.tableName,
             search: `%${args.text}%`

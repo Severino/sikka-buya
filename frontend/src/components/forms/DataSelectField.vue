@@ -23,7 +23,7 @@
       <li
         v-if="
           (!internal_error && !loading && !searchResults) ||
-            searchResults.length == 0
+          searchResults.length == 0
         "
         class="non-selectable"
       >
@@ -55,7 +55,7 @@ import Check from 'vue-material-design-icons/Check';
 export default {
   name: 'DataSelectField',
   components: { Alert, Check },
-  data: function() {
+  data: function () {
     return {
       id: null,
       listVisible: false,
@@ -68,7 +68,7 @@ export default {
   props: {
     value: {
       type: Object,
-      validator: function(obj) {
+      validator: function (obj) {
         return obj.id == null || !isNaN(parseInt(obj.id));
       },
     },
@@ -76,7 +76,7 @@ export default {
     error: String,
     queryParams: {
       type: Array,
-      default: function() {
+      default: function () {
         return ['id', 'name'];
       },
     },
@@ -107,12 +107,12 @@ export default {
     placeholder: String,
   },
   computed: {
-    invalid: function() {
+    invalid: function () {
       return this.value.id == null;
     },
   },
   methods: {
-    setValue: function(event) {
+    setValue: function (event) {
       const target = event.target;
       const value = this.value;
       this.listVisible = false;
@@ -121,14 +121,14 @@ export default {
       this.$emit('input', value);
       this.$emit('select', value);
     },
-    input: async function(event, preventSimiliarityCheck = false) {
+    input: async function (event, preventSimiliarityCheck = false) {
       let value = this.value;
       value[this.attribute] = event.target.value;
       value.id = null;
       this.checkMatch(value);
       this.$emit('input', value);
     },
-    checkMatch: async function(value) {
+    checkMatch: async function (value) {
       await this.searchEntry(value[this.attribute]);
       for (let entry of this.searchResults.values()) {
         let regex = new RegExp('^' + value.name + '$', 'i');
@@ -139,15 +139,15 @@ export default {
         }
       }
     },
-    focus: async function() {
+    focus: async function () {
       await this.checkMatch(this.value);
       this.showList();
     },
-    showList: function() {
+    showList: function () {
       if (this.hideTimeout) clearTimeout(this.hideTimeout);
       this.listVisible = true;
     },
-    hideList: function() {
+    hideList: function () {
       this.hideTimeout = setTimeout(() => {
         this.listVisible = false;
 
@@ -158,12 +158,12 @@ export default {
         // }
       }, 200);
     },
-    initId: function() {
+    initId: function () {
       this.getData().forEach((el) => {
         if (el.id > this.$data.id) this.$data.id = el.id + 1;
       });
     },
-    getData: function() {
+    getData: function () {
       let loaded;
       try {
         loaded = JSON.parse(window.localStorage.getItem(this.$props.table));
@@ -173,7 +173,7 @@ export default {
 
       return loaded || [];
     },
-    searchEntry: async function(str = null) {
+    searchEntry: async function (str = null) {
       let searchString = str !== null ? str : this.value[this.attribute] || '';
 
       const queryCommand = this.queryCommand
@@ -205,9 +205,9 @@ export default {
           this.loading = false;
         });
     },
-    transformTextContent: function(search) {
+    transformTextContent: function (search) {
       if (this.text) {
-        return this.text.replace(/\${(.+?)}/g, function(match, name) {
+        return this.text.replace(/\${(.+?)}/g, function (match, name) {
           const path = name.split('.');
           let target = search;
           for (let i = 0; i < path.length && target != null; i++) {
@@ -317,7 +317,7 @@ button {
   width: 100%;
   // padding: 10px;
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: 2000;
   max-height: 50vh;
   overflow-y: auto;
 

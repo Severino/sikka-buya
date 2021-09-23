@@ -119,8 +119,7 @@ export default {
         'honorific',
         'coin_mark',
         'material',
-        // TODO: Implement mint correctly.
-        // 'mint',
+        'mint',
         'nominal',
         'person',
         'title',
@@ -169,5 +168,10 @@ h3 {
   position: absolute;
   top: 0;
   transform: translate(20px, -50%);
+}
+
+a:not(:last-child) {
+  margin-bottom: 0;
+  border-bottom: none;
 }
 </style>

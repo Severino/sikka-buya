@@ -24,7 +24,7 @@ var L = require('leaflet');
 
 export default {
   components: {},
-  inject: ['getMap'],
+  inject: ['map'],
   props: {
     from: Number,
     to: Number,
@@ -38,10 +38,10 @@ export default {
       this.$emit('change', parseFloat(event.target.value));
     },
     enableMap() {
-      this.getMap().dragging.enable();
+      this.map.dragging.enable();
     },
     disableMap() {
-      this.getMap().dragging.disable();
+      this.map.dragging.disable();
     },
     down(event) {
       event.preventDefault();
@@ -53,20 +53,20 @@ export default {
       event.stopPropagation();
       this.$emit('change', parseFloat(this.value + 1));
     },
-  },
-  mounted: function() {
-    this.$nextTick(() => {
-      L.Control.Timeline = L.Control.extend({
-        options: {
-          position: 'middlecenter',
-        },
-        onAdd: () => {
-          return this.$refs.element;
-        },
+    init() {
+      this.$nextTick(() => {
+        L.Control.Timeline = L.Control.extend({
+          options: {
+            position: 'middlecenter',
+          },
+          onAdd: () => {
+            return this.$refs.element;
+          },
+        });
+        let timeline = new L.Control.Timeline();
+        timeline.addTo(this.map);
       });
-      let timeline = new L.Control.Timeline();
-      timeline.addTo(this.getMap());
-    });
+    },
   },
 };
 </script>

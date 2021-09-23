@@ -14,17 +14,17 @@
         <span>{{ $t('form.create') }}</span>
       </div>
 
-      <SearchField v-model="textFilter" />
+      <SearchField :value="textFilter" @input="searchChanged" />
 
       <List
         @remove="remove"
         :error="error"
         :loading="loading"
-        :items="list"
-        :filteredItems="filteredItems"
+        :items="items"
+        :filteredItems="items"
       >
         <ListItem
-          v-for="item of filteredItems"
+          v-for="item of items"
           v-bind:key="item.key"
           :id="item.id"
           :to="{
@@ -41,9 +41,6 @@
 </template>
 
 <script>
-import SearchUtils from '../../utils/SearchUtils.js';
-import AxiosHelper from '../../utils/AxiosHelper.js';
-
 import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
 
 import List from '../layout/List.vue';
@@ -68,18 +65,8 @@ export default {
     ListItemCell,
     DynamicDeleteButton,
   },
-  created: function() {
-    new Query(this.queryName)
-      .list(['id', 'name'])
-      .then((obj) => {
-        this.$data.items = obj.data.data[this.queryName];
-      })
-      .catch(() => {
-        this.error = this.$t('error.loading_list');
-      })
-      .finally(() => {
-        this.$data.loading = false;
-      });
+  created: function () {
+    this.list();
   },
   props: {
     query: String,
@@ -88,41 +75,80 @@ export default {
     createPage: String,
   },
   computed: {
-    propertyName: function() {
+    propertyName: function () {
       return this.overridePropertyName
         ? this.overridePropertyName
         : this.property;
     },
-    queryName: function() {
+    queryName: function () {
       return this.query ? this.query : this.property;
     },
-    property: function() {
+    property: function () {
       return this.overrideProperty
         ? this.overrideProperty
         : this.$route.params.property.toLowerCase();
     },
-    list: function() {
-      return this.$data.items;
-    },
-    filteredItems: function() {
-      let list = this.$data.items;
-
-      list = SearchUtils.filter(this.textFilter, list);
-
-      return list;
-    },
   },
-  data: function() {
+  data: function () {
     return {
       loading: true,
       items: [],
       error_id: 0,
       error: '',
       textFilter: '',
+      searchId: 0,
     };
   },
 
   methods: {
+    list() {
+      new Query(this.queryName)
+        .list(['id', 'name'])
+        .then((obj) => {
+          this.$data.items = obj.data.data[this.queryName];
+        })
+        .catch(() => {
+          this.error = this.$t('error.loading_list');
+        })
+        .finally(() => {
+          this.$data.loading = false;
+        });
+    },
+    search() {
+      let queryCommand = `search${
+        this.queryName[0].toUpperCase() + this.queryName.substr(1)
+      }`;
+      Query.raw(
+        `{
+            ${queryCommand}
+            (text: "${this.textFilter}"){
+              id, name
+            }
+          }`
+      )
+        .then((obj) => {
+          this.$data.items = obj.data.data[queryCommand];
+        })
+        .catch((e) => {
+          console.err('Could not search', e);
+          this.error = this.$t('error.loading_list');
+        })
+        .finally(() => {
+          this.$data.loading = false;
+        });
+    },
+    searchChanged(val) {
+      this.textFilter = val;
+      let searchId = ++this.searchId;
+      setTimeout(() => {
+        if (this.searchId == searchId) {
+          if (this.textFilter === '') this.list();
+          else {
+            this.search();
+          }
+        }
+      }, 500);
+    },
     create() {
       if (this.createPage) {
         this.$router.push({ name: this.createPage });
