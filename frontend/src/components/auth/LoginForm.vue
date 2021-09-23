@@ -1,6 +1,6 @@
 <template>
   <Box>
-    <form ref="form">
+    <form ref="form" @keydown="enter">
       <user-form
         title="Login"
         :email="email"
@@ -11,7 +11,7 @@
     </form>
     <ErrorMessage v-if="loginError">{{ loginError }}</ErrorMessage>
 
-    <async-button @click="login" :waiting="buttonDisabled">
+    <async-button ref="loginBtn" @click="login" :waiting="buttonDisabled">
       Anmelden
     </async-button>
   </Box>
@@ -28,7 +28,7 @@ import Async from '../../utils/Async';
 export default {
   components: { Box, UserForm, AsyncButton, ErrorMessage },
   name: 'LoginForm',
-  data: function() {
+  data: function () {
     return {
       email: '',
       password: '',
@@ -37,13 +37,19 @@ export default {
     };
   },
   methods: {
+    enter(evt) {
+      if (evt.key === 'Enter') {
+        this.$refs['loginBtn'].$el.click();
+      }
+    },
+
     inputChanged({ email, password } = {}) {
       Object.assign(this.$data, {
         email: email,
         password,
       });
     },
-    login: function() {
+    login: function () {
       if (this.$refs.form.checkValidity()) {
         this.loginError = '';
         this.buttonDisabled = true;
