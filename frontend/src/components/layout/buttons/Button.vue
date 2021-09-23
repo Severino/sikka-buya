@@ -10,7 +10,7 @@ export default {
     disabled: Boolean,
   },
   methods: {
-    clicked: function ($) {
+    clicked: function () {
       if (!this.disabled) this.$emit('click');
     },
   },

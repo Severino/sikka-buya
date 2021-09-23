@@ -52,6 +52,7 @@ import ListItemIdField from '../layout/list/ListItemIdField.vue';
 import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListItem from '../layout/ListItem.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+import { camelCase } from 'change-case';
 
 export default {
   name: 'OverviewPage',
@@ -81,7 +82,7 @@ export default {
         : this.property;
     },
     queryName: function () {
-      return this.query ? this.query : this.property;
+      return this.query ? this.query : camelCase(this.property);
     },
     property: function () {
       return this.overrideProperty

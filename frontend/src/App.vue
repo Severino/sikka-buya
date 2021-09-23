@@ -66,6 +66,9 @@ export default {
     plusOne: function () {
       this.$store.commit('increment');
     },
+    test: function () {
+      console.log('asdasd');
+    },
   },
   computed: {
     loginActive() {
