@@ -2,10 +2,11 @@
   <div class="map-page">
     <timeline
       ref="timeline"
-      v-show="timeline"
+      :map="map"
       :from="timeline.from"
       :to="timeline.to"
-      v-model="timeline.value"
+      :value="timeline.value"
+      @input="changed"
       @change="changed"
     />
 
@@ -20,7 +21,7 @@
               activeRuler
                 ? ruler.id == activeRuler.id
                   ? rulerColorMap[ruler.id]
-                  : 'transparent'
+                  : 'unset'
                 : rulerColorMap[ruler.id] || 'transparent'
             };`"
             @click="setActiveRuler(ruler)"
@@ -33,16 +34,43 @@
 
     <div class="side-bar side-bar-left">
       <div id="mints">
+        <h3>Prägeorte</h3>
         <ul>
-          <h3>Prägeorte</h3>
-          <li v-for="mint of mints" :key="`mint-list-item-${mint.id}`">
+          <li
+            v-for="mint of availableMints"
+            :key="`mint-avail-list-item-${mint.id}`"
+            @click="setActiveMint(mint)"
+          >
             {{ mint.name }}
           </li>
         </ul>
+
+        <ul>
+          <li
+            v-for="mint of unavailableMints"
+            :key="`mint-unavail-list-item-${mint.id}`"
+            @click="setActiveMint(mint)"
+            class="inactive"
+          >
+            {{ mint.name }}
+          </li>
+        </ul>
+
+        <!-- <h3>Prägeorte</h3>
+        <ul>
+          <li
+            v-for="mint of mints"
+            :key="`mint-list-item-${mint.id}`"
+            @click="setActiveMint(mint)"
+            :class="{ inactive: isMintInactive(mint) }"
+          >
+            {{ mint.name }}
+          </li>
+        </ul> -->
       </div>
     </div>
 
-    <map-view class="mapview" ref="map" @mapChanged="mapChanged"> </map-view>
+    <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
   </div>
 </template>
 
@@ -66,6 +94,8 @@ export default {
       rulerColorMap: {},
       activeRuler: null,
       activeMint: null,
+      availableMints: null,
+      unavailableMints: null,
     };
   },
   provide() {
@@ -73,10 +103,56 @@ export default {
       map: this.map || null,
     };
   },
-
   methods: {
+    updateAvailableMints() {
+      let avalMints = {};
+      let unavailMints = {};
+
+      if (this.types) {
+        for (let type of this.types) {
+          if (type.mint) {
+            if (!this.activeRuler) {
+              avalMints[type.mint.id] = type.mint;
+            } else {
+              if (avalMints[type.mint.id] != null) continue;
+              if (this.mintHasRuler(type, this.activeRuler)) {
+                avalMints[type.mint.id] = type.mint;
+                if (unavailMints[type.mint.id]) {
+                  delete unavailMints[type.mint.id];
+                }
+              } else {
+                unavailMints[type.mint.id] = type.mint;
+              }
+            }
+          }
+        }
+
+        this.availableMints = Object.values(avalMints);
+        this.unavailableMints = Object.values(unavailMints);
+      }
+    },
+    mintHasRuler(type, ruler) {
+      function hasRuler(property, type, ruler) {
+        if (!type.mint) return false;
+
+        for (let i = 0; i < type[property]?.length; i++) {
+          if (type[property][i].id == ruler.id) return true;
+        }
+        return false;
+      }
+
+      return (
+        hasRuler('issuers', type, ruler) || hasRuler('overlords', type, ruler)
+      );
+    },
+    isMintActive: function (mint) {
+      return this.activeMint?.id == mint.id;
+    },
+    isMintInactive: function (mint) {
+      if (!this.activeMint) return false;
+      else return !this.activeMint || this.activeMint.id !== mint.id;
+    },
     mapChanged: function (map) {
-      console.log(map);
       this.map = map;
       Query.raw(
         `{
@@ -97,6 +173,12 @@ export default {
           this.map.doubleClickZoom.disable();
         })
         .catch(console.error);
+    },
+    setActiveMint(mint) {
+      if (this.activeMint && this.activeMint.id == mint.id) {
+        this.activeMint = null;
+      } else this.activeMint = mint;
+      this.update();
     },
     setActiveRuler(ruler) {
       if (this.activeRuler && this.activeRuler.id == ruler.id) {
@@ -120,19 +202,12 @@ export default {
     update() {
       // this.updateDominion();
       // this.updateMint();
+      this.updateAvailableMints();
       this.updateConcentricCircles();
     },
     changed: function (val) {
       this.timeline.value = val;
       this.update();
-    },
-    queryMint: function () {
-      Query.raw(`{mint {name location { type coordinates} } }`)
-        .then((result) => {
-          this.mints = result.data.data.mint;
-          this.update();
-        })
-        .catch(console.error);
     },
     updateConcentricCircles: function () {
       Query.raw(
@@ -181,10 +256,14 @@ export default {
           });
 
           data = data.filter(
-            (d) => d.mint?.location && d.mint.location.coordinates != null
+            (d) => (d.mint?.location && d.mint.location.coordinates) != null
           );
 
-          this.mints = Object.values(mints);
+          if (this.activeMint)
+            data = data.filter((d) => this.isMintActive(d.mint));
+
+          this.types = data;
+          this.update();
 
           this.rulerColorMap = {};
           let i = 0;
@@ -422,8 +501,12 @@ export default {
   background-color: rgba($color: $white, $alpha: 0.8);
   padding: 20px;
   top: 0px;
-  max-height: 100%;
+  height: 100%;
   overflow-y: auto;
+
+  min-width: 200px;
+  width: 20vw;
+  max-width: 400px;
 
   h3 {
     margin-top: 0;
@@ -439,14 +522,21 @@ export default {
     margin-bottom: 10px;
     padding: 5px 10px;
     border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+    border: 1px solid transparent;
+
+    &.inactive {
+      opacity: 0.3;
+    }
+
+    &:hover {
+      border: 1px solid $gray;
+    }
   }
 }
 
 .side-bar-right {
   right: 0;
-}
-
-#rulers {
-  width: 250px;
 }
 </style>

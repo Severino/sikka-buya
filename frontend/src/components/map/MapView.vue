@@ -82,7 +82,10 @@ export default {
 
     this.$data.map = map;
     this.ready = true;
-    this.$emit('mapChanged', map);
+
+    this.$nextTick(() => {
+      this.$emit('mapReady', map);
+    });
   },
 };
 </script>
