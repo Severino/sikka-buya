@@ -40,7 +40,7 @@ export default {
     map: Object,
     from: Number,
     to: Number,
-    value: Number,
+    value: Number
   },
   methods: {
     input(event) {
@@ -70,16 +70,16 @@ export default {
     init() {
       L.Control.Timeline = L.Control.extend({
         options: {
-          position: 'middlecenter',
+          position: 'middlecenter'
         },
         onAdd: () => {
           return this.$refs.element;
-        },
+        }
       });
       let timeline = new L.Control.Timeline();
       timeline.addTo(this.map);
-    },
-  },
+    }
+  }
 };
 </script>
 
