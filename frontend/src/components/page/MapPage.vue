@@ -79,7 +79,6 @@
 <script>
 var L = require('leaflet');
 var turf = require('@turf/turf');
-console.log(turf);
 import Query from '../../database/query';
 import Checkbox from '../forms/Checkbox.vue';
 import Timeline from '../map/control/Timeline.vue';
@@ -186,7 +185,6 @@ export default {
       this.update();
     },
     setActiveMint(mint) {
-      console.log(this.selectedMints.length);
       if (this.selectedMints.length == 0) {
         mint.selected = true;
         this.selectedMints = [mint];
@@ -273,10 +271,8 @@ export default {
         )
           .then((result) => {
             let data = result.data.data.getTypes;
-            console.log('a', result.data.data.getTypes);
 
             data.forEach((type) => {
-              if (type.projectId == 'MS367G') console.log(type);
               if (type?.mint.location) {
                 try {
                   type.mint.location = JSON.parse(type.mint.location);
@@ -304,10 +300,7 @@ export default {
 
         type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
         type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
-
-        if (type.projectId == 'MS367G') console.log(type);
       });
-      return;
 
       let data = this.types;
 
@@ -342,8 +335,6 @@ export default {
 
         mintsFeatures[mint.id].coins.push(obj);
       });
-
-      console.log(Object.values(mintsFeatures));
 
       let that = this;
 
@@ -398,8 +389,6 @@ export default {
                 maxWidth = radius > maxWidth ? radius : maxWidth;
                 circles.reverse();
               } else {
-                console.log('W');
-
                 let circle = L.circleMarker(latlng, {
                   radius: 5,
                   weight: 0.75,
