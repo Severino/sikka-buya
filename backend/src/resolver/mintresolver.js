@@ -5,7 +5,6 @@ const SQLUtils = require('../utils/sql.js')
 class MintResolver extends Resolver {
 
     async add(_, args) {
-
         const data = args.data
         this.fixGeoJSON(data)
 
@@ -136,10 +135,12 @@ class MintResolver extends Resolver {
 
     fixGeoJSON(obj) {
 
-        obj["uncertain_area"] = obj.uncertainArea.replace(/'/g, '"')
+
+        obj["uncertain_area"] = (obj.uncertainArea) ? obj.uncertainArea.replace(/'/g, '"') : null
         delete obj.uncertainArea
 
-        obj["location"] = obj.location.replace(/'/g, '"')
+
+        obj["location"] = (obj["location"]) ? obj.location.replace(/'/g, '"') : null
     }
 }
 

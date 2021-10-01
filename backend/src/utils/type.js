@@ -344,21 +344,22 @@ class Type {
 
         function objAsWhereClause(filterObj) {
             if (!filterObj || Object.keys(filterObj).length == 0) return ""
-            let filterTxt = "WHERE "
+
+            const filters = []
             for (let [key, val] of Object.entries(filterObj)) {
-                filterTxt += `${camelCaseToSnakeCase(key)}='${val}'`
+                filters.push(`${camelCaseToSnakeCase(key)}='${val}'`)
             }
-            return filterTxt
+
+            return ` WHERE  ${filters.join(" AND ")};`
         }
 
         const result = await Database.manyOrNone(`
-        SELECT 
+            SELECT 
             ${this.rows}         
          FROM type t 
             ${this.joins}
             ${objAsWhereClause(filters)}
             `)
-
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type)
         }
@@ -375,7 +376,7 @@ class Type {
              FROM type t
                 ${this.joins}
             WHERE t.id = $1
-            `, id).catch((e) => {
+                `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
 
@@ -394,9 +395,9 @@ class Type {
 
         const result = await Database.manyOrNone(`
         WITH overlords AS(
-                SELECT type FROM overlord WHERE person = $1
-            )
-        SELECT 
+                    SELECT type FROM overlord WHERE person = $1
+                )
+            SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
@@ -412,16 +413,16 @@ class Type {
     }
 
     static get rows() {
-        return ` t.*, 
-        ${Material.query()}
+        return ` t.*,
+                ${Material.query()}
         ${Mint.query()}
         ${Nominal.query()}
-        exclude_from_type_catalogue,
-        exclude_from_map_app,
-        internal_notes,
-        year_uncertain,
-        mint_uncertain as guessed_mint,
-        p.id AS caliph_id`
+            exclude_from_type_catalogue,
+                exclude_from_map_app,
+                internal_notes,
+                year_uncertain,
+                mint_uncertain as guessed_mint,
+                p.id AS caliph_id`
     }
 
     static get joins() {
@@ -434,7 +435,7 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-        `
+                `
     }
 
     static async postprocessType(type) {
@@ -576,6 +577,7 @@ class Type {
             ORDER BY o.rank ASC
             `, type_id)
 
+        console.log(type_id, response)
 
         let result = response[0]
         let overlords = Overlord.extractList(result)

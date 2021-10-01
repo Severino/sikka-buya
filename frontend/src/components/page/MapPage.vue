@@ -168,7 +168,7 @@ export default {
       )
         .then(async (result) => {
           let timeline = result.data.data.timespan;
-          timeline.value = 364;
+          timeline.value = 367;
           this.timeline = timeline;
           this.$refs.timeline.init();
           this.types = await this.fetchTypes();
@@ -276,6 +276,7 @@ export default {
             console.log('a', result.data.data.getTypes);
 
             data.forEach((type) => {
+              if (type.projectId == 'MS367G') console.log(type);
               if (type?.mint.location) {
                 try {
                   type.mint.location = JSON.parse(type.mint.location);
@@ -303,7 +304,10 @@ export default {
 
         type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
         type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
+
+        if (type.projectId == 'MS367G') console.log(type);
       });
+      return;
 
       let data = this.types;
 
@@ -408,9 +412,6 @@ export default {
 
               const typeGroup = L.layerGroup(circles);
               typeGroup.interactive = true;
-              typeGroup.on('click', () => {
-                console.log('ASDASDASD');
-              });
 
               allTypesGroup.addLayer(typeGroup);
             }
