@@ -155,7 +155,7 @@ export default {
         this.$router.push({ name: this.createPage });
       } else {
         this.$router.push({
-          path: `${this.property}/create`,
+          path: `${camelCase(this.property)}/create`,
         });
       }
     },
