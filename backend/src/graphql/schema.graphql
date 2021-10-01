@@ -236,7 +236,7 @@ type Query {
 
   getReducedCoinTypeList(id: ID): [ReducedCoinType]
   getTypesByOverlord(id: ID!): [CoinType]
-  getTypes(yearOfMint: Int): [CoinType]
+  getTypes(yearOfMint: Int, mint: ID): [CoinType]
 
   timespan: Range
   getAnalytics: Analytics

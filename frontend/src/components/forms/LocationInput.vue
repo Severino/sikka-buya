@@ -204,7 +204,7 @@ export default {
       this.map.on('click', (e) => {
         if (e.originalEvent.ctrlKey == true) {
           const location = e.latlng;
-          let coordinates = this.coordinates === null ? [] : this.coordinates;
+          let coordinates = this.coordinates == null ? [] : this.coordinates;
 
           if (this.isPolygon) {
             coordinates.push([location.lat, location.lng]);
@@ -269,7 +269,7 @@ export default {
             const point = [evt.latlng.lat, evt.latlng.lng];
 
             const coordinates =
-              this.coordinates === null ? [] : this.coordinates;
+              this.coordinates == null ? [] : this.coordinates;
             coordinates.splice(idx + 1, 0, point);
 
             this.markerHistory.unshift({
@@ -297,7 +297,7 @@ export default {
     },
     updateMarker() {
       this.removeMarker();
-      if (this.coordinates === null) {
+      if (this.coordinates == null) {
         return;
       } else if (this.coordinates.length > 0) {
         if (this.isCircle) {
@@ -397,14 +397,14 @@ export default {
       return this.type == 'polygon';
     },
     lat: function () {
-      if (this.coordinates === null || this.coordinates.length == 0) {
+      if (this.coordinates == null || this.coordinates.length == 0) {
         return '-';
       } else {
         return this.coordinates[0];
       }
     },
     lng: function () {
-      if (this.coordinates === null || this.coordinates.length == 0) {
+      if (this.coordinates == null || this.coordinates.length == 0) {
         return '-';
       } else {
         return this.coordinates[1];
@@ -422,13 +422,13 @@ export default {
       }
     },
     polygonString: function () {
-      if (this.coordinates === null) return '';
+      if (this.coordinates == null) return '';
       return this.coordinates.reduce((acc, value) => {
         return `${acc} [${value[0].toFixed(2)}, ${value[1].toFixed(2)}]`;
       }, '');
     },
     pointString: function () {
-      if (this.coordinates === null || this.coordinates.length < 2) return '';
+      if (this.coordinates == null || this.coordinates.length < 2) return '';
       else
         return `[${this.coordinates[0].toFixed(
           2

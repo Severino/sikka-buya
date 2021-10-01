@@ -15,7 +15,7 @@
     </div>
     <div class="property gm2 gd2">
       <catalog-property :label="mapText('mint')">
-        {{ printTypeProperty('mint') }}
+        {{ printTypeProperty('mintAsOnCoin') }}
         <template v-if="type.mintUncertain">?</template>
       </catalog-property>
     </div>
@@ -201,7 +201,7 @@ export default {
       `
        
         {
-            getCoinType(id:45){
+            getCoinType(id:${this.id}){
                 id
                 projectId
                 treadwellId
@@ -379,6 +379,9 @@ export default {
     },
   },
   computed: {
+    id: function () {
+      return this.$route.params.id;
+    },
     persons: function () {
       let personType = [
         'issuers',

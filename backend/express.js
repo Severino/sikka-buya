@@ -152,7 +152,7 @@ async function start({
                 },
                 getRulers: async function (_, args) {
                     if (!args.year) throw new Error("year is required")
-                    let types = await Type.getTypes({ year_of_mint: args.year })
+                    let types = await Type.getTypes({ year_of_mint: args.year, mint: args.mint })
 
                     let overlord_ids = []
                     let overlords = []

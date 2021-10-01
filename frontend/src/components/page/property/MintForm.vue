@@ -138,21 +138,31 @@ export default {
   },
   methods: {
     submit: function () {
+      // There is one array missing in the input field.
       let { type, coordinates } = this.mint.uncertainArea;
       // coordinates = this.mint?.uncertainArea?.coordinates
       //   ? (coordinates = coordinates.flatMap((point) => [point[0], point[1]]))
       //   : null;
 
-      console.log('coordinates', coordinates);
+      // console.log('coordinates', coordinates);
 
+      const location =
+        !this.mint.location || this.mint.location?.type == 'empty'
+          ? null
+          : `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`;
+
+      const uncertainArea =
+        !this.mint.uncertainArea || this.mint.uncertainArea?.type == 'empty'
+          ? null
+          : `${JSON.stringify({
+              type,
+              coordinates: [coordinates],
+            }).replace(/"/g, "'")}`;
       let data = {
         uncertain: this.mint.uncertain,
         name: this.mint.name,
-        location: `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`,
-        uncertainArea: `${JSON.stringify({
-          type,
-          coordinates: [coordinates],
-        }).replace(/"/g, "'")}`,
+        location,
+        uncertainArea,
         province: this.mint.province?.id,
       };
 
