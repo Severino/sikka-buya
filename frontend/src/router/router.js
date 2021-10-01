@@ -165,7 +165,7 @@ const routes = [
             component: TypeOverview
           },
           {
-            path: "coinmark",
+            path: "coin_mark",
             name: "CoinMarkOverview",
             component: CoinMarkOverview
           },
@@ -183,11 +183,11 @@ const routes = [
             component: CreateTypePage
           },
           {
-            path: "coinmark/create",
+            path: "coin_mark/create",
             name: "CreateCoinMark",
             component: CoinMarkForm
           }, {
-            path: "coinmark/:id",
+            path: "coin_mark/:id",
             name: "EditCoinMark",
             component: CoinMarkForm
           }, {
