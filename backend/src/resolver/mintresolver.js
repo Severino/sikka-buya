@@ -18,9 +18,9 @@ class MintResolver extends Resolver {
         VALUES
         (
             $[name],
-            ST_GeomFromGeoJSON($[location]),
+            ${data.location ? "ST_GeomFromGeoJSON($[location])" : null} ,
             $[uncertain],
-            ST_GeomFromGeoJSON($[uncertain_area]),
+            ${data.uncertainArea ? "ST_GeomFromGeoJSON($[uncertainArea])" : null} ,
             $[province]
         )`
         return this.request(query, data)
@@ -36,9 +36,9 @@ class MintResolver extends Resolver {
 
         const query = `UPDATE mint 
         SET name=$[name],
-        location=ST_GeomFromGeoJSON($[location]),
+        location=${data.location ? "ST_GeomFromGeoJSON($[location])" : null} ,
         uncertain=$[uncertain],
-        uncertain_area=ST_GeomFromGeoJSON($[uncertain_area]),
+        uncertain_area=${data.uncertainArea ? "ST_GeomFromGeoJSON($[uncertainArea])" : null},
         province=$[province]
         WHERE id=$[id]`
         return this.request(query, data)
@@ -139,8 +139,9 @@ class MintResolver extends Resolver {
         obj["uncertain_area"] = (obj.uncertainArea) ? obj.uncertainArea.replace(/'/g, '"') : null
         delete obj.uncertainArea
 
-
         obj["location"] = (obj["location"]) ? obj.location.replace(/'/g, '"') : null
+
+        console.log(obj["location"])
     }
 }
 

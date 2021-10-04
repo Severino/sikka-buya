@@ -150,7 +150,10 @@ export default {
       // console.log('coordinates', coordinates);
 
       const location =
-        !this.mint.location || this.mint.location?.type == 'empty'
+        !this.mint.location ||
+        this.mint.location?.type == 'empty' ||
+        this.mint.location.coordinates == null ||
+        this.mint.location.coordinates.length < 2
           ? null
           : `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`;
 
