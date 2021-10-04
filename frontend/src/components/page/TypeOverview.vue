@@ -1,7 +1,7 @@
 <template>
   <div :class="`overview type-page`">
     <BackHeader :to="{ name: 'Editor' }" />
-    <h1>{{ $t("attribute.test") }}</h1>
+    <h1>{{ $t('attribute.test') }}</h1>
 
     <div
       class="button"
@@ -11,7 +11,7 @@
       @keydown.enter="create"
     >
       <PlusCircleOutline />
-      <span>{{ $t("form.create") }}</span>
+      <span>{{ $t('form.create') }}</span>
     </div>
 
     <ListFilterContainer :filtered="isListFiltered">
@@ -35,7 +35,7 @@
         v-bind:key="item.key"
         :to="{
           name: 'EditType',
-          params: {id: item.id },
+          params: { id: item.id },
         }"
         :class="item.completed ? 'completed' : 'incomplete'"
       >
@@ -57,25 +57,25 @@
 </template>
 
 <script>
-import PlusCircleOutline from "vue-material-design-icons/PlusCircleOutline";
-import List from "../layout/List.vue";
-import Query from "../../database/query.js";
-import BackHeader from "../layout/BackHeader.vue";
-import SearchField from "../layout/SearchField.vue";
-import ListItem from "../layout/ListItem.vue";
-import CompletedToggle from "../layout/buttons/CompletedToggle.vue";
-import DynamicDeleteButton from "../layout/DynamicDeleteButton.vue";
-import ListItemIdField from "../layout/list/ListItemIdField.vue";
-import ListItemCell from "../layout/list/ListItemCell.vue";
-import ListFilterContainer from "../layout/list/ListFilterContainer.vue";
-import ButtonGroup from "../forms/ButtonGroup.vue";
-import AxiosHelper from "@/utils/AxiosHelper.js";
-import SearchUtils from "@/utils/SearchUtils.js";
-import ReviewedToggle from "../layout/buttons/ReviewedToggle.vue";
-import Auth from "../../utils/Auth";
+import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
+import List from '../layout/List.vue';
+import Query from '../../database/query.js';
+import BackHeader from '../layout/BackHeader.vue';
+import SearchField from '../layout/SearchField.vue';
+import ListItem from '../layout/ListItem.vue';
+import CompletedToggle from '../layout/buttons/CompletedToggle.vue';
+import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+import ListItemIdField from '../layout/list/ListItemIdField.vue';
+import ListItemCell from '../layout/list/ListItemCell.vue';
+import ListFilterContainer from '../layout/list/ListFilterContainer.vue';
+import ButtonGroup from '../forms/ButtonGroup.vue';
+import AxiosHelper from '@/utils/AxiosHelper.js';
+import SearchUtils from '@/utils/SearchUtils.js';
+import ReviewedToggle from '../layout/buttons/ReviewedToggle.vue';
+import Auth from '../../utils/Auth';
 
 export default {
-  name: "TypeOverviewPage",
+  name: 'TypeOverviewPage',
   components: {
     PlusCircleOutline,
     List,
@@ -90,51 +90,51 @@ export default {
     ButtonGroup,
     ReviewedToggle,
   },
-  created: function() {
+  created: function () {
     new Query(`
      getReducedCoinTypeList`)
-      .list(["id", "projectId", "treadwellId", "completed", "reviewed"])
+      .list(['id', 'projectId', 'treadwellId', 'completed', 'reviewed'])
       .then((result) => {
         if (AxiosHelper.ok(result)) {
-          this.$data.items = result.data.data["getReducedCoinTypeList"];
+          this.$data.items = result.data.data['getReducedCoinTypeList'];
         } else {
-          this.error = AxiosHelper.getErrors(result).join("\n");
+          this.error = AxiosHelper.getErrors(result).join('\n');
         }
       })
       .catch(() => {
-        this.error = this.$t("error.loading_list");
+        this.error = this.$t('error.loading_list');
       })
       .finally(() => {
         this.$data.loading = false;
       });
   },
   computed: {
-    isListFiltered: function() {
-      return !(this.completeFilter == "none" && !this.textFilter);
+    isListFiltered: function () {
+      return !(this.completeFilter == 'none' && !this.textFilter);
     },
-    filteredList: function() {
+    filteredList: function () {
       let list = this.$data.items;
 
-      list = SearchUtils.filter(this.textFilter, list, "projectId");
+      list = SearchUtils.filter(this.textFilter, list, 'projectId');
 
-      if (this.completeFilter == "work" || this.completeFilter == "completed") {
-        const state = this.completeFilter == "completed";
+      if (this.completeFilter == 'work' || this.completeFilter == 'completed') {
+        const state = this.completeFilter == 'completed';
         list = list.filter((item) => item.completed == state);
       }
 
       return list;
     },
-    list: function() {
+    list: function () {
       return this.$data.items;
     },
   },
-  data: function() {
+  data: function () {
     return {
       loading: true,
       items: [],
-      error: "",
-      textFilter: "",
-      completeFilter: "none",
+      error: '',
+      textFilter: '',
+      completeFilter: 'none',
     };
   },
   methods: {
@@ -187,13 +187,13 @@ export default {
 }`
       )
         .then(() => {
-          console.log("HALLO");
+          console.log('HALLO');
           const idx = this.$data.items.findIndex((item) => item.id == id);
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((answer) => {
           console.dir(
-            answer.response.data.errors.map((item) => item.message).join("\n")
+            answer.response.data.errors.map((item) => item.message).join('\n')
           );
           // this.error =
           // console.error(err);
@@ -204,7 +204,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 .list {
   display: flex;
   flex-direction: column;
