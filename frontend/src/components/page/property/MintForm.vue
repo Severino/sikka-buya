@@ -1,6 +1,10 @@
 <template>
   <div class="mint-form">
-    <notes property="mint" :propertyId="$route.params.id" />
+    <notes
+      v-if="data?.mint?.id"
+      property="mint"
+      :propertyId="$route.params.id"
+    />
     <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
