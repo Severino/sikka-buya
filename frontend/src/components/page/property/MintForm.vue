@@ -1,10 +1,6 @@
 <template>
   <div class="mint-form">
-    <notes
-      v-if="data?.mint?.id"
-      property="mint"
-      :propertyId="$route.params.id"
-    />
+    <notes v-if="isUpdate" property="mint" :propertyId="$route.params.id" />
     <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
@@ -142,6 +138,12 @@ export default {
     } else {
       this.$data.loading = false;
     }
+  },
+  computed: {
+    isUpdate() {
+      console.log(this.mint.id);
+      return !!this.mint?.id && this.mint.id > 0;
+    },
   },
   methods: {
     submit: function () {
