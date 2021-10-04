@@ -1,3 +1,4 @@
+const { objectifyList } = require('./src/utils/sql.js')
 
 
 
@@ -347,8 +348,51 @@ async function start({
                         return await Database.manyOrNone("SELECT id, email FROM app_user")
                     }
                 },
+                getNotes: async function (_, args, context) {
+                    let auth = Auth.verifyContext(context)
+                    if (!auth) {
+                        throw new Error('You are not authenticated!')
+                    } else {
+                        let { property,
+                            propertyId: property_id } = args
 
+                        let results = await Database.manyOrNone(
+                            `SELECT n.*, u.email as user_email FROM notes n 
+                        LEFT JOIN app_user u ON  n.user_id=u.id 
+                        WHERE property=$[property] AND property_id=$[property_id]
+                    `, { property, property_id })
+
+
+                        SQLUtils.objectifyList(results, {
+                            prefix: "user_",
+                            target: "user",
+                            keys: [
+                                "id",
+                                "email"
+                            ]
+                        })
+
+
+                        console.log(results)
+                        return results
+                    }
+                }
             }, Mutation: {
+                addNote: async function (_, args) {
+                    let { text,
+                        user,
+                        property,
+                        propertyId: property_id } = args
+
+
+
+                    await Database.none("INSERT INTO notes (text, property, property_id, user_id) VALUES ($[text], $[property], $[property_id],$[user])", {
+                        text,
+                        property,
+                        property_id,
+                        user
+                    })
+                },
                 acceptInvite: async function (_, { email, password } = {}) {
                     let pwValidator = Auth.validatePassword(password)
                     if (pwValidator.failed) {

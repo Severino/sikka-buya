@@ -1057,6 +1057,8 @@ textarea {
   width: 100%;
   resize: none;
   min-height: 200px;
+  padding: 2 * $padding;
+  box-sizing: border-box;
 }
 
 h3,

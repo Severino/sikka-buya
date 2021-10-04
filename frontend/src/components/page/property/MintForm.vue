@@ -1,5 +1,6 @@
 <template>
   <div class="mint-form">
+    <notes property="mint" :propertyId="$route.params.id" />
     <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
@@ -61,6 +62,7 @@ import LocationInput from '../../forms/LocationInput.vue';
 import GraphQLUtils from '../../../utils/GraphQLUtils.js';
 import DataSelectField from '../../forms/DataSelectField.vue';
 import LabeledInputContainer from '../../LabeledInputContainer.vue';
+import Notes from '../../forms/Notes.vue';
 
 export default {
   components: {
@@ -69,6 +71,7 @@ export default {
     LocationInput,
     DataSelectField,
     LabeledInputContainer,
+    Notes,
   },
   name: 'MintForm',
   created: function () {
@@ -207,6 +210,7 @@ export default {
       error: '',
       loading: true,
       radius: 1000,
+      notes: '',
       mint: {
         id: -1,
         name: '',

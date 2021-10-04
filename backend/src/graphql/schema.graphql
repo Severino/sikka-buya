@@ -247,6 +247,8 @@ type Query {
   getDominion(year: Int): [Dominion]
   ruledMint(year: Int): [RuledMint]
 
+  getNotes(property: String, propertyId: ID): [Note]
+
   searchPersonsWithRole(
     text: String!
     include: [String]
@@ -323,8 +325,17 @@ type Mutation {
   updateProvince(data: NameInput): Void
   deleteProvince(id: Int): Void
 
+  addNote(text: String, user: ID, property: String, propertyId: ID): Void
+
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
+}
+
+type Note {
+  id: ID
+  user: User
+  time: String
+  text: String
 }
 
 type Overlord {
