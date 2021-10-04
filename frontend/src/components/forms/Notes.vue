@@ -51,8 +51,12 @@ export default {
     };
   },
   mounted: function () {
-    Query.raw(
-      `
+    this.update();
+  },
+  methods: {
+    update() {
+      Query.raw(
+        `
      { getNotes (property: "${this.property}", propertyId: ${this.propertyId}){
           id,
           user {email, id},
@@ -60,21 +64,20 @@ export default {
           time
       }}
       `
-    )
-      .then((response) => {
-        let data = response.data.data.getNotes;
-        data = data.map((el) => {
-          console.log(el);
-          el.text = decodeURIComponent(el.text).trim();
-          return el;
+      )
+        .then((response) => {
+          let data = response.data.data.getNotes;
+          data = data.map((el) => {
+            console.log(el);
+            el.text = decodeURIComponent(el.text).trim();
+            return el;
+          });
+          this.notes = data;
+        })
+        .catch(function (e) {
+          this.error = e;
         });
-        this.notes = data;
-      })
-      .catch(function (e) {
-        this.error = e;
-      });
-  },
-  methods: {
+    },
     submit() {
       this.error = '';
       if (!this.text) {
@@ -88,7 +91,11 @@ export default {
           this.user.id
         }, property: "${this.property}", propertyId: "${this.propertyId}")
         }`
-      ).catch((e) => (this.error = e));
+      )
+        .then(() => {
+          this.update();
+        })
+        .catch((e) => (this.error = e));
     },
     toggle() {
       this.open = !this.open;
