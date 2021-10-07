@@ -65,8 +65,6 @@ export default class Auth {
                 auth(token:"${token}"){id}
             }`)
 
-            console.log(response)
-
             return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
         } else {
             status = false

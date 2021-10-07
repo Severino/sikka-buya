@@ -86,16 +86,6 @@ const analyticsRoutes = {
 
 const routes = [
 
-  // {
-  //   path: '/explorer',
-  //   name: 'Explorer',
-  //   component: TreeExplorer
-  // }, {
-  //   path: '/explorer2',
-  //   name: 'Explorer2',
-  //   component: SideTree
-  // }, 
-
   {
     path: "*",
     component: CommonMain,
@@ -287,7 +277,25 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+
+    if (!to.scrollGroup || !from.scrollGroup) {
+      console.log("SCROLL TO TOP")
+      return { x: 0, y: 0 }
+    }
+
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      const position = {}
+      if (to.hash && document.querySelector(to.hash)) {
+        position.selector = to.hash
+        return position
+      }
+      return false
+    }
+  }
 })
 
 router.beforeEach(async (to, from, next) => {
