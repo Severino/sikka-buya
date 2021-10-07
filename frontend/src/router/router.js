@@ -255,15 +255,13 @@ const routes = [
           },
           {
             path: "*",
-            name: "PageNotFound",
-            component: PageNotFoundPage
+            redirect: { name: "PageNotFound" }
           }
         ]
       },
       {
         path: "*",
-        name: "PageNotFound",
-        component: PageNotFoundPage
+        redirect: { name: "PageNotFound" }
       }
     ]
   },
@@ -280,8 +278,11 @@ const router = new VueRouter({
   routes,
   scrollBehavior(to, from, savedPosition) {
 
+    /**
+     * You may specify a scrollgroup for sites, that should retain scroll on 
+     * reload. E.g. in tab-like routed component.
+     */
     if (!to.scrollGroup || !from.scrollGroup) {
-      console.log("SCROLL TO TOP")
       return { x: 0, y: 0 }
     }
 
