@@ -1,6 +1,5 @@
 <template>
   <div class="mint-form">
-    <notes v-if="isUpdate" property="mint" :propertyId="$route.params.id" />
     <PropertyFormWrapper
       @submit="submit"
       @cancel="cancel"
@@ -50,6 +49,17 @@
           @update="updateUncertainArea"
         />
       </div>
+
+      <labeled-input-container label="Notizen">
+        <textarea
+          name=""
+          id=""
+          cols="30"
+          rows="10"
+          maxlength="1300"
+          v-model="note"
+        ></textarea>
+      </labeled-input-container>
     </PropertyFormWrapper>
   </div>
 </template>
@@ -62,7 +72,6 @@ import LocationInput from '../../forms/LocationInput.vue';
 import GraphQLUtils from '../../../utils/GraphQLUtils.js';
 import DataSelectField from '../../forms/DataSelectField.vue';
 import LabeledInputContainer from '../../LabeledInputContainer.vue';
-import Notes from '../../forms/Notes.vue';
 
 export default {
   components: {
@@ -71,7 +80,6 @@ export default {
     LocationInput,
     DataSelectField,
     LabeledInputContainer,
-    Notes,
   },
   name: 'MintForm',
   created: function () {
@@ -89,11 +97,14 @@ export default {
                     uncertain,
                     uncertainArea
                 }
+                getNote (property: "mint", propertyId:${id})
               }
       `
       )
         .then((result) => {
           let data = result.data.data.getMint;
+
+          this.note = result.data.data.getNote;
 
           let locations = ['location', 'uncertainArea'];
 
@@ -146,14 +157,11 @@ export default {
     },
   },
   methods: {
-    submit: function () {
+    submit: async function () {
+      this.error = '';
+
       // There is one array missing in the input field.
       let { type, coordinates } = this.mint.uncertainArea;
-      // coordinates = this.mint?.uncertainArea?.coordinates
-      //   ? (coordinates = coordinates.flatMap((point) => [point[0], point[1]]))
-      //   : null;
-
-      // console.log('coordinates', coordinates);
 
       const location =
         !this.mint.location ||
@@ -170,6 +178,7 @@ export default {
               type,
               coordinates: [coordinates],
             }).replace(/"/g, "'")}`;
+
       let data = {
         uncertain: this.mint.uncertain,
         name: this.mint.name,
@@ -178,30 +187,42 @@ export default {
         province: this.mint.province?.id,
       };
 
+      let id;
       if (this.mint.id == -1) {
-        this.query('addMint', data);
+        id = await this.query('addMint', data);
       } else {
         data.id = this.mint.id;
-        this.query('updateMint', data);
+        id = await this.query('updateMint', data);
+      }
+
+      await Query.raw(
+        `mutation {
+        updateNote(text: "${this.note}", property:"mint", propertyId: ${id})
+        }`
+      ).catch((e) => (this.error += e));
+
+      if (!this.error) {
+        this.$router.push({
+          name: 'Property',
+          params: { property: 'mint' },
+        });
       }
     },
     radiusChanged: function (radius) {
       this.radius = parseInt(radius);
     },
-    query: function (name, data = {}) {
+    query: async function (name, data = {}) {
       const body = GraphQLUtils.buildMutationParams(data);
-      const query = `mutation {${name}(data: ${body})}`;
-      Query.raw(query)
-        .then(() => {
-          this.$router.push({
-            name: 'Property',
-            params: { property: 'mint' },
-          });
-        })
-        .catch((err) => {
-          this.error = this.$t('error.could_not_update_element');
-          console.error(err);
-        });
+      console.log(body);
+      const query = `mutation {
+        ${name}(data: ${body}) 
+        }`;
+      let result = await Query.raw(query).catch((err) => {
+        this.error = this.$t(err);
+        console.error(err);
+      });
+
+      return result?.data.data[name];
     },
     cancel: function () {
       this.$router.push({ path: '/mint' });
@@ -219,7 +240,7 @@ export default {
       error: '',
       loading: true,
       radius: 1000,
-      notes: '',
+      note: '',
       mint: {
         id: -1,
         name: '',

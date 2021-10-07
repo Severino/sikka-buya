@@ -279,6 +279,14 @@ const router = new VueRouter({
   scrollBehavior(to, from, savedPosition) {
 
     /**
+     * Dont change scroll if we stay on same site.
+     * E.g. reload while reading an article.
+     */
+    if (to.name == from.name) {
+      return false
+    }
+
+    /**
      * You may specify a scrollgroup for sites, that should retain scroll on 
      * reload. E.g. in tab-like routed component.
      */

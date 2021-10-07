@@ -348,7 +348,7 @@ async function start({
                         return await Database.manyOrNone("SELECT id, email FROM app_user")
                     }
                 },
-                getNotes: async function (_, args, context) {
+                getComments: async function (_, args, context) {
                     let auth = Auth.verifyContext(context)
                     if (!auth) {
                         throw new Error('You are not authenticated!')
@@ -357,7 +357,7 @@ async function start({
                             propertyId: property_id } = args
 
                         let results = await Database.manyOrNone(
-                            `SELECT n.*, u.email as user_email FROM notes n 
+                            `SELECT n.*, u.email as user_email FROM comment n 
                         LEFT JOIN app_user u ON  n.user_id=u.id 
                         WHERE property=$[property] AND property_id=$[property_id]
                     `, { property, property_id })
@@ -372,13 +372,29 @@ async function start({
                             ]
                         })
 
-
-                        console.log(results)
                         return results
                     }
+                },
+                getNote: async function (_, args) {
+
+                    let { propertyId, property } = args
+
+                    let result = await Database.oneOrNone(`SELECT note.text from note WHERE property=$[property] AND property_id=$[propertyId]`, { propertyId, property })
+                    return result.text || ""
                 }
             }, Mutation: {
-                addNote: async function (_, args) {
+                updateNote: async function (_, args) {
+                    let { text, property, propertyId: property_id } = args
+                    await Database.none(`
+                    INSERT INTO note (text, property, property_id) 
+                    VALUES ($[text], $[property], $[property_id])
+                    ON CONFLICT (property, property_id)
+                    DO UPDATE SET text=$[text]
+                    WHERE note.property=$[property] AND note.property_id=$[property_id];
+                    `, { text, property, property_id })
+
+                },
+                addComment: async function (_, args) {
                     let { text,
                         user,
                         property,
@@ -386,7 +402,7 @@ async function start({
 
 
 
-                    await Database.none("INSERT INTO notes (text, property, property_id, user_id) VALUES ($[text], $[property], $[property_id],$[user])", {
+                    await Database.none("INSERT INTO comment (text, property, property_id, user_id) VALUES ($[text], $[property], $[property_id],$[user])", {
                         text,
                         property,
                         property_id,

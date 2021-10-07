@@ -247,7 +247,8 @@ type Query {
   getDominion(year: Int): [Dominion]
   ruledMint(year: Int): [RuledMint]
 
-  getNotes(property: String, propertyId: ID): [Note]
+  getComments(property: String, propertyId: ID): [Comment]
+  getNote(property: String, propertyId: ID): String
 
   searchPersonsWithRole(
     text: String!
@@ -285,8 +286,8 @@ type Mutation {
   deleteMaterial(id: Int): Void
 
   # Tested in 007_mint
-  addMint(data: MintInput): Void
-  updateMint(data: MintInput): Void
+  addMint(data: MintInput): ID
+  updateMint(data: MintInput): ID
   deleteMint(id: Int): Void
 
   # Tested in 008_role
@@ -325,13 +326,19 @@ type Mutation {
   updateProvince(data: NameInput): Void
   deleteProvince(id: Int): Void
 
-  addNote(text: String, user: ID, property: String, propertyId: ID): Void
+  updateNote(text: String, property: String, propertyId: ID): Void
+  addComment(text: String, user: ID, property: String, propertyId: ID): Void
 
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
 }
 
 type Note {
+  id: ID
+  text: String
+}
+
+type Comment {
   id: ID
   user: User
   time: String

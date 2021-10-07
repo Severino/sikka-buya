@@ -20,17 +20,19 @@ class MintResolver extends Resolver {
             $[name],
             ${data.location ? "ST_GeomFromGeoJSON($[location])" : null} ,
             $[uncertain],
-            ${data.uncertainArea ? "ST_GeomFromGeoJSON($[uncertainArea])" : null} ,
+            ${data.uncertain_area ? "ST_GeomFromGeoJSON($[uncertain_area])" : null} ,
             $[province]
-        )`
-        return this.request(query, data)
+        )
+        RETURNING id;`
+        let result = await this.request(query, data)
+        return (result.length > 0) ? result[0].id : null
+
     }
 
     async update(_, args) {
         const data = args.data
         this.fixGeoJSON(data)
-
-
+        console.log(data)
 
         if (!data.id || data.id <= 0) throw new Error("error.invalid_id")
 
@@ -38,10 +40,12 @@ class MintResolver extends Resolver {
         SET name=$[name],
         location=${data.location ? "ST_GeomFromGeoJSON($[location])" : null} ,
         uncertain=$[uncertain],
-        uncertain_area=${data.uncertainArea ? "ST_GeomFromGeoJSON($[uncertainArea])" : null},
+        uncertain_area=${data.uncertain_area ? "ST_GeomFromGeoJSON($[uncertain_area])" : null},
         province=$[province]
-        WHERE id=$[id]`
-        return this.request(query, data)
+        WHERE id=$[id]
+        RETURNING id;`
+        await this.request(query, data)
+        return data.id
     }
 
 
@@ -134,14 +138,9 @@ class MintResolver extends Resolver {
     }
 
     fixGeoJSON(obj) {
-
-
         obj["uncertain_area"] = (obj.uncertainArea) ? obj.uncertainArea.replace(/'/g, '"') : null
         delete obj.uncertainArea
-
         obj["location"] = (obj["location"]) ? obj.location.replace(/'/g, '"') : null
-
-        console.log(obj["location"])
     }
 }
 
