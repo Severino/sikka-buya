@@ -380,7 +380,7 @@ async function start({
                     let { propertyId, property } = args
 
                     let result = await Database.oneOrNone(`SELECT note.text from note WHERE property=$[property] AND property_id=$[propertyId]`, { propertyId, property })
-                    return result.text || ""
+                    return result?.text || ""
                 }
             }, Mutation: {
                 updateNote: async function (_, args) {
