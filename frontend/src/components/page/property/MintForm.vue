@@ -172,7 +172,9 @@ export default {
           : `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`;
 
       const uncertainArea =
-        !this.mint.uncertainArea || this.mint.uncertainArea?.type == 'empty'
+        !this.mint.uncertainArea ||
+        this.mint.uncertainArea?.type == 'empty' ||
+        this.mint.uncertainArea?.coordinates == null
           ? null
           : `${JSON.stringify({
               type,
