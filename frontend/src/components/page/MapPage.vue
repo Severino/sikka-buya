@@ -372,7 +372,7 @@ export default {
               let rulers = that.extractRulers(coin);
 
               let minRadius = 0;
-              let maxRadius = 100000;
+              let maxRadius = 75000;
 
               let radius = maxRadius;
 
@@ -427,27 +427,38 @@ export default {
                       console.log(coin.projectId);
                     });
                   }
+
+                  function buildRulerList(personsArr) {
+                    function printName(person) {
+                      let name = person.shortName || person.name;
+                      if (person.id == ruler.id) name = `<b>${name}</b>`;
+                      return name;
+                    }
+
+                    if (!personsArr || personsArr.length == 0) return '-';
+                    else if (Array.isArray(personsArr)) {
+                      let str = '<ul>';
+                      personsArr.forEach((person) => {
+                        str += `<li>${printName(person)}</li>`;
+                      });
+
+                      return str + '</ul>';
+                    } else {
+                      return printName(personsArr);
+                    }
+                  }
+
+                  const rulerPopuptText = `
+                    <h4>Kalif</h4>
+                    ${buildRulerList(coin.caliph)}
+                    <h4>Oberherren</h4>
+                    ${buildRulerList(coin.overlords)}
+                    <h4>Münzherren</h4>
+                    ${buildRulerList(coin.issuers)}
+                  `;
+
                   circle.bindPopup(`
-                <h3>${coin.projectId}</h3>
-                <table>
-                  <thead>
-                  <tr>
-                    <td>Material</td>
-                    <td>Nominal</td>
-                    <td>Donativ</td>
-                    <td>Mint</td>
-                  </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>${coin.material.name}</td>
-                      <td>${coin.nominal.name}</td>
-                      <td>${coin.donativ}</td>
-                      <td>${coin.mintAsOnCoin}</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <p>${ruler.shortName}</p>
+                ${rulerPopuptText}
               `);
 
                   if (circle) circles.push(circle);
