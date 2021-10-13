@@ -1535,6 +1535,11 @@ lazy-ass@^1.6.0:
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
   integrity sha1-eZllXoZGwX8In90YfRUNMyTVRRM=
 
+leaflet-semicircle@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/leaflet-semicircle/-/leaflet-semicircle-2.0.4.tgz#2c6e7d40cb59bb331d25edd4dd355c64afa2428e"
+  integrity sha512-7FV9kGBMSQ1CNZYPxoPCEVpDpiIoh/owZV91BWUKYFik5WuaYij0zGEWOE0elTUlRyTHFJHW4rNfQJ2fqreqnA==
+
 liftup@~3.0.1:
   version "3.0.1"
   resolved "https://registry.npmjs.org/liftup/-/liftup-3.0.1.tgz"
