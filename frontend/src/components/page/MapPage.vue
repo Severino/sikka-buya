@@ -77,6 +77,7 @@
 </template>
 
 <script>
+require('leaflet-semicircle');
 var L = require('leaflet');
 var turf = require('@turf/turf');
 import Query from '../../database/query';
@@ -228,7 +229,7 @@ export default {
         '#f1e8b8',
         '#BEE3DB',
       ];
-      if (i > colors.length) console.error('RAN OUT OF COLORS', i);
+      if (i > colors.length) console.error('Ran out of colors!', i);
       return colors[i % colors.length];
     },
     async update() {
@@ -328,6 +329,7 @@ export default {
             name: mint.name,
             type: mint.location.type,
             coordinates: mint.location.coordinates,
+            drawn: 0,
             coins: [],
           };
           mintsFeatures[mint.id] = obj;
@@ -346,47 +348,75 @@ export default {
             let types = [];
 
             const allTypesGroup = L.layerGroup();
-            let maxWidth = 0;
 
-            feature.active = 0;
-
-            for (let i = 0; i < feature.coins.length; i++) {
+            const coinCount = feature.coins.length;
+            for (let coinNum = 0; coinNum < coinCount; coinNum++) {
               let circles = [];
-              let radius = 10;
-              const increment = 5;
+              const coin = feature.coins[coinNum];
 
-              types.push(feature.coins[i].projectId);
-              let rulers = [
-                ...feature.coins[i].issuers,
-                ...feature.coins[i].overlords,
-              ];
+              types.push(coin.projectId);
+              let rulers = [...coin.issuers, ...coin.overlords];
 
+              if (coin.caliph) {
+                rulers.push(coin.caliph);
+              }
+
+              let minRadius = 50000;
+              let maxRadius = 100000;
+
+              let radius = maxRadius;
               if (rulers.length > 0) {
-                for (let [index, ruler] of rulers.entries()) {
+                for (let [rulerNum, ruler] of rulers.entries()) {
+                  const rulerCount = rulers.length;
+
+                  const increment = (maxRadius - minRadius) / rulerCount;
+                  console.log(rulerCount, increment);
+
+                  radius = maxRadius - increment * (rulerCount - rulerNum - 1);
+
                   let fillColor = that.activeRuler
                     ? ruler.id !== that.activeRuler.id
                       ? '#ccc'
                       : that.rulerColorMap[ruler.id]
                     : that.rulerColorMap[ruler.id];
 
-                  let circle = L.circleMarker(latlng, {
+                  let circle;
+                  const options = {
                     radius,
                     weight: 0.75,
                     stroke: true,
                     color: '#fff',
                     fillColor,
                     fillOpacity: 1,
-                  });
+                  };
 
-                  circle.on('click', () => {
-                    that.setActiveRuler(ruler);
-                  });
+                  const mint = feature.coins[0].mint.id;
+                  const mintFeature = mintsFeatures[mint];
 
-                  circles.push(circle);
+                  if (coinCount == 1) {
+                    circle = L.circle(latlng, options);
+                  } else {
+                    let angle = 360 / coinCount;
+
+                    circle = L.semiCircle(latlng, options).setDirection(
+                      angle * coinNum,
+                      angle
+                    );
+
+                    circle.on('click', () => {
+                      console.log(coin.projectId);
+                    });
+                  }
+
+                  circle.bindPopup(`
+                <h3>${coin.projectId}</h3>
+                <p>${ruler.shortName}</p>
+              `);
+
+                  if (circle) circles.push(circle);
                   radius += increment;
                 }
 
-                maxWidth = radius > maxWidth ? radius : maxWidth;
                 circles.reverse();
               } else {
                 let circle = L.circleMarker(latlng, {
@@ -396,6 +426,7 @@ export default {
                   fillColor: '#222',
                   fillOpacity: 1,
                 });
+
                 circles = [circle];
               }
 
