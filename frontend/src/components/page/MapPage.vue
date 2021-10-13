@@ -26,7 +26,7 @@
             };`"
             @click="setActiveRuler(ruler)"
           >
-            {{ ruler.shortName }}
+            {{ ruler.shortName || ruler.name }}
           </li>
         </ul>
       </div>
@@ -168,7 +168,7 @@ export default {
       )
         .then(async (result) => {
           let timeline = result.data.data.timespan;
-          timeline.value = 367;
+          timeline.value = 364;
           this.timeline = timeline;
           this.$refs.timeline.init();
           this.types = await this.fetchTypes();
@@ -251,6 +251,15 @@ export default {
           `{
   getTypes(yearOfMint:${this.timeline.value}){
     projectId
+    material {name}
+    donativ 
+    procedure
+    nominal {name}
+    mintAsOnCoin
+    caliph {
+      name,
+      id
+    }
     mint {
       id
       name
@@ -292,13 +301,18 @@ export default {
           .catch(reject);
       });
     },
+    extractRulers(coin) {
+      const rulers = [...coin.issuers, ...coin.overlords];
+      if (coin.caliph) rulers.push(coin.caliph);
+      return rulers;
+    },
     updateConcentricCircles: function () {
       let rulers = {};
       let mints = {};
 
       this.types.forEach((type) => {
         if (type.mint?.id) mints[type.mint.id] = type.mint;
-
+        if (type.caliph) rulers[type.caliph.id] = type.caliph;
         type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
         type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
       });
@@ -355,23 +369,28 @@ export default {
               const coin = feature.coins[coinNum];
 
               types.push(coin.projectId);
-              let rulers = [...coin.issuers, ...coin.overlords];
+              let rulers = that.extractRulers(coin);
 
-              if (coin.caliph) {
-                rulers.push(coin.caliph);
-              }
-
-              let minRadius = 50000;
+              let minRadius = 0;
               let maxRadius = 100000;
 
               let radius = maxRadius;
+
+              const mint = feature.coins[0].mint.id;
+
+              let i = 0;
+
               if (rulers.length > 0) {
+                if (mint == 37)
+                  console.log({
+                    coinNum,
+                    'rulers: ': rulers.length,
+                    length: feature.coins.length,
+                  });
                 for (let [rulerNum, ruler] of rulers.entries()) {
                   const rulerCount = rulers.length;
 
                   const increment = (maxRadius - minRadius) / rulerCount;
-                  console.log(rulerCount, increment);
-
                   radius = maxRadius - increment * (rulerCount - rulerNum - 1);
 
                   let fillColor = that.activeRuler
@@ -390,8 +409,9 @@ export default {
                     fillOpacity: 1,
                   };
 
-                  const mint = feature.coins[0].mint.id;
-                  const mintFeature = mintsFeatures[mint];
+                  if (mint == 37) {
+                    console.log(i++, feature.coins.length);
+                  }
 
                   if (coinCount == 1) {
                     circle = L.circle(latlng, options);
@@ -399,7 +419,7 @@ export default {
                     let angle = 360 / coinCount;
 
                     circle = L.semiCircle(latlng, options).setDirection(
-                      angle * coinNum,
+                      (angle * coinNum) % 360,
                       angle
                     );
 
@@ -407,9 +427,26 @@ export default {
                       console.log(coin.projectId);
                     });
                   }
-
                   circle.bindPopup(`
                 <h3>${coin.projectId}</h3>
+                <table>
+                  <thead>
+                  <tr>
+                    <td>Material</td>
+                    <td>Nominal</td>
+                    <td>Donativ</td>
+                    <td>Mint</td>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>${coin.material.name}</td>
+                      <td>${coin.nominal.name}</td>
+                      <td>${coin.donativ}</td>
+                      <td>${coin.mintAsOnCoin}</td>
+                    </tr>
+                  </tbody>
+                </table>
                 <p>${ruler.shortName}</p>
               `);
 
@@ -419,15 +456,8 @@ export default {
 
                 circles.reverse();
               } else {
-                let circle = L.circleMarker(latlng, {
-                  radius: 5,
-                  weight: 0.75,
-                  stroke: false,
-                  fillColor: '#222',
-                  fillOpacity: 1,
-                });
-
-                circles = [circle];
+                console.error('Ruler of length 0 is not allowed.');
+                console.log(coin);
               }
 
               const typeGroup = L.layerGroup(circles);
@@ -436,15 +466,15 @@ export default {
               allTypesGroup.addLayer(typeGroup);
             }
 
-            types.forEach((type) => {
-              let circle = L.circleMarker(latlng, {
-                radius: 5,
-                weight: 0.75,
-                stroke: false,
-                fillColor: '#222',
-                fillOpacity: 1,
-              });
-            });
+            // types.forEach((type) => {
+            //   let circle = L.circleMarker(latlng, {
+            //     radius: 5,
+            //     weight: 0.75,
+            //     stroke: false,
+            //     fillColor: '#222',
+            //     fillOpacity: 1,
+            //   });
+            // });
 
             return allTypesGroup;
           },
