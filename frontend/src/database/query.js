@@ -35,7 +35,7 @@ export default class Query {
 
 
     async raw(query, variables = {}) {
-        console.log(query)
+        // console.log(query)
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')
@@ -59,7 +59,12 @@ export default class Query {
 
                     reject(errors)
                 }
-            }).catch(reject)
+            }).catch((e) => {
+                if (e.isAxiosError) {
+                    console.log(e.response.data.errors[0])
+                    reject(e.response.data.errors.map(item => item.message).join(" --- "))
+                } else reject(e)
+            })
                 .finally(() => clearTimeout(timeout))
         })
     }
