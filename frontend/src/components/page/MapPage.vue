@@ -120,11 +120,9 @@ export default {
             const mintId = type.mint.id;
             if (!this.activeRuler) {
               avalMints[mintId] = type.mint;
-              delete mints[mintId];
             } else {
               if (this.mintHasRuler(type, this.activeRuler)) {
                 avalMints[mintId] = type.mint;
-                delete mints[mintId];
               }
             }
           }
@@ -232,11 +230,35 @@ export default {
       if (i > colors.length) console.error('Ran out of colors!', i);
       return colors[i % colors.length];
     },
-    async update() {
+    update() {
       // this.updateDominion();
-      // this.updateMint();
       this.updateConcentricCircles();
       this.updateAvailableMints();
+      this.updateMintLocationMarker();
+    },
+    updateMintLocationMarker() {
+      if (this.mintLocations) this.mintLocations.remove();
+
+      let features = Object.values(this.mints).map(mint => {
+        let feature = JSON.parse(mint.location);
+        feature.mint = mint;
+        return feature;
+      });
+      this.mintLocations = new L.geoJSON(features, {
+        pointToLayer: function(feature, latlng) {
+          return L.circle(latlng, {
+            radius: 20000,
+            weight: 1,
+            color: '#fff',
+            fillColor: '#ccc',
+            fillOpacity: 1
+          }).bindPopup(feature.mint.name);
+        },
+        coordsToLatLng: function(coords) {
+          return new L.LatLng(coords[0], coords[1], coords[2]);
+        }
+      });
+      this.mintLocations.addTo(this.map);
     },
     timeChanged: async function(val) {
       this.timeline.value = val;
@@ -385,26 +407,16 @@ mint {
               types.push(coin.projectId);
               let rulers = that.extractRulers(coin);
 
-              let minRadius = 0;
+              let minRadius = 5000;
               let maxRadius = 75000;
 
               let radius = maxRadius;
 
-              const mint = feature.coins[0].mint.id;
-
-              let i = 0;
-
               if (rulers.length > 0) {
-                if (mint == 37)
-                  console.log({
-                    coinNum,
-                    'rulers: ': rulers.length,
-                    length: feature.coins.length
-                  });
                 for (let [rulerNum, ruler] of rulers.entries()) {
                   const rulerCount = rulers.length;
 
-                  const increment = (maxRadius - minRadius) / rulerCount;
+                  const increment = (maxRadius - minRadius) / (rulerCount + 1);
                   radius = maxRadius - increment * (rulerCount - rulerNum - 1);
 
                   let fillColor = that.activeRuler
