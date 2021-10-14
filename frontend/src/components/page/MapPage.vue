@@ -249,6 +249,11 @@ export default {
       return new Promise((resolve, reject) => {
         Query.raw(
           `{
+mint {
+  id
+  name
+  location
+}
   getTypes(yearOfMint:${this.timeline.value}){
     projectId
     material {name}
@@ -281,6 +286,9 @@ export default {
         )
           .then((result) => {
             let data = result.data.data.getTypes;
+            this.mints = result.data.data.mint
+              .filter((mint) => mint.location != null)
+              .map((mint) => mint.location);
 
             data.forEach((type) => {
               if (type?.mint.location) {
@@ -353,6 +361,8 @@ export default {
       });
 
       let that = this;
+
+      L.geoJSON(Object.values(this.mints));
 
       this.concentricCircles = L.geoJSON(
         Object.values(mintsFeatures),
@@ -429,6 +439,7 @@ export default {
                   }
 
                   function buildRulerList(personsArr) {
+                    console.log(personsArr);
                     function printName(person) {
                       let name = person.shortName || person.name;
                       if (person.id == ruler.id) name = `<b>${name}</b>`;
@@ -449,11 +460,12 @@ export default {
                   }
 
                   const rulerPopuptText = `
-                    <h4>Kalif</h4>
+                    <h2>${coin.mint.name}</h2>
+                    <h3>Kalif</h3>
                     ${buildRulerList(coin.caliph)}
-                    <h4>Oberherren</h4>
+                    <h3>Oberherren</h3>
                     ${buildRulerList(coin.overlords)}
-                    <h4>Münzherren</h4>
+                    <h3>Münzherren</h3>
                     ${buildRulerList(coin.issuers)}
                   `;
 
@@ -468,7 +480,6 @@ export default {
                 circles.reverse();
               } else {
                 console.error('Ruler of length 0 is not allowed.');
-                console.log(coin);
               }
 
               const typeGroup = L.layerGroup(circles);
