@@ -6645,6 +6645,11 @@ launch-editor@^2.2.1:
     chalk "^2.3.0"
     shell-quote "^1.6.1"
 
+leaflet-semicircle@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/leaflet-semicircle/-/leaflet-semicircle-2.0.4.tgz#2c6e7d40cb59bb331d25edd4dd355c64afa2428e"
+  integrity sha512-7FV9kGBMSQ1CNZYPxoPCEVpDpiIoh/owZV91BWUKYFik5WuaYij0zGEWOE0elTUlRyTHFJHW4rNfQJ2fqreqnA==
+
 leaflet@^1.7.1:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.7.1.tgz#10d684916edfe1bf41d688a3b97127c0322a2a19"
