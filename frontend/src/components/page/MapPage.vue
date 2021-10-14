@@ -449,7 +449,7 @@ mint {
                     );
                   }
 
-                  function buildRulerList(personsArr) {
+                  function buildRulerList(personsArr, orderedList = false) {
                     function printName(person) {
                       let name = person.shortName || person.name;
                       if (person.id == ruler.id)
@@ -462,12 +462,12 @@ mint {
                       Array.isArray(personsArr) &&
                       personsArr.length > 1
                     ) {
-                      let str = '<ul>';
+                      let str = orderedList ? '<ol>' : '<ul>';
                       personsArr.forEach(person => {
                         str += `<li>${printName(person)}</li>`;
                       });
 
-                      return str + '</ul>';
+                      return str + (orderedList ? '</ol>' : '</ul>');
                     } else {
                       if (Array.isArray(personsArr)) personsArr = personsArr[0];
                       return printName(personsArr);
@@ -475,19 +475,22 @@ mint {
                   }
 
                   let caliphText = buildRulerList(coin.caliph);
-                  let overlordsText = buildRulerList(coin.overlords);
+
+                  let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
+
+                  let overlordsText = buildRulerList(sorted, true);
                   let issuersText = buildRulerList(coin.issuers);
 
                   const rulerPopuptText = `
                     <span class="subtitle">${coin.mint.name}</span>
                     <h2>${coin.projectId}</h2>
                     <a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>
-                    <h3>Kalif</h3>
-                    ${caliphText}
-                    <h3>Oberherren</h3>
-                    ${overlordsText}
                     <h3>Münzherren</h3>
                     ${issuersText}
+                    <h3>Oberherren</h3>
+                    ${overlordsText}
+                     <h3>Kalif</h3>
+                    ${caliphText}
                   `;
                   console.log(rulerPopuptText);
                   // as;
@@ -678,7 +681,8 @@ mint {
     margin-bottom: 0;
   }
 
-  ul {
+  ul,
+  ol {
     margin: 0.5em 0;
     padding-left: 1em;
   }
