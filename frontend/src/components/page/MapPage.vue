@@ -86,6 +86,7 @@ import Query from '../../database/query';
 import Checkbox from '../forms/Checkbox.vue';
 import Timeline from '../map/control/Timeline.vue';
 import MapView from '../map/MapView.vue';
+import MintLocation from '../../models/mintlocation';
 
 export default {
   name: 'MapPage',
@@ -239,28 +240,23 @@ export default {
       console.log('CLOCKED');
     },
     updateMintLocationMarker() {
-      if (this.mintLocations) this.mintLocations.remove();
-
-      let features = Object.values(this.mints).map(mint => {
-        let feature = JSON.parse(mint.location);
-        feature.mint = mint;
-        return feature;
-      });
-      this.mintLocations = new L.geoJSON(features, {
-        pointToLayer: function(feature, latlng) {
-          return L.circle(latlng, {
-            radius: 20000,
-            weight: 1,
-            color: '#fff',
-            fillColor: '#ccc',
-            fillOpacity: 1
-          }).bindPopup(`<span class="subtitle">${feature.mint.name}</span>`);
-        },
-        coordsToLatLng: function(coords) {
-          return new L.LatLng(coords[0], coords[1], coords[2]);
-        }
-      });
+      const _ = new MintLocation(this);
+      _.removeExistingLocation();
+      let features = _.mapToGeoJsonFeature(this.mints);
+      this.mintLocations = _.createGeometryLayer(features);
       this.mintLocations.addTo(this.map);
+
+      // _.removeUncertainLayer(this.mintUncertain);
+      // this.mintUncertain = _.createUncertainLayer(this.mints);
+      // this.mintUncertain.addTo(this.map);
+
+      // this.map.on('zoomend', () => {
+      //   // this.mintUncertain.getLayers().forEach(layer => {
+      //   //   console.dir();
+      //   //   Object.assign(layer._icon.style, { transform: `scale(0.5)` });
+      //   //   // console.log(());
+      //   // });
+      // });
     },
     timeChanged: async function(val) {
       this.timeline.value = val;
@@ -277,6 +273,7 @@ mint {
   id
   name
   location
+  uncertain
 }
   getTypes(yearOfMint:${this.timeline.value}){
     id
@@ -492,8 +489,7 @@ mint {
                      <h3>Kalif</h3>
                     ${caliphText}
                   `;
-                  console.log(rulerPopuptText);
-                  // as;
+
                   circle.bindPopup(`${rulerPopuptText}`);
 
                   if (circle) circles.push(circle);
