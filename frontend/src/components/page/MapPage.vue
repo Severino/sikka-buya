@@ -127,7 +127,6 @@ export default {
             }
           }
         }
-        console.log(mints.length);
 
         this.availableMints = Object.values(avalMints);
         this.unavailableMints = Object.values(mints);
@@ -236,6 +235,9 @@ export default {
       this.updateAvailableMints();
       this.updateMintLocationMarker();
     },
+    linkClicked() {
+      console.log('CLOCKED');
+    },
     updateMintLocationMarker() {
       if (this.mintLocations) this.mintLocations.remove();
 
@@ -252,7 +254,7 @@ export default {
             color: '#fff',
             fillColor: '#ccc',
             fillOpacity: 1
-          }).bindPopup(feature.mint.name);
+          }).bindPopup(`<span class="subtitle">${feature.mint.name}</span>`);
         },
         coordsToLatLng: function(coords) {
           return new L.LatLng(coords[0], coords[1], coords[2]);
@@ -277,6 +279,7 @@ mint {
   location
 }
   getTypes(yearOfMint:${this.timeline.value}){
+    id
     projectId
     material {name}
     donativ
@@ -444,21 +447,21 @@ mint {
                       (angle * coinNum) % 360,
                       angle
                     );
-
-                    circle.on('click', () => {
-                      console.log(coin.projectId);
-                    });
                   }
 
                   function buildRulerList(personsArr) {
                     function printName(person) {
                       let name = person.shortName || person.name;
-                      if (person.id == ruler.id) name = `<b>${name}</b>`;
+                      if (person.id == ruler.id)
+                        name = `<span class="active">${name}</span>`;
                       return name;
                     }
 
                     if (!personsArr || personsArr.length == 0) return '-';
-                    else if (Array.isArray(personsArr)) {
+                    else if (
+                      Array.isArray(personsArr) &&
+                      personsArr.length > 1
+                    ) {
                       let str = '<ul>';
                       personsArr.forEach(person => {
                         str += `<li>${printName(person)}</li>`;
@@ -466,23 +469,29 @@ mint {
 
                       return str + '</ul>';
                     } else {
+                      if (Array.isArray(personsArr)) personsArr = personsArr[0];
                       return printName(personsArr);
                     }
                   }
 
-                  const rulerPopuptText = `
-                    <h2>${coin.mint.name}</h2>
-                    <h3>Kalif</h3>
-                    ${buildRulerList(coin.caliph)}
-                    <h3>Oberherren</h3>
-                    ${buildRulerList(coin.overlords)}
-                    <h3>Münzherren</h3>
-                    ${buildRulerList(coin.issuers)}
-                  `;
+                  let caliphText = buildRulerList(coin.caliph);
+                  let overlordsText = buildRulerList(coin.overlords);
+                  let issuersText = buildRulerList(coin.issuers);
 
-                  circle.bindPopup(`
-                ${rulerPopuptText}
-              `);
+                  const rulerPopuptText = `
+                    <span class="subtitle">${coin.mint.name}</span>
+                    <h2>${coin.projectId}</h2>
+                    <a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>
+                    <h3>Kalif</h3>
+                    ${caliphText}
+                    <h3>Oberherren</h3>
+                    ${overlordsText}
+                    <h3>Münzherren</h3>
+                    ${issuersText}
+                  `;
+                  console.log(rulerPopuptText);
+                  // as;
+                  circle.bindPopup(`${rulerPopuptText}`);
 
                   if (circle) circles.push(circle);
                   radius += increment;
@@ -643,6 +652,57 @@ mint {
 </script>
 
 <style lang="scss">
+.leaflet-popup {
+  font-family: $font;
+
+  .leaflet-popup-content-wrapper {
+    border-radius: 3px;
+  }
+
+  .leaflet-popup-content {
+    margin: 20px;
+  }
+
+  a.leaflet-popup-close-button {
+    font-size: 1.5em !important;
+    margin: 10px;
+  }
+
+  h2,
+  h3,
+  h4 {
+    margin: 0.5em 0;
+  }
+
+  h2:first-child {
+    margin-bottom: 0;
+  }
+
+  ul {
+    margin: 0.5em 0;
+    padding-left: 1em;
+  }
+
+  .active {
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-weight: bold;
+    background-color: $primary-color;
+    color: $white;
+  }
+
+  .catalog-link {
+    position: absolute;
+    right: 20px;
+    top: 52px;
+    color: $primary-color;
+    padding: 3px 5px;
+    font-weight: bold;
+    border: 1px solid $primary-color;
+    border-radius: 5px;
+  }
+}
+
 .map-page {
   position: relative;
   flex: 1;
