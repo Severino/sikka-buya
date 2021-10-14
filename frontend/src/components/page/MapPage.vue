@@ -17,13 +17,15 @@
           <li
             v-for="ruler of rulers"
             :key="`ruler-list-item-${ruler.id}`"
-            :style="`background-color: ${
-              activeRuler
-                ? ruler.id == activeRuler.id
-                  ? rulerColorMap[ruler.id]
-                  : 'unset'
-                : rulerColorMap[ruler.id] || 'transparent'
-            };`"
+            :style="
+              `background-color: ${
+                activeRuler
+                  ? ruler.id == activeRuler.id
+                    ? rulerColorMap[ruler.id]
+                    : 'unset'
+                  : rulerColorMap[ruler.id] || 'transparent'
+              };`
+            "
             @click="setActiveRuler(ruler)"
           >
             {{ ruler.shortName || ruler.name }}
@@ -88,7 +90,7 @@ import MapView from '../map/MapView.vue';
 export default {
   name: 'MapPage',
   components: { MapView, Timeline, Checkbox },
-  data: function () {
+  data: function() {
     return {
       timeline: { from: null, to: null, value: null },
       mints: [],
@@ -99,40 +101,38 @@ export default {
       selectedMints: [],
       availableMints: null,
       unavailableMints: null,
-      types: [],
+      types: []
     };
   },
   provide() {
     return {
-      map: this.map || null,
+      map: this.map || null
     };
   },
   methods: {
     updateAvailableMints() {
       let avalMints = {};
-      let unavailMints = {};
+      let mints = this.mints;
 
       if (this.types) {
         for (let type of this.types) {
-          if (type.mint) {
+          if (type.mint && avalMints[type.mint.id] == null) {
+            const mintId = type.mint.id;
             if (!this.activeRuler) {
-              avalMints[type.mint.id] = type.mint;
+              avalMints[mintId] = type.mint;
+              delete mints[mintId];
             } else {
-              if (avalMints[type.mint.id] != null) continue;
               if (this.mintHasRuler(type, this.activeRuler)) {
-                avalMints[type.mint.id] = type.mint;
-                if (unavailMints[type.mint.id]) {
-                  delete unavailMints[type.mint.id];
-                }
-              } else {
-                unavailMints[type.mint.id] = type.mint;
+                avalMints[mintId] = type.mint;
+                delete mints[mintId];
               }
             }
           }
         }
+        console.log(mints.length);
 
         this.availableMints = Object.values(avalMints);
-        this.unavailableMints = Object.values(unavailMints);
+        this.unavailableMints = Object.values(mints);
       }
     },
     mintHasRuler(type, ruler) {
@@ -156,7 +156,7 @@ export default {
     //   if (!this.activeMint) return false;
     //   else return !this.activeMint || this.activeMint.id !== mint.id;
     // },
-    mapChanged: function (map) {
+    mapChanged: function(map) {
       this.map = map;
       Query.raw(
         `{
@@ -166,7 +166,7 @@ export default {
         }
 }`
       )
-        .then(async (result) => {
+        .then(async result => {
           let timeline = result.data.data.timespan;
           timeline.value = 364;
           this.timeline = timeline;
@@ -191,21 +191,21 @@ export default {
         this.selectedMints = [mint];
       } else if (this.selectedMints.length == 1) {
         if (
-          this.selectedMints.find((selectedMint) => selectedMint.id == mint.id)
+          this.selectedMints.find(selectedMint => selectedMint.id == mint.id)
         ) {
           mint.selected = false;
           this.selectedMints = [];
         } else {
           this.selectedMints.forEach(
-            (selectedMint) => (selectedMint.selected = false)
+            selectedMint => (selectedMint.selected = false)
           );
           mint.selected = true;
           this.selectedMints = [mint];
         }
       } else {
         let selected = mint.selected;
-        this.availableMints.forEach((mint) => (mint.selected = false));
-        this.unavailableMints.forEach((mint) => (mint.selected = false));
+        this.availableMints.forEach(mint => (mint.selected = false));
+        this.unavailableMints.forEach(mint => (mint.selected = false));
         mint.selected = !selected;
 
         this.selectedMints = mint.selected ? [mint] : [];
@@ -227,7 +227,7 @@ export default {
         '#A1DAA0',
         '#FEDFCA',
         '#f1e8b8',
-        '#BEE3DB',
+        '#BEE3DB'
       ];
       if (i > colors.length) console.error('Ran out of colors!', i);
       return colors[i % colors.length];
@@ -238,14 +238,14 @@ export default {
       this.updateConcentricCircles();
       this.updateAvailableMints();
     },
-    timeChanged: async function (val) {
+    timeChanged: async function(val) {
       this.timeline.value = val;
       this.types = await this.fetchTypes();
 
       this.selectedMints = [];
       this.update();
     },
-    fetchTypes: async function () {
+    fetchTypes: async function() {
       return new Promise((resolve, reject) => {
         Query.raw(
           `{
@@ -257,7 +257,7 @@ mint {
   getTypes(yearOfMint:${this.timeline.value}){
     projectId
     material {name}
-    donativ 
+    donativ
     procedure
     nominal {name}
     mintAsOnCoin
@@ -284,13 +284,17 @@ mint {
   }
 }`
         )
-          .then((result) => {
+          .then(result => {
             let data = result.data.data.getTypes;
-            this.mints = result.data.data.mint
-              .filter((mint) => mint.location != null)
-              .map((mint) => mint.location);
+            let mints = result.data.data.mint.filter(
+              mint => mint.location != null
+            );
+            this.mints = {};
+            mints.forEach(mint => {
+              this.mints[mint.id] = mint;
+            });
 
-            data.forEach((type) => {
+            data.forEach(type => {
               if (type?.mint.location) {
                 try {
                   type.mint.location = JSON.parse(type.mint.location);
@@ -301,7 +305,7 @@ mint {
             });
 
             data = data.filter(
-              (d) => (d.mint?.location && d.mint.location.coordinates) != null
+              d => (d.mint?.location && d.mint.location.coordinates) != null
             );
 
             resolve(data);
@@ -314,27 +318,27 @@ mint {
       if (coin.caliph) rulers.push(coin.caliph);
       return rulers;
     },
-    updateConcentricCircles: function () {
+    updateConcentricCircles: function() {
       let rulers = {};
       let mints = {};
 
-      this.types.forEach((type) => {
+      this.types.forEach(type => {
         if (type.mint?.id) mints[type.mint.id] = type.mint;
         if (type.caliph) rulers[type.caliph.id] = type.caliph;
-        type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
-        type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
+        type.issuers.forEach(issuer => (rulers[issuer.id] = issuer));
+        type.overlords.forEach(overlord => (rulers[overlord.id] = overlord));
       });
 
       let data = this.types;
 
       if (this.selectedMints.length > 0)
-        data = data.filter((d) => d.mint.selected);
+        data = data.filter(d => d.mint.selected);
 
       this.rulerColorMap = {};
       let i = 0;
 
       this.rulers = rulers;
-      Object.values(rulers).forEach((ruler) => {
+      Object.values(rulers).forEach(ruler => {
         this.rulerColorMap[ruler.id] = this.getColor(i);
         i++;
       });
@@ -343,7 +347,7 @@ mint {
 
       let mintsFeatures = {};
 
-      data.forEach((obj) => {
+      data.forEach(obj => {
         let mint = obj.mint;
 
         if (!mintsFeatures[mint.id]) {
@@ -352,7 +356,7 @@ mint {
             type: mint.location.type,
             coordinates: mint.location.coordinates,
             drawn: 0,
-            coins: [],
+            coins: []
           };
           mintsFeatures[mint.id] = obj;
         }
@@ -368,7 +372,7 @@ mint {
         Object.values(mintsFeatures),
 
         {
-          pointToLayer: function (feature, latlng) {
+          pointToLayer: function(feature, latlng) {
             let types = [];
 
             const allTypesGroup = L.layerGroup();
@@ -395,7 +399,7 @@ mint {
                   console.log({
                     coinNum,
                     'rulers: ': rulers.length,
-                    length: feature.coins.length,
+                    length: feature.coins.length
                   });
                 for (let [rulerNum, ruler] of rulers.entries()) {
                   const rulerCount = rulers.length;
@@ -416,12 +420,8 @@ mint {
                     stroke: true,
                     color: '#fff',
                     fillColor,
-                    fillOpacity: 1,
+                    fillOpacity: 1
                   };
-
-                  if (mint == 37) {
-                    console.log(i++, feature.coins.length);
-                  }
 
                   if (coinCount == 1) {
                     circle = L.circle(latlng, options);
@@ -439,7 +439,6 @@ mint {
                   }
 
                   function buildRulerList(personsArr) {
-                    console.log(personsArr);
                     function printName(person) {
                       let name = person.shortName || person.name;
                       if (person.id == ruler.id) name = `<b>${name}</b>`;
@@ -449,7 +448,7 @@ mint {
                     if (!personsArr || personsArr.length == 0) return '-';
                     else if (Array.isArray(personsArr)) {
                       let str = '<ul>';
-                      personsArr.forEach((person) => {
+                      personsArr.forEach(person => {
                         str += `<li>${printName(person)}</li>`;
                       });
 
@@ -501,20 +500,20 @@ mint {
             return allTypesGroup;
           },
 
-          coordsToLatLng: function (coords) {
+          coordsToLatLng: function(coords) {
             return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
             stroke: false,
             fillColor: '#629bf0',
-            fillOpacity: 1,
-          },
+            fillOpacity: 1
+          }
         }
       );
 
       this.concentricCircles.addTo(this.map);
     },
-    updateDominion: function () {
+    updateDominion: function() {
       Query.raw(
         `
       {
@@ -544,10 +543,10 @@ mint {
     }
   }}`
       )
-        .then((result) => {
+        .then(result => {
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
-            coordsToLatLng: function (coords) {
+            coordsToLatLng: function(coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -555,11 +554,11 @@ mint {
               opacity: 0.75,
               color: 'red',
               fillColor: '#48ac48',
-              fillOpacity: 0.1,
-            },
+              fillOpacity: 0.1
+            }
           }).addTo(this.map);
 
-          result.data.data.ruledMint.forEach((mint) => {
+          result.data.data.ruledMint.forEach(mint => {
             if (mint.location) {
               try {
                 mint.location = JSON.parse(mint.location);
@@ -572,7 +571,7 @@ mint {
 
           let dominionData = result.data.data.getDominion;
           dominionData.filter(
-            (data) =>
+            data =>
               data?.mints?.location?.coordinates &&
               Array.isArray(data.mints.location.coordinates) &&
               data.mints.location.coordinates.length > 0
@@ -580,7 +579,7 @@ mint {
           dominionData.forEach((dominion, idx) => {
             const mintsCount = dominion.mints.length;
             let points = [];
-            dominion.mints.forEach((mint) => {
+            dominion.mints.forEach(mint => {
               let distance = 0.2 / (idx + 1);
               let resolution = 10;
               let vertices = resolution * 4;
@@ -604,7 +603,7 @@ mint {
           if (this.dominionLayer) this.dominionLayer.remove();
 
           this.dominionLayer = L.geoJSON(dominionData, {
-            coordsToLatLng: function (coords) {
+            coordsToLatLng: function(coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -612,22 +611,22 @@ mint {
               opacity: 0.75,
               color: '#48ac48',
               fillColor: '#48ac48',
-              fillOpacity: 0.5,
-            },
+              fillOpacity: 0.5
+            }
           }).addTo(this.map);
           this.dominionLayer.bindTooltip(
-            (layer) => {
+            layer => {
               return layer.feature.dominion.overlord.shortName;
             },
             {
               sticky: true,
-              direction: 'top',
+              direction: 'top'
             }
           );
         })
         .catch(console.error);
-    },
-  },
+    }
+  }
 };
 </script>
 
