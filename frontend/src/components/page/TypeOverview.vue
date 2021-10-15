@@ -24,6 +24,12 @@
       />
     </ListFilterContainer>
 
+    <button @click="changePage(0)">1</button>
+    <button @click="lastPage">Prev</button>
+    <input type="number" :value="pageInfo.page + 1" @change="setPageEvt" />
+    <button @click="nextPage">Next</button>
+    <button @click="changePage(pageInfo.last)">{{ pageInfo.last + 1 }}</button>
+
     <List
       :error="error"
       :items="list"
@@ -73,6 +79,7 @@ import AxiosHelper from '@/utils/AxiosHelper.js';
 import SearchUtils from '@/utils/SearchUtils.js';
 import ReviewedToggle from '../layout/buttons/ReviewedToggle.vue';
 import Auth from '../../utils/Auth';
+import Button from '../layout/buttons/Button.vue';
 
 export default {
   name: 'TypeOverviewPage',
@@ -89,24 +96,10 @@ export default {
     ListFilterContainer,
     ButtonGroup,
     ReviewedToggle,
+    Button,
   },
-  created: function () {
-    new Query(`
-     getReducedCoinTypeList`)
-      .list(['id', 'projectId', 'treadwellId', 'completed', 'reviewed'])
-      .then((result) => {
-        if (AxiosHelper.ok(result)) {
-          this.$data.items = result.data.data['getReducedCoinTypeList'];
-        } else {
-          this.error = AxiosHelper.getErrors(result).join('\n');
-        }
-      })
-      .catch(() => {
-        this.error = this.$t('error.loading_list');
-      })
-      .finally(() => {
-        this.$data.loading = false;
-      });
+  mounted: function () {
+    this.updateTypeList();
   },
   computed: {
     isListFiltered: function () {
@@ -130,14 +123,80 @@ export default {
   },
   data: function () {
     return {
-      loading: true,
+      loading: false,
       items: [],
+      pageInfo: {
+        count: 10,
+        page: 0,
+        last: 0,
+        total: 0,
+      },
       error: '',
       textFilter: '',
       completeFilter: 'none',
     };
   },
   methods: {
+    updateTypeList: async function () {
+      if (this.loading) return;
+
+      this.loading = true;
+      Query.raw(
+        `
+    {
+      getReducedCoinTypeList(pagination: {count:${this.pageInfo.count}, page:${this.pageInfo.page}}) {
+  types {
+    id
+  projectId
+  completed
+reviewed
+  }
+  pageInfo {
+    page
+    count
+    total
+    last
+    
+  }
+}}`
+      )
+        .then((result) => {
+          if (AxiosHelper.ok(result)) {
+            let getReducedCoinTypeList =
+              result.data.data.getReducedCoinTypeList;
+            this.$data.items = getReducedCoinTypeList.types;
+            this.pageInfo = getReducedCoinTypeList.pageInfo;
+          } else {
+            this.error = AxiosHelper.getErrors(result).join('\n');
+          }
+        })
+        .catch(() => {
+          this.error = this.$t('error.loading_list');
+        })
+        .finally(() => {
+          this.$data.loading = false;
+          this.loading = false;
+        });
+    },
+    lastPage() {
+      this.changePage(Math.max(this.pageInfo.page - 1, 0));
+    },
+    nextPage() {
+      this.changePage(Math.min(this.pageInfo.page + 1, this.pageInfo.last));
+    },
+    setPageEvt(evt) {
+      const value = parseInt(evt.target.value);
+      if (value != null) {
+        console.log(evt);
+        this.changePage(value - 1);
+      }
+    },
+    changePage(next) {
+      if (this.pageInfo.page != next) {
+        this.pageInfo.page = next;
+        this.updateTypeList();
+      }
+    },
     handleKeys(event) {
       console.log(event.key);
     },

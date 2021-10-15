@@ -1,4 +1,4 @@
-const { objectifyList } = require('./src/utils/sql.js')
+const { objectifyList, camelCaseToSnakeCase } = require('./src/utils/sql.js')
 
 
 
@@ -142,8 +142,8 @@ async function start({
 
                     return { from: range[0], to: range[range.length - 1] }
                 },
-                getReducedCoinTypeList: async function () {
-                    return Type.getTypesReducedList()
+                getReducedCoinTypeList: async function (_, args) {
+                    return Type.getTypesReducedList(args)
                 },
                 getCoinType: async function (_, args) {
                     return Type.getType(args.id)

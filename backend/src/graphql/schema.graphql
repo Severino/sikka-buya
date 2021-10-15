@@ -61,6 +61,11 @@ input CoinSideInformationInput {
   misc: String = ""
 }
 
+type ReducedCoinTypePagination {
+  pageInfo: PageInfo
+  types: [ReducedCoinType]
+}
+
 type ReducedCoinType {
   id: ID
   projectId: String
@@ -224,7 +229,7 @@ type Query {
   getPerson(id: Int!): Person
 
   # Tested in 030_coin_type
-  coinType: [CoinType]
+  coinType(count: Int, page: Int): [CoinType]
   searchType(text: String): [CoinType]!
   getCoinType(id: ID!): CoinType
 
@@ -234,7 +239,7 @@ type Query {
   searchProvince(text: String): [Name]
   getProvince(id: ID!): [Name]
 
-  getReducedCoinTypeList(id: ID): [ReducedCoinType]
+  getReducedCoinTypeList(pagination: Pagination): ReducedCoinTypePagination
   getTypesByOverlord(id: ID!): [CoinType]
   getTypes(yearOfMint: Int, mint: ID): [CoinType]
 
@@ -331,6 +336,18 @@ type Mutation {
 
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
+}
+
+input Pagination {
+  count: Int!
+  page: Int!
+}
+
+type PageInfo {
+  page: Int
+  count: Int
+  last: Int
+  total: Int
 }
 
 type Note {
