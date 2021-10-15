@@ -1,4 +1,3 @@
-const { request } = require("express")
 const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fields")
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
@@ -9,6 +8,7 @@ const { camelCaseToSnakeCase } = require("./sql")
 const Person = require('../models/person')
 const Material = require('../models/material')
 const Nominal = require('../models/nominal')
+const PageInfo = require('../models/pageinfo')
 
 
 class Type {
@@ -307,7 +307,26 @@ class Type {
         return result
     }
 
-    static async getTypesReducedList() {
+    static async getTypesReducedList(args) {
+
+        let { page, count } = (args.pagination)
+
+        console.log(page, count)
+
+        let pageInfo = null
+        let pagination = ""
+        if (page != null && count != null) {
+            pagination = ` LIMIT ${count} OFFSET ${page * count} `
+
+            let { total } = await Database.one("SELECT reltuples AS total FROM pg_class WHERE relname = 'type'")
+            pageInfo = new PageInfo({
+                count,
+                page,
+                total
+            })
+
+        }
+
         let typeList = await Database.manyOrNone(`SELECT 
         id, project_id, treadwell_id,
             CASE 
@@ -321,8 +340,8 @@ class Type {
         FROM type t
         LEFT JOIN type_completed tc ON t.id = tc.type
         LEFT JOIN type_reviewed tr ON t.id = tr.type
-        ORDER BY unaccent(project_id)
-        COLLATE "C";
+        ORDER BY unaccent(project_id) COLLATE "C"
+        ${pagination};
             `)
 
         const map = {
@@ -337,7 +356,7 @@ class Type {
             return type
         })
 
-        return typeList
+        return { pageInfo, types: typeList }
     }
 
     static async getTypes(filters = {}) {
