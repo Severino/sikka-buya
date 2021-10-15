@@ -208,6 +208,7 @@ type Query {
   role: [Name]
   searchRole(text: String): [Name]!
   getRole(id: Int!): Name
+
   # Tested in 009_dynasty
   dynasty: [Name]!
   searchDynasty(text: String): [Name]!
@@ -239,7 +240,10 @@ type Query {
   searchProvince(text: String): [Name]
   getProvince(id: ID!): [Name]
 
-  getReducedCoinTypeList(pagination: Pagination): ReducedCoinTypePagination
+  getReducedCoinTypeList(
+    pagination: Pagination
+    filter: ListFilter
+  ): ReducedCoinTypePagination
   getTypesByOverlord(id: ID!): [CoinType]
   getTypes(yearOfMint: Int, mint: ID): [CoinType]
 
@@ -341,6 +345,12 @@ type Mutation {
 input Pagination {
   count: Int!
   page: Int!
+}
+
+input ListFilter {
+  text: String
+  completed: Boolean
+  reviewed: Boolean
 }
 
 type PageInfo {
