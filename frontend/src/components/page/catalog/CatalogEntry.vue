@@ -1,11 +1,18 @@
 <template>
   <div class="catalog-entry">
     <header>
-      <router-link :to="{ name: 'EditType', params: { id: type.id } }"
-        >Edit</router-link
-      >
       <h1>{{ type.projectId }}</h1>
     </header>
+
+    <router-link
+      v-if="$store.state.user"
+      id="edit-button"
+      :to="{ name: 'EditType', params: { id: type.id } }"
+    >
+      <button>
+        <EditIcon />
+      </button>
+    </router-link>
 
     <div class="property gm2 gd2">
       <catalog-property :label="mapText('year')">
@@ -146,16 +153,21 @@ import Row from '../../layout/Row.vue';
 import Tag from '../../Tag.vue';
 import Web from '../../../utils/Web';
 
+import EditIcon from 'vue-material-design-icons/Pen.vue';
+import Button from '../../layout/buttons/Button.vue';
+
 export default {
   components: {
     CatalogItem,
     CoinSideField,
+    EditIcon,
     LabeledField,
     Gift,
     Italic,
     CatalogProperty,
     Row,
     Tag,
+    Button,
   },
   name: 'CatalogEntry',
   data: function () {

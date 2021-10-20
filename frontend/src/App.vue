@@ -19,23 +19,23 @@ import Query from './database/query';
 export default {
   components: { ButtonGroup, LoginForm, Modal },
   name: 'App',
-  data: function() {
+  data: function () {
     return {
       popupHandler: null,
-      language: 'de'
+      language: 'de',
     };
   },
-  created: async function() {
+  created: async function () {
     let user = await Auth.init();
     this.$store.commit('login', user);
 
     this.popupHandler = new PopupHandler(this);
     this.popupHandler.init(document.body);
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     this.popupHandler.cleanup();
   },
-  mounted: function() {
+  mounted: function () {
     const lang = window.localStorage.getItem('language', this.$i18n.locale);
     if (lang) {
       this.languageChanged(lang);
@@ -50,25 +50,25 @@ export default {
     //   .catch((e) => (window.sikkaEnvironment = null));
   },
   methods: {
-    languageChanged: function(lang) {
+    languageChanged: function (lang) {
       this.language = lang;
       this.$i18n.locale = lang;
       window.localStorage.setItem('language', this.$i18n.locale);
     },
-    goHome: function() {
+    goHome: function () {
       if (this.$router.route != '/') this.$router.push('/');
     },
-    closeLoginForm: function() {
+    closeLoginForm: function () {
       this.$store.commit('closeLoginForm');
       this.$store.commit('increment');
       console.log(this.$store.state.showLoginForm);
     },
-    plusOne: function() {
+    plusOne: function () {
       this.$store.commit('increment');
     },
-    test: function() {
+    test: function () {
       console.log('asdasd');
-    }
+    },
   },
   computed: {
     loginActive() {
@@ -76,8 +76,8 @@ export default {
     },
     getCount() {
       return this.$store.state.test;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -254,6 +254,10 @@ label {
 
 a {
   text-decoration: none;
+
+  &:visited {
+    color: unset;
+  }
 }
 
 .icon-button {
