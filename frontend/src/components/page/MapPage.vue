@@ -10,6 +10,11 @@
       @change="timeChanged"
     />
 
+    <div v-if="filtersActive" class="notification">
+      <FilterIcon /> Filter aktiv
+      <Button @click="resetFilters">Zurücksetzen</Button>
+    </div>
+
     <div class="side-bar side-bar-right">
       <div id="rulers">
         <ul>
@@ -17,15 +22,13 @@
           <li
             v-for="ruler of rulers"
             :key="`ruler-list-item-${ruler.id}`"
-            :style="
-              `background-color: ${
-                activeRuler
-                  ? ruler.id == activeRuler.id
-                    ? rulerColorMap[ruler.id]
-                    : 'unset'
-                  : rulerColorMap[ruler.id] || 'transparent'
-              };`
-            "
+            :style="`background-color: ${
+              activeRuler
+                ? ruler.id == activeRuler.id
+                  ? rulerColorMap[ruler.id]
+                  : 'unset'
+                : rulerColorMap[ruler.id] || 'transparent'
+            };`"
             @click="setActiveRuler(ruler)"
           >
             {{ ruler.shortName || ruler.name }}
@@ -37,17 +40,19 @@
     <div class="side-bar side-bar-left">
       <div id="mints">
         <h3>Prägeorte</h3>
+        <!-- <pre>{{ this.selectedMints.map((mint) => mint.name) }}</pre> -->
         <ul>
           <li
             v-for="mint of availableMints"
             :key="`mint-avail-list-item-${mint.id}`"
-            @click="setActiveMint(mint)"
+            @click="mintSelected(mint)"
             :class="{ selected: mint.selected }"
           >
             <input
+              v-if="selectedMints.length > 0"
               type="checkbox"
               :checked="mint.selected"
-              @input.stop="activeChanged($event, mint)"
+              @input.stop="mintAdded($event, mint)"
               @click.stop
             />
             {{ mint.name }}
@@ -58,13 +63,15 @@
           <li
             v-for="mint of unavailableMints"
             :key="`mint-unavail-list-item-${mint.id}`"
-            @click="setActiveMint(mint)"
+            @click="mintSelected(mint)"
             class="inactive"
+            :class="{ selected: mint.selected }"
           >
             <input
+              v-if="selectedMints.length > 0"
               type="checkbox"
-              :value="mint.selected"
-              @input.stop="activeChanged(mint)"
+              :checked="mint.selected"
+              @input.stop="mintAdded($event, mint)"
               @click.stop
             />
 
@@ -87,11 +94,12 @@ import Checkbox from '../forms/Checkbox.vue';
 import Timeline from '../map/control/Timeline.vue';
 import MapView from '../map/MapView.vue';
 import MintLocation from '../../models/mintlocation';
+import FilterIcon from 'vue-material-design-icons/Filter.vue';
 
 export default {
   name: 'MapPage',
-  components: { MapView, Timeline, Checkbox },
-  data: function() {
+  components: { MapView, Timeline, Checkbox, FilterIcon },
+  data: function () {
     return {
       timeline: { from: null, to: null, value: null },
       mints: [],
@@ -102,15 +110,26 @@ export default {
       selectedMints: [],
       availableMints: null,
       unavailableMints: null,
-      types: []
+      types: [],
     };
   },
   provide() {
     return {
-      map: this.map || null
+      map: this.map || null,
     };
   },
+  computed: {
+    filtersActive: function () {
+      return this.activeRuler != null || this.selectedMints.length > 0;
+    },
+  },
   methods: {
+    resetFilters: function () {
+      this.selectedMints.forEach((mint) => (mint.selected = false));
+      this.selectedMints.splice(0);
+      this.activeRuler = null;
+      this.update();
+    },
     updateAvailableMints() {
       let avalMints = {};
       let mints = this.mints;
@@ -129,32 +148,39 @@ export default {
           }
         }
 
+        let unavailMints = [];
+        for (let mint of Object.values(mints)) {
+          if (!avalMints[mint.id]) {
+            unavailMints.push(mint);
+          }
+        }
+
         this.availableMints = Object.values(avalMints);
-        this.unavailableMints = Object.values(mints);
+        this.unavailableMints = unavailMints;
       }
     },
     mintHasRuler(type, ruler) {
       function hasRuler(property, type, ruler) {
         if (!type.mint) return false;
 
-        for (let i = 0; i < type[property]?.length; i++) {
-          if (type[property][i].id == ruler.id) return true;
+        if (Array.isArray(type[property])) {
+          for (let i = 0; i < type[property]?.length; i++) {
+            console.log(type.mint.name, ruler.name);
+            if (type[property][i].id == ruler.id) return true;
+          }
+        } else {
+          if (type[property].id == ruler.id) return true;
         }
         return false;
       }
 
       return (
-        hasRuler('issuers', type, ruler) || hasRuler('overlords', type, ruler)
+        hasRuler('issuers', type, ruler) ||
+        hasRuler('overlords', type, ruler) ||
+        hasRuler('caliph', type, ruler)
       );
     },
-    // isMintActive: function (mint) {
-    //   return this.activeMint?.id == mint.id;
-    // },
-    // isMintInactive: function (mint) {
-    //   if (!this.activeMint) return false;
-    //   else return !this.activeMint || this.activeMint.id !== mint.id;
-    // },
-    mapChanged: function(map) {
+    mapChanged: function (map) {
       this.map = map;
       Query.raw(
         `{
@@ -164,7 +190,7 @@ export default {
         }
 }`
       )
-        .then(async result => {
+        .then(async (result) => {
           let timeline = result.data.data.timespan;
           timeline.value = 364;
           this.timeline = timeline;
@@ -176,42 +202,43 @@ export default {
         })
         .catch(console.error);
     },
-
-    activeChanged(event, mint) {
+    mintAdded(event, mint) {
       mint.selected = event.target.checked;
-      if (mint.selected) this.selectedMints.push(mint);
+      if (mint.selected) this.addActiveMint(mint);
+      else this.removeActiveMint(mint);
 
       this.update();
     },
-    setActiveMint(mint) {
-      if (this.selectedMints.length == 0) {
-        mint.selected = true;
-        this.selectedMints = [mint];
-      } else if (this.selectedMints.length == 1) {
-        if (
-          this.selectedMints.find(selectedMint => selectedMint.id == mint.id)
-        ) {
-          mint.selected = false;
-          this.selectedMints = [];
-        } else {
-          this.selectedMints.forEach(
-            selectedMint => (selectedMint.selected = false)
-          );
-          mint.selected = true;
-          this.selectedMints = [mint];
-        }
-      } else {
-        let selected = mint.selected;
-        this.availableMints.forEach(mint => (mint.selected = false));
-        this.unavailableMints.forEach(mint => (mint.selected = false));
-        mint.selected = !selected;
-
-        this.selectedMints = mint.selected ? [mint] : [];
+    addActiveMint(mint) {
+      this.selectedMints.push(mint);
+      mint.selected = true;
+    },
+    removeActiveMint(mint) {
+      const selectedMintPosition = this.selectedMints.findIndex(
+        (selectedMint) => selectedMint.id == mint.id
+      );
+      if (selectedMintPosition != -1) {
+        mint.selected = false;
+        this.selectedMints.splice(selectedMintPosition, 1);
+        return true;
       }
-
+      return false;
+    },
+    setActiveMint(mint) {
+      this.removeAllActiveMint();
+      mint.selected = true;
+      this.selectedMints.push(mint);
+    },
+    removeAllActiveMint() {
+      this.selectedMints.splice(0).forEach((mint) => (mint.selected = false));
+    },
+    mintSelected(mint) {
+      this.removeAllActiveMint();
+      this.setActiveMint(mint);
       this.update();
     },
     setActiveRuler(ruler) {
+      console.log(ruler);
       if (this.activeRuler && this.activeRuler.id == ruler.id) {
         this.activeRuler = null;
       } else this.activeRuler = ruler;
@@ -225,7 +252,7 @@ export default {
         '#A1DAA0',
         '#FEDFCA',
         '#f1e8b8',
-        '#BEE3DB'
+        '#BEE3DB',
       ];
       if (i > colors.length) console.error('Ran out of colors!', i);
       return colors[i % colors.length];
@@ -245,27 +272,15 @@ export default {
       let features = _.mapToGeoJsonFeature(this.mints);
       this.mintLocations = _.createGeometryLayer(features);
       this.mintLocations.addTo(this.map);
-
-      // _.removeUncertainLayer(this.mintUncertain);
-      // this.mintUncertain = _.createUncertainLayer(this.mints);
-      // this.mintUncertain.addTo(this.map);
-
-      // this.map.on('zoomend', () => {
-      //   // this.mintUncertain.getLayers().forEach(layer => {
-      //   //   console.dir();
-      //   //   Object.assign(layer._icon.style, { transform: `scale(0.5)` });
-      //   //   // console.log(());
-      //   // });
-      // });
     },
-    timeChanged: async function(val) {
+    timeChanged: async function (val) {
       this.timeline.value = val;
       this.types = await this.fetchTypes();
 
       this.selectedMints = [];
       this.update();
     },
-    fetchTypes: async function() {
+    fetchTypes: async function () {
       return new Promise((resolve, reject) => {
         Query.raw(
           `{
@@ -306,17 +321,17 @@ mint {
   }
 }`
         )
-          .then(result => {
+          .then((result) => {
             let data = result.data.data.getTypes;
             let mints = result.data.data.mint.filter(
-              mint => mint.location != null
+              (mint) => mint.location != null
             );
             this.mints = {};
-            mints.forEach(mint => {
+            mints.forEach((mint) => {
               this.mints[mint.id] = mint;
             });
 
-            data.forEach(type => {
+            data.forEach((type) => {
               if (type?.mint.location) {
                 try {
                   type.mint.location = JSON.parse(type.mint.location);
@@ -327,7 +342,7 @@ mint {
             });
 
             data = data.filter(
-              d => (d.mint?.location && d.mint.location.coordinates) != null
+              (d) => (d.mint?.location && d.mint.location.coordinates) != null
             );
 
             resolve(data);
@@ -340,27 +355,27 @@ mint {
       if (coin.caliph) rulers.push(coin.caliph);
       return rulers;
     },
-    updateConcentricCircles: function() {
+    updateConcentricCircles: function () {
       let rulers = {};
       let mints = {};
 
-      this.types.forEach(type => {
+      this.types.forEach((type) => {
         if (type.mint?.id) mints[type.mint.id] = type.mint;
         if (type.caliph) rulers[type.caliph.id] = type.caliph;
-        type.issuers.forEach(issuer => (rulers[issuer.id] = issuer));
-        type.overlords.forEach(overlord => (rulers[overlord.id] = overlord));
+        type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
+        type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
       });
 
       let data = this.types;
 
       if (this.selectedMints.length > 0)
-        data = data.filter(d => d.mint.selected);
+        data = data.filter((d) => d.mint.selected);
 
       this.rulerColorMap = {};
       let i = 0;
 
       this.rulers = rulers;
-      Object.values(rulers).forEach(ruler => {
+      Object.values(rulers).forEach((ruler) => {
         this.rulerColorMap[ruler.id] = this.getColor(i);
         i++;
       });
@@ -369,7 +384,7 @@ mint {
 
       let mintsFeatures = {};
 
-      data.forEach(obj => {
+      data.forEach((obj) => {
         let mint = obj.mint;
 
         if (!mintsFeatures[mint.id]) {
@@ -378,7 +393,7 @@ mint {
             type: mint.location.type,
             coordinates: mint.location.coordinates,
             drawn: 0,
-            coins: []
+            coins: [],
           };
           mintsFeatures[mint.id] = obj;
         }
@@ -394,7 +409,7 @@ mint {
         Object.values(mintsFeatures),
 
         {
-          pointToLayer: function(feature, latlng) {
+          pointToLayer: function (feature, latlng) {
             let types = [];
 
             const allTypesGroup = L.layerGroup();
@@ -432,7 +447,7 @@ mint {
                     stroke: true,
                     color: '#fff',
                     fillColor,
-                    fillOpacity: 1
+                    fillOpacity: 1,
                   };
 
                   if (coinCount == 1) {
@@ -460,7 +475,7 @@ mint {
                       personsArr.length > 1
                     ) {
                       let str = orderedList ? '<ol>' : '<ul>';
-                      personsArr.forEach(person => {
+                      personsArr.forEach((person) => {
                         str += `<li>${printName(person)}</li>`;
                       });
 
@@ -507,33 +522,22 @@ mint {
               allTypesGroup.addLayer(typeGroup);
             }
 
-            // types.forEach((type) => {
-            //   let circle = L.circleMarker(latlng, {
-            //     radius: 5,
-            //     weight: 0.75,
-            //     stroke: false,
-            //     fillColor: '#222',
-            //     fillOpacity: 1,
-            //   });
-            // });
-
             return allTypesGroup;
           },
-
-          coordsToLatLng: function(coords) {
+          coordsToLatLng: function (coords) {
             return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
             stroke: false,
             fillColor: '#629bf0',
-            fillOpacity: 1
-          }
+            fillOpacity: 1,
+          },
         }
       );
 
       this.concentricCircles.addTo(this.map);
     },
-    updateDominion: function() {
+    updateDominion: function () {
       Query.raw(
         `
       {
@@ -563,10 +567,10 @@ mint {
     }
   }}`
       )
-        .then(result => {
+        .then((result) => {
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = L.geoJSON([], {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -574,11 +578,11 @@ mint {
               opacity: 0.75,
               color: 'red',
               fillColor: '#48ac48',
-              fillOpacity: 0.1
-            }
+              fillOpacity: 0.1,
+            },
           }).addTo(this.map);
 
-          result.data.data.ruledMint.forEach(mint => {
+          result.data.data.ruledMint.forEach((mint) => {
             if (mint.location) {
               try {
                 mint.location = JSON.parse(mint.location);
@@ -591,7 +595,7 @@ mint {
 
           let dominionData = result.data.data.getDominion;
           dominionData.filter(
-            data =>
+            (data) =>
               data?.mints?.location?.coordinates &&
               Array.isArray(data.mints.location.coordinates) &&
               data.mints.location.coordinates.length > 0
@@ -599,7 +603,7 @@ mint {
           dominionData.forEach((dominion, idx) => {
             const mintsCount = dominion.mints.length;
             let points = [];
-            dominion.mints.forEach(mint => {
+            dominion.mints.forEach((mint) => {
               let distance = 0.2 / (idx + 1);
               let resolution = 10;
               let vertices = resolution * 4;
@@ -623,7 +627,7 @@ mint {
           if (this.dominionLayer) this.dominionLayer.remove();
 
           this.dominionLayer = L.geoJSON(dominionData, {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -631,22 +635,22 @@ mint {
               opacity: 0.75,
               color: '#48ac48',
               fillColor: '#48ac48',
-              fillOpacity: 0.5
-            }
+              fillOpacity: 0.5,
+            },
           }).addTo(this.map);
           this.dominionLayer.bindTooltip(
-            layer => {
+            (layer) => {
               return layer.feature.dominion.overlord.shortName;
             },
             {
               sticky: true,
-              direction: 'top'
+              direction: 'top',
             }
           );
         })
         .catch(console.error);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -763,7 +767,7 @@ mint {
     border: 1px solid transparent;
 
     &.inactive {
-      opacity: 0.3;
+      opacity: 0.5;
     }
 
     &:hover {
@@ -784,5 +788,29 @@ mint {
 
 .side-bar-right {
   right: 0;
+}
+
+.notification {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  color: $white;
+  background-color: $primary-color;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+
+  button {
+    margin-left: 10px;
+    padding: 3px 10px;
+    border-radius: $border-radius;
+    background-color: $primary-color;
+    color: $white;
+    border-color: $white;
+  }
 }
 </style>
