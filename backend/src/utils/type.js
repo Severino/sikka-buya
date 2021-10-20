@@ -310,20 +310,48 @@ class Type {
     static async getTypesReducedList(args) {
 
         let { page, count } = (args.pagination)
-
         console.log(page, count)
+
+        let filter = []
+        if (args.filter) {
+            let { text, completed, reviewed } = args.filter
+
+            if (text) {
+                args.filter.text = `%${args.filter.text}%`
+                filter.push("unaccent(project_id) ILIKE unaccent($[text])")
+            }
+
+            if (completed != null) {
+                filter.push(`tc.type IS ${(completed == true) ? "NOT" : ""} NULL`)
+            }
+
+            if (reviewed != null) {
+                filter.push(`tr.type IS ${(reviewed == true) ? "NOT" : ""} NULL`)
+            }
+        }
+
 
         let pageInfo = null
         let pagination = ""
         if (page != null && count != null) {
+
+            let { total } = await Database.one(`
+            SELECT COUNT(id) AS total FROM type t
+            LEFT JOIN type_completed tc ON t.id = tc.type
+            LEFT JOIN type_reviewed tr ON t.id = tr.type
+            ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
+            `, args.filter)
+
+            page = (Math.floor(total / count) < page) ? Math.floor(total / count) : page
             pagination = ` LIMIT ${count} OFFSET ${page * count} `
 
-            let { total } = await Database.one("SELECT reltuples AS total FROM pg_class WHERE relname = 'type'")
             pageInfo = new PageInfo({
                 count,
                 page,
                 total
             })
+
+            console.dir(pageInfo)
 
         }
 
@@ -340,9 +368,12 @@ class Type {
         FROM type t
         LEFT JOIN type_completed tc ON t.id = tc.type
         LEFT JOIN type_reviewed tr ON t.id = tr.type
+        ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
         ORDER BY unaccent(project_id) COLLATE "C"
-        ${pagination};
-            `)
+        ${pagination}
+            ;`, args.filter)
+
+        console.log(typeList)
 
         const map = {
             project_id: "projectId",

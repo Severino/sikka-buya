@@ -16,32 +16,29 @@
 
     <ListFilterContainer :filtered="isListFiltered">
       <SearchField v-model="textFilter" />
-      <ButtonGroup
-        id="completeFilterButtonGroup"
-        v-model="completeFilter"
-        :labels="['work', 'completed', 'none']"
-        :options="['work', 'completed', 'none']"
+      <checkbox
+        label="Erledigt"
+        id="completed_checkbox"
+        :value="completed"
+        @input="completedChanged"
+      />
+      <checkbox
+        label="Geprüft"
+        id="reviewed_checkbox"
+        :value="reviewed"
+        @input="reviewedChanged"
       />
     </ListFilterContainer>
 
-    <button @click="changePage(0)">1</button>
-    <button @click="lastPage">Prev</button>
-    <input type="number" :value="pageInfo.page + 1" @change="setPageEvt" />
-    <button @click="nextPage">Next</button>
-    <button @click="changePage(pageInfo.last)">{{ pageInfo.last + 1 }}</button>
+    <pagination-control :value="pageInfo" @input="updatePagination" />
 
-    <List
-      :error="error"
-      :items="list"
-      :filteredItems="filteredList"
-      :loading="loading"
-    >
+    <List :error="error" :items="list" :loading="loading">
       <ListItem
-        v-for="item of filteredList"
+        v-for="item of items"
         v-bind:key="item.key"
         :to="{
           name: 'EditType',
-          params: { id: item.id },
+          params: { id: item.id }
         }"
         :class="item.completed ? 'completed' : 'incomplete'"
       >
@@ -76,10 +73,11 @@ import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListFilterContainer from '../layout/list/ListFilterContainer.vue';
 import ButtonGroup from '../forms/ButtonGroup.vue';
 import AxiosHelper from '@/utils/AxiosHelper.js';
-import SearchUtils from '@/utils/SearchUtils.js';
 import ReviewedToggle from '../layout/buttons/ReviewedToggle.vue';
-import Auth from '../../utils/Auth';
 import Button from '../layout/buttons/Button.vue';
+import Row from '../layout/Row.vue';
+import PaginationControl from '../list/PaginationControl.vue';
+import Checkbox from '../forms/Checkbox.vue';
 
 export default {
   name: 'TypeOverviewPage',
@@ -97,70 +95,87 @@ export default {
     ButtonGroup,
     ReviewedToggle,
     Button,
+    Row,
+    PaginationControl,
+    Checkbox
   },
-  mounted: function () {
+  mounted: function() {
     this.updateTypeList();
   },
+  watch: {
+    textFilter: function() {
+      this.updateTypeList();
+    }
+  },
   computed: {
-    isListFiltered: function () {
+    isListFiltered: function() {
       return !(this.completeFilter == 'none' && !this.textFilter);
     },
-    filteredList: function () {
-      let list = this.$data.items;
+    // filteredList: function() {
+    //   let list = this.$data.items;
 
-      list = SearchUtils.filter(this.textFilter, list, 'projectId');
+    //   list = SearchUtils.filter(this.textFilter, list, 'projectId');
 
-      if (this.completeFilter == 'work' || this.completeFilter == 'completed') {
-        const state = this.completeFilter == 'completed';
-        list = list.filter((item) => item.completed == state);
-      }
+    //   if (this.completeFilter == 'work' || this.completeFilter == 'completed') {
+    //     const state = this.completeFilter == 'completed';
+    //     list = list.filter(item => item.completed == state);
+    //   }
 
-      return list;
-    },
-    list: function () {
+    //   return list;
+    // },
+    list: function() {
       return this.$data.items;
-    },
+    }
   },
-  data: function () {
+  data: function() {
     return {
       loading: false,
       items: [],
+      countList: [10, 25, 50],
       pageInfo: {
         count: 10,
         page: 0,
         last: 0,
-        total: 0,
+        total: 0
       },
       error: '',
       textFilter: '',
-      completeFilter: 'none',
+      completed: false,
+      reviewed: false
     };
   },
   methods: {
-    updateTypeList: async function () {
+    updateTypeList: async function() {
       if (this.loading) return;
 
       this.loading = true;
       Query.raw(
         `
     {
-      getReducedCoinTypeList(pagination: {count:${this.pageInfo.count}, page:${this.pageInfo.page}}) {
-  types {
-    id
-  projectId
-  completed
-reviewed
-  }
-  pageInfo {
-    page
-    count
-    total
-    last
-    
-  }
-}}`
+      getReducedCoinTypeList(pagination: {
+        count:${this.pageInfo.count}, page:${this.pageInfo.page}
+        },
+        filter: {
+          text: "${this.textFilter}"
+          reviewed: ${this.reviewed}
+          completed: ${this.completed}
+        }) {
+        types {
+          id
+          projectId
+          completed
+          reviewed
+        }
+        pageInfo {
+          page
+          count
+          total
+          last
+        }
+      }
+    }`
       )
-        .then((result) => {
+        .then(result => {
           if (AxiosHelper.ok(result)) {
             let getReducedCoinTypeList =
               result.data.data.getReducedCoinTypeList;
@@ -170,7 +185,8 @@ reviewed
             this.error = AxiosHelper.getErrors(result).join('\n');
           }
         })
-        .catch(() => {
+        .catch(e => {
+          console.error(e);
           this.error = this.$t('error.loading_list');
         })
         .finally(() => {
@@ -178,31 +194,12 @@ reviewed
           this.loading = false;
         });
     },
-    lastPage() {
-      this.changePage(Math.max(this.pageInfo.page - 1, 0));
-    },
-    nextPage() {
-      this.changePage(Math.min(this.pageInfo.page + 1, this.pageInfo.last));
-    },
-    setPageEvt(evt) {
-      const value = parseInt(evt.target.value);
-      if (value != null) {
-        console.log(evt);
-        this.changePage(value - 1);
-      }
-    },
-    changePage(next) {
-      if (this.pageInfo.page != next) {
-        this.pageInfo.page = next;
-        this.updateTypeList();
-      }
-    },
     handleKeys(event) {
       console.log(event.key);
     },
     create() {
       this.$router.push({
-        name: `TypeCreationPage`,
+        name: `TypeCreationPage`
       });
     },
     changeReviewedState(state, item) {
@@ -213,12 +210,12 @@ reviewed
         }
       `
       )
-        .then((result) => {
+        .then(result => {
           if (result.status >= 200 && result.status <= 200) {
             item.reviewed = state;
           }
         })
-        .catch((err) => {
+        .catch(err => {
           this.error = err;
         });
     },
@@ -230,12 +227,12 @@ reviewed
         }
       `
       )
-        .then((result) => {
+        .then(result => {
           if (result.status >= 200 && result.status <= 200) {
             item.completed = state;
           }
         })
-        .catch((err) => {
+        .catch(err => {
           this.error = err;
         });
     },
@@ -247,18 +244,30 @@ reviewed
       )
         .then(() => {
           console.log('HALLO');
-          const idx = this.$data.items.findIndex((item) => item.id == id);
+          const idx = this.$data.items.findIndex(item => item.id == id);
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
-        .catch((answer) => {
+        .catch(answer => {
           console.dir(
-            answer.response.data.errors.map((item) => item.message).join('\n')
+            answer.response.data.errors.map(item => item.message).join('\n')
           );
           // this.error =
           // console.error(err);
         });
     },
-  },
+    updatePagination(val) {
+      this.pageInfo = val;
+      this.updateTypeList();
+    },
+    completedChanged(val) {
+      this.completed = val;
+      this.updateTypeList();
+    },
+    reviewedChanged(val) {
+      this.reviewed = val;
+      this.updateTypeList();
+    }
+  }
 };
 </script>
 
