@@ -231,7 +231,13 @@ type Query {
 
   # Tested in 030_coin_type
   coinType(count: Int, page: Int): [CoinType]
-  searchType(text: String): [CoinType]!
+
+  searchType(
+    text: String
+    excludeFromTypeCatalogue: Boolean
+    excludeFromMapApp: Boolean
+  ): [CoinType]!
+
   getCoinType(id: ID!): CoinType
 
   # TODO: missing Tests ---------------------------------------------
@@ -245,7 +251,12 @@ type Query {
     filter: ListFilter
   ): ReducedCoinTypePagination
   getTypesByOverlord(id: ID!): [CoinType]
-  getTypes(yearOfMint: Int, mint: ID): [CoinType]
+  getTypes(
+    yearOfMint: Int
+    mint: ID
+    excludeFromMapApp: Boolean
+    excludeFromTypeCatalogue: Boolean
+  ): [CoinType]
 
   timespan: Range
   getAnalytics: Analytics
