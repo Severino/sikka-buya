@@ -15,32 +15,27 @@
       <Button @click="resetFilters">Zurücksetzen</Button>
     </div>
 
-    <div class="side-bar side-bar-right">
-      <div id="rulers">
-        <ul>
-          <h3>Herrscher</h3>
-          <li
-            v-for="ruler of rulers"
-            :key="`ruler-list-item-${ruler.id}`"
-            :style="`background-color: ${
-              activeRuler
-                ? ruler.id == activeRuler.id
-                  ? rulerColorMap[ruler.id]
-                  : 'unset'
-                : rulerColorMap[ruler.id] || 'transparent'
-            };`"
-            @click="setActiveRuler(ruler)"
-          >
-            {{ ruler.shortName || ruler.name }}
-          </li>
-        </ul>
-      </div>
-    </div>
+    <Sidebar title="Herrscher" side="right">
+      <ul>
+        <li
+          v-for="ruler of rulers"
+          :key="`ruler-list-item-${ruler.id}`"
+          :style="`background-color: ${
+            activeRuler
+              ? ruler.id == activeRuler.id
+                ? rulerColorMap[ruler.id]
+                : 'unset'
+              : rulerColorMap[ruler.id] || 'transparent'
+          };`"
+          @click="setActiveRuler(ruler)"
+        >
+          {{ ruler.shortName || ruler.name }}
+        </li>
+      </ul>
+    </Sidebar>
 
-    <div class="side-bar side-bar-left">
+    <Sidebar title="Prägeorte">
       <div id="mints">
-        <h3>Prägeorte</h3>
-        <!-- <pre>{{ this.selectedMints.map((mint) => mint.name) }}</pre> -->
         <ul>
           <li
             v-for="mint of availableMints"
@@ -79,7 +74,7 @@
           </li>
         </ul>
       </div>
-    </div>
+    </Sidebar>
 
     <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
   </div>
@@ -95,10 +90,11 @@ import Timeline from '../map/control/Timeline.vue';
 import MapView from '../map/MapView.vue';
 import MintLocation from '../../models/mintlocation';
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
+import Sidebar from '../map/Sidebar.vue';
 
 export default {
   name: 'MapPage',
-  components: { MapView, Timeline, Checkbox, FilterIcon },
+  components: { MapView, Timeline, Checkbox, FilterIcon, Sidebar },
   data: function () {
     return {
       timeline: { from: null, to: null, value: null },
@@ -225,20 +221,27 @@ export default {
       return false;
     },
     setActiveMint(mint) {
+      let addMint =
+        this.selectedMints.length == 1 && this.selectedMints[0].id == mint.id
+          ? false
+          : true;
+
       this.removeAllActiveMint();
-      mint.selected = true;
-      this.selectedMints.push(mint);
+
+      if (addMint) {
+        mint.selected = true;
+        this.selectedMints.push(mint);
+      }
     },
     removeAllActiveMint() {
       this.selectedMints.splice(0).forEach((mint) => (mint.selected = false));
     },
     mintSelected(mint) {
-      this.removeAllActiveMint();
+      // this.removeAllActiveMint();
       this.setActiveMint(mint);
       this.update();
     },
     setActiveRuler(ruler) {
-      console.log(ruler);
       if (this.activeRuler && this.activeRuler.id == ruler.id) {
         this.activeRuler = null;
       } else this.activeRuler = ruler;
@@ -366,7 +369,9 @@ mint {
       let data = this.types;
 
       if (this.selectedMints.length > 0)
-        data = data.filter((d) => d.mint.selected);
+        data = data.filter((type) => {
+          return this.selectedMints.find((mint) => mint.id == type.mint.id);
+        });
 
       this.rulerColorMap = {};
       let i = 0;
@@ -491,7 +496,9 @@ mint {
                   let issuersText = buildRulerList(coin.issuers);
 
                   const rulerPopuptText = `
-                    <span class="subtitle">${coin.mint.name}</span>
+                    <header>
+                      <span class="subtitle">${coin.mint.name}</span>
+                    </header>
                     <h2>${coin.projectId}</h2>
                     <a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>
                     <h3>Münzherren</h3>
@@ -655,6 +662,19 @@ mint {
 .leaflet-popup {
   font-family: $font;
 
+  header {
+    background-color: gray;
+    margin-left: -20px;
+    margin-top: -20px;
+    margin-right: -20px;
+    margin-bottom: 10px;
+    padding: 10px 20px;
+
+    .subtitle {
+      color: $white;
+    }
+  }
+
   .leaflet-popup-content-wrapper {
     border-radius: 3px;
   }
@@ -664,6 +684,8 @@ mint {
   }
 
   a.leaflet-popup-close-button {
+    color: white;
+    opacity: 1;
     font-size: 1.5em !important;
     margin: 10px;
   }
@@ -685,11 +707,10 @@ mint {
   }
 
   .active {
-    border-radius: 3px;
     padding: 2px 5px;
     font-weight: bold;
-    background-color: $primary-color;
-    color: $white;
+    color: $primary-color;
+    // text-decoration: underline;
   }
 
   .catalog-link {
@@ -732,18 +753,7 @@ mint {
 }
 
 .side-bar {
-  position: absolute;
-  box-sizing: border-box;
-  z-index: 1000;
-  background-color: rgba($color: $white, $alpha: 0.8);
-  padding: 20px;
-  top: 0px;
-  height: 100%;
-  overflow-y: auto;
-
-  min-width: 200px;
-  width: 20vw;
-  max-width: 400px;
+  z-index: 100;
 
   h3 {
     margin-top: 0;

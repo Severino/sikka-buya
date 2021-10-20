@@ -113,7 +113,8 @@ const routes = [
       }, {
         path: "/map",
         name: "MapPage",
-        component: MapPage
+        component: MapPage,
+        meta: { smallNav: true }
       },
       {
         path: '/setup',
