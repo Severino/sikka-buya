@@ -263,9 +263,6 @@ export default {
       this.updateAvailableMints();
       this.updateMintLocationMarker();
     },
-    linkClicked() {
-      console.log('CLOCKED');
-    },
     updateMintLocationMarker() {
       const _ = new MintLocation(this);
       _.removeExistingLocation();
@@ -290,7 +287,7 @@ mint {
   location
   uncertain
 }
-  getTypes(yearOfMint:${this.timeline.value}){
+  getTypes(yearOfMint:${this.timeline.value}, excludeFromMapApp: false){
     id
     projectId
     material {name}

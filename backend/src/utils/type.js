@@ -289,14 +289,20 @@ class Type {
         }
     }
 
-    static async searchType(text) {
+    static async searchType(filters = {}) {
+
+        let text = filters.text
+        delete filters.text
+
+
         let result = await Database.manyOrNone(
             `
         SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
-        WHERE unaccent(t.project_id) ILIKE unaccent($[searchText])
+        ${this.objAsWhereClause(filters)}
+        AND unaccent(t.project_id) ILIKE unaccent($[searchText])
         LIMIT ${process.env.MAX_SEARCH}
         `, { searchText: "%" + text + "%" })
 
@@ -390,26 +396,26 @@ class Type {
         return { pageInfo, types: typeList }
     }
 
-    static async getTypes(filters = {}) {
+    static objAsWhereClause(filterObj) {
+        if (!filterObj || Object.keys(filterObj).length == 0) return ""
 
-        function objAsWhereClause(filterObj) {
-            if (!filterObj || Object.keys(filterObj).length == 0) return ""
-
-            const filters = []
-            for (let [key, val] of Object.entries(filterObj)) {
-                filters.push(`${camelCaseToSnakeCase(key)}='${val}'`)
-            }
-
-            return ` WHERE  ${filters.join(" AND ")};`
+        const filters = []
+        for (let [key, val] of Object.entries(filterObj)) {
+            filters.push(`${camelCaseToSnakeCase(key)}='${val}'`)
         }
+
+        return ` WHERE  ${filters.join(" AND ")}`
+    }
+
+    static async getTypes(filters = {}) {
 
         const result = await Database.manyOrNone(`
             SELECT 
             ${this.rows}         
          FROM type t 
             ${this.joins}
-            ${objAsWhereClause(filters)}
-            `)
+            ${this.objAsWhereClause(filters)}
+            ;`)
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type)
         }

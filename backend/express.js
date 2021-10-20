@@ -315,8 +315,7 @@ async function start({
                     return Type.getTypesByOverlord(args.id)
                 },
                 searchType: async function (_, args) {
-                    const text = args.text
-                    return Type.searchType(text)
+                    return Type.searchType(args)
                 },
                 getTypes: async function (_, args) {
                     return Type.getTypes(args)

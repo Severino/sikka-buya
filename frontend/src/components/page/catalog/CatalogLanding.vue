@@ -41,7 +41,7 @@ import Column from '../../layout/tabs/Column.vue';
 export default {
   components: { Column, Row, List, ListItem, ListItemCell, SearchField },
   name: 'CatalogLanding',
-  data: function() {
+  data: function () {
     return {
       types: [],
       searchText: '',
@@ -49,7 +49,7 @@ export default {
     };
   },
   methods: {
-    input: function(value) {
+    input: function (value) {
       console.log('value');
       if (value == '') {
         console.log('CLEAR');
@@ -57,24 +57,11 @@ export default {
       }
       this.searchText = value;
     },
-    search: function(value) {
-      console.log(
-        `
-            {
-                searchType(text: "${value}") {
-                    id
-                    projectId
-                    mint{name}
-                    material {name}
-                    nominal{name}
-                }
-            }
-          `
-      );
+    search: function (value) {
       return Query.raw(
         `
             {
-                searchType(text: "${value}") {
+                searchType(text: "${value}", excludeFromTypeCatalogue: false) {
                     id
                     projectId
                     mint{name}
@@ -102,10 +89,10 @@ export default {
     },
   },
   computed: {
-    blocked: function() {
+    blocked: function () {
       return Date.now() - this.lastBlockTime < this.blockTime;
     },
-    empty: function() {
+    empty: function () {
       return this.searchText == '';
     },
   },
