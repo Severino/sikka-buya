@@ -39,7 +39,6 @@ import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
  */
 import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
-import MapPage from "@/components/page/MapPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
@@ -63,6 +62,13 @@ import RoleForm from "@/components/page/property/RoleForm"
 import TitleForm from "@/components/page/property/TitleForm"
 import Auth from "../utils/Auth.js"
 
+
+/**
+ * Maps
+ */
+
+import MapPage from "@/components/page/MapPage.vue"
+import PoliticalMap from "@/components/map/PoliticalMap"
 
 Vue.use(VueRouter)
 
@@ -114,7 +120,14 @@ const routes = [
         path: "/map",
         name: "MapPage",
         component: MapPage,
-        meta: { smallNav: true }
+        meta: { smallNav: true },
+        children: [
+          {
+            path: '',
+            name: 'PoliticalMap',
+            component: PoliticalMap
+          }
+        ]
       },
       {
         path: '/setup',
