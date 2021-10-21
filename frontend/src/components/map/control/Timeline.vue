@@ -93,6 +93,7 @@ export default {
 
 .timeline {
   position: absolute;
+  z-index: 1;
   left: 0;
   right: 0;
   bottom: 0;
