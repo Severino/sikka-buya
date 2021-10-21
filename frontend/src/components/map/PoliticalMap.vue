@@ -116,8 +116,7 @@ export default {
   },
   mounted: async function() {
     await this.initTimeline();
-    this.types = await this.fetchTypes();
-    this.update();
+    this.updateTimeline();
   },
   methods: {
     fetchTypes: async function() {
@@ -190,7 +189,10 @@ mint {
           .catch(reject);
       });
     },
-
+    updateTimeline: async function() {
+      this.types = await this.fetchTypes();
+      this.update();
+    },
     resetFilters: function() {
       this.selectedMints.forEach(mint => (mint.selected = false));
       this.selectedMints.splice(0);

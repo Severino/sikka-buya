@@ -37,7 +37,7 @@ export default class MintLocation {
                     color: '#fff',
                     fillColor: '#ccc',
                     fillOpacity: 1
-                }).bindPopup(`<span class="subtitle">${mint.name}</span>`);
+                }).bindPopup(`<header><span class="subtitle">${mint.name}</span></header>`);
 
                 if (!mint.uncertain) return circle
                 else {

@@ -65,7 +65,7 @@
     <div
       v-for="(sideObj, sideIdx) in [
         { prop: 'avers', label: 'frontside', prefix: 'Av.-' },
-        { prop: 'reverse', label: 'backside', prefix: 'Rev.-' },
+        { prop: 'reverse', label: 'backside', prefix: 'Rev.-' }
       ]"
       :key="`coin-sides-${sideIdx}`"
       class="coin-side avers gm1 gt2 gd2"
@@ -167,10 +167,10 @@ export default {
     CatalogProperty,
     Row,
     Tag,
-    Button,
+    Button
   },
   name: 'CatalogEntry',
-  data: function () {
+  data: function() {
     return {
       type: {
         id: null,
@@ -192,23 +192,23 @@ export default {
           innerInscript: '',
           intermediateInscript: '',
           outerInscript: '',
-          misc: '',
+          misc: ''
         },
         reverse: {
           fieldText: '',
           innerInscript: '',
           intermediateInscript: '',
           outerInscript: '',
-          misc: '',
+          misc: ''
         },
         cursiveScript: false,
         coinMarks: [],
         pieces: [],
-        specials: '',
-      },
+        specials: ''
+      }
     };
   },
-  created: function () {
+  created: function() {
     Query.raw(
       `
        
@@ -308,7 +308,7 @@ export default {
       }
       `
     )
-      .then((result) => {
+      .then(result => {
         Object.assign(this.$data.type, result.data.data.getCoinType);
       })
       .catch(console.error);
@@ -373,12 +373,12 @@ export default {
       const doc = parser.parseFromString(val, 'text/html');
       return doc.documentElement.innerText;
     },
-    mapText: function (val, num = 1) {
+    mapText: function(val, num = 1) {
       let map = {
         overlords: 'overlord',
         year: 'mint_year',
         issuers: 'issuer',
-        caliph: { property: 'role', value: 'caliph' },
+        caliph: { property: 'role', value: 'caliph' }
       };
 
       if (map[val]) {
@@ -388,50 +388,50 @@ export default {
       } else val = `property.${val}`;
 
       return this.$tc(val, num);
-    },
+    }
   },
   computed: {
-    id: function () {
+    id: function() {
       return this.$route.params.id;
     },
-    persons: function () {
+    persons: function() {
       let personType = [
         'issuers',
         'overlords',
         'caliph',
         'heir',
         'warden',
-        'cutter',
+        'cutter'
       ];
 
       let filteredPersons = [];
 
-      personType.forEach((t) => {
+      personType.forEach(t => {
         if (this.type[t]) {
           if (Array.isArray(this.type[t])) {
             if (this.type[t].length == 1) {
               filteredPersons.push({
                 name: t,
-                value: this.type[t][0].name,
+                value: this.type[t][0].name
               });
             } else if (this.type[t].length > 1) {
               filteredPersons.push({
                 name: t,
-                value: this.type[t].map((item) => item.name),
+                value: this.type[t].map(item => item.name)
               });
             }
           } else {
             filteredPersons.push({
               name: t,
-              value: this.type[t].name,
+              value: this.type[t].name
             });
           }
         }
       });
 
       return filteredPersons;
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -477,6 +477,25 @@ h2 {
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+}
+
+#edit-button {
+  position: fixed;
+  right: 5%;
+  bottom: 5%;
+
+  button {
+    $size: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $primary-color;
+    width: $size;
+    height: $size;
+    color: $white;
+    border-radius: $size/2;
+    box-shadow: $shadow;
   }
 }
 </style>
