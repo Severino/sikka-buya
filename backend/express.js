@@ -236,13 +236,6 @@ async function start({
                             }
                         }
 
-                        if (obj.mint?.location) {
-                            try {
-                                obj.mint.location = JSON.parse(obj.mint.location)
-                            } catch (e) { console.error(e, obj.mint.location) }
-                        } else obj.mint.location = null
-
-
                         arr.push(obj)
                     })
 

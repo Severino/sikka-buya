@@ -88,6 +88,8 @@ import Checkbox from '../forms/Checkbox.vue';
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 
 import map from './mixins/map';
+import timeline from './mixins/timeline';
+
 import Query from '../../database/query';
 
 import MintLocation from '../../models/mintlocation';
@@ -97,7 +99,6 @@ export default {
   components: { Sidebar, Timeline, Checkbox, FilterIcon },
   data: function() {
     return {
-      timeline: { from: null, to: null, value: null },
       mints: [],
       rulers: [],
       activeRuler: null,
@@ -107,7 +108,7 @@ export default {
       unavailableMints: null
     };
   },
-  mixins: [map],
+  mixins: [map, timeline],
   computed: {
     filtersActive: function() {
       return this.activeRuler != null || this.selectedMints.length > 0;
@@ -115,32 +116,10 @@ export default {
   },
   mounted: async function() {
     await this.initTimeline();
+    this.types = await this.fetchTypes();
     this.update();
   },
   methods: {
-    initTimeline: async function() {
-      try {
-        let result = await Query.raw(
-          `{
-              timespan {
-                from
-                to
-              }
-      }`
-        );
-
-        let timeline = result.data.data.timespan;
-        timeline.value = 364;
-        this.timeline = timeline;
-        // this.$refs.timeline.init();
-        this.types = await this.fetchTypes();
-        // this.update();
-        window.map = this.map;
-        this.map.doubleClickZoom.disable();
-      } catch (e) {
-        console.error(e);
-      }
-    },
     fetchTypes: async function() {
       return new Promise((resolve, reject) => {
         Query.raw(
@@ -248,7 +227,8 @@ mint {
       _.removeExistingLocation();
       let features = _.mapToGeoJsonFeature(this.mints);
       this.mintLocations = _.createGeometryLayer(features);
-      this.mintLocations.addTo(this.map);
+
+      this.mintLocations.addTo(this.featureGroup);
     },
     updateConcentricCircles: function() {
       let rulers = {};
@@ -435,7 +415,7 @@ mint {
         }
       );
 
-      this.concentricCircles.addTo(this.map);
+      this.concentricCircles.addTo(this.featureGroup);
     },
     extractRulers(coin) {
       const rulers = [...coin.issuers, ...coin.overlords];
@@ -471,13 +451,7 @@ mint {
         this.unavailableMints = unavailMints;
       }
     },
-    timeChanged: async function(val) {
-      this.timeline.value = val;
-      this.types = await this.fetchTypes();
 
-      this.selectedMints = [];
-      this.update();
-    },
     mintAdded(event, mint) {
       mint.selected = event.target.checked;
       if (mint.selected) this.addActiveMint(mint);

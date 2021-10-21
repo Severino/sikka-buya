@@ -1,18 +1,21 @@
 <template>
   <div class="map-page">
+    <div id="map-select">
+      <router-link :to="{ name: 'PoliticalMap' }" class="button"
+        >Politics</router-link
+      >
+      <router-link :to="{ name: 'DominionMap' }" class="button"
+        >Dominion</router-link
+      >
+    </div>
     <router-view :map="map" />
     <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
   </div>
 </template>
 
 <script>
-var L = require('leaflet');
-
 require('leaflet-semicircle');
-var turf = require('@turf/turf');
-import Vue from 'vue';
 
-import Query from '../../database/query';
 import MapView from '../map/MapView.vue';
 
 export default {
@@ -27,120 +30,6 @@ export default {
   methods: {
     mapChanged: function(map) {
       this.map = map;
-    },
-
-    updateDominion: function() {
-      Query.raw(
-        `
-      {
-  ruledMint(year: ${this.timeline.value}) {
-    mint {
-      name
-      location
-    }
-    overlords {
-      name
-      rank
-      honorifics {
-        name
-      }
-    }
-  }
-
-
-      getDominion(year: ${this.timeline.value}) {
-    overlord {
-      name
-      shortName
-    }
-    mints {
-      name
-      location
-    }
-  }}`
-      )
-        .then(result => {
-          if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
-          this.mintGeoJSONLayer = L.geoJSON([], {
-            coordsToLatLng: function(coords) {
-              return new L.LatLng(coords[0], coords[1], coords[2]);
-            },
-            style: {
-              stroke: true,
-              opacity: 0.75,
-              color: 'red',
-              fillColor: '#48ac48',
-              fillOpacity: 0.1
-            }
-          }).addTo(this.map);
-
-          result.data.data.ruledMint.forEach(mint => {
-            if (mint.location) {
-              try {
-                mint.location = JSON.parse(mint.location);
-                this.mintGeoJSONLayer.addData(mint.location);
-              } catch (e) {
-                console.error('Could not parse GeoJSON from mint.', mint);
-              }
-            }
-          });
-
-          let dominionData = result.data.data.getDominion;
-          dominionData.filter(
-            data =>
-              data?.mints?.location?.coordinates &&
-              Array.isArray(data.mints.location.coordinates) &&
-              data.mints.location.coordinates.length > 0
-          );
-          dominionData.forEach((dominion, idx) => {
-            const mintsCount = dominion.mints.length;
-            let points = [];
-            dominion.mints.forEach(mint => {
-              let distance = 0.2 / (idx + 1);
-              let resolution = 10;
-              let vertices = resolution * 4;
-              for (
-                let angle = 0;
-                angle < 2 * Math.PI;
-                angle += (2 * Math.PI) / vertices
-              ) {
-                let lat =
-                  Math.cos(angle) * distance + mint.location.coordinates[0];
-                let lng =
-                  Math.sin(angle) * distance + mint.location.coordinates[1];
-                points.push(turf.point([lat, lng]));
-              }
-            });
-
-            let area = turf.convex(turf.featureCollection(points));
-            area.dominion = dominion;
-            dominionData[idx] = area;
-          });
-          if (this.dominionLayer) this.dominionLayer.remove();
-
-          this.dominionLayer = L.geoJSON(dominionData, {
-            coordsToLatLng: function(coords) {
-              return new L.LatLng(coords[0], coords[1], coords[2]);
-            },
-            style: {
-              stroke: true,
-              opacity: 0.75,
-              color: '#48ac48',
-              fillColor: '#48ac48',
-              fillOpacity: 0.5
-            }
-          }).addTo(this.map);
-          this.dominionLayer.bindTooltip(
-            layer => {
-              return layer.feature.dominion.overlord.shortName;
-            },
-            {
-              sticky: true,
-              direction: 'top'
-            }
-          );
-        })
-        .catch(console.error);
     }
   }
 };
@@ -308,5 +197,14 @@ export default {
     color: $white;
     border-color: $white;
   }
+}
+
+#map-select {
+  left: 50%;
+  z-index: 1;
+  position: absolute;
+  top: 55px;
+  display: flex;
+  transform: translateX(-50%);
 }
 </style>
