@@ -10,7 +10,7 @@ export default {
         timeChanged: async function (val) {
             this.timeline.value = val;
             this.selectedMints = [];
-            this.update();
+            this.updateTimeline();
         },
         initTimeline: async function () {
             try {
@@ -30,5 +30,8 @@ export default {
                 console.error(e);
             }
         },
+        updateTimeline() {
+            throw new Error("Mixin requires method 'updateTimeline'.")
+        }
     }
 }

@@ -46,6 +46,11 @@ export default {
     margin-right: -20px;
     margin-bottom: 10px;
     padding: 10px 20px;
+    min-width: 200px;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
 
     .subtitle {
       color: $white;
@@ -56,15 +61,11 @@ export default {
     border-radius: 3px;
   }
 
-  .leaflet-popup-content {
-    margin: 20px;
-  }
-
   a.leaflet-popup-close-button {
     color: white;
     opacity: 1;
     font-size: 1.5em !important;
-    margin: 10px;
+    margin: 2px 10px;
   }
 
   h2,
