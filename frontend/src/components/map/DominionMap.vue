@@ -34,6 +34,9 @@ export default {
     this.updateDominion();
   },
   methods: {
+    updateTimeline() {
+      this.update();
+    },
     update: function() {
       this.updateDominion();
     },
