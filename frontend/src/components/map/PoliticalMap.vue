@@ -296,6 +296,7 @@ mint {
             const coinCount = feature.coins.length;
             for (let coinNum = 0; coinNum < coinCount; coinNum++) {
               let circles = [];
+              let groups = [];
               const coin = feature.coins[coinNum];
 
               types.push(coin.projectId);
@@ -313,66 +314,58 @@ mint {
                   const increment = (maxRadius - minRadius) / (rulerCount + 1);
                   radius = maxRadius - increment * (rulerCount - rulerNum - 1);
 
-                  let fillColor = that.activeRuler
-                    ? ruler.id !== that.activeRuler.id
-                      ? '#ccc'
-                      : that.rulerColorMap[ruler.id]
-                    : that.rulerColorMap[ruler.id];
+                  function getOptions(ruler) {
+                    let active = that.activeRuler;
+                    let selected = active && ruler.id === that.activeRuler.id;
 
-                  let circle;
-                  const options = {
-                    radius,
-                    weight: 0.75,
-                    stroke: true,
-                    color: '#fff',
-                    fillColor,
-                    fillOpacity: 1
-                  };
+                    let fillColor =
+                      active && !selected
+                        ? '#ccc'
+                        : that.rulerColorMap[ruler.id];
 
-                  if (coinCount == 1) {
-                    circle = that.L.circle(latlng, options);
-                  } else {
-                    let angle = 360 / coinCount;
-
-                    circle = that.L.semiCircle(latlng, options).setDirection(
-                      (angle * coinNum) % 360,
-                      angle
-                    );
+                    return {
+                      radius,
+                      weight: 0.75,
+                      stroke: true,
+                      color: '#fff',
+                      fillColor,
+                      fillOpacity: 1
+                    };
                   }
 
-                  function buildRulerList(personsArr, orderedList = false) {
-                    function printName(person) {
-                      let name = person.shortName || person.name;
-                      if (person.id == ruler.id)
-                        name = `<span class="active">${name}</span>`;
-                      return name;
+                  function createRulerPopup(ruler) {
+                    function buildRulerList(personsArr, orderedList = false) {
+                      function printName(person) {
+                        let name = person.shortName || person.name;
+                        if (person.id == ruler.id)
+                          name = `<span class="active">${name}</span>`;
+                        return name;
+                      }
+
+                      if (!personsArr || personsArr.length == 0) return '-';
+                      else if (
+                        Array.isArray(personsArr) &&
+                        personsArr.length > 1
+                      ) {
+                        let str = orderedList ? '<ol>' : '<ul>';
+                        personsArr.forEach(person => {
+                          str += `<li>${printName(person)}</li>`;
+                        });
+
+                        return str + (orderedList ? '</ol>' : '</ul>');
+                      } else {
+                        if (Array.isArray(personsArr))
+                          personsArr = personsArr[0];
+                        return printName(personsArr);
+                      }
                     }
 
-                    if (!personsArr || personsArr.length == 0) return '-';
-                    else if (
-                      Array.isArray(personsArr) &&
-                      personsArr.length > 1
-                    ) {
-                      let str = orderedList ? '<ol>' : '<ul>';
-                      personsArr.forEach(person => {
-                        str += `<li>${printName(person)}</li>`;
-                      });
+                    let caliphText = buildRulerList(coin.caliph);
+                    let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
+                    let overlordsText = buildRulerList(sorted, true);
+                    let issuersText = buildRulerList(coin.issuers);
 
-                      return str + (orderedList ? '</ol>' : '</ul>');
-                    } else {
-                      if (Array.isArray(personsArr)) personsArr = personsArr[0];
-                      return printName(personsArr);
-                    }
-                  }
-
-                  let caliphText = buildRulerList(coin.caliph);
-
-                  let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
-
-                  let overlordsText = buildRulerList(sorted, true);
-                  let issuersText = buildRulerList(coin.issuers);
-
-                  const rulerPopuptText = `
+                    return `
                     <header>
                       <span class="subtitle">${coin.mint.name}</span>
                     </header>
@@ -385,8 +378,47 @@ mint {
                      <h3>Kalif</h3>
                     ${caliphText}
                   `;
+                  }
 
-                  circle.bindPopup(`${rulerPopuptText}`);
+                  let circle;
+                  let angle = 360 / coinCount;
+
+                  if (Array.isArray(ruler) && ruler.length == 1)
+                    ruler = ruler[0];
+
+                  if (Array.isArray(ruler)) {
+                    const subAngle = angle / ruler.length;
+                    circle = that.L.layerGroup();
+
+                    for (let [subRulerNum, subRuler] of ruler.entries()) {
+                      const subOptions = getOptions(subRuler);
+                      const subPopup = createRulerPopup(subRuler);
+                      let semiCircle = that.L.semiCircle(
+                        latlng,
+                        subOptions
+                      ).setDirection(
+                        (angle * coinNum + subAngle * subRulerNum) % 360,
+                        subAngle
+                      );
+                      semiCircle.bindPopup(subPopup);
+                      semiCircle.addTo(circle);
+                    }
+
+                    if (coin.projectId == 'MS365Ga') console.log(circle);
+                  } else {
+                    const options = getOptions(ruler);
+                    const popup = createRulerPopup(ruler);
+                    if (coinCount == 1) {
+                      circle = that.L.circle(latlng, options);
+                    } else {
+                      console.log(angle * coinNum) % 360;
+                      circle = that.L.semiCircle(latlng, options).setDirection(
+                        (angle * coinNum) % 360,
+                        angle
+                      );
+                    }
+                    circle.bindPopup(popup);
+                  }
 
                   if (circle) circles.push(circle);
                   radius += increment;
@@ -420,7 +452,7 @@ mint {
       this.concentricCircles.addTo(this.featureGroup);
     },
     extractRulers(coin) {
-      const rulers = [...coin.issuers, ...coin.overlords];
+      const rulers = [coin.issuers, ...coin.overlords];
       if (coin.caliph) rulers.push(coin.caliph);
       return rulers;
     },
