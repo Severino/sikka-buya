@@ -64,8 +64,8 @@
 
     <div
       v-for="(sideObj, sideIdx) in [
-        { prop: 'avers', label: 'frontside', prefix: 'Av.-' },
-        { prop: 'reverse', label: 'backside', prefix: 'Rev.-' }
+        { prop: 'avers', label: 'frontside', prefix: 'Av. ' },
+        { prop: 'reverse', label: 'backside', prefix: 'Rev. ' }
       ]"
       :key="`coin-sides-${sideIdx}`"
       class="coin-side avers gm1 gt2 gd2"
@@ -76,7 +76,7 @@
         <catalog-property
           v-for="(val, idx) of getFilledFields(sideObj.prop)"
           :key="`property-${val}-${idx}`"
-          :label="sideObj.prefix + $tc(`property.${camelToSnake(val)}`)"
+          :label="getCoinSideLabel(val, sideObj)"
         >
           <div v-html="type[sideObj.prop][val]"></div>
         </catalog-property>
@@ -143,7 +143,6 @@
 import Query from '../../../database/query';
 import CatalogItem from '../../catalog/CatalogItem.vue';
 import LabeledField from '../../display/LabeledField.vue';
-import CoinSideField from '../../forms/coins/CoinSideField.vue';
 import CaseHelper from '../../../utils/CaseHelper';
 
 import Gift from 'vue-material-design-icons/GiftOutline';
@@ -159,7 +158,6 @@ import Button from '../../layout/buttons/Button.vue';
 export default {
   components: {
     CatalogItem,
-    CoinSideField,
     EditIcon,
     LabeledField,
     Gift,
@@ -211,7 +209,7 @@ export default {
   created: function() {
     Query.raw(
       `
-       
+
         {
             getCoinType(id:${this.id}){
                 id
@@ -240,7 +238,7 @@ export default {
                     name,
                     role {
                       id, name
-                    
+
                   }
                   titles {
                     id,
@@ -367,6 +365,18 @@ export default {
       }
 
       return result;
+    },
+    getCoinSideLabel(val, sideObj) {
+      let fields = this.getFilledFields(sideObj.prop);
+      console.log(fields);
+      let fieldTextIdx = fields.indexOf('fieldText');
+      if (fieldTextIdx != -1) fields.splice(fieldTextIdx, 1);
+
+      if (fields.length == 1 && val == 'innerInscript') {
+        return sideObj.prefix + ' Umschrift';
+      } else {
+        return sideObj.prefix + this.$tc(`property.${this.camelToSnake(val)}`);
+      }
     },
     htmlHasContent(val) {
       const parser = new DOMParser();

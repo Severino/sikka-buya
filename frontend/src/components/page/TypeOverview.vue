@@ -15,7 +15,6 @@
     </div>
 
     <ListFilterContainer :filtered="isListFiltered">
-      <SearchField v-model="textFilter" />
       <checkbox
         label="Erledigt"
         id="completed_checkbox"
@@ -29,6 +28,7 @@
         @input="reviewedChanged"
       />
     </ListFilterContainer>
+    <SearchField v-model="textFilter" />
 
     <pagination-control :value="pageInfo" @input="updatePagination" />
 

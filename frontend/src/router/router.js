@@ -119,21 +119,24 @@ const routes = [
           component: CatalogEntry
         }]
       }, {
-        path: "/map",
+        path: "/map/",
         name: "MapPage",
         component: MapPage,
         meta: { smallNav: true },
+        redirect: {
+          name: "PoliticalMap"
+        },
         children: [
-          {
-            path: "dominion",
-            name: "DominionMap",
-            component: DominionMap,
-            meta: { smallNav: true },
-          },
           {
             path: '',
             name: 'PoliticalMap',
             component: PoliticalMap,
+            meta: { smallNav: true },
+          },
+          {
+            path: "dominion",
+            name: "DominionMap",
+            component: DominionMap,
             meta: { smallNav: true },
           }
         ]

@@ -115,6 +115,7 @@ export default {
     }
   },
   mounted: async function() {
+    console.log('MOUNTED');
     await this.initTimeline();
     this.updateTimeline();
   },
