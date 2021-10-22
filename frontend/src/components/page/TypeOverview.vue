@@ -14,7 +14,11 @@
       <span>{{ $t('form.create') }}</span>
     </div>
 
-    <ListFilterContainer :filtered="isListFiltered">
+    <SearchField ref="search" v-model="textFilter" @input="textFilterChanged" />
+    <ListFilterContainer
+      :filtered="isListFiltered"
+      @clearFilters="clearFilters"
+    >
       <checkbox
         label="Erledigt"
         id="completed_checkbox"
@@ -28,7 +32,6 @@
         @input="reviewedChanged"
       />
     </ListFilterContainer>
-    <SearchField v-model="textFilter" />
 
     <pagination-control :value="pageInfo" @input="updatePagination" />
 
@@ -100,7 +103,19 @@ export default {
     Checkbox
   },
   mounted: function() {
+    let filters = localStorage.getItem('type-list-filter');
+    if (filters) {
+      try {
+        let filterObj = JSON.parse(filters);
+        Object.assign(this.$data, filterObj);
+      } catch (e) {
+        console.error('Could not parse filters.');
+      }
+    }
+    this.pageInfo.count = localStorage.getItem('pagination-count') || 15;
+
     this.updateTypeList();
+    this.$refs.search.$el.querySelector('input').focus();
   },
   watch: {
     textFilter: function() {
@@ -109,7 +124,7 @@ export default {
   },
   computed: {
     isListFiltered: function() {
-      return !(this.completeFilter == 'none' && !this.textFilter);
+      return this.completed || this.reviewed || this.textFilter != '';
     },
     // filteredList: function() {
     //   let list = this.$data.items;
@@ -133,7 +148,7 @@ export default {
       items: [],
       countList: [10, 25, 50],
       pageInfo: {
-        count: 10,
+        count: 20,
         page: 0,
         last: 0,
         total: 0
@@ -145,6 +160,13 @@ export default {
     };
   },
   methods: {
+    clearFilters() {
+      console.log('CLEAR');
+      this.completed = false;
+      this.reviewed = false;
+      this.textFilter = '';
+      this.updateTypeList();
+    },
     updateTypeList: async function() {
       if (this.loading) return;
 
@@ -258,14 +280,29 @@ export default {
     updatePagination(val) {
       this.pageInfo = val;
       this.updateTypeList();
+      localStorage.setItem('pagination-count', this.pageInfo.count);
     },
     completedChanged(val) {
       this.completed = val;
+      this.filtersChanged();
       this.updateTypeList();
     },
     reviewedChanged(val) {
       this.reviewed = val;
+      this.filtersChanged();
       this.updateTypeList();
+    },
+    textFilterChanged() {
+      this.filtersChanged();
+    },
+    filtersChanged() {
+      let filters = {
+        completed: this.completed,
+        reviewed: this.reviewed,
+        textFilter: this.textFilter
+      };
+
+      localStorage.setItem('type-list-filter', JSON.stringify(filters));
     }
   }
 };
