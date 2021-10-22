@@ -1,13 +1,13 @@
 <template>
   <div class="map-page">
-    <div id="map-select">
+    <!-- <div id="map-select">
       <router-link :to="{ name: 'PoliticalMap' }" class="button"
         >Politics</router-link
       >
       <router-link :to="{ name: 'DominionMap' }" class="button"
         >Dominion</router-link
       >
-    </div>
+    </div> -->
     <router-view :map="map" />
     <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
   </div>
