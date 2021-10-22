@@ -152,7 +152,7 @@ const info = {
 const message = {
     list_empty: "Keine Elemente in der Liste.",
     filter_list: "Text eingeben um Liste zu filtern ...",
-    filter_is_active: "Filter sind derzeit aktiv!"
+    filter_is_active: "Filter sind derzeit aktiv! Clicken zum deaktivieren!"
 }
 
 const error = {

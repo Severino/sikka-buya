@@ -12,42 +12,42 @@
     <div v-if="!collapsed" class="list-filter-container-content">
       <slot />
     </div>
-    <div v-if="filtered" class="message">
-      <AlertCircleOutline /> {{ $t("message.filter_is_active") }}
+    <div v-if="filtered" class="message" @click="$emit('clearFilters')">
+      <AlertCircleOutline /> {{ $t('message.filter_is_active') }}
     </div>
   </div>
 </template>
 
 <script>
-import Plus from "vue-material-design-icons/Plus";
-import Minus from "vue-material-design-icons/Minus";
-import AlertCircleOutline from "vue-material-design-icons/AlertCircleOutline";
+import Plus from 'vue-material-design-icons/Plus';
+import Minus from 'vue-material-design-icons/Minus';
+import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline';
 
 export default {
-  name: "ListFilterContainer",
+  name: 'ListFilterContainer',
   components: {
     Plus,
     Minus,
-    AlertCircleOutline,
+    AlertCircleOutline
   },
   props: {
-    filtered: Boolean,
+    filtered: Boolean
   },
-  data: function () {
+  data: function() {
     return {
-      collapsed: true,
+      collapsed: true
     };
   },
   methods: {
-    toggleCollapse: function () {
+    toggleCollapse: function() {
       this.collapsed = !this.collapsed;
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../../../scss/_import.scss";
+@import '../../../scss/_import.scss';
 
 .list-filter-container {
   border: 1px solid #ccc;
