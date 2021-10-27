@@ -28,21 +28,21 @@ export default {
   components: {
     Plus,
     Minus,
-    AlertCircleOutline
+    AlertCircleOutline,
   },
   props: {
-    filtered: Boolean
+    filtered: Boolean,
   },
-  data: function() {
+  data: function () {
     return {
-      collapsed: true
+      collapsed: true,
     };
   },
   methods: {
-    toggleCollapse: function() {
+    toggleCollapse: function () {
       this.collapsed = !this.collapsed;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -70,7 +70,7 @@ export default {
 }
 
 header {
-  background-color: whitesmoke;
+  background-color: white;
   display: flex;
   align-items: center;
   user-select: none;

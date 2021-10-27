@@ -14,7 +14,11 @@
       <span>{{ $t('form.create') }}</span>
     </div>
 
-    <SearchField ref="search" v-model="textFilter" @input="textFilterChanged" />
+    <SearchField
+      ref="search"
+      v-model="filter.text"
+      @input="textFilterChanged"
+    />
     <ListFilterContainer
       :filtered="isListFiltered"
       @clearFilters="clearFilters"
@@ -22,15 +26,16 @@
       <checkbox
         label="Erledigt"
         id="completed_checkbox"
-        :value="completed"
+        :value="filter.completed"
         @input="completedChanged"
       />
       <checkbox
         label="Geprüft"
         id="reviewed_checkbox"
-        :value="reviewed"
+        :value="filter.reviewed"
         @input="reviewedChanged"
       />
+      <!-- <data-select-field :value="" /> -->
     </ListFilterContainer>
 
     <pagination-control :value="pageInfo" @input="updatePagination" />
@@ -81,6 +86,7 @@ import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import PaginationControl from '../list/PaginationControl.vue';
 import Checkbox from '../forms/Checkbox.vue';
+import DataSelectField from '../forms/DataSelectField.vue';
 
 export default {
   name: 'TypeOverviewPage',
@@ -101,13 +107,14 @@ export default {
     Row,
     PaginationControl,
     Checkbox,
+    DataSelectField,
   },
   mounted: function () {
     let filters = localStorage.getItem('type-list-filter');
     if (filters) {
       try {
         let filterObj = JSON.parse(filters);
-        Object.assign(this.$data, filterObj);
+        Object.assign(this.$data.filter, filterObj);
       } catch (e) {
         console.error('Could not parse filters.');
       }
@@ -118,13 +125,34 @@ export default {
     this.$refs.search.$el.querySelector('input').focus();
   },
   watch: {
-    textFilter: function () {
-      this.updateTypeList();
+    filter: {
+      handler(val) {
+        this.updateTypeList();
+      },
+      deep: true,
     },
   },
   computed: {
     isListFiltered: function () {
-      return this.completed || this.reviewed || this.textFilter != '';
+      let defaults = {
+        completed: false,
+        reviewed: false,
+        text: '',
+      };
+
+      let filtered = false;
+      for (let [key, val] of Object.entries(this.filter)) {
+        if (defaults[key] === undefined)
+          console.error('Filter is not implemented in defaults!', key);
+        else {
+          if (defaults[key] != val) {
+            filtered = true;
+            break;
+          }
+        }
+      }
+
+      return filtered;
     },
     // filteredList: function() {
     //   let list = this.$data.items;
@@ -154,17 +182,19 @@ export default {
         total: 0,
       },
       error: '',
-      textFilter: '',
-      completed: false,
-      reviewed: false,
+      filter: {
+        text: '',
+        completed: false,
+        reviewed: false,
+      },
     };
   },
   methods: {
     clearFilters() {
       console.log('CLEAR');
-      this.completed = false;
-      this.reviewed = false;
-      this.textFilter = '';
+      this.filter.completed = false;
+      this.filter.reviewed = false;
+      this.filter.text = '';
       this.updateTypeList();
     },
     updateTypeList: async function () {
@@ -178,9 +208,9 @@ export default {
         count:${this.pageInfo.count}, page:${this.pageInfo.page}
         },
         filter: {
-          text: "${this.textFilter}"
-          ${this.reviewed ? 'reviewed: true' : ''}
-          ${this.completed ? 'completed: true' : ''}
+          text: "${this.filter.text}"
+          ${this.filter.reviewed ? 'reviewed: true' : ''}
+          ${this.filter.completed ? 'completed: true' : ''}
         }) {
         types {
           id
@@ -283,26 +313,18 @@ export default {
       localStorage.setItem('pagination-count', this.pageInfo.count);
     },
     completedChanged(val) {
-      this.completed = val;
+      this.filter.completed = val;
       this.filtersChanged();
-      this.updateTypeList();
     },
     reviewedChanged(val) {
-      this.reviewed = val;
+      this.filter.reviewed = val;
       this.filtersChanged();
-      this.updateTypeList();
     },
     textFilterChanged() {
       this.filtersChanged();
     },
     filtersChanged() {
-      let filters = {
-        completed: this.completed,
-        reviewed: this.reviewed,
-        textFilter: this.textFilter,
-      };
-
-      localStorage.setItem('type-list-filter', JSON.stringify(filters));
+      localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
     },
   },
 };
