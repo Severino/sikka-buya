@@ -41,7 +41,7 @@
         v-bind:key="item.key"
         :to="{
           name: 'EditType',
-          params: { id: item.id }
+          params: { id: item.id },
         }"
         :class="item.completed ? 'completed' : 'incomplete'"
       >
@@ -100,9 +100,9 @@ export default {
     Button,
     Row,
     PaginationControl,
-    Checkbox
+    Checkbox,
   },
-  mounted: function() {
+  mounted: function () {
     let filters = localStorage.getItem('type-list-filter');
     if (filters) {
       try {
@@ -118,12 +118,12 @@ export default {
     this.$refs.search.$el.querySelector('input').focus();
   },
   watch: {
-    textFilter: function() {
+    textFilter: function () {
       this.updateTypeList();
-    }
+    },
   },
   computed: {
-    isListFiltered: function() {
+    isListFiltered: function () {
       return this.completed || this.reviewed || this.textFilter != '';
     },
     // filteredList: function() {
@@ -138,11 +138,11 @@ export default {
 
     //   return list;
     // },
-    list: function() {
+    list: function () {
       return this.$data.items;
-    }
+    },
   },
-  data: function() {
+  data: function () {
     return {
       loading: false,
       items: [],
@@ -151,12 +151,12 @@ export default {
         count: 20,
         page: 0,
         last: 0,
-        total: 0
+        total: 0,
       },
       error: '',
       textFilter: '',
       completed: false,
-      reviewed: false
+      reviewed: false,
     };
   },
   methods: {
@@ -167,7 +167,7 @@ export default {
       this.textFilter = '';
       this.updateTypeList();
     },
-    updateTypeList: async function() {
+    updateTypeList: async function () {
       if (this.loading) return;
 
       this.loading = true;
@@ -179,8 +179,8 @@ export default {
         },
         filter: {
           text: "${this.textFilter}"
-          reviewed: ${this.reviewed}
-          completed: ${this.completed}
+          ${this.reviewed ? 'reviewed: true' : ''}
+          ${this.completed ? 'completed: true' : ''}
         }) {
         types {
           id
@@ -197,7 +197,7 @@ export default {
       }
     }`
       )
-        .then(result => {
+        .then((result) => {
           if (AxiosHelper.ok(result)) {
             let getReducedCoinTypeList =
               result.data.data.getReducedCoinTypeList;
@@ -207,7 +207,7 @@ export default {
             this.error = AxiosHelper.getErrors(result).join('\n');
           }
         })
-        .catch(e => {
+        .catch((e) => {
           console.error(e);
           this.error = this.$t('error.loading_list');
         })
@@ -221,7 +221,7 @@ export default {
     },
     create() {
       this.$router.push({
-        name: `TypeCreationPage`
+        name: `TypeCreationPage`,
       });
     },
     changeReviewedState(state, item) {
@@ -232,12 +232,12 @@ export default {
         }
       `
       )
-        .then(result => {
+        .then((result) => {
           if (result.status >= 200 && result.status <= 200) {
             item.reviewed = state;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.error = err;
         });
     },
@@ -249,12 +249,12 @@ export default {
         }
       `
       )
-        .then(result => {
+        .then((result) => {
           if (result.status >= 200 && result.status <= 200) {
             item.completed = state;
           }
         })
-        .catch(err => {
+        .catch((err) => {
           this.error = err;
         });
     },
@@ -266,12 +266,12 @@ export default {
       )
         .then(() => {
           console.log('HALLO');
-          const idx = this.$data.items.findIndex(item => item.id == id);
+          const idx = this.$data.items.findIndex((item) => item.id == id);
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
-        .catch(answer => {
+        .catch((answer) => {
           console.dir(
-            answer.response.data.errors.map(item => item.message).join('\n')
+            answer.response.data.errors.map((item) => item.message).join('\n')
           );
           // this.error =
           // console.error(err);
@@ -299,12 +299,12 @@ export default {
       let filters = {
         completed: this.completed,
         reviewed: this.reviewed,
-        textFilter: this.textFilter
+        textFilter: this.textFilter,
       };
 
       localStorage.setItem('type-list-filter', JSON.stringify(filters));
-    }
-  }
+    },
+  },
 };
 </script>
 
