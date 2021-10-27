@@ -316,16 +316,53 @@ class Type {
     static async getTypesReducedList(args) {
 
         let { page, count } = (args.pagination)
-        console.log(page, count)
 
         let filter = []
         if (args.filter) {
             let { text, completed, reviewed } = args.filter
 
+
+
             if (text) {
                 args.filter.text = `%${args.filter.text}%`
                 filter.push("unaccent(project_id) ILIKE unaccent($[text])")
             }
+
+            let {
+                donativ,
+                cursiveScript,
+                excludeFromTypeCatalogue,
+                excludeFromMapApp,
+                yearUncertain,
+                mintUncertain,
+                mint,
+                caliph,
+                nominal,
+                material,
+            } = args.filter
+
+            let obj = {
+                donativ,
+                cursiveScript,
+                excludeFromTypeCatalogue,
+                excludeFromMapApp,
+                yearUncertain,
+                mintUncertain,
+                mint,
+                caliph,
+                nominal,
+                material,
+            }
+
+
+
+            for (let [key, val] of Object.entries(obj)) {
+                if (val != null) {
+                    filter.push(`t.${camelCaseToSnakeCase(key)}=$[${key}]`)
+                }
+            }
+
+
 
             if (completed != null) {
                 filter.push(`tc.type IS ${(completed == true) ? "NOT" : ""} NULL`)
@@ -336,6 +373,7 @@ class Type {
             }
         }
 
+        console.log(filter)
 
         let pageInfo = null
         let pagination = ""
@@ -379,7 +417,6 @@ class Type {
         ${pagination}
             ;`, args.filter)
 
-        console.log(typeList)
 
         const map = {
             project_id: "projectId",
