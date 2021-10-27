@@ -72,7 +72,6 @@ export default {
         return obj.id == null || !isNaN(parseInt(obj.id));
       },
     },
-
     error: String,
     queryParams: {
       type: Array,
