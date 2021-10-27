@@ -14,8 +14,8 @@ const PageInfo = require('../models/pageinfo')
 class Type {
 
 
-    static async list() {
-        return this.getTypes(null)
+    static async list(_, args) {
+        return this.getTypes(args)
     }
 
 
@@ -294,6 +294,8 @@ class Type {
         let text = filters.text
         delete filters.text
 
+        const f = this.objectToConditions(filters)
+        const whereClause = this.buildWhereFilter([...f, "unaccent(t.project_id) ILIKE unaccent($[searchText])"])
 
         let result = await Database.manyOrNone(
             `
@@ -301,8 +303,7 @@ class Type {
             ${this.rows}
         FROM type t
             ${this.joins}
-        ${this.objAsWhereClause(filters)}
-        AND unaccent(t.project_id) ILIKE unaccent($[searchText])
+            ${whereClause}
         LIMIT ${process.env.MAX_SEARCH}
         `, { searchText: "%" + text + "%" })
 
@@ -315,7 +316,7 @@ class Type {
 
     static async getTypesReducedList(args) {
 
-        let { page, count } = (args.pagination)
+        let { page = 0, count = 10 } = (args.pagination)
 
         let filter = []
         if (args.filter) {
@@ -373,8 +374,6 @@ class Type {
             }
         }
 
-        console.log(filter)
-
         let pageInfo = null
         let pagination = ""
         if (page != null && count != null) {
@@ -394,9 +393,6 @@ class Type {
                 page,
                 total
             })
-
-            console.dir(pageInfo)
-
         }
 
         let typeList = await Database.manyOrNone(`SELECT 
@@ -433,25 +429,29 @@ class Type {
         return { pageInfo, types: typeList }
     }
 
-    static objAsWhereClause(filterObj) {
-        if (!filterObj || Object.keys(filterObj).length == 0) return ""
+    static buildWhereFilter(conditions) {
+        if (!conditions || conditions.length == 0) return ""
+        return `WHERE ${conditions.join(" AND ")}`
+    }
 
+    static objectToConditions(filterObj) {
         const filters = []
         for (let [key, val] of Object.entries(filterObj)) {
             filters.push(`${camelCaseToSnakeCase(key)}='${val}'`)
         }
-
-        return ` WHERE  ${filters.join(" AND ")}`
+        return filters
     }
 
     static async getTypes(filters = {}) {
+        const conditions = this.objectToConditions(filters)
+        const whereClause = this.buildWhereFilter(conditions)
 
         const result = await Database.manyOrNone(`
             SELECT 
             ${this.rows}         
          FROM type t 
             ${this.joins}
-            ${this.objAsWhereClause(filters)}
+            ${whereClause}
             ;`)
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type)
@@ -478,11 +478,6 @@ class Type {
 
     static async getTypesByOverlord(person) {
         if (!person) throw new Error("Person must be provided!")
-        // const result = await Database.one(
-        //     , person).catch(() => {
-        //     throw new Error("Requested type does not exist!")
-        // })
-
 
 
 
