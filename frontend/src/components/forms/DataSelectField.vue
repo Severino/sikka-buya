@@ -10,6 +10,8 @@
       :required="required"
     />
 
+    <Button id="clear-btn" @click="clear()"><Close /></Button>
+
     <div class="indicator">
       <Alert v-if="invalid" class="alert" />
       <Check v-else class="check" />
@@ -51,10 +53,11 @@ import Query from '../../../src/database/query';
 
 import Alert from 'vue-material-design-icons/Alert';
 import Check from 'vue-material-design-icons/Check';
+import Close from 'vue-material-design-icons/Close';
 
 export default {
   name: 'DataSelectField',
-  components: { Alert, Check },
+  components: { Alert, Check, Close },
   data: function () {
     return {
       id: null,
@@ -219,6 +222,11 @@ export default {
         return search[this.attribute] || '';
       }
     },
+    clear() {
+      let obj = { id: null };
+      obj[this.attribute] = '';
+      this.$emit('input', obj);
+    },
   },
 };
 </script>
@@ -259,9 +267,27 @@ export default {
   color: $red;
 }
 
+#clear-btn {
+  right: 0;
+  top: 1px;
+  padding: 0;
+  padding-left: 5px;
+  right: 1px;
+  width: 35px;
+  background-color: none;
+  height: calc(100% - 2px);
+  position: absolute;
+  border: none;
+  z-index: 1;
+
+  &:hover {
+    background-color: rgba($color: $gray, $alpha: 0.2);
+  }
+}
+
 .indicator {
   position: absolute;
-  right: 0;
+  right: 40px;
   border-left: none;
   padding: 0 5px;
   box-sizing: border-box;

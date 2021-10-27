@@ -2,7 +2,6 @@
   <div :class="`overview type-page`">
     <BackHeader :to="{ name: 'Editor' }" />
     <h1>{{ $t('attribute.test') }}</h1>
-
     <div
       class="button"
       @click="create"
@@ -23,19 +22,42 @@
       :filtered="isListFiltered"
       @clearFilters="clearFilters"
     >
-      <checkbox
-        label="Erledigt"
-        id="completed_checkbox"
-        :value="filter.completed"
-        @input="completedChanged"
-      />
-      <checkbox
-        label="Geprüft"
-        id="reviewed_checkbox"
-        :value="filter.reviewed"
-        @input="reviewedChanged"
-      />
-      <!-- <data-select-field :value="" /> -->
+      <div id="toggle-group">
+        <labeled-property
+          v-for="name of toggleFilter"
+          :key="'toggle-filter-' + name"
+          :label="$tc('property.' + name)"
+        >
+          <three-way-toggle
+            :value="filter[name]"
+            @input="filterChanged(name, $event)"
+          />
+        </labeled-property>
+      </div>
+
+      <labeled-property
+        v-for="name of objectFilter"
+        :key="'obj-filter-' + name"
+        :label="$tc('property.' + name)"
+      >
+        <DataSelectField
+          v-if="name == 'caliph'"
+          :value="filter[name]"
+          attribute="name"
+          table="person"
+          queryCommand="searchPersonsWithRole"
+          :queryParams="['id', { role: ['id', 'name'] }, 'name']"
+          :additionalParameters="{ include: ['caliph'] }"
+          @input="filterChanged(name, $event)"
+        />
+        <DataSelectField
+          v-else
+          :value="filter[name]"
+          attribute="name"
+          :table="getTable(name)"
+          @input="filterChanged(name, $event)"
+        />
+      </labeled-property>
     </ListFilterContainer>
 
     <pagination-control :value="pageInfo" @input="updatePagination" />
@@ -57,7 +79,7 @@
           :value="item.completed"
           @input="changeCompleteState($event, item)"
         />
-        <reviewed-toggle
+        <CompletedToggle
           :value="item.reviewed"
           @input="changeReviewedState($event, item)"
         />
@@ -87,6 +109,25 @@ import Row from '../layout/Row.vue';
 import PaginationControl from '../list/PaginationControl.vue';
 import Checkbox from '../forms/Checkbox.vue';
 import DataSelectField from '../forms/DataSelectField.vue';
+import LabeledProperty from '../display/LabeledProperty.vue';
+import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
+import { camelCase } from 'change-case';
+
+const defaultFilters = {
+  text: '',
+  completed: null,
+  reviewed: null,
+  exclude_from_type_catalogue: null,
+  exclude_from_map_app: null,
+  mint_uncertain: null,
+  year_uncertain: null,
+  cursive_script: null,
+  donativ: null,
+  nominal: { id: null },
+  material: { id: null },
+  caliph: { id: null },
+  mint: { id: null },
+};
 
 export default {
   name: 'TypeOverviewPage',
@@ -108,6 +149,8 @@ export default {
     PaginationControl,
     Checkbox,
     DataSelectField,
+    LabeledProperty,
+    ThreeWayToggle,
   },
   mounted: function () {
     let filters = localStorage.getItem('type-list-filter');
@@ -124,28 +167,22 @@ export default {
     this.updateTypeList();
     this.$refs.search.$el.querySelector('input').focus();
   },
-  watch: {
-    filter: {
-      handler(val) {
-        this.updateTypeList();
-      },
-      deep: true,
-    },
-  },
   computed: {
     isListFiltered: function () {
-      let defaults = {
-        completed: false,
-        reviewed: false,
-        text: '',
-      };
-
       let filtered = false;
       for (let [key, val] of Object.entries(this.filter)) {
-        if (defaults[key] === undefined)
-          console.error('Filter is not implemented in defaults!', key);
-        else {
-          if (defaults[key] != val) {
+        if (defaultFilters[key] === undefined) {
+          console.warn('Filter is not implemented in defaults!', key);
+          continue;
+        }
+
+        if (val != null && typeof val === 'object') {
+          if (val.id && val.id >= 0) {
+            filtered = true;
+            break;
+          }
+        } else {
+          if (defaultFilters[key] != val) {
             filtered = true;
             break;
           }
@@ -154,18 +191,6 @@ export default {
 
       return filtered;
     },
-    // filteredList: function() {
-    //   let list = this.$data.items;
-
-    //   list = SearchUtils.filter(this.textFilter, list, 'projectId');
-
-    //   if (this.completeFilter == 'work' || this.completeFilter == 'completed') {
-    //     const state = this.completeFilter == 'completed';
-    //     list = list.filter(item => item.completed == state);
-    //   }
-
-    //   return list;
-    // },
     list: function () {
       return this.$data.items;
     },
@@ -184,18 +209,69 @@ export default {
       error: '',
       filter: {
         text: '',
-        completed: false,
-        reviewed: false,
+        completed: null,
+        reviewed: null,
+        exclude_from_type_catalogue: null,
+        exclude_from_map_app: null,
+        mint_uncertain: null,
+        year_uncertain: null,
+        cursive_script: null,
+        donativ: null,
+        nominal: { id: null },
+        material: { id: null },
+        caliph: { id: null },
+        mint: { id: null },
       },
+      objectFilter: ['mint', 'material', 'nominal', 'caliph'],
+      toggleFilter: [
+        'completed',
+        'reviewed',
+        'exclude_from_type_catalogue',
+        'exclude_from_map_app',
+        'mint_uncertain',
+        'year_uncertain',
+        'cursive_script',
+        'donativ',
+      ],
     };
   },
   methods: {
+    getTable(name) {
+      if (name == 'caliph') return 'person';
+      else return name;
+    },
     clearFilters() {
-      console.log('CLEAR');
-      this.filter.completed = false;
-      this.filter.reviewed = false;
       this.filter.text = '';
+
+      this.toggleFilter.forEach((name) => {
+        if (!this.filter[name]) console.warn('No such filter found', name);
+        else this.filter[name] = null;
+      });
+
+      this.objectFilter.forEach((name) => {
+        if (!this.filter[name]) console.warn('No such filter found', name);
+        else this.filter[name] = { id: null };
+      });
+
       this.updateTypeList();
+    },
+    getToggleFilters() {
+      let activeFilter = [];
+      this.toggleFilter.forEach((name) => {
+        if (this.filter[name] != null) {
+          activeFilter.push(`${camelCase(name)}: ${this.filter[name]}`);
+        }
+      });
+      return activeFilter.join('\n');
+    },
+    getObjectFilters() {
+      let activeFilter = [];
+      this.objectFilter.forEach((name) => {
+        if (this.filter[name] != null) {
+          activeFilter.push(`${camelCase(name)}: ${this.filter[name].id}`);
+        }
+      });
+      return activeFilter.join('\n');
     },
     updateTypeList: async function () {
       if (this.loading) return;
@@ -209,8 +285,8 @@ export default {
         },
         filter: {
           text: "${this.filter.text}"
-          ${this.filter.reviewed ? 'reviewed: true' : ''}
-          ${this.filter.completed ? 'completed: true' : ''}
+          ${this.getObjectFilters()}
+          ${this.getToggleFilters()}
         }) {
         types {
           id
@@ -233,6 +309,7 @@ export default {
               result.data.data.getReducedCoinTypeList;
             this.$data.items = getReducedCoinTypeList.types;
             this.pageInfo = getReducedCoinTypeList.pageInfo;
+            this.error = '';
           } else {
             this.error = AxiosHelper.getErrors(result).join('\n');
           }
@@ -307,6 +384,10 @@ export default {
           // console.error(err);
         });
     },
+    filterChanged(name, val) {
+      this.filter[name] = val;
+      this.filtersChanged();
+    },
     updatePagination(val) {
       this.pageInfo = val;
       this.updateTypeList();
@@ -320,11 +401,16 @@ export default {
       this.filter.reviewed = val;
       this.filtersChanged();
     },
+    mintChanged(val) {
+      this.filter.mint = val;
+      this.filtersChanged();
+    },
     textFilterChanged() {
       this.filtersChanged();
     },
     filtersChanged() {
       localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
+      this.updateTypeList();
     },
   },
 };
@@ -391,5 +477,11 @@ export default {
 
 .overview > * {
   margin-bottom: $padding;
+}
+
+#toggle-group {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 </style>

@@ -52,7 +52,6 @@ export default {
 .list-filter-container {
   border: 1px solid #ccc;
   border-radius: 3px;
-  overflow: hidden;
 }
 
 .message {

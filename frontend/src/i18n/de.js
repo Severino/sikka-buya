@@ -33,6 +33,8 @@ const property = {
         "Sonstige Personen",
     backside:
         "Revers",
+
+    caliph: "Kalif | Kalifen",
     misc:
         "Randbeschriftung",
     circular_text:
@@ -41,10 +43,16 @@ const property = {
         "Mzz. und Einzelworte",
     cursive_script:
         "kursive Schriftart",
+    completed:
+        "Geprüft",
     donativ:
         "Geschenkmünze",
     dynasty:
         "Dynastie | Dynastien",
+    exclude_from_type_catalogue:
+        "Von Katalog ausschließen",
+    exclude_from_map_app:
+        "Von Karte ausschließen",
     field_text:
         "Feld",
     frontside:
@@ -93,6 +101,7 @@ const property = {
             "geprägt",
     },
     province: "Provinz | Provinzen",
+    reviewed: "Erledigt",
     role:
         "Rolle | Rollen",
     sides:

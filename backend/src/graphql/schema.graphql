@@ -362,6 +362,16 @@ input ListFilter {
   text: String
   completed: Boolean
   reviewed: Boolean
+  donativ: Boolean
+  cursiveScript: Boolean
+  excludeFromTypeCatalogue: Boolean
+  excludeFromMapApp: Boolean
+  yearUncertain: Boolean
+  mintUncertain: Boolean
+  mint: ID
+  caliph: ID
+  nominal: ID
+  material: ID
 }
 
 type PageInfo {
