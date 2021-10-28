@@ -196,6 +196,19 @@ button {
   @include interactive();
 }
 
+.button.ghost-btn {
+  position: absolute;
+  right: 0;
+  border: none;
+  border-radius: 0;
+  background-color: rgba($gray, 0);
+  color: $gray;
+
+  &:hover {
+    background-color: rgba($gray, 0.5);
+  }
+}
+
 .transparent-button {
   background-color: transparent;
   border: none;
