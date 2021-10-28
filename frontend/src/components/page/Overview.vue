@@ -1,9 +1,10 @@
 <template>
   <div :class="`overview ${this.property}-page`">
     <BackHeader :to="{ name: 'Editor' }" />
-    <h1>{{ $tc(`property.${propertyName}`) }}</h1>
-    <section>
+    <header>
+      <h1>{{ $tc(`property.${propertyName}`) }}</h1>
       <div
+        id="create-button"
         class="button"
         @click="create"
         tabindex="1"
@@ -13,30 +14,30 @@
         <PlusCircleOutline />
         <span>{{ $t('form.create') }}</span>
       </div>
+    </header>
 
-      <SearchField :value="textFilter" @input="searchChanged" />
+    <SearchField :value="textFilter" @input="searchChanged" />
 
-      <List
-        @remove="remove"
-        :error="error"
-        :loading="loading"
-        :items="items"
-        :filteredItems="items"
+    <List
+      @remove="remove"
+      :error="error"
+      :loading="loading"
+      :items="items"
+      :filteredItems="items"
+    >
+      <ListItem
+        v-for="item of items"
+        v-bind:key="item.key"
+        :id="item.id"
+        :to="{
+          path: `${item.id}`,
+          append: true,
+        }"
       >
-        <ListItem
-          v-for="item of items"
-          v-bind:key="item.key"
-          :id="item.id"
-          :to="{
-            path: `${item.id}`,
-            append: true,
-          }"
-        >
-          <ListItemCell>{{ item.name }}</ListItemCell>
-          <DynamicDeleteButton @click="remove(item.id)" />
-        </ListItem>
-      </List>
-    </section>
+        <ListItemCell>{{ item.name }}</ListItemCell>
+        <DynamicDeleteButton @click="remove(item.id)" />
+      </ListItem>
+    </List>
   </div>
 </template>
 
@@ -242,5 +243,19 @@ export default {
 
 section > * {
   margin-bottom: $padding;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#create-button {
+  background-color: $primary-color;
+  color: $white;
+  // position: absolute;
+  right: 0;
+  top: 0;
 }
 </style>

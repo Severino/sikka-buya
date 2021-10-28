@@ -10,15 +10,12 @@
     <div class="toolbar">
       <div class="input-wrapper">
         <label for="input">{{ type.toUpperCase() }}</label>
-        <input id="input" type="text" :value="coordinateString" readonly />
-      </div>
-      <div class="input-wrapper" v-if="isCircle">
-        <label for="radius">Radius</label>
         <input
-          form="radius"
-          type="number"
-          :value="radius"
-          @input="radiusChanged($event)"
+          ref="input"
+          id="input"
+          type="text"
+          :value="coordinateString"
+          @input="resetInputText()"
         />
       </div>
 
@@ -32,7 +29,6 @@
         <ul>
           <li><b>STRG + Linksklick:</b> Punkt setzen</li>
           <li><b>STRG + Z:</b> Vorherige Punkt wiederherstellen</li>
-          <li v-if="isCircle"><b>STRG + Mausrad:</b> Radius verändern</li>
         </ul>
       </div>
     </div>
@@ -79,6 +75,7 @@ export default {
       lineHandles: [],
       markerHistory: [],
       historyLimit: 20,
+      updateString: 0,
     };
   },
   /**
@@ -86,10 +83,39 @@ export default {
    * Therefore we may access the mounted map here.
    */
   mounted: function () {
+    console.log(this.$refs.input);
+    this.$refs.input.addEventListener('paste', async (evt) => {
+      let paste = (event.clipboardData || window.clipboardData).getData('text');
+
+      try {
+        let arr = paste.split(', ');
+        if (
+          arr.length == 2 &&
+          !isNaN(parseFloat(arr[0])) &&
+          !isNaN(parseFloat(arr[1]))
+        ) {
+          const coords = { lat: parseFloat(arr[0]), lng: parseFloat(arr[1]) };
+          console.log(coords);
+          this.addPoint(coords);
+        } else {
+          console.error('Wrong format of paste.');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
     this.enableMap();
     this.updateMarker();
   },
   methods: {
+    resetInputText: function () {
+      // This is a hack to update the computed property.
+      // The value is just referenced in the computed function
+      // and as it changes, it will trigger the computed function
+      // to reevaluate.
+      this.updateString++;
+    },
     setActiveMarker: function (i) {
       let old = this.activeMarkerIndex;
 
@@ -131,7 +157,6 @@ export default {
 
           if (prevPosition) {
             let coordinates = this.coordinates;
-            console.log('UNDO', prevPosition);
             switch (prevPosition.action) {
               case 'set': {
                 if (!this.isPolygon) {
@@ -204,41 +229,28 @@ export default {
       this.map.on('click', (e) => {
         if (e.originalEvent.ctrlKey == true) {
           const location = e.latlng;
-          let coordinates = this.coordinates == null ? [] : this.coordinates;
-
-          if (this.isPolygon) {
-            coordinates.push([location.lat, location.lng]);
-          } else {
-            coordinates = [location.lat, location.lng];
-          }
-
-          this.markerHistory.unshift({
-            action: 'set',
-            coordinates: [location.lat, location.lng],
-          });
-
-          while (this.markerHistory.length > this.historyLimit)
-            this.markerHistory.pop();
-
-          this.emitUpdate(coordinates);
+          this.addPoint(location);
         }
       });
+    },
+    addPoint(location) {
+      let coordinates = this.coordinates == null ? [] : this.coordinates;
+      console.log(location);
+      if (this.isPolygon) {
+        coordinates.push([location.lat, location.lng]);
+      } else {
+        coordinates = [location.lat, location.lng];
+      }
 
-      this.$refs.root.addEventListener(
-        'wheel',
-        (e) => {
-          if (this.isCircle && e.ctrlKey == true) {
-            e.preventDefault();
-            e.stopPropagation();
+      this.markerHistory.unshift({
+        action: 'set',
+        coordinates: [location.lat, location.lng],
+      });
 
-            this.$emit(
-              'radiusChanged',
-              this.radius + -e.deltaY * this.circleZoomFactor
-            );
-          }
-        },
-        true
-      );
+      while (this.markerHistory.length > this.historyLimit)
+        this.markerHistory.pop();
+
+      this.emitUpdate(coordinates);
     },
     removeMarker() {
       if (this.marker) {
@@ -300,13 +312,7 @@ export default {
       if (this.coordinates == null) {
         return;
       } else if (this.coordinates.length > 0) {
-        if (this.isCircle) {
-          this.marker = L.circle(this.coordinates[0], this.radius).addTo(
-            this.map
-          );
-        } else if (this.isPolygon) {
-          //
-
+        if (this.isPolygon) {
           this.marker = L.polygon(this.coordinates).addTo(this.map);
 
           this.drawLineHandles();
@@ -390,9 +396,6 @@ export default {
     },
   },
   computed: {
-    isCircle: function () {
-      return this.type == 'circle';
-    },
     isPolygon: function () {
       return this.type == 'polygon';
     },
@@ -411,6 +414,7 @@ export default {
       }
     },
     coordinateString: function () {
+      this.updateString;
       switch (this.type) {
         case 'polygon':
           return this.polygonString;
