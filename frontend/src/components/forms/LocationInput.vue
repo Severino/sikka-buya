@@ -17,6 +17,7 @@
           :value="coordinateString"
           @input="resetInputText()"
         />
+        <Button class="ghost-btn" @click="pasteEvt"><ContentPaste /></Button>
       </div>
 
       <button @click.prevent.stop="clearData()">
@@ -37,6 +38,8 @@
 
 <script>
 import Close from 'vue-material-design-icons/Close.vue';
+import ContentPaste from 'vue-material-design-icons/ContentPaste.vue';
+import Button from '../layout/buttons/Button.vue';
 import MapView from '../map/MapView.vue';
 var L = require('leaflet');
 
@@ -45,6 +48,8 @@ export default {
   components: {
     MapView,
     Close,
+    Button,
+    ContentPaste,
   },
   props: {
     type: String,
@@ -85,10 +90,24 @@ export default {
   mounted: function () {
     console.log(this.$refs.input);
     this.$refs.input.addEventListener('paste', async (evt) => {
-      let paste = (event.clipboardData || window.clipboardData).getData('text');
+      let paste = (evt.clipboardData || window.clipboardData).getData('text');
+      this.paste(paste);
+    });
 
+    this.enableMap();
+    this.updateMarker();
+  },
+  methods: {
+    pasteEvt: async function () {
+      this.$refs.input.focus();
+      let text = await navigator.clipboard.readText();
+      console.log(text);
+      this.paste(text);
+    },
+    paste(text) {
       try {
-        let arr = paste.split(', ');
+        let arr = text.split(', ');
+        arr = arr.map((el) => el.replace(',', '.'));
         if (
           arr.length == 2 &&
           !isNaN(parseFloat(arr[0])) &&
@@ -103,12 +122,7 @@ export default {
       } catch (e) {
         console.error(e);
       }
-    });
-
-    this.enableMap();
-    this.updateMarker();
-  },
-  methods: {
+    },
     resetInputText: function () {
       // This is a hack to update the computed property.
       // The value is just referenced in the computed function
@@ -445,7 +459,6 @@ export default {
 <style lang="scss" scoped>
 .toolbar {
   display: flex;
-  background-color: red;
 
   > button {
     border-top-width: 0;
