@@ -1,18 +1,20 @@
 <template>
   <div :class="`overview type-page`">
     <BackHeader :to="{ name: 'Editor' }" />
-    <h1>{{ $t('attribute.test') }}</h1>
-    <div
-      class="button"
-      @click="create"
-      tabindex="1"
-      autofocus
-      @keydown.enter="create"
-    >
-      <PlusCircleOutline />
-      <span>{{ $t('form.create') }}</span>
-    </div>
-
+    <header>
+      <h1>{{ $t('attribute.test') }}</h1>
+      <div
+        id="create-button"
+        class="button"
+        @click="create"
+        tabindex="1"
+        autofocus
+        @keydown.enter="create"
+      >
+        <PlusCircleOutline />
+        <span>{{ $t('form.create') }}</span>
+      </div>
+    </header>
     <SearchField
       ref="search"
       v-model="filter.text"
@@ -483,5 +485,19 @@ export default {
   display: grid;
   gap: 20px;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#create-button {
+  background-color: $primary-color;
+  color: $white;
+  // position: absolute;
+  right: 0;
+  top: 0;
 }
 </style>
