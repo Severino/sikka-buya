@@ -55,39 +55,40 @@ export default {
   components: {
     Pencil,
     Menu,
-    Close,
+    Close
   },
-  data: function () {
+  data: function() {
     return {
       active: false,
-      minimized: true,
+      minimized: false,
       items: [
         // { name: "Home", target: "undefined" },
         { name: 'Karte', target: { name: 'MapPage' }, auth: true },
         { name: 'Typekatalog', target: { name: 'Catalog' }, auth: true },
-        { name: 'Analytics', target: { name: 'Analytics' }, auth: true },
-      ],
+        { name: 'Analytics', target: { name: 'Analytics' }, auth: true }
+      ]
     };
   },
   methods: {
-    toggleMenu: function () {
+    toggleMenu: function() {
       this.active = !this.active;
     },
-    logout: function () {
+    logout: function() {
       Auth.logout();
       this.$store.commit('logout');
       this.$router.push({ name: 'Home' });
-    },
+    }
   },
-  ////TODO: Remove if this was not necessary.
-  //// User is now stored in VUEX.
+  mounted: function() {
+    this.minimized = this.$route.meta.smallNav ? true : false;
+  },
   watch: {
     $route(to, from) {
       this.minimized = to.meta.smallNav ? true : false;
-    },
+    }
   },
   computed: {
-    version: function () {
+    version: function() {
       return this.$store.state.version;
     },
     visibleItems() {
@@ -95,14 +96,14 @@ export default {
       if (this.loggedIn) {
         items = this.items;
       } else {
-        items = this.items.filter((item) => !item.auth);
+        items = this.items.filter(item => !item.auth);
       }
       return items;
     },
-    loggedIn: function () {
+    loggedIn: function() {
       return this.$store.getters.loggedIn;
-    },
-  },
+    }
+  }
 };
 </script>
 

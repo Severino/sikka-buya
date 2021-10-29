@@ -195,7 +195,7 @@ type Query {
   getNominal(id: Int!): Name
 
   # Tested in 006_material
-  material: [Name]!
+  material(language: String): [Name]!
   searchMaterial(text: String): [Name]!
   getMaterial(id: Int!): Name
 
@@ -280,6 +280,8 @@ type Query {
   users: [User]
   login(data: UserInput): AuthResponse
   auth(token: String): User
+
+  getLang(id: ID!, table: String!, lang: String!, attr: String!): String
 }
 
 type Mutation {
@@ -347,6 +349,13 @@ type Mutation {
   deleteProvince(id: Int): Void
 
   updateNote(text: String, property: String, propertyId: ID): Void
+  updateLang(
+    id: ID!
+    table: String!
+    lang: String!
+    attr: String!
+    value: String!
+  ): Void
   addComment(text: String, user: ID, property: String, propertyId: ID): Void
 
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
