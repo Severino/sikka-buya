@@ -93,6 +93,7 @@ async function start({
             new Resolver("province")
         ]
 
+        const langTables = ['material_en']
 
 
         /**
@@ -373,6 +374,21 @@ async function start({
 
                     let result = await Database.oneOrNone(`SELECT note.text from note WHERE property=$[property] AND property_id=$[propertyId]`, { propertyId, property })
                     return result?.text || ""
+                },
+                getLang: async function (_, args) {
+                    let { id,
+                        table,
+                        lang,
+                        attr } = args
+
+
+                    const langTable = `${table}_${lang}`
+
+                    if (langTables.indexOf(langTable) != -1) {
+                        console.log()
+                        let result = await Database.oneOrNone(`SELECT $[attr:name] FROM ${langTable} WHERE id=$[id]`, { attr, id })
+                        return result[attr]
+                    } else return ""
                 }
             }, Mutation: {
                 updateNote: async function (_, args) {
@@ -385,6 +401,26 @@ async function start({
                     WHERE note.property=$[property] AND note.property_id=$[property_id];
                     `, { text, property, property_id })
 
+                },
+                updateLang: async function (_, args) {
+                    let { id,
+                        table,
+                        lang,
+                        attr,
+                        value } = args
+                    const langTable = `${table}_${lang}`
+
+                    if (langTables.indexOf(langTable) == -1) {
+                        throw new Error(`The table you want to enter a language attribute into is not whitelisted. Contact developer if you really want to update '${langTable}'.`)
+                    } else {
+                        let obj = {
+                            id
+                        }
+                        obj[attr] = value
+                        const query = pgp.helpers.insert(obj, null, langTable)
+                        console.log(query)
+                        await Database.none(query + " ON CONFLICT (id) DO UPDATE SET $[attr:name]=$[value]", { attr, value })
+                    }
                 },
                 addComment: async function (_, args) {
                     let { text,

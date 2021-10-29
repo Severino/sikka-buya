@@ -16,27 +16,45 @@
         autofocus
         required
       />
+
+      <div v-for="(obj, key) of languages" :key="'mint-' + key">
+        <div class="label">{{ key }}</div>
+        <input v-model="obj.name" />
+      </div>
     </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
-import Query from "../../../database/query.js";
-import PropertyFormWrapper from "../PropertyFormWrapper.vue";
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
 
 export default {
   components: { PropertyFormWrapper },
-  name: "MaterialForm",
-  created: function () {
+  name: 'MaterialForm',
+  created: function() {
     let id = this.$route.params.id;
     if (id != null) {
-      new Query("material")
-        .get(id, ["id", "name"])
-        .then((result) => {
+      Query.raw(
+        `{
+        getMaterial(id: ${id}){id name}
+        getLang (id: ${id},
+    table: "material",
+    lang: "en",
+    attr: "name"
+  )
+      }`
+      )
+        .then(result => {
           this.material = result.data.data.getMaterial;
+          const lang = result.data.data.getLang;
+          if (lang) {
+            console.log(lang);
+            this.languages = { en: { name: lang } };
+          }
         })
-        .catch((err) => {
-          this.$data.error = this.$t("error.loading_element");
+        .catch(err => {
+          this.$data.error = this.$t('error.loading_element');
           console.log(err);
         })
         .finally(() => {
@@ -47,30 +65,52 @@ export default {
     }
   },
   methods: {
-    submit: function () {
-      new Query("material")
-        .update(this.material)
+    submit: function() {
+      let langs = [];
+      for (let [langId, langObj] of Object.entries(this.languages)) {
+        console.log(langId, langObj);
+        for (let [key, val] of Object.entries(langObj)) {
+          langs.push(
+            `updateLang(id:${this.material.id}, table: "material", lang: "${langId}", attr: "${key}", value: "${val}" )`
+          );
+        }
+      }
+      langs.join('\n');
+
+      Query.raw(
+        `
+      mutation{
+        updateMaterial(data: {id: ${this.material.id}, name: "${this.material.name}" })
+        ${langs}
+        
+      }
+      `
+      )
         .then(() => {
           this.$router.push({
-            name: "Property",
-            params: { property: "material" },
+            name: 'Property',
+            params: { property: 'material' }
           });
         })
-        .catch((err) => {
-          this.error = this.$t("error.could_not_update_element");
-          console.error(err);
+        .catch(err => {
+          this.error = err.join('\n');
         });
     },
-    cancel: function () {
-      this.$router.push({ path: "/material" });
-    },
+    cancel: function() {
+      this.$router.push({ path: '/material' });
+    }
   },
-  data: function () {
+  data: function() {
     return {
-      error: "",
+      error: '',
       loading: true,
-      material: { id: -1, name: "" },
+      languages: {
+        en: {
+          name: ''
+        }
+      },
+      material: { id: -1, name: '' }
     };
-  },
+  }
 };
 </script>

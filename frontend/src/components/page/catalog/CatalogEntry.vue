@@ -121,6 +121,7 @@
     </catalog-property>
 
     <catalog-property :label="$tc('property.piece', 2)" class="gm2">
+      <div v-if="type.pieces.length == 0">-</div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
         <a :href="piece" target="_blank">
           <img :src="getLogoFromPath(piece)" alt="" width="32" />
