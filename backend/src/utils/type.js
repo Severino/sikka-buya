@@ -9,6 +9,7 @@ const Person = require('../models/person')
 const Material = require('../models/material')
 const Nominal = require('../models/nominal')
 const PageInfo = require('../models/pageinfo')
+const graphqlFields = require('graphql-fields')
 
 
 class Type {
@@ -294,6 +295,7 @@ class Type {
         let text = filters.text
         delete filters.text
 
+        console.log(filters)
         const f = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter([...f, "unaccent(t.project_id) ILIKE unaccent($[searchText])"])
 
@@ -442,7 +444,11 @@ class Type {
         return filters
     }
 
-    static async getTypes(filters = {}) {
+    static async getTypes(_, filters = {}, context, info) {
+
+        let fields = graphqlFields(info)
+
+        console.log(filters)
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter(conditions)
 
@@ -454,7 +460,7 @@ class Type {
             ${whereClause}
             ;`)
         for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type)
+            result[idx] = await this.postprocessType(type, fields)
         }
 
         return result
@@ -526,7 +532,7 @@ class Type {
                 `
     }
 
-    static async postprocessType(type) {
+    static async postprocessType(type, fields) {
         if (!type) throw new Error(`Type was not provided!`)
 
         const config = [
@@ -550,15 +556,47 @@ class Type {
         config.forEach(conf => delete type[conf.target])
         SQLUtils.objectifyBulk(type, config)
 
-        type.avers = this.wrapCoinSideInformation(type, "front_side_")
-        type.reverse = this.wrapCoinSideInformation(type, "back_side_")
 
-        type.overlords = await Type.getOverlordsByType(type.id)
-        type.issuers = await Type.getIssuerByType(type.id)
-        type.caliph = (type.caliph == null) ? null : await Person.get(type.caliph)
-        type.otherPersons = await Type.getOtherPersonsByType(type.id)
-        type.pieces = await Type.getPieces(type.id)
-        type.coinMarks = await Type.getCoinMarks(type.id)
+        for (let property of Object.keys(fields)) {
+            switch (property) {
+
+                case 'avers':
+                    type.avers = this.wrapCoinSideInformation(type, "front_side_")
+                    break;
+                case "reverse":
+                    type.reverse = this.wrapCoinSideInformation(type, "back_side_")
+                    break;
+
+                // Arrays
+                case "coinMarks":
+                    type.coinMarks = await Type.getCoinMarks(type.id)
+                    break
+                case "pieces":
+                    type.pieces = await Type.getPieces(type.id)
+                    break
+
+                // Persons
+                case 'caliph':
+                    type.caliph = (type.caliph == null) ? null : await Person.get(type.caliph)
+                    break;
+                case 'otherPersons':
+                    type.otherPersons = await Type.getOtherPersonsByType(type.id)
+                    break
+
+                // Titled Persons
+                case "overlords":
+                    type.overlords = await Type.getOverlordsByType(type.id)
+                    break;
+                case "issuers":
+                    type.issuers = await Type.getIssuerByType(type.id)
+                    break;
+
+
+            }
+        }
+
+
+
 
         for (let [key, val] of Object.entries(this.databaseToGraphQlMap)) {
             if (type[key] != null) {
@@ -588,7 +626,6 @@ class Type {
 
 
     // static async getOverlord(id) {
-    //     console.log("GET OVERLORD",)
 
     //     const request = await Database.one(`
     //         SELECT O.ID,
@@ -664,8 +701,6 @@ class Type {
 			WHERE o.type = $1
             ORDER BY o.rank ASC
             `, type_id)
-
-        console.log(type_id, response)
 
         let result = response[0]
         let overlords = Overlord.extractList(result)
