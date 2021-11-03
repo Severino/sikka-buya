@@ -33,6 +33,7 @@ import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
  */
 import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
 import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
+import PersonExplorer from "@/components/page/catalog/PersonExplorer.vue"
 
 /**
  * Editor Page
@@ -104,6 +105,10 @@ const routes = [
         component: LandingPage
       },
       analyticsRoutes,
+      {
+        path: "/persons/",
+        component: PersonExplorer
+      },
       {
         path: '/catalog/',
         component: RouterContainer,

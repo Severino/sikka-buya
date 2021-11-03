@@ -32,7 +32,6 @@ class MintResolver extends Resolver {
     async update(_, args) {
         const data = args.data
         this.fixGeoJSON(data)
-        console.log(data)
 
         if (!data.id || data.id <= 0) throw new Error("error.invalid_id")
 
