@@ -267,8 +267,8 @@ async function start({
 
                     return result
                 },
-                getTypesByOverlord: async function (_, args) {
-                    return Type.getTypesByOverlord(args.id)
+                getTypesByOverlord: async function () {
+                    return Type.getTypesByOverlord(...arguments)
                 },
                 searchType: async function (_, args) {
                     return Type.searchType(args)

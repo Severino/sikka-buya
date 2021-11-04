@@ -35,6 +35,12 @@ export default {
   methods: {
     toggleCollapse: function () {
       this.collapsed = !this.collapsed;
+
+      if (this.collapsed) {
+        this.$emit('close');
+      } else {
+        this.$emit('open');
+      }
     },
   },
 };
