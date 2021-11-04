@@ -11,7 +11,7 @@
     <h3>Analytics</h3>
     <ul>
       <li v-for="(link, idx) of links" :key="`list-btn-${idx}`">
-        <router-link :to="link.to"  class="button">
+        <router-link :to="link.to" class="button">
           {{ link.name }}
         </router-link>
       </li>
@@ -20,10 +20,10 @@
 </template>
 
 <script>
-import Query from "../../../database/query";
-import Row from "../../layout/Row.vue";
+import Query from '../../../database/query';
+import Row from '../../layout/Row.vue';
 export default {
-  name: "AnalyticsDashboard",
+  name: 'AnalyticsDashboard',
   components: { Row },
   created: function () {
     Query.raw(
@@ -40,24 +40,27 @@ export default {
         this.typeCount = obj.data.data.getAnalytics.typeCount;
         this.yearCount = obj.data.data.getAnalytics.yearCount;
 
-        console.log("RESUK", obj)
+        console.log('RESUK', obj);
       })
       .catch(console.error);
   },
   data: function () {
     return {
-      mintCount: "",
-      typeCount: "",
-      yearCount: "",
-      links: [{ name: "Year Link Table", to: { name: "AnalyticsTable" } }],
+      mintCount: '',
+      typeCount: '',
+      yearCount: '',
+      links: [
+        { name: 'Year Link Table', to: { name: 'AnalyticsTable' } },
+        { name: 'Overlord List', to: { name: 'OverlordAccordeon' } },
+      ],
     };
   },
   computed: {
     analytics: function () {
       return [
-        { name: "Typen", value: this.typeCount },
-        { name: "Münzstätten", value: this.mintCount },
-        { name: "Abgedeckte Jahre", value: this.yearCount },
+        { name: 'Typen', value: this.typeCount },
+        { name: 'Münzstätten', value: this.mintCount },
+        { name: 'Abgedeckte Jahre', value: this.yearCount },
       ];
     },
   },
@@ -71,11 +74,11 @@ header {
 
 .box {
   background-color: $white;
-  padding: $padding*2 $padding * 3;
+  padding: $padding * 2 $padding * 3;
   text-align: center;
 
   h3 {
-      margin: 0;
+    margin: 0;
   }
 }
 
