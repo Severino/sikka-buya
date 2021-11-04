@@ -23,7 +23,7 @@ export default {
             }`);
 
                 let timeline = result.data.data.timespan;
-                timeline.value = 365;
+                timeline.value = 347;
                 this.timeline = timeline;
                 window.map = this.map;
             } catch (e) {

@@ -144,14 +144,14 @@ async function start({
 
                     return { from: range[0], to: range[range.length - 1] }
                 },
-                getReducedCoinTypeList: async function (_, args) {
-                    return Type.getTypesReducedList(args)
+                getReducedCoinTypeList: async function () {
+                    return Type.getTypesReducedList(...arguments)
                 },
-                getCoinType: async function (_, args) {
-                    return Type.getType(args.id)
+                getCoinType: async function () {
+                    return Type.getType(...arguments)
                 },
-                coinType: async function (_, args) {
-                    return Type.list(args)
+                coinType: async function () {
+                    return Type.list(...arguments)
                 },
                 getDominion: async function (_, args) {
                     const year = args.year
@@ -270,8 +270,8 @@ async function start({
                 getTypesByOverlord: async function () {
                     return Type.getTypesByOverlord(...arguments)
                 },
-                searchType: async function (_, args) {
-                    return Type.searchType(args)
+                searchType: async function () {
+                    return Type.searchType(...arguments)
                 },
                 getTypes: function () { return Type.getTypes(...arguments) },
                 getTypeComplete: async function (_, { id = null } = {}) {
