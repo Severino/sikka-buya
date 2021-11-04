@@ -482,9 +482,10 @@ class Type {
         return await this.postprocessType(result);
     }
 
-    static async getTypesByOverlord(person) {
-        if (!person) throw new Error("Person must be provided!")
+    static async getTypesByOverlord(_, { id = null } = {}, context, info) {
 
+        const person = id
+        if (!person) throw new Error("Person must be provided!")
 
 
         const result = await Database.manyOrNone(`
@@ -498,8 +499,10 @@ class Type {
         WHERE t.id IN(SELECT type FROM overlords)
             `, person);
 
+
+        const fields = graphqlFields(info)
         for (let [key, value] of result.entries()) {
-            result[key] = await this.postprocessType(value)
+            result[key] = await this.postprocessType(value, fields)
         }
 
 

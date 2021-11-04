@@ -45,7 +45,19 @@ class PersonResolver extends Resolver {
 
 
 
-    async list() {
+    async list(_, { role = undefined } = {}) {
+
+        const whereClauses = []
+        // console.log(role)
+        if (role != undefined) {
+            if (role == null) {
+                whereClauses.push(`role IS NULL`)
+            } else {
+                whereClauses.push(`role=${role}`)
+            }
+        }
+
+        const where = (whereClauses.length > 0) ? "WHERE " + whereClauses.join("AND") : ""
 
         let result = await Database.manyOrNone(`
         SELECT p.id, p.name, p.short_name,
@@ -54,6 +66,7 @@ class PersonResolver extends Resolver {
         FROM $[table:name] p
         LEFT JOIN person_role r ON p.role = r.id 
         LEFT JOIN dynasty d ON p.dynasty = d.id
+        ${where}
         ORDER BY name ASC`, {
             table: this.tableName
         })

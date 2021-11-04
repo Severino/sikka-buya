@@ -225,7 +225,7 @@ type Query {
   getHonorific(id: Int!): Name
 
   # Tested in 012_person
-  person: [Person]!
+  person(role: ID): [Person]!
   searchPerson(text: String): [Person]!
   getPerson(id: Int!): Person
 
