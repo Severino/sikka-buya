@@ -1,73 +1,32 @@
 # sikka-buya
-A digital application for displaying and exploring islamic coinage.
 
+A digital application for displaying and exploring islamic coinage.
 
 # Buyiden Project - Backend
 
 This is the backend application of the Buyiden Project. It habdles the Interaction with the database and therefore provides a graphql endpoint.
 
-
 ## Setup
 
-### Install PostgreSQL and PostGIS
-
-#### Linux (CentOS 8)
-
-This installtion guide is taken from [this blogpost](https://people.planetpostgresql.org/devrim/index.php?/archives/107-Installing-PostGIS-3.1-and-PostgreSQL-13-on-CentOS-8.html) that was linked in the original PostGIS Documetnation. 
-
-Install from repo:
-```
-dnf -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-```
-
-Disable installed module:
-```
-dnf -qy module disable postgresql
-```
-
-Install EPEL repo RPM:
-```
-dnf -y install epel-release
-```
-
-Enable PowerTools (?):
-```
-dnf -y config-manager --set-enabled PowerTools
-```
-
-Install PostGIS:
-```
-dnf -y install postgis31_13
-```
-
-Then loginto postgresql by using: 
-
-```
-psql
-```
-
-and enable the extension by applying:
-```
-CREATE EXTENSION postgis;
-```
-
+- Install PostgresQL
+- Install PostGIS
 
 #### Windows
 
 Postgres can be downloaded and installed here:
-[https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/). After executing the installation, PostGIS can be installed using the *Application Stack Builder*.
+[https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/). After executing the installation, PostGIS can be installed using the _Application Stack Builder_.
 
-The database can be managed using the pre-installed User-Interface of *pgAdmin*.
+The database can be managed using the pre-installed User-Interface of _pgAdmin_.
 
 ### Run Init Script
 
 ```
 npm run init
-``` 
+```
 
 ### Defining environment variables
 
-We provide a *.env.example* file that may serves as a template for your .env file, otherwise you can delete it. The .env file is responsible for your environment specific setup, like specifying the port, database address and location and their respective credentials. Your env file should look like the following
+We provide a _.env.example_ file that may serves as a template for your .env file, otherwise you can delete it. The .env file is responsible for your environment specific setup, like specifying the port, database address and location and their respective credentials. Your env file should look like the following
 
 ```ini
 PORT=4000
@@ -85,31 +44,35 @@ DB_PORT=5432
 There are various methods to keep a process running in the background when leaving the terminal. Do whatever you feel comfortable with.
 In this case we are using PM2, a process managing program built on node.
 
-Install: 
+Install:
+
 ```
 npm i pm2 -g
 ```
 
 Run:
+
 ```
 pm2 start node index.js --log log.txt
 ```
 
 Inspect:
+
 ```
 pm2 ls
 ```
 
 Stop:
+
 ```
 pm2 stop <id>
 ```
 
 Remove:
+
 ```
 pm2 delete <id>
 ```
-
 
 ### Running alongside Apache
 
@@ -122,8 +85,7 @@ To run the backend application in an apache environment, we need to use the apac
 
 ## Endpoints
 
-The endpoint is found at *<your_server>:<port>/graphql
-
+The endpoint is found at \*<your_server>:<port>/graphql
 
 # Database
 
@@ -142,7 +104,7 @@ psql.exe -U postgres -h 127.0.0.1 coins < export.sql
 
 # Client
 
-Vue must know where to send the backend server resides. Therefore the .env.production 
+Vue must know where to send the backend server resides. Therefore the .env.production
 must be set correctly!
 
 ```ini

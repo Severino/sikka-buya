@@ -20,15 +20,13 @@
         <li
           v-for="ruler of rulers"
           :key="`ruler-list-item-${ruler.id}`"
-          :style="
-            `background-color: ${
-              activeRuler
-                ? ruler.id == activeRuler.id
-                  ? rulerColorMap[ruler.id]
-                  : 'unset'
-                : rulerColorMap[ruler.id] || 'transparent'
-            };`
-          "
+          :style="`background-color: ${
+            activeRuler
+              ? ruler.id == activeRuler.id
+                ? rulerColorMap[ruler.id]
+                : 'unset'
+              : rulerColorMap[ruler.id] || 'transparent'
+          };`"
           @click="setActiveRuler(ruler)"
         >
           {{ ruler.shortName || ruler.name }}
@@ -97,7 +95,7 @@ import MintLocation from '../../models/mintlocation';
 export default {
   name: 'PoliticalMap',
   components: { Sidebar, Timeline, Checkbox, FilterIcon },
-  data: function() {
+  data: function () {
     return {
       mints: [],
       rulers: [],
@@ -105,22 +103,21 @@ export default {
       selectedMints: [],
       rulerColorMap: {},
       availableMints: null,
-      unavailableMints: null
+      unavailableMints: null,
     };
   },
   mixins: [map, timeline],
   computed: {
-    filtersActive: function() {
+    filtersActive: function () {
       return this.activeRuler != null || this.selectedMints.length > 0;
-    }
+    },
   },
-  mounted: async function() {
-    console.log('MOUNTED');
+  mounted: async function () {
     await this.initTimeline();
     this.updateTimeline();
   },
   methods: {
-    fetchTypes: async function() {
+    fetchTypes: async function () {
       return new Promise((resolve, reject) => {
         Query.raw(
           `{
@@ -161,17 +158,17 @@ mint {
   }
 }`
         )
-          .then(result => {
+          .then((result) => {
             let data = result.data.data.getTypes;
             let mints = result.data.data.mint.filter(
-              mint => mint.location != null
+              (mint) => mint.location != null
             );
             this.mints = {};
-            mints.forEach(mint => {
+            mints.forEach((mint) => {
               this.mints[mint.id] = mint;
             });
 
-            data.forEach(type => {
+            data.forEach((type) => {
               if (type?.mint.location) {
                 try {
                   type.mint.location = JSON.parse(type.mint.location);
@@ -182,7 +179,7 @@ mint {
             });
 
             data = data.filter(
-              d => (d.mint?.location && d.mint.location.coordinates) != null
+              (d) => (d.mint?.location && d.mint.location.coordinates) != null
             );
 
             resolve(data);
@@ -190,12 +187,12 @@ mint {
           .catch(reject);
       });
     },
-    updateTimeline: async function() {
+    updateTimeline: async function () {
       this.types = await this.fetchTypes();
       this.update();
     },
-    resetFilters: function() {
-      this.selectedMints.forEach(mint => (mint.selected = false));
+    resetFilters: function () {
+      this.selectedMints.forEach((mint) => (mint.selected = false));
       this.selectedMints.splice(0);
       this.activeRuler = null;
       this.update();
@@ -218,7 +215,7 @@ mint {
       }
     },
     removeAllActiveMint() {
-      this.selectedMints.splice(0).forEach(mint => (mint.selected = false));
+      this.selectedMints.splice(0).forEach((mint) => (mint.selected = false));
     },
     update() {
       this.updateConcentricCircles();
@@ -233,29 +230,29 @@ mint {
 
       this.mintLocations.addTo(this.featureGroup);
     },
-    updateConcentricCircles: function() {
+    updateConcentricCircles: function () {
       let rulers = {};
       let mints = {};
 
-      this.types.forEach(type => {
+      this.types.forEach((type) => {
         if (type.mint?.id) mints[type.mint.id] = type.mint;
         if (type.caliph) rulers[type.caliph.id] = type.caliph;
-        type.issuers.forEach(issuer => (rulers[issuer.id] = issuer));
-        type.overlords.forEach(overlord => (rulers[overlord.id] = overlord));
+        type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
+        type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
       });
 
       let data = this.types;
 
       if (this.selectedMints.length > 0)
-        data = data.filter(type => {
-          return this.selectedMints.find(mint => mint.id == type.mint.id);
+        data = data.filter((type) => {
+          return this.selectedMints.find((mint) => mint.id == type.mint.id);
         });
 
       this.rulerColorMap = {};
       let i = 0;
 
       this.rulers = rulers;
-      Object.values(rulers).forEach(ruler => {
+      Object.values(rulers).forEach((ruler) => {
         this.rulerColorMap[ruler.id] = Color.byIndex(i);
         i++;
       });
@@ -264,7 +261,7 @@ mint {
 
       let mintsFeatures = {};
 
-      data.forEach(obj => {
+      data.forEach((obj) => {
         let mint = obj.mint;
 
         if (!mintsFeatures[mint.id]) {
@@ -273,7 +270,7 @@ mint {
             type: mint.location.type,
             coordinates: mint.location.coordinates,
             drawn: 0,
-            coins: []
+            coins: [],
           };
           mintsFeatures[mint.id] = obj;
         }
@@ -289,7 +286,7 @@ mint {
         Object.values(mintsFeatures),
 
         {
-          pointToLayer: function(feature, latlng) {
+          pointToLayer: function (feature, latlng) {
             let types = [];
 
             const allTypesGroup = that.L.layerGroup();
@@ -330,7 +327,7 @@ mint {
                       stroke: true,
                       color: '#fff',
                       fillColor,
-                      fillOpacity: 1
+                      fillOpacity: 1,
                     };
                   }
 
@@ -349,7 +346,7 @@ mint {
                         personsArr.length > 1
                       ) {
                         let str = orderedList ? '<ol>' : '<ul>';
-                        personsArr.forEach(person => {
+                        personsArr.forEach((person) => {
                           str += `<li>${printName(person)}</li>`;
                         });
 
@@ -439,14 +436,14 @@ mint {
             return allTypesGroup;
           },
 
-          coordsToLatLng: function(coords) {
+          coordsToLatLng: function (coords) {
             return new that.L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
             stroke: false,
             fillColor: '#629bf0',
-            fillOpacity: 1
-          }
+            fillOpacity: 1,
+          },
         }
       );
 
@@ -500,7 +497,7 @@ mint {
     },
     removeActiveMint(mint) {
       const selectedMintPosition = this.selectedMints.findIndex(
-        selectedMint => selectedMint.id == mint.id
+        (selectedMint) => selectedMint.id == mint.id
       );
       if (selectedMintPosition != -1) {
         mint.selected = false;
@@ -535,8 +532,8 @@ mint {
         hasRuler('overlords', type, ruler) ||
         hasRuler('caliph', type, ruler)
       );
-    }
-  }
+    },
+  },
 };
 </script>
 

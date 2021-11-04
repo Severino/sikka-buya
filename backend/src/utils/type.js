@@ -290,12 +290,11 @@ class Type {
         }
     }
 
-    static async searchType(filters = {}) {
+    static async searchType(_, filters = {}, context, info) {
 
         let text = filters.text
         delete filters.text
 
-        console.log(filters)
         const f = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter([...f, "unaccent(t.project_id) ILIKE unaccent($[searchText])"])
 
@@ -309,14 +308,15 @@ class Type {
         LIMIT ${process.env.MAX_SEARCH}
         `, { searchText: "%" + text + "%" })
 
+        let fields = graphqlFields(info)
         for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type)
+            result[idx] = await this.postprocessType(type, fields)
         }
 
         return result
     }
 
-    static async getTypesReducedList(args) {
+    static async getTypesReducedList(_, args) {
 
         let { page = 0, count = 10 } = (args.pagination)
 
@@ -446,19 +446,22 @@ class Type {
 
     static async getTypes(_, filters = {}, context, info) {
 
-        let fields = graphqlFields(info)
+
 
         console.log(filters)
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter(conditions)
+        const query = `
+SELECT 
+${this.rows}         
+FROM type t 
+${this.joins}
+${whereClause}
+;`
 
-        const result = await Database.manyOrNone(`
-            SELECT 
-            ${this.rows}         
-         FROM type t 
-            ${this.joins}
-            ${whereClause}
-            ;`)
+        console.log(query)
+        const result = await Database.manyOrNone(query)
+        let fields = graphqlFields(info)
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type, fields)
         }
@@ -466,7 +469,8 @@ class Type {
         return result
     }
 
-    static async getType(id) {
+    static async getType(_, { id = null } = {}, context, info) {
+
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
@@ -478,8 +482,8 @@ class Type {
                 `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
-
-        return await this.postprocessType(result);
+        const fields = graphqlFields(info)
+        return await this.postprocessType(result, fields);
     }
 
     static async getTypesByOverlord(_, { id = null } = {}, context, info) {
