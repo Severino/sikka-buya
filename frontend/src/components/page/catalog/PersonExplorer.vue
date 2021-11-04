@@ -1,5 +1,6 @@
 <template>
   <div class="content-wrapper">
+    <h1>Overlord List</h1>
     <div class="person-explorer">
       <div class="list">
         <collapsible

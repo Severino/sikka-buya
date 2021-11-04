@@ -107,6 +107,7 @@ const routes = [
       analyticsRoutes,
       {
         path: "/persons/",
+        name: "OverlordAccordeon",
         component: PersonExplorer
       },
       {
