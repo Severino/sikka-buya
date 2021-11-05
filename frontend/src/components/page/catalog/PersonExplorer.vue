@@ -19,14 +19,64 @@
             >
               Keine Typen mit dieser Person vorhanden
             </p>
-
-            <collapsible
-              v-for="mintObject of Object.values(map[person.id])"
-              :key="'mint-' + person.id + '-' + mintObject.value.name"
-              class="year-grid"
-            >
-              <template slot="header">{{ mintObject.value.name }}</template>
-              <collapsible
+            <div class="flex">
+              <Button
+                v-for="mintObject of objectToSortedArray(map[person.id])"
+                :key="'mint-' + person.id + '-' + mintObject.value.name"
+                class="year-grid"
+                :class="{ active: mintObject.active }"
+                @click="toggleActive(mintObject)"
+              >
+                {{ mintObject.value.name }}</Button
+              >
+            </div>
+            <hr />
+            <div>
+              <div
+                class="flex"
+                v-for="mintObject of getActiveObjects(map[person.id])"
+                :key="
+                  'mint-' + person.id + '-' + mintObject.value.name + '-active'
+                "
+              >
+                <b>{{ mintObject.value.name }}:</b>
+                <Button
+                  v-for="timeObject of mintObject.children"
+                  :key="
+                    'mint-' +
+                    person.id +
+                    '-' +
+                    mintObject.value.name +
+                    '-' +
+                    timeObject.value
+                  "
+                  :class="{ active: timeObject.active }"
+                  @click="toggleActive(timeObject)"
+                >
+                  {{ timeObject.value }}</Button
+                >
+                <div class="grid"></div>
+              </div>
+              <hr />
+              <div>
+                <labeled-property
+                  v-if="activeTypes(map[person.id]).length > 0"
+                  label="Typen"
+                >
+                  <div class="flex">
+                    <Button
+                      v-for="type of activeTypes(map[person.id])"
+                      :key="'selectedType-' + type.id"
+                      @click="selectType(person, type.projectId)"
+                    >
+                      {{ type.projectId }}
+                    </Button>
+                  </div>
+                </labeled-property>
+              </div>
+              <hr />
+            </div>
+            <!-- <Button
                 v-for="timeObject of mintObject.children"
                 :key="
                   'mint-' +
@@ -37,8 +87,27 @@
                   timeObject.value
                 "
               >
-                <template slot="header">{{ timeObject.value }}</template>
-                <collapsible
+                {{ timeObject.value }}</Button
+              > -->
+
+            <!-- <div class="flex">
+                  <Button
+                    v-for="type of timeObject.children"
+                    :key="
+                      'mint-' +
+                      person.id +
+                      '-' +
+                      mintObject.value.name +
+                      '-' +
+                      timeObject.value +
+                      '-' +
+                      type.id
+                    "
+                    >{{ type.projectId }}</Button
+                  >
+                 </div> -->
+
+            <!-- <collapsible
                   v-for="type of timeObject.children"
                   :key="
                     'mint-' +
@@ -60,10 +129,10 @@
                       {{ type.material.name }}
                     </labeled-property>
                     <labeled-property label="Donativ">
-                      {{ type.donativ }}
+                      {{ type.donativ ? 'Geschenkmünze' : 'Umlaufmünze' }}
                     </labeled-property>
                     <labeled-property label="Herstellungsart">
-                      {{ type.procedure }}
+                      {{ type.procedure == 'pressed' ? 'Geprägt' : 'Gegossen' }}
                     </labeled-property>
                   </div>
                   <labeled-property label="Avers">
@@ -77,9 +146,9 @@
                       />
                     </ol>
                   </labeled-property>
-                </collapsible>
+                </collapsible> 
               </collapsible>
-            </collapsible>
+            </collapsible>-->
           </div>
         </collapsible>
       </div>
@@ -91,8 +160,11 @@
 import Query from '../../../database/query';
 import LabeledProperty from '../../display/LabeledProperty.vue';
 import Collapsible from '../../layout/Collapsible.vue';
+import TypePage from '../TypePage.vue';
+var deburr = require('lodash.deburr');
+
 export default {
-  components: { Collapsible, LabeledProperty },
+  components: { Collapsible, LabeledProperty, TypePage },
   data: function () {
     return {
       persons: [],
@@ -111,6 +183,7 @@ export default {
       .then((result) => {
         console.log(result);
         this.persons = result.data.data.person;
+        this.persons.forEach((person) => (person.activeType = null));
       })
       .catch(console.error);
   },
@@ -158,12 +231,17 @@ export default {
               if (type?.mint?.id) {
                 const mintId = type.mint.id;
                 if (!mints[mintId])
-                  mints[mintId] = { value: type.mint, children: {} };
+                  mints[mintId] = {
+                    value: type.mint,
+                    active: false,
+                    children: {},
+                  };
 
                 if (type.yearOfMint) {
                   if (!mints[mintId].children[type.yearOfMint]) {
                     mints[mintId].children[type.yearOfMint] = {
                       value: type.yearOfMint,
+                      active: false,
                       children: [],
                     };
                   }
@@ -177,6 +255,43 @@ export default {
           })
           .catch(console.error);
       }
+    },
+    objectToSortedArray(obj) {
+      let arr = Object.values(obj).sort((a, b) =>
+        deburr(a.value.name.toLowerCase()) < deburr(b.value.name.toLowerCase())
+          ? -1
+          : 1
+      );
+
+      // console.log(arr.map((o) => deburr(o.value.name.toLowerCase())));
+      return arr;
+    },
+    toggleActive(obj) {
+      obj.active = !obj.active;
+    },
+    selectType(person, type) {
+      person.activeType = type;
+    },
+    activeTypes(mintListObject) {
+      const selected = [];
+      for (let mintObj of Object.values(mintListObject)) {
+        if (mintObj.active) {
+          for (let yearObj of Object.values(mintObj.children)) {
+            if (yearObj.active) {
+              selected.push(...yearObj.children);
+            }
+          }
+        }
+      }
+
+      return selected.sort((a, b) =>
+        deburr(a.projectId.toLowerCase()) < deburr(a.projectId.toLowerCase())
+          ? -1
+          : 1
+      );
+    },
+    getActiveObjects(arr) {
+      return Object.values(arr).filter((obj) => obj.active);
     },
     getInscripts(coinside) {
       function hasContent(htmlString) {
@@ -213,10 +328,10 @@ export default {
 }
 
 .year-grid > .list-filter-container-content {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  align-items: start;
+  display: flex;
+  // grid-template-columns: repeat(3, 1fr);
+  // gap: 10px;
+  // align-items: start;
 
   // .list-filter-container-content {
   //   background-color: red;
@@ -225,7 +340,29 @@ export default {
 }
 
 .grid {
-  display: grid;
+  display: flex;
+  gap: 10px;
+
   grid-template-columns: repeat(3, 1fr);
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -3px;
+  align-items: center;
+  > * {
+    margin: 3px;
+  }
+}
+
+.active {
+  color: $white;
+  background-color: $primary-color;
+
+  &:hover {
+    color: $white;
+    background-color: darken($primary-color, 10%);
+  }
 }
 </style>
