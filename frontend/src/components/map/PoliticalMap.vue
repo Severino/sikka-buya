@@ -137,6 +137,7 @@ mint {
     mintAsOnCoin
     caliph {
       name,
+      shortName
       id
     }
     mint {
