@@ -1,6 +1,11 @@
 <template>
   <div class="content-wrapper">
-    <h1>Overlord List</h1>
+    <header>
+      <h1>Overlord List</h1>
+      <Button v-if="$store.state.user != null" @click="editmode"
+        >Reihenfolge bearbeiten</Button
+      >
+    </header>
     <div class="person-explorer">
       <div class="list">
         <collapsible
@@ -9,7 +14,9 @@
           :key="person.id"
           @open="getTypesByPerson(person)"
         >
-          <template slot="header">{{ person.name }}</template>
+          <template slot="header"
+            >{{ person.name }} ({{ person.id }} | {{ person.dynasty.name }})
+          </template>
           <div v-if="map[person.id]">
             <p
               v-if="
@@ -159,16 +166,18 @@
 <script>
 import Query from '../../../database/query';
 import LabeledProperty from '../../display/LabeledProperty.vue';
+import Button from '../../layout/buttons/Button.vue';
 import Collapsible from '../../layout/Collapsible.vue';
 import TypePage from '../TypePage.vue';
 var deburr = require('lodash.deburr');
 
 export default {
-  components: { Collapsible, LabeledProperty, TypePage },
+  components: { Collapsible, LabeledProperty, TypePage, Button },
   data: function () {
     return {
       persons: [],
       map: {},
+      editmode: false,
     };
   },
   mounted() {
@@ -177,6 +186,8 @@ export default {
           person (dynasty: 1){
             id
               name
+              role {name}
+              dynasty{name}
           } 
           }`
     )
@@ -192,7 +203,7 @@ export default {
       if (!this.map[person.id]) {
         Query.raw(
           `{
-        getTypesByOverlord(id:${person.id})
+        getTypesByRuler(id:${person.id})
         {
           id
           projectId
@@ -223,7 +234,7 @@ export default {
         }`
         )
           .then((result) => {
-            const types = result.data.data.getTypesByOverlord;
+            const types = result.data.data.getTypesByRuler;
             this.types = types;
 
             let mints = {};
@@ -320,6 +331,14 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.content-wrapper header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+</style>
 
 <style lang="scss">
 .highlight header {

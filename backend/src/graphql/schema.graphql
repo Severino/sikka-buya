@@ -250,7 +250,7 @@ type Query {
     pagination: Pagination
     filter: ListFilter
   ): ReducedCoinTypePagination
-  getTypesByOverlord(id: ID!): [CoinType]
+  getTypesByRuler(id: ID!): [CoinType]
   getTypes(
     yearOfMint: Int
     mint: ID
