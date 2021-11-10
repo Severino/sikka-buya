@@ -45,17 +45,33 @@ class PersonResolver extends Resolver {
 
 
 
-    async list(_, { role = undefined } = {}) {
+    async list(_, filters = {}) {
+
+        console.log(filters)
 
         const whereClauses = []
-        // console.log(role)
-        if (role != undefined) {
-            if (role == null) {
-                whereClauses.push(`role IS NULL`)
+
+        let queryParameters = {
+            table: this.tableName
+        }
+        for (let [name, value] of Object.entries(filters)) {
+            /**
+             * We create a new name that is very unlikely to collide with any other 
+             * parameter in the queryParameters.
+             * 
+             * Object.assign() would have had a too high probability to overwrite 
+             * some important queryParameter which may result in severe damages
+             * to the database.
+             */
+            const filterName = "filter_" + name
+            queryParameters[filterName] = value
+            if (value == null) {
+                whereClauses.push(`${name} IS NULL`)
             } else {
-                whereClauses.push(`role=${role}`)
+                whereClauses.push(`${name}=$[${filterName}]`)
             }
         }
+
 
         const where = (whereClauses.length > 0) ? "WHERE " + whereClauses.join("AND") : ""
 
@@ -67,9 +83,8 @@ class PersonResolver extends Resolver {
         LEFT JOIN person_role r ON p.role = r.id 
         LEFT JOIN dynasty d ON p.dynasty = d.id
         ${where}
-        ORDER BY name ASC`, {
-            table: this.tableName
-        })
+        ORDER BY name ASC`,
+            queryParameters)
 
         result = result.map(item => {
             return Person.decomposePersonResult(item)
