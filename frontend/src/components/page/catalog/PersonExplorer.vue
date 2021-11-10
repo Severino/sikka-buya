@@ -174,7 +174,7 @@ export default {
   mounted() {
     Query.raw(
       `{
-          person (role:null){
+          person (dynasty: 1){
             id
               name
           } 
