@@ -130,7 +130,7 @@ import Query from '/src/database/query.js';
 export default {
   components: { LabeledProperty, Tabulated, CoinSideGroup },
   name: 'TypePage',
-  data: function() {
+  data: function () {
     return {
       navigationGuard: null,
       type: {
@@ -169,7 +169,7 @@ export default {
       },
     };
   },
-  created: function() {
+  created: function () {
     Query.raw(
       `{
             getCoinType(id:${this.$route.params.id}){
@@ -285,7 +285,7 @@ export default {
         return this.type[name];
       }
     },
-    getTypePropertyKey: function(name, key = 'name') {
+    getTypePropertyKey: function (name, key = 'name') {
       let result = this.getTypeProperty(name);
       if (!result[key]) {
         return this.getUndefinedString();
@@ -295,11 +295,13 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 h1 {
   margin-bottom: 0;
 }
+</style>
 
+<style lang="scss">
 .left-properties {
   flex: 2;
   margin-right: 150px;

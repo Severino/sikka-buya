@@ -348,8 +348,15 @@ async function start({
                         let result = await Database.oneOrNone(`SELECT $[attr:name] FROM ${langTable} WHERE id=$[id]`, { attr, id })
                         return result[attr]
                     } else return ""
+                },
+                getPersonExplorerOrder: async function () {
+                    return Database.manyOrNone(`SELECT position as order, person FROM person_explorer_custom_sorting`)
                 }
+
             }, Mutation: {
+                changePersonExplorerOrder: async function (_, args) {
+                    return Database.none("INSERT INTO person_explorer_custom_sorting (person, position) VALUES ($[person], $[position]) ON CONFLICT (person) DO UPDATE SET position=$[position]", args)
+                },
                 updateNote: async function (_, args) {
                     let { text, property, propertyId: property_id } = args
                     await Database.none(`

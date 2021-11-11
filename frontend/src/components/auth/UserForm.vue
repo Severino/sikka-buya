@@ -2,36 +2,39 @@
   <fieldset>
     <h3 v-if="title">{{ title }}</h3>
 
-    <label for="username">Email</label>
-    <input
-      id="username"
-      name="username"
-      type="email"
-      :value="email"
-      @input="emailChanged"
-      required
-      autocomplete="username"
-      autofocus
-    />
+    <labeled-input-container label="Email">
+      <input
+        id="username"
+        name="username"
+        type="email"
+        :value="email"
+        @input="emailChanged"
+        required
+        autocomplete="username"
+        autofocus
+      />
+    </labeled-input-container>
 
-    <label for="cpassword">Password</label>
-    <input
-      type="password"
-      id="cpassword"
-      name="current-password"
-      :value="password"
-      @input="passwordChanged"
-      autocomplete="current-password"
-      required
-    />
-    <p v-if="loginError">{{ loginError }}</p>
+    <labeled-input-container label="Password">
+      <input
+        type="password"
+        id="cpassword"
+        name="current-password"
+        :value="password"
+        @input="passwordChanged"
+        autocomplete="current-password"
+        required
+      />
+      <p v-if="loginError">{{ loginError }}</p>
+    </labeled-input-container>
   </fieldset>
 </template>
 
 <script>
+import LabeledInputContainer from '../LabeledInputContainer.vue';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
 export default {
-  components: { AsyncButton },
+  components: { AsyncButton, LabeledInputContainer },
   name: 'UserForm',
   props: {
     title: String,
@@ -41,13 +44,13 @@ export default {
     disabled: Boolean,
   },
   methods: {
-    passwordChanged: function(event) {
+    passwordChanged: function (event) {
       this.changed({ password: event.currentTarget.value });
     },
-    emailChanged: function(event) {
+    emailChanged: function (event) {
       this.changed({ email: event.currentTarget.value });
     },
-    changed: function(args) {
+    changed: function (args) {
       const inputObject = Object.assign(
         {},
         {

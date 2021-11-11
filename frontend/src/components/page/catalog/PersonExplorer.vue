@@ -1,8 +1,11 @@
 <template>
   <div class="content-wrapper">
     <header>
-      <h1>Overlord List</h1>
-      <Button v-if="$store.state.user != null" @click="editmode"
+      <h1>Personen Überblick</h1>
+      <Button
+        v-if="$store.state.user != null"
+        @click="toggleEditMode()"
+        :class="{ active: editmode }"
         >Reihenfolge bearbeiten</Button
       >
     </header>
@@ -14,8 +17,19 @@
           :key="person.id"
           @open="getTypesByPerson(person)"
         >
-          <template slot="header"
-            >{{ person.name }} ({{ person.id }} | {{ person.dynasty.name }})
+          <template slot="header">
+            <div class="edit-toolbar" v-if="editmode">
+              <input
+                type="number"
+                name=""
+                id=""
+                style="width: 75px"
+                @click.stop
+                :value="orderMap[person.id]"
+                @change="orderChanged($event, person.id)"
+              />
+            </div>
+            {{ person.name }} ({{ person.id }} | {{ person.dynasty.name }})
           </template>
           <div v-if="map[person.id]">
             <p
@@ -171,34 +185,86 @@ import Collapsible from '../../layout/Collapsible.vue';
 import TypePage from '../TypePage.vue';
 var deburr = require('lodash.deburr');
 
+import ArrowUp from 'vue-material-design-icons/ArrowUpBold.vue';
+import ArrowDown from 'vue-material-design-icons/ArrowDownBold.vue';
+
 export default {
-  components: { Collapsible, LabeledProperty, TypePage, Button },
+  components: {
+    ArrowUp,
+    ArrowDown,
+    Collapsible,
+    LabeledProperty,
+    TypePage,
+    Button,
+  },
   data: function () {
     return {
       persons: [],
       map: {},
-      editmode: false,
+      orderMap: {},
+      editmode: true,
     };
   },
   mounted() {
-    Query.raw(
-      `{
+    this.updateRulers();
+  },
+  methods: {
+    updateRulers() {
+      Query.raw(
+        `{
           person (dynasty: 1){
             id
               name
               role {name}
               dynasty{name}
           } 
+          
+            getPersonExplorerOrder{
+              order
+              person
+            }
+
           }`
-    )
-      .then((result) => {
-        console.log(result);
-        this.persons = result.data.data.person;
-        this.persons.forEach((person) => (person.activeType = null));
-      })
-      .catch(console.error);
-  },
-  methods: {
+      )
+        .then((result) => {
+          const order = result.data.data.getPersonExplorerOrder;
+          const orderMap = {};
+          order.forEach((item) => {
+            if (item.person != null) {
+              orderMap[item.person] = item.order;
+            }
+          });
+          this.orderMap = orderMap;
+
+          const persons = result.data.data.person;
+          persons.sort((a, b) => {
+            let aPos = orderMap[a.id] ? orderMap[a.id] : 0;
+            let bPos = orderMap[b.id] ? orderMap[b.id] : 0;
+            if (aPos < bPos) return 1;
+            else if (aPos > bPos) return -1;
+            else return 0;
+          });
+          persons.forEach((person) => (person.activeType = null));
+          this.persons = persons;
+        })
+        .catch(console.error);
+    },
+    orderChanged(event, personId) {
+      Query.raw(
+        `mutation {
+          changePersonExplorerOrder (person: ${personId}, position: ${event.target.value})
+        }`
+      )
+        .then(() => {
+          this.updateRulers();
+        })
+        .catch(console.error);
+    },
+    toggleEditMode() {
+      if (this.$store.state.user) {
+        this.editmode = !this.editmode;
+      }
+    },
     getTypesByPerson: function (person) {
       if (!this.map[person.id]) {
         Query.raw(
@@ -338,6 +404,25 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
+
+.edit-toolbar {
+  // position: absolute;
+  top: 0;
+  left: 0;
+  // transform: translateX(-100%);
+  margin-right: 20px;
+  display: flex;
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -3px;
+  align-items: center;
+  > * {
+    margin: 3px;
+  }
+}
 </style>
 
 <style lang="scss">
@@ -363,16 +448,6 @@ export default {
   gap: 10px;
 
   grid-template-columns: repeat(3, 1fr);
-}
-
-.flex {
-  display: flex;
-  flex-wrap: wrap;
-  margin: -3px;
-  align-items: center;
-  > * {
-    margin: 3px;
-  }
 }
 
 .active {

@@ -7,7 +7,7 @@
 
 <script>
 export default {
-  name: "LabeledInputContainer",
+  name: 'LabeledInputContainer',
   props: {
     label: String,
     warning: String,
@@ -17,6 +17,10 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+label {
+  margin-bottom: 10px;
+}
+
 .labeled-input-container {
   display: flex;
   flex-direction: column;

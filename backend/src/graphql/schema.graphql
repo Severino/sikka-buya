@@ -180,6 +180,11 @@ type Range {
   to: Int
 }
 
+type PersonPosition {
+  person: ID
+  order: Int
+}
+
 type Query {
   ping: String
   environment: String
@@ -281,6 +286,8 @@ type Query {
   auth(token: String): User
 
   getLang(id: ID!, table: String!, lang: String!, attr: String!): String
+
+  getPersonExplorerOrder: [PersonPosition]
 }
 
 type Mutation {
@@ -359,6 +366,8 @@ type Mutation {
 
   setTypeComplete(id: ID!, completed: Boolean = true): Boolean
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
+
+  changePersonExplorerOrder(person: ID!, position: Int!): Void
 }
 
 input Pagination {

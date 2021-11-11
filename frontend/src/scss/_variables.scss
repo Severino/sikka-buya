@@ -3,6 +3,7 @@ $font: $sans-serif, 'Times New Roman', sans-serif;
 
 $padding: 10px;
 $big-padding: 30px;
+$big-box-padding: 30px 50px;
 
 $white: #fefefe;
 $gray: rgb(126, 126, 126);
@@ -30,4 +31,4 @@ $border-radius: 10px;
 $transition-time: 0.3s;
 $long-transition-time: 0.6s;
 
-$shadow: 1px 2px 5px rgba(0, 0, 0, 0.1);
+$shadow: 1px 2px 5px rgba(0, 0, 0, 0.02);

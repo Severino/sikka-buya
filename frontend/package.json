@@ -11,6 +11,7 @@
     "@turf/convex": "^6.5.0",
     "@turf/turf": "^6.5.0",
     "axios": "^0.21.1",
+    "capitalize": "^2.0.4",
     "chai": "^4.3.4",
     "change-case": "^4.1.2",
     "core-js": "^3.9.1",

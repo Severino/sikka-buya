@@ -2,7 +2,7 @@
   <form class="types-page" @submit.prevent="">
     <modal :active="confirmVisible" @close="() => forceRedirect(false)">
       <confirmation @result="forceRedirect"
-        >Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabe
+        >Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabei
         verloren!</confirmation
       >
     </modal>

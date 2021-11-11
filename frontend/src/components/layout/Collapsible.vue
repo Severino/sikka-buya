@@ -74,6 +74,7 @@ header {
   align-items: center;
   user-select: none;
   cursor: pointer;
+  position: relative;
 }
 
 header,
