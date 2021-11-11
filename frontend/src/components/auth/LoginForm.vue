@@ -11,7 +11,12 @@
     </form>
     <ErrorMessage v-if="loginError">{{ loginError }}</ErrorMessage>
 
-    <async-button ref="loginBtn" @click="login" :waiting="buttonDisabled">
+    <async-button
+      ref="loginBtn"
+      @click="login"
+      class="colored"
+      :waiting="buttonDisabled"
+    >
       Anmelden
     </async-button>
   </Box>
@@ -39,6 +44,7 @@ export default {
   methods: {
     enter(evt) {
       if (evt.key === 'Enter') {
+        console.log('ENTER');
         this.$refs['loginBtn'].$el.click();
       }
     },
@@ -93,10 +99,12 @@ export default {
   max-width: 100%;
   width: 512px;
   background-color: $white;
-  @include box-padding($big-padding);
+  padding: 50px 60px;
+  border-radius: 15px;
+  box-shadow: $shadow;
 
   > *:not(:last-child) {
-    margin-bottom: $padding;
+    margin-bottom: $padding * 2;
   }
 }
 

@@ -145,7 +145,6 @@ section {
   h3 {
     font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 0;
   }
 }
 
@@ -173,10 +172,10 @@ button[disabled] {
 }
 
 select,
-.button,
 input,
 button {
   @include input;
+  box-sizing: border-box;
 }
 
 button[type='submit'] {
@@ -191,7 +190,6 @@ button[type='submit'] {
 .button,
 button {
   display: block;
-  text-transform: capitalize;
   @include input;
   @include interactive();
 }
@@ -299,6 +297,7 @@ a {
 .material-design-icon {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 input:read-only {

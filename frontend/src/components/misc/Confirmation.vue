@@ -1,5 +1,6 @@
 <template>
   <div class="confirmation">
+    <h3>Warnung!</h3>
     <div class="text">
       <slot />
     </div>
@@ -16,9 +17,21 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+h3 {
+  color: $primary-color;
+  margin-top: 0;
+}
+
+.text {
+  padding: $big-box-padding;
+  box-sizing: border-box;
+}
+
 .confirmation {
+  border-radius: 10px;
   background-color: $white;
   padding: $padding * 2;
+  box-sizing: border-box;
 }
 
 footer {

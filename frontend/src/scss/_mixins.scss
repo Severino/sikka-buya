@@ -41,7 +41,7 @@
 }
 
 @mixin box-padding($size) {
-  padding: $size 1.75 * $size;
+  padding: $size 1.5 * $size;
 }
 
 @mixin media-tablet {
