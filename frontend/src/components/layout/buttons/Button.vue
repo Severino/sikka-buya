@@ -20,6 +20,8 @@ export default {
 
 <style lang="scss" scoped>
 .button {
+  display: flex;
+  align-items: center;
   text-align: center;
   box-sizing: border-box;
 }

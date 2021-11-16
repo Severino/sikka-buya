@@ -41,43 +41,74 @@
               Keine Typen mit dieser Person vorhanden
             </p>
             <div class="flex">
-              <Button
-                v-for="mintObject of objectToSortedArray(map[person.id])"
-                :key="'mint-' + person.id + '-' + mintObject.value.name"
-                class="year-grid"
-                :class="{ active: mintObject.active }"
-                @click="toggleActive(mintObject)"
+              <div
+                v-for="yearObject of stringsToSortedArray(map[person.id])"
+                :key="'mint-' + person.id + '-' + yearObject.value"
+                class="initial-group inline-group"
               >
-                {{ mintObject.value.name }}
-              </Button>
-            </div>
+                <Button
+                  class="initial-button year-grid"
+                  :class="{ active: yearObject.active }"
+                  @click="toggleActive(yearObject)"
+                >
+                  {{ yearObject.value }}
+                </Button>
+                <div v-if="yearObject.active" class="inline-child-group">
+                  <div
+                    class="inline-group"
+                    v-for="mintObject of yearObject.children"
+                    :key="
+                      'mint-' +
+                      person.id +
+                      '-' +
+                      yearObject.value +
+                      '-' +
+                      mintObject.value.name
+                    "
+                  >
+                    <Button
+                      :class="{ active: mintObject.active }"
+                      @click="toggleActive(mintObject)"
+                    >
+                      {{ mintObject.value.name }}</Button
+                    >
+                    <div class="inline-child-group" v-if="mintObject.active">
+                      <Button
+                        :class="{
+                          active: isPersonTypeActive(person, type),
+                        }"
+                        v-for="type of objectToSortedArray(mintObject.children)"
+                        :key="
+                          'mint-' +
+                          person.id +
+                          '-' +
+                          yearObject.value +
+                          '-' +
+                          mintObject.value.name +
+                          '-' +
+                          type.id
+                        "
+                        @click="selectType(person, type.projectId)"
+                      >
+                        {{ type.projectId }}
+                      </Button>
+
+                      <!-- <Button
+                        v-for="type of availableTypes(map[person.id])"
+                        :key="'selectedType-' + type.id"
+                        @click="selectType(person, type.projectId)"
+                      >
+                        {{ type.projectId }}
+                      </Button> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 
+              
             <hr />
             <div>
-              <div
-                class="flex"
-                v-for="mintObject of getActiveObjects(map[person.id])"
-                :key="
-                  'mint-' + person.id + '-' + mintObject.value.name + '-active'
-                "
-              >
-                <b>{{ mintObject.value.name }}:</b>
-                <Button
-                  v-for="timeObject of mintObject.children"
-                  :key="
-                    'mint-' +
-                    person.id +
-                    '-' +
-                    mintObject.value.name +
-                    '-' +
-                    timeObject.value
-                  "
-                  :class="{ active: timeObject.active }"
-                  @click="toggleActive(timeObject)"
-                >
-                  {{ timeObject.value }}</Button
-                >
-                <div class="grid"></div>
-              </div>
               <hr />
               <div>
                 <labeled-property
@@ -95,34 +126,34 @@
                   </div>
                 </labeled-property>
               </div>
-              <hr />
+              <hr />-->
 
               <type-view v-if="person.activeType" :type="person.activeType" />
             </div>
             <!-- <Button
-                v-for="timeObject of mintObject.children"
+                v-for="mintObject of yearObject.children"
                 :key="
                   'mint-' +
                   person.id +
                   '-' +
-                  mintObject.value.name +
+                  yearObject.value +
                   '-' +
-                  timeObject.value
+                  mintObject.value.name
                 "
               >
-                {{ timeObject.value }}</Button
+                {{ mintObject.value.name }}</Button
               > -->
 
             <!-- <div class="flex">
                   <Button
-                    v-for="type of timeObject.children"
+                    v-for="type of mintObject.children"
                     :key="
                       'mint-' +
                       person.id +
                       '-' +
-                      mintObject.value.name +
+                      yearObject.value +
                       '-' +
-                      timeObject.value +
+                      mintObject.value.name +
                       '-' +
                       type.id
                     "
@@ -131,14 +162,14 @@
                  </div> -->
 
             <!-- <collapsible
-                  v-for="type of timeObject.children"
+                  v-for="type of mintObject.children"
                   :key="
                     'mint-' +
                     person.id +
                     '-' +
-                    mintObject.value.name +
+                    yearObject.value +
                     '-' +
-                    timeObject.value +
+                    mintObject.value.name +
                     '-' +
                     type.id
                   "
@@ -278,6 +309,7 @@ export default {
         {
           id
           projectId
+          mintAsOnCoin
           mint {id name}
           yearOfMint
           material {name}
@@ -314,42 +346,55 @@ export default {
             const types = result.data.data.getTypesByRuler;
             this.types[person.id] = types;
 
-            let mints = {};
+            let years = {};
             types.forEach((type) => {
-              if (type?.mint?.id) {
-                const mintId = type.mint.id;
-                if (!mints[mintId])
-                  mints[mintId] = {
-                    value: type.mint,
+              if (type?.yearOfMint) {
+                const yearId = type.yearOfMint;
+                if (!years[yearId])
+                  years[yearId] = {
+                    value: type.yearOfMint,
                     active: false,
                     children: {},
                   };
 
-                if (type.yearOfMint) {
-                  if (!mints[mintId].children[type.yearOfMint]) {
-                    mints[mintId].children[type.yearOfMint] = {
-                      value: type.yearOfMint,
+                if (type?.mint?.id) {
+                  const mintId = type?.mint?.id;
+                  if (!years[yearId].children[mintId]) {
+                    years[yearId].children[mintId] = {
+                      value: type.mint,
                       active: false,
                       children: [],
                     };
                   }
 
-                  mints[mintId].children[type.yearOfMint].children.push(type);
+                  years[yearId].children[mintId].children.push(type);
                 } else console.error('Type has no year set.');
               }
             });
 
-            this.$set(this.map, person.id, mints);
+            this.$set(this.map, person.id, years);
           })
           .catch(console.error);
       }
     },
-    objectToSortedArray(obj) {
+    stringsToSortedArray(obj) {
       let arr = Object.values(obj).sort((a, b) =>
+        a.toString() > b.toString() ? -1 : 1
+      );
+
+      // console.log(arr.map((o) => deburr(o.value.name.toLowerCase())));
+      return arr;
+    },
+    objectToSortedArray(obj) {
+      let arr = Object.values(obj).sort((a, b) => {
+        if (!a || !b) console.log(a, b);
+        if (!a && !b) return 0;
+        else if (!a) return -1;
+        else return 1;
         deburr(a.value.name.toLowerCase()) < deburr(b.value.name.toLowerCase())
           ? -1
-          : 1
-      );
+          : 1;
+      });
 
       // console.log(arr.map((o) => deburr(o.value.name.toLowerCase())));
       return arr;
@@ -361,8 +406,9 @@ export default {
       person.activeType = this.types[person.id].find(
         (element) => element.projectId == type
       );
-
-      console.log(person.activeType);
+    },
+    isPersonTypeActive(person, type) {
+      return person.activeType && person.activeType.id == type.id;
     },
     availableTypes(mintListObject) {
       const selected = [];
@@ -467,6 +513,51 @@ export default {
   &:hover {
     color: $white;
     background-color: darken($primary-color, 10%);
+  }
+}
+
+.initial-group {
+  > .button {
+    padding: 12px;
+  }
+  .inline-child-group > .button {
+    padding: 5px;
+  }
+  .inline-child-group > .inline-child-group > .button {
+    padding: 2px;
+  }
+}
+
+.button {
+  border-radius: $border-radius;
+}
+
+.inline-group {
+  display: flex;
+  background-color: $primary-color;
+  border-radius: $border-radius;
+  border: 1px solid $gray;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  > .button {
+    border: none;
+  }
+
+  .button.active {
+    border-right: none;
+  }
+
+  > .inline-child-group {
+    display: flex;
+    background-color: $border-color;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    border-left: none;
+
+    > * {
+      margin: 2px;
+    }
   }
 }
 </style>

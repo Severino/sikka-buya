@@ -301,6 +301,7 @@ h1 {
 }
 </style>
 
+
 <style lang="scss">
 .left-properties {
   flex: 2;
@@ -309,16 +310,6 @@ h1 {
 
 .coin-side-poperties {
   flex: 1;
-}
-
-.subtitle {
-  font-weight: bold;
-  color: white;
-  font-size: 1.3rem;
-  opacity: 0.5;
-  margin-top: 0px;
-  margin-bottom: 0;
-  line-height: 0;
 }
 
 .property-row {

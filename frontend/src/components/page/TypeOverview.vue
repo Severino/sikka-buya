@@ -256,6 +256,7 @@ export default {
       });
 
       this.updateTypeList();
+      this.filtersChanged();
     },
     getToggleFilters() {
       let activeFilter = [];

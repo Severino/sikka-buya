@@ -290,7 +290,7 @@ mint {
           pointToLayer: function (feature, latlng) {
             let types = [];
 
-            const allTypesGroup = that.L.layerGroup();
+            const allTypesGroup = that.L.featureGroup();
 
             const coinCount = feature.coins.length;
             for (let coinNum = 0; coinNum < coinCount; coinNum++) {

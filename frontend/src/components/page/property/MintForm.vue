@@ -197,11 +197,13 @@ export default {
         id = await this.query('updateMint', data);
       }
 
-      await Query.raw(
-        `mutation {
-        updateNote(text: "${this.note}", property:"mint", propertyId: ${id})
-        }`
-      ).catch((e) => (this.error += e));
+      const query = `mutation UpdateNote($note:String, $id:ID!) {
+        updateNote(text: $note, property:"mint", propertyId: $id)
+        }`;
+
+      await Query.raw(query, { note: this.note, id }).catch(
+        (e) => (this.error += e)
+      );
 
       if (!this.error) {
         this.$router.push({
