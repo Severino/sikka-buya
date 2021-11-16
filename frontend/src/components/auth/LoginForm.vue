@@ -1,5 +1,5 @@
 <template>
-  <Box>
+  <Box class="login-form">
     <form ref="form" @keydown="enter">
       <user-form
         title="Login"
@@ -92,6 +92,14 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.login-form {
+  .button {
+    justify-content: center;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .box {
