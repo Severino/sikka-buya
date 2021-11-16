@@ -207,6 +207,17 @@ button {
   }
 }
 
+.button-list,
+li {
+  &:not(:last-child-of-type) > .button {
+    border-bottom: none;
+  }
+
+  > .button {
+    border-radius: 0;
+  }
+}
+
 .transparent-button {
   background-color: transparent;
   border: none;

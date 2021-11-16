@@ -15,8 +15,8 @@ const graphqlFields = require('graphql-fields')
 class Type {
 
 
-    static async list(_, args) {
-        return this.getTypes(args)
+    static async list() {
+        return this.getTypes(...arguments)
     }
 
 
@@ -149,7 +149,7 @@ class Type {
         return target
     }
 
-    static async addType(data) {
+    static async addType(_, args, context, info) {
         /**
          * Thus the avers and reverse data is nested inside a seperate object,
          * inside the GraphQL interface, we need to transform whose properties
@@ -159,6 +159,7 @@ class Type {
          * empty properties, if the CoinSideInformation is not provided and
          * therefore null.
          */
+        const data = args.data
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
 
@@ -448,7 +449,7 @@ class Type {
 
 
 
-        console.log(filters)
+
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter(conditions)
         const query = `
@@ -459,7 +460,7 @@ ${this.joins}
 ${whereClause}
 ;`
 
-        console.log(query)
+
         const result = await Database.manyOrNone(query)
         let fields = graphqlFields(info)
         for (let [idx, type] of result.entries()) {

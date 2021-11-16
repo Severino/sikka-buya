@@ -457,13 +457,13 @@ async function start({
                         throw new Error("Superuser was already initialized!")
                     }
                 },
-                addCoinType: async function (_, args, context) {
+                addCoinType: async function (_, args, context, info) {
 
                     if (!Auth.verifyContext(context)) {
                         throw new Error('You are not authenticated!')
                     }
 
-                    return Type.addType(args.data)
+                    return Type.addType(_, args, context, info)
                 },
                 inviteUser: async function (_, { email } = {}, context) {
                     // console.log("SEND MAIL TO: ", arguments)

@@ -124,6 +124,7 @@ mintUncertain
 
 describe(`Type Queries`, function () {
   it(`List`, async function () {
+    console.log(`{ coinType{ ${body}}}`)
     let result = await graphql(`{coinType{${body}}}`)
 
     expect(result.data).to.deep.equal({
