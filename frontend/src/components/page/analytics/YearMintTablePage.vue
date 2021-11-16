@@ -245,7 +245,7 @@ h1 {
 .color-box {
   width: 20px;
   height: 20px;
-  background-color: red;
+  background-color: rgb(204, 204, 204);
 
   font-weight: bold;
   text-transform: uppercase;
