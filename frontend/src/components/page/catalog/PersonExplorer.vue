@@ -440,7 +440,7 @@ export default {
 }
 </style>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .year-grid > .list-filter-container-content {
   display: flex;
   // grid-template-columns: repeat(3, 1fr);

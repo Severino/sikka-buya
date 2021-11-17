@@ -21,17 +21,17 @@ import MapView from '../map/MapView.vue';
 export default {
   name: 'MapPage',
   components: { MapView },
-  data: function() {
+  data: function () {
     return {
       map: null,
-      types: []
+      types: [],
     };
   },
   methods: {
-    mapChanged: function(map) {
+    mapChanged: function (map) {
       this.map = map;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -87,8 +87,7 @@ export default {
   .active {
     padding: 2px 5px;
     font-weight: bold;
-    color: $primary-color;
-    // text-decoration: underline;
+    text-decoration: underline;
   }
 
   .catalog-link {
