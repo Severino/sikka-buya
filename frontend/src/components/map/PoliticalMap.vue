@@ -361,7 +361,12 @@ mint {
                       <span class="subtitle">${coin.mint.name}</span>
                     </header>
                     <h2>${coin.projectId}</h2>
-                    <a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>
+                    ${
+                      !coin.excludeFromTypeCatalogue
+                        ? `<a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>`
+                        : ''
+                    }
+                    
                     <h3>Münzherren</h3>
                     ${issuersText}
                     <h3>Oberherren</h3>
