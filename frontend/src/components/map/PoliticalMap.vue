@@ -458,7 +458,7 @@ mint {
       this.concentricCircles.addTo(this.featureGroup);
     },
     getRulerColor(ruler) {
-      return SikkaColor.fromHash(ruler.name);
+      return SikkaColor.fromHash(ruler.shortName);
     },
     getContrastColor(ruler) {
       const contrastColor = SikkaColor.getContrastColor(
@@ -466,7 +466,7 @@ mint {
         '#ffffff',
         '#000000'
       );
-      console.log(contrastColor);
+
       return contrastColor;
     },
     extractRulers(coin) {
@@ -542,7 +542,6 @@ mint {
 
         if (Array.isArray(type[property])) {
           for (let i = 0; i < type[property]?.length; i++) {
-            console.log(type.mint.name, ruler.name);
             if (type[property][i].id == ruler.id) return true;
           }
         } else {
