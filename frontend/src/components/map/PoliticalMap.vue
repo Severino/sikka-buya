@@ -11,8 +11,8 @@
       :from="timeline.from"
       :to="timeline.to"
       :value="timeline.value"
-      @input="timeChanged"
-      @change="timeChanged"
+      @input="timelineChanged"
+      @change="timelineChanged"
     />
 
     <Sidebar title="Herrscher" side="right">
@@ -116,14 +116,23 @@ export default {
     },
   },
   mounted: async function () {
-    await this.initTimeline();
+    const starTime =
+      parseInt(localStorage.getItem('political-timeline')) || 433;
+    await this.initTimeline(starTime);
     this.updateTimeline();
   },
   methods: {
+    timelineChanged(value) {
+      localStorage.setItem('political-timeline', value);
+      this.timeChanged(value);
+    },
     fetchTypes: async function () {
       return new Promise((resolve, reject) => {
-        Query.raw(
-          `{
+        if (!this.timeline.value) {
+          reject('Invalid value in timeline.');
+        } else {
+          Query.raw(
+            `{
 mint {
   id
   name
@@ -159,36 +168,41 @@ mint {
       shortName
       rank
     }
+    excludeFromTypeCatalogue
   }
 }`
-        )
-          .then((result) => {
-            let data = result.data.data.getTypes;
-            let mints = result.data.data.mint.filter(
-              (mint) => mint.location != null
-            );
-            this.mints = {};
-            mints.forEach((mint) => {
-              this.mints[mint.id] = mint;
-            });
+          )
+            .then((result) => {
+              let data = result.data.data.getTypes;
+              let mints = result.data.data.mint.filter(
+                (mint) => mint.location != null
+              );
+              this.mints = {};
+              mints.forEach((mint) => {
+                this.mints[mint.id] = mint;
+              });
 
-            data.forEach((type) => {
-              if (type?.mint.location) {
-                try {
-                  type.mint.location = JSON.parse(type.mint.location);
-                } catch (e) {
-                  console.error('Could not parse GeoJSON.', type.mint.location);
+              data.forEach((type) => {
+                if (type?.mint.location) {
+                  try {
+                    type.mint.location = JSON.parse(type.mint.location);
+                  } catch (e) {
+                    console.error(
+                      'Could not parse GeoJSON.',
+                      type.mint.location
+                    );
+                  }
                 }
-              }
-            });
+              });
 
-            data = data.filter(
-              (d) => (d.mint?.location && d.mint.location.coordinates) != null
-            );
+              data = data.filter(
+                (d) => (d.mint?.location && d.mint.location.coordinates) != null
+              );
 
-            resolve(data);
-          })
-          .catch(reject);
+              resolve(data);
+            })
+            .catch(reject);
+        }
       });
     },
     updateTimeline: async function () {
@@ -225,6 +239,7 @@ mint {
       this.updateConcentricCircles();
       this.updateAvailableMints();
       this.updateMintLocationMarker();
+      this.$emit('timeline-updated', this.value);
     },
     updateMintLocationMarker() {
       const _ = new MintLocation(this);

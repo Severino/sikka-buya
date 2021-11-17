@@ -12,7 +12,7 @@ export default {
             this.selectedMints = [];
             this.updateTimeline();
         },
-        initTimeline: async function () {
+        initTimeline: async function (value) {
             try {
                 let result = await Query.raw(
                     `{
@@ -23,7 +23,7 @@ export default {
             }`);
 
                 let timeline = result.data.data.timespan;
-                timeline.value = 347;
+                timeline.value = value;
                 this.timeline = timeline;
                 window.map = this.map;
             } catch (e) {
