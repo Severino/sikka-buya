@@ -16,66 +16,20 @@
     />
 
     <Sidebar title="Herrscher" side="right">
-      <ul>
-        <li
-          v-for="ruler of rulers"
-          :key="`ruler-list-item-${ruler.id}`"
-          :style="`
-          color: ${getContrastColor(ruler)};
-          background-color: ${
-            activeRuler
-              ? ruler.id == activeRuler.id
-                ? getRulerColor(ruler)
-                : 'unset'
-              : getRulerColor(ruler) || 'transparent'
-          };`"
-          @click="setActiveRuler(ruler)"
-        >
-          {{ ruler.shortName || ruler.name }}
-        </li>
-      </ul>
+      <multi-select-list
+        id="mints"
+        :items="availableRulers"
+        :selectedItems="[]"
+        attribute="shortName"
+      />
     </Sidebar>
 
     <Sidebar title="Prägeorte">
-      <div id="mints">
-        <ul>
-          <li
-            v-for="mint of availableMints"
-            :key="`mint-avail-list-item-${mint.id}`"
-            @click="mintSelected(mint)"
-            :class="{ selected: mint.selected }"
-          >
-            <input
-              v-if="selectedMints.length > 0"
-              type="checkbox"
-              :checked="mint.selected"
-              @input.stop="mintAdded($event, mint)"
-              @click.stop
-            />
-            {{ mint.name }}
-          </li>
-        </ul>
-
-        <ul>
-          <li
-            v-for="mint of unavailableMints"
-            :key="`mint-unavail-list-item-${mint.id}`"
-            @click="mintSelected(mint)"
-            class="inactive"
-            :class="{ selected: mint.selected }"
-          >
-            <input
-              v-if="selectedMints.length > 0"
-              type="checkbox"
-              :checked="mint.selected"
-              @input.stop="mintAdded($event, mint)"
-              @click.stop
-            />
-
-            {{ mint.name }}
-          </li>
-        </ul>
-      </div>
+      <multi-select-list
+        id="mints"
+        :items="availableMints"
+        :selectedItems="[]"
+      />
     </Sidebar>
   </div>
 </template>
@@ -94,19 +48,21 @@ import Query from '../../database/query';
 
 import MintLocation from '../../models/mintlocation';
 import SikkaColor from '../../utils/Color';
+import MultiSelectList from '../MultiSelectList.vue';
 
 export default {
   name: 'PoliticalMap',
-  components: { Sidebar, Timeline, Checkbox, FilterIcon },
+  components: { Sidebar, Timeline, Checkbox, FilterIcon, MultiSelectList },
   data: function () {
     return {
       mints: [],
       rulers: [],
-      activeRuler: null,
+      selectedRulers: [],
       selectedMints: [],
       rulerColorMap: {},
-      availableMints: null,
-      unavailableMints: null,
+      availableMints: [],
+      unavailableMints: [],
+      availableRulers: [],
     };
   },
   mixins: [map, timeline],
@@ -219,19 +175,6 @@ mint {
       this.setActiveMint(mint);
       this.update();
     },
-    setActiveMint(mint) {
-      let addMint =
-        this.selectedMints.length == 1 && this.selectedMints[0].id == mint.id
-          ? false
-          : true;
-
-      this.removeAllActiveMint();
-
-      if (addMint) {
-        mint.selected = true;
-        this.selectedMints.push(mint);
-      }
-    },
     removeAllActiveMint() {
       this.selectedMints.splice(0).forEach((mint) => (mint.selected = false));
     },
@@ -239,6 +182,7 @@ mint {
       this.updateConcentricCircles();
       this.updateAvailableMints();
       this.updateMintLocationMarker();
+      this.updateAvailableRulers();
       this.$emit('timeline-updated', this.value);
     },
     updateMintLocationMarker() {
@@ -248,6 +192,10 @@ mint {
       this.mintLocations = _.createGeometryLayer(features);
 
       this.mintLocations.addTo(this.featureGroup);
+    },
+    updateAvailableRulers() {
+      console.log(Object.values(this.rulers));
+      this.availableRulers = Object.values(this.rulers);
     },
     updateConcentricCircles: function () {
       let rulers = {};
@@ -528,29 +476,7 @@ mint {
       }
     },
 
-    mintAdded(event, mint) {
-      mint.selected = event.target.checked;
-      if (mint.selected) this.addActiveMint(mint);
-      else this.removeActiveMint(mint);
-
-      this.update();
-    },
-    addActiveMint(mint) {
-      this.selectedMints.push(mint);
-      mint.selected = true;
-    },
-    removeActiveMint(mint) {
-      const selectedMintPosition = this.selectedMints.findIndex(
-        (selectedMint) => selectedMint.id == mint.id
-      );
-      if (selectedMintPosition != -1) {
-        mint.selected = false;
-        this.selectedMints.splice(selectedMintPosition, 1);
-        return true;
-      }
-      return false;
-    },
-    setActiveRuler(ruler) {
+    rulerSelected(ruler) {
       if (this.activeRuler && this.activeRuler.id == ruler.id) {
         this.activeRuler = null;
       } else this.activeRuler = ruler;
