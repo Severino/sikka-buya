@@ -7,7 +7,7 @@
 
     <timeline
       ref="timeline"
-      :map="this.map"
+      :map="map"
       :from="timeline.from"
       :to="timeline.to"
       :value="timeline.value"
@@ -20,12 +20,14 @@
         <li
           v-for="ruler of rulers"
           :key="`ruler-list-item-${ruler.id}`"
-          :style="`background-color: ${
+          :style="`
+          color: ${getContrastColor(ruler)};
+          background-color: ${
             activeRuler
               ? ruler.id == activeRuler.id
-                ? rulerColorMap[ruler.id]
+                ? getRulerColor(ruler)
                 : 'unset'
-              : rulerColorMap[ruler.id] || 'transparent'
+              : getRulerColor(ruler) || 'transparent'
           };`"
           @click="setActiveRuler(ruler)"
         >
@@ -91,6 +93,7 @@ import timeline from './mixins/timeline';
 import Query from '../../database/query';
 
 import MintLocation from '../../models/mintlocation';
+import SikkaColor from '../../utils/Color';
 
 export default {
   name: 'PoliticalMap',
@@ -365,9 +368,7 @@ mint {
                     let selected = active && ruler.id === that.activeRuler.id;
 
                     let fillColor =
-                      active && !selected
-                        ? '#ccc'
-                        : that.rulerColorMap[ruler.id];
+                      active && !selected ? '#ccc' : that.getRulerColor(ruler);
 
                     return {
                       radius,
@@ -455,6 +456,18 @@ mint {
       );
 
       this.concentricCircles.addTo(this.featureGroup);
+    },
+    getRulerColor(ruler) {
+      return SikkaColor.fromHash(ruler.name);
+    },
+    getContrastColor(ruler) {
+      const contrastColor = SikkaColor.getContrastColor(
+        this.getRulerColor(ruler),
+        '#ffffff',
+        '#000000'
+      );
+      console.log(contrastColor);
+      return contrastColor;
     },
     extractRulers(coin) {
       let rulers = [];
