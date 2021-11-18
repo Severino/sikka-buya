@@ -1,5 +1,11 @@
 <template>
   <div class="multi-select-list">
+    <Button
+      :class="{ grayedOut: !selectionActive, nonInteractive: !selectionActive }"
+      class="clear-filter-btn"
+      @click="clearSelection"
+      >Filter Zurücksetzen</Button
+    >
     <ul>
       <li
         v-for="item of items"
@@ -8,10 +14,13 @@
         :class="{ selected: isSelected(item) }"
       >
         <input
-          v-if="selectedItems.length > 0"
+          :class="{
+            grayedOut: !selectionActive,
+            nonInteractive: !selectionActive,
+          }"
           type="checkbox"
           :checked="isSelected(item)"
-          @input.stop="added(item)"
+          @input.stop="checkboxSelect($event, item)"
           @click.stop
         />
         {{ item[attribute] }}
@@ -40,7 +49,9 @@
 </template>
 
 <script>
+import Button from './layout/buttons/Button.vue';
 export default {
+  components: { Button },
   name: 'MultiSelectList',
   props: {
     items: {
@@ -58,9 +69,19 @@ export default {
     };
   },
   methods: {
-    added(item) {
+    clearSelection() {
+      this.selectionChanged([]);
+    },
+    checkboxSelect(event, item) {
       const selection = this.selectedIds;
-      selection.push(item.id);
+      if (event.target.checked) {
+        selection.push(item.id);
+      } else {
+        const itemIdx = selection.indexOf(item.id);
+        if (itemIdx != -1) {
+          selection.splice(itemIdx, 1);
+        }
+      }
       this.selectionChanged(selection);
     },
     selected(item) {
@@ -72,18 +93,22 @@ export default {
       if (add) {
         this.selectionChanged([item.id]);
       } else {
-        this.selectionChanged([]);
+        this.clearSelection();
       }
     },
     selectionChanged(selection) {
       this.selectedIds = selection;
-      const selectedItems = this.$emit('selection-changed', this.selectedItems);
+      console.log('selectionChanged');
+      this.$emit('selectionChanged', this.selectedItems);
     },
     isSelected(item) {
       return this.selectedIds.indexOf(item.id) != -1;
     },
   },
   computed: {
+    selectionActive() {
+      return this.selectedIds.length > 0;
+    },
     selectedItems() {
       return this.items.filter((item) => this.isSelected(item));
     },
@@ -114,5 +139,33 @@ export default {
 // },
 </script>
 
-<style>
+<style lang="scss">
+.multi-select-list {
+  > .clear-filter-btn {
+    margin-bottom: 15px;
+    background-color: $primary-color;
+    color: $white;
+    font-weight: bold;
+    text-align: center;
+    border-radius: $border-radius;
+    justify-content: center;
+    padding: 3px 10px;
+  }
+  .hidden {
+    visibility: hidden;
+  }
+
+  .grayedOut {
+    opacity: 0.3;
+    background-color: gray;
+  }
+
+  .nonInteractive {
+    pointer-events: none;
+  }
+
+  ul {
+    margin-left: -15px;
+  }
+}
 </style>
