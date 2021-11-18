@@ -21,6 +21,7 @@
         :items="availableRulers"
         :selectedItems="[]"
         attribute="shortName"
+        @selectionChanged="rulerSelectionChanged"
       />
     </Sidebar>
 
@@ -29,6 +30,7 @@
         id="mints"
         :items="availableMints"
         :selectedItems="[]"
+        @selectionChanged="mintSelectionChanged"
       />
     </Sidebar>
   </div>
@@ -50,6 +52,8 @@ import MintLocation from '../../models/mintlocation';
 import SikkaColor from '../../utils/Color';
 import MultiSelectList from '../MultiSelectList.vue';
 
+import Person from '../../utils/Person';
+
 export default {
   name: 'PoliticalMap',
   components: { Sidebar, Timeline, Checkbox, FilterIcon, MultiSelectList },
@@ -68,7 +72,7 @@ export default {
   mixins: [map, timeline],
   computed: {
     filtersActive: function () {
-      return this.activeRuler != null || this.selectedMints.length > 0;
+      return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
     },
   },
   mounted: async function () {
@@ -166,17 +170,9 @@ mint {
       this.update();
     },
     resetFilters: function () {
-      this.selectedMints.forEach((mint) => (mint.selected = false));
-      this.selectedMints.splice(0);
-      this.activeRuler = null;
+      this.selectedMints = [];
+      this.selectedRulers = [];
       this.update();
-    },
-    mintSelected(mint) {
-      this.setActiveMint(mint);
-      this.update();
-    },
-    removeAllActiveMint() {
-      this.selectedMints.splice(0).forEach((mint) => (mint.selected = false));
     },
     update() {
       this.updateConcentricCircles();
@@ -194,7 +190,6 @@ mint {
       this.mintLocations.addTo(this.featureGroup);
     },
     updateAvailableRulers() {
-      console.log(Object.values(this.rulers));
       this.availableRulers = Object.values(this.rulers);
     },
     updateConcentricCircles: function () {
@@ -210,10 +205,11 @@ mint {
 
       let data = this.types;
 
-      if (this.selectedMints.length > 0)
-        data = data.filter((type) => {
-          return this.selectedMints.find((mint) => mint.id == type.mint.id);
-        });
+      if (this.selectedMints.length > 0) {
+        data = data.filter((type) =>
+          this.selectedMints.includes(type.mint?.id)
+        );
+      }
 
       this.rulerColorMap = {};
       let i = 0;
@@ -224,7 +220,10 @@ mint {
         i++;
       });
 
-      if (this.concentricCircles) this.concentricCircles.remove();
+      if (this.concentricCircles) {
+        this.concentricCircles.remove();
+        this.concentricCircles = null;
+      }
 
       let mintsFeatures = {};
 
@@ -271,11 +270,11 @@ mint {
               let angle = 360 / coinCount;
 
               let radius = maxRadius;
-              function createPopup(coin, activeRuler) {
+              function createPopup(coin, clickedRuler) {
                 function buildRulerList(personsArr, orderedList = false) {
                   function printName(person) {
                     let name = person.shortName || person.name;
-                    if (person.id == activeRuler.id)
+                    if (person.id == clickedRuler.id)
                       name = `<span class="active">${name}</span>`;
                     return name;
                   }
@@ -332,8 +331,9 @@ mint {
                   radius = maxRadius - increment * (rulerCount - rulerNum - 1);
 
                   function getOptions(ruler) {
-                    let active = that.activeRuler;
-                    let selected = active && ruler.id === that.activeRuler.id;
+                    let active = that.selectedRulers.length > 0;
+                    let selected =
+                      active && that.selectedRulers.indexOf(ruler.id) != -1;
 
                     let fillColor =
                       active && !selected ? '#ccc' : that.getRulerColor(ruler);
@@ -426,7 +426,7 @@ mint {
       this.concentricCircles.addTo(this.featureGroup);
     },
     getRulerColor(ruler) {
-      return SikkaColor.fromHash(ruler.shortName);
+      return SikkaColor.fromHash(Person.getName(ruler));
     },
     getContrastColor(ruler) {
       const contrastColor = SikkaColor.getContrastColor(
@@ -454,10 +454,11 @@ mint {
         for (let type of this.types) {
           if (type.mint && avalMints[type.mint.id] == null) {
             const mintId = type.mint.id;
-            if (!this.activeRuler) {
+
+            if (this.selectedRulers.length == 0) {
               avalMints[mintId] = type.mint;
             } else {
-              if (this.mintHasRuler(type, this.activeRuler)) {
+              if (this.mintHasActiveRuler(type)) {
                 avalMints[mintId] = type.mint;
               }
             }
@@ -475,32 +476,29 @@ mint {
         this.unavailableMints = unavailMints;
       }
     },
-
-    rulerSelected(ruler) {
-      if (this.activeRuler && this.activeRuler.id == ruler.id) {
-        this.activeRuler = null;
-      } else this.activeRuler = ruler;
+    mintSelectionChanged(selected) {
+      this.selectedMints = selected.map((mint) => mint.id);
       this.update();
     },
-    mintHasRuler(type, ruler) {
-      function hasRuler(property, type, ruler) {
-        if (!type.mint) return false;
+    rulerSelectionChanged(selected) {
+      this.selectedRulers = selected.map((person) => person.id);
+      this.update();
+    },
+    mintHasActiveRuler(type) {
+      if (!type.mint) return false;
+      for (let property of ['issuers', 'overlords', 'caliph']) {
+        if (!type[property]) continue;
+        let personArr = !Array.isArray(type[property])
+          ? [type[property]]
+          : type[property];
 
-        if (Array.isArray(type[property])) {
-          for (let i = 0; i < type[property]?.length; i++) {
-            if (type[property][i].id == ruler.id) return true;
-          }
-        } else {
-          if (type[property].id == ruler.id) return true;
+        for (let i = 0; i < personArr.length; i++) {
+          const personId = personArr[i].id;
+          if (this.selectedRulers.indexOf(personId) != -1) return true;
         }
-        return false;
       }
 
-      return (
-        hasRuler('issuers', type, ruler) ||
-        hasRuler('overlords', type, ruler) ||
-        hasRuler('caliph', type, ruler)
-      );
+      return false;
     },
   },
 };
