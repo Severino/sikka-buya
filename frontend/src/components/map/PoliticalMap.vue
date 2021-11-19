@@ -16,20 +16,33 @@
     />
 
     <Sidebar title="Herrscher" side="right">
+      <Button class="clear-filter-btn" @click="clearRulerSelection"
+        >Auswahl aufheben</Button
+      >
+
       <multi-select-list
         id="mints"
         :items="availableRulers"
-        :selectedItems="[]"
-        attribute="shortName"
+        :selectedIds="selectedRulers"
         @selectionChanged="rulerSelectionChanged"
       />
     </Sidebar>
 
     <Sidebar title="Prägeorte">
+      <Button class="clear-filter-btn" @click="clearMintSelection"
+        >Auswahl aufheben</Button
+      >
       <multi-select-list
         id="mints"
-        :items="availableMints"
-        :selectedItems="[]"
+        :items="availableMintsList"
+        :selectedIds="this.selectedMints"
+        @selectionChanged="mintSelectionChanged"
+      />
+      <multi-select-list
+        id="mints"
+        class="unavailable"
+        :items="unavailableMintsList"
+        :selectedIds="this.selectedMints"
         @selectionChanged="mintSelectionChanged"
       />
     </Sidebar>
@@ -63,7 +76,7 @@ export default {
       rulers: [],
       selectedRulers: [],
       selectedMints: [],
-      rulerColorMap: {},
+      rulerListStyles: [],
       availableMints: [],
       unavailableMints: [],
       availableRulers: [],
@@ -73,6 +86,22 @@ export default {
   computed: {
     filtersActive: function () {
       return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
+    },
+    availableMintsList() {
+      return this.availableMints.map((mint) => {
+        return {
+          id: mint.id,
+          text: mint.name,
+        };
+      });
+    },
+    unavailableMintsList() {
+      return this.unavailableMints.map((mint) => {
+        return {
+          id: mint.id,
+          text: mint.name,
+        };
+      });
     },
   },
   mounted: async function () {
@@ -190,7 +219,16 @@ mint {
       this.mintLocations.addTo(this.featureGroup);
     },
     updateAvailableRulers() {
-      this.availableRulers = Object.values(this.rulers);
+      const rulers = Object.values(this.rulers);
+      this.availableRulers = rulers.map((ruler) => ({
+        id: ruler.id,
+        text: ruler.shortName || ruler.name || 'Unbenannter Herrscher',
+        style: {
+          backgroundColor: this.getRulerColor(ruler),
+          color: this.getContrastColor(ruler),
+          marginBottom: '3px',
+        },
+      }));
     },
     updateConcentricCircles: function () {
       let rulers = {};
@@ -425,6 +463,15 @@ mint {
 
       this.concentricCircles.addTo(this.featureGroup);
     },
+
+    clearMintSelection() {
+      this.selectedMints = [];
+      this.update();
+    },
+    clearRulerSelection() {
+      this.selectedRulers = [];
+      this.update();
+    },
     getRulerColor(ruler) {
       return SikkaColor.fromHash(Person.getName(ruler));
     },
@@ -450,19 +497,22 @@ mint {
       let avalMints = {};
       let mints = this.mints;
 
+      console.log(this.types);
+
       if (this.types) {
         for (let type of this.types) {
-          if (type.mint && avalMints[type.mint.id] == null) {
-            const mintId = type.mint.id;
+          if (avalMints[type.mint.id] == null)
+            if (type.mint) {
+              const mintId = type.mint.id;
 
-            if (this.selectedRulers.length == 0) {
-              avalMints[mintId] = type.mint;
-            } else {
-              if (this.mintHasActiveRuler(type)) {
+              if (this.selectedRulers.length == 0) {
                 avalMints[mintId] = type.mint;
+              } else {
+                if (this.mintHasActiveRuler(type)) {
+                  avalMints[mintId] = type.mint;
+                }
               }
             }
-          }
         }
 
         let unavailMints = [];
@@ -477,11 +527,11 @@ mint {
       }
     },
     mintSelectionChanged(selected) {
-      this.selectedMints = selected.map((mint) => mint.id);
+      this.selectedMints = selected;
       this.update();
     },
     rulerSelectionChanged(selected) {
-      this.selectedRulers = selected.map((person) => person.id);
+      this.selectedRulers = selected;
       this.update();
     },
     mintHasActiveRuler(type) {
@@ -504,4 +554,23 @@ mint {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.unavailable {
+  color: gray;
+}
+
+.clear-filter-btn {
+  margin-bottom: 15px;
+  background-color: $primary-color;
+  color: $white;
+  font-weight: bold;
+  text-align: center;
+  border-radius: $border-radius;
+  justify-content: center;
+  padding: 3px 10px;
+}
+.grayedOut {
+  opacity: 0.3;
+  background-color: gray;
+}
+</style>
