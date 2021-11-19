@@ -1,17 +1,12 @@
 <template>
   <div class="multi-select-list">
-    <Button
-      :class="{ grayedOut: !selectionActive, nonInteractive: !selectionActive }"
-      class="clear-filter-btn"
-      @click="clearSelection"
-      >Filter Zurücksetzen</Button
-    >
     <ul>
       <li
-        v-for="item of items"
+        v-for="(item, index) of items"
         :key="item.id"
         @click="selected(item)"
         :class="{ selected: isSelected(item) }"
+        :style="getItemStyle(index)"
       >
         <input
           :class="{
@@ -23,7 +18,7 @@
           @input.stop="checkboxSelect($event, item)"
           @click.stop
         />
-        {{ item[attribute] }}
+        {{ getItemText(index) }}
       </li>
     </ul>
     <!-- <ul>
@@ -54,24 +49,18 @@ export default {
   components: { Button },
   name: 'MultiSelectList',
   props: {
+    selectedIds: {
+      type: Array,
+      default: function () {
+        return [];
+      },
+    },
     items: {
       type: Array,
       required: true,
     },
-    attribute: {
-      type: String,
-      default: 'name',
-    },
-  },
-  data() {
-    return {
-      selectedIds: [],
-    };
   },
   methods: {
-    clearSelection() {
-      this.selectionChanged([]);
-    },
     checkboxSelect(event, item) {
       const selection = this.selectedIds;
       if (event.target.checked) {
@@ -82,6 +71,7 @@ export default {
           selection.splice(itemIdx, 1);
         }
       }
+
       this.selectionChanged(selection);
     },
     selected(item) {
@@ -93,16 +83,27 @@ export default {
       if (add) {
         this.selectionChanged([item.id]);
       } else {
-        this.clearSelection();
+        this.selectionChanged([]);
       }
     },
     selectionChanged(selection) {
-      this.selectedIds = selection;
-      console.log('selectionChanged');
-      this.$emit('selectionChanged', this.selectedItems);
+      this.$emit('selectionChanged', selection);
     },
     isSelected(item) {
       return this.selectedIds.indexOf(item.id) != -1;
+    },
+    getItemText(index) {
+      return this.items[index].text == null
+        ? 'Kein Text vorhanden'
+        : this.items[index].text;
+    },
+    getItemStyle(index) {
+      if (!this.items[index].style) return '';
+      return this.items[index].style
+        ? Object.entries(this.items[index].style)
+            .map((pair) => pair.join(': '))
+            .join(';') + ';'
+        : '';
     },
   },
   computed: {
@@ -141,16 +142,6 @@ export default {
 
 <style lang="scss">
 .multi-select-list {
-  > .clear-filter-btn {
-    margin-bottom: 15px;
-    background-color: $primary-color;
-    color: $white;
-    font-weight: bold;
-    text-align: center;
-    border-radius: $border-radius;
-    justify-content: center;
-    padding: 3px 10px;
-  }
   .hidden {
     visibility: hidden;
   }
