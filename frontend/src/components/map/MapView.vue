@@ -10,6 +10,9 @@
 var L = require('leaflet');
 import('/node_modules/leaflet/dist/leaflet.css');
 
+import LeafletSmoothZoom from '../../vendor/leafletsmoothzoom';
+LeafletSmoothZoom(L);
+
 export default {
   name: 'MapView',
   props: {
@@ -64,6 +67,9 @@ export default {
     var map = L.map('map_' + this._uid, {
       maxBounds: mapBoundaries,
       zoomControl: false,
+      scrollWheelZoom: false, // disable original zoom function
+      smoothWheelZoom: true, // enable smooth zoom
+      smoothSensitivity: 1, // zoom speed. default is 1
     });
 
     // Set the position and zoom level of the map

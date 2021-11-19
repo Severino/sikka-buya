@@ -1,5 +1,7 @@
 
 var L = require('leaflet');
+
+
 export default {
     data: function () {
         return {
@@ -38,8 +40,6 @@ export default {
             throw new Error("Map mixin requires an update method!")
         },
         mapChanged: function () {
-            console.log("ADD TO MAP")
-
             if (this.map) {
                 this.map.doubleClickZoom.disable();
                 this.featureGroup.addTo(this.map)
