@@ -45,6 +45,7 @@ import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
+import FixDiff from "@/components/page/FixDiff.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
@@ -177,6 +178,13 @@ const routes = [
             path: "",
             name: "Editor",
             component: EditorPanel,
+            meta: { auth: true },
+          },
+
+          {
+            path: "fixdiff",
+            name: "FixDiff",
+            component: FixDiff,
             meta: { auth: true },
           },
           {

@@ -1,3 +1,4 @@
+const fs = require('fs')
 const graphqlFields = require('graphql-fields')
 const { objectifyList, camelCaseToSnakeCase } = require('./src/utils/sql.js')
 
@@ -547,6 +548,15 @@ async function start({
             schema,
             graphiql: true
         }))
+
+        app.use('/last-fix', (req, res) => {
+            let result = {}
+            const stats = fs.statSync("./scripts/out/änderungen_detail.json")
+            const json = require("./scripts/out/änderungen_detail.json")
+            result.lastModified = stats.mtime
+            result.items = json
+            res.send(result)
+        })
 
 
         app.use("/", (req, res, next) => {
