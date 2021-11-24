@@ -23,11 +23,11 @@
         <h4>{{ name }}</h4>
         <div class="compare">
           <div class="col old">
-            <label>Alt</label>
+            <label>Vorher</label>
             <div v-html="diffObj.old"></div>
           </div>
           <div class="col new">
-            <label>Neu</label>
+            <label>Nachher</label>
             <div v-html="diffObj.new"></div>
           </div>
         </div>
