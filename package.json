@@ -11,7 +11,10 @@
     "frontend": "cd frontend && yarn run serve",
     "backend": "cd backend && yarn run dev",
     "install": "cd backend && yarn install && cd ../frontend && yarn install",
-    "test": "cd test && grunt test"
+    "test": "cd test && grunt test",
+    "deploy:backend": "cd backend && pm2 delete all && npm run pm2",
+    "deploy:frontent": "cd frontend && ./deploy.sh",
+    "backup:db": "pg_dump -U rukn -Fc --no-password -f ~/export.dump  coins"
   },
   "dependencies": {
     "axios": "^0.21.1",

@@ -35,6 +35,10 @@
         <span>{{ $tc('property.' + property) }}</span>
       </router-link>
     </div>
+    <h3>Hilfsprogramme</h3>
+    <router-link class="button icon-button" :to="{ name: 'FixDiff' }"
+      >Vergleiche letzte Bereinigung</router-link
+    >
   </div>
 </template>
 

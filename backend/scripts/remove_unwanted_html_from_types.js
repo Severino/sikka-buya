@@ -1,4 +1,4 @@
-const { ColumnSet } = require("pg-promise");
+require("dotenv").config()
 const { DB_FIELDS, ALLOWED_STYLES } = require("../constants/html_formatted_fields");
 const { Database, pgp } = require("../src/utils/database");
 const HTMLSanitizer = require("../src/utils/HTMLSanitizer");
@@ -11,15 +11,13 @@ async function main() {
      * Create first. If it fails for some reason, the execution is stop.
      * Preventing changes on the database without tracking changes.
      */
-     const outpath = path.join(__dirname, "out")
-    if(!fs.existsSync(outpath)){
+    const outpath = path.join(__dirname, "out")
+    if (!fs.existsSync(outpath)) {
         fs.mkdirSync(outpath)
     }
 
-
     const changesOverview = []
-    const detailsOld = []
-    const detailsNew = []
+    const details = []
 
 
     const limit = 10
@@ -46,12 +44,11 @@ async function main() {
             const base = {
                 id: result.id,
                 name: result.project_id,
-                felder: []
+                fields: {}
             }
 
             let overviewEntry = Object.assign({}, base)
-            let detailsOldEntry = Object.assign({}, base)
-            let detailsNewEntry = Object.assign({}, base)
+            let detailsEntry = Object.assign({}, base)
 
             for (let col of Object.values(DB_FIELDS)) {
                 let field = result[col]
@@ -60,9 +57,10 @@ async function main() {
 
                 if (field != updated) {
                     updateData[col] = updated
-                    overviewEntry.felder.push(col)
-                    detailsOldEntry.felder[col] = field
-                    detailsNewEntry.felder[col] = updated
+                    detailsEntry.fields[col] = {
+                        old: field,
+                        new: updated
+                    }
                 }
             }
 
@@ -71,32 +69,25 @@ async function main() {
                 await Database.none(query + " WHERE id=$1", result.id)
             }
 
-            if (overviewEntry.felder.length > 0)
+            if (overviewEntry.fields.length > 0)
                 changesOverview.push(overviewEntry)
 
-            if (Object.values(detailsOldEntry.felder).length > 0) {
-                detailsOld.push(detailsOldEntry)
-            }
-
-            if (Object.values(detailsNewEntry.felder).length > 0) {
-                detailsNew.push(detailsNewEntry)
+            if (Object.values(detailsEntry.fields).length > 0) {
+                details.push(detailsEntry)
             }
         }
-
     } while (results && results.length > 0)
 
 
     changesOverview.sort((a, b) => {
         return a.name < b.name
     })
-    detailsOld.sort((a, b) => {
+    details.sort((a, b) => {
         return a.name < b.name
     })
-   
 
     fs.writeFileSync(path.join(outpath, "änderungen_überblick.json"), JSON.stringify(changesOverview))
-    fs.writeFileSync(path.join(outpath, "änderungen_detail_old.json"), JSON.stringify(detailsOld))
-    fs.writeFileSync(path.join(outpath, "änderungen_detail_new.json"), JSON.stringify(detailsNew))
+    fs.writeFileSync(path.join(outpath, "änderungen_detail.json"), JSON.stringify(details))
 
 
 }
