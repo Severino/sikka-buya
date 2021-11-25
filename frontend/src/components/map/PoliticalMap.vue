@@ -80,6 +80,7 @@ export default {
       availableMints: [],
       unavailableMints: [],
       availableRulers: [],
+      mintLocation: null,
     };
   },
   mixins: [map, timeline],
@@ -107,8 +108,19 @@ export default {
   mounted: async function () {
     const starTime =
       parseInt(localStorage.getItem('political-timeline')) || 433;
+
+    this.mintLocation = new MintLocation(this, {
+      radius: 8,
+      stroke: false,
+      fillColor: 'white',
+      fillOpacity: 1,
+    });
+
     await this.initTimeline(starTime);
     this.updateTimeline();
+  },
+  unmounted: function () {
+    this.mintLocation.removeExistingLocation();
   },
   methods: {
     timelineChanged(value) {
@@ -211,10 +223,9 @@ mint {
       this.$emit('timeline-updated', this.value);
     },
     updateMintLocationMarker() {
-      const _ = new MintLocation(this);
-      _.removeExistingLocation();
-      let features = _.mapToGeoJsonFeature(this.mints);
-      this.mintLocations = _.createGeometryLayer(features);
+      this.mintLocation.removeExistingLocation();
+      let features = this.mintLocation.mapToGeoJsonFeature(this.mints);
+      this.mintLocations = this.mintLocation.createGeometryLayer(features);
 
       this.mintLocations.addTo(this.featureGroup);
     },
@@ -295,6 +306,8 @@ mint {
 
             const allTypesGroup = that.L.featureGroup();
 
+            const popupOptions = { offset: that.L.point(0, -1) };
+
             const coinCount = feature.coins.length;
             for (let coinNum = 0; coinNum < coinCount; coinNum++) {
               let circles = [];
@@ -303,8 +316,8 @@ mint {
               types.push(coin.projectId);
               let rulers = that.extractRulers(coin);
 
-              let minRadius = 5000;
-              let maxRadius = 75000;
+              let minRadius = 0;
+              let maxRadius = 30;
               let angle = 360 / coinCount;
 
               let radius = maxRadius;
@@ -398,28 +411,30 @@ mint {
                     for (let [subRulerNum, subRuler] of ruler.entries()) {
                       const subOptions = getOptions(subRuler);
                       const subPopup = createPopup(coin, subRuler);
-                      let semiCircle = that.L.semiCircle(
+                      let semiCircle = that.L.semiCircleMarker(
                         latlng,
                         subOptions
                       ).setDirection(
                         (angle * coinNum + subAngle * subRulerNum) % 360,
                         subAngle
                       );
-                      semiCircle.bindPopup(subPopup);
+                      semiCircle.bindPopup(subPopup, {
+                        offset: that.L.point(0, 100),
+                      });
                       semiCircle.addTo(circle);
                     }
                   } else {
                     const options = getOptions(ruler);
                     const popup = createPopup(coin, ruler);
                     if (coinCount == 1) {
-                      circle = that.L.circle(latlng, options);
+                      circle = that.L.circleMarker(latlng, options);
                     } else {
-                      circle = that.L.semiCircle(latlng, options).setDirection(
-                        (angle * coinNum) % 360,
-                        angle
-                      );
+                      circle = that.L.semiCircleMarker(
+                        latlng,
+                        options
+                      ).setDirection((angle * coinNum) % 360, angle);
                     }
-                    circle.bindPopup(popup);
+                    circle.bindPopup(popup, popupOptions);
                   }
 
                   if (circle) circles.push(circle);
@@ -428,7 +443,7 @@ mint {
 
                 circles.reverse();
               } else {
-                let circle = that.L.semiCircle(latlng, {
+                let circle = that.L.semiCircleMarker(latlng, {
                   radius: maxRadius,
                   weight: 0.75,
                   stroke: true,
@@ -437,7 +452,7 @@ mint {
                   fillOpacity: 1,
                 }).setDirection((angle * coinNum) % 360, angle);
                 const popup = createPopup(coin);
-                circle.bindPopup(popup);
+                circle.bindPopup(popup, popupOptions);
                 circles.push(circle);
               }
 

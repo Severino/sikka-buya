@@ -5,7 +5,6 @@ import i18n from './i18n/i18n'
 import store from "./store"
 import capitalize from 'capitalize';
 
-
 Vue.config.productionTip = false
 
 Vue.prototype.$utils = {
