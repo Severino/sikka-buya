@@ -456,9 +456,30 @@ mint {
                 circles.push(circle);
               }
 
+              /**
+               * Would be more elegant with a featureGroup,
+               * but it also dictates the style, so it's not possible.
+               *
+               * NTH: Custom class that behaves like a featureGroup without
+               * dictating the style.
+               */
               const typeGroup = that.L.layerGroup(circles);
-              typeGroup.interactive = true;
 
+              function bringToFront(layer) {
+                console.log(layer);
+                if (layer.getLayers) {
+                  layer.getLayers().forEach(bringToFront);
+                } else {
+                  console.log(layer);
+                  layer.bringToFront();
+                }
+              }
+
+              typeGroup.getLayers().forEach((layer) => {
+                layer.on('click', () => {
+                  bringToFront(allTypesGroup);
+                });
+              });
               allTypesGroup.addLayer(typeGroup);
             }
 
