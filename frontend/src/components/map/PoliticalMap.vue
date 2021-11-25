@@ -1,32 +1,9 @@
 <template>
-  <div>
-    <div v-if="filtersActive" class="notification">
+  <div class="islam-political-map ui">
+    <!-- <div v-if="filtersActive" class="notification">
       <FilterIcon /> Filter aktiv
       <Button @click="resetFilters">Zurücksetzen</Button>
-    </div>
-
-    <timeline
-      ref="timeline"
-      :map="map"
-      :from="timeline.from"
-      :to="timeline.to"
-      :value="timeline.value"
-      @input="timelineChanged"
-      @change="timelineChanged"
-    />
-
-    <Sidebar title="Herrscher" side="right">
-      <Button class="clear-filter-btn" @click="clearRulerSelection"
-        >Auswahl aufheben</Button
-      >
-
-      <multi-select-list
-        id="mints"
-        :items="availableRulers"
-        :selectedIds="selectedRulers"
-        @selectionChanged="rulerSelectionChanged"
-      />
-    </Sidebar>
+    </div> -->
 
     <Sidebar title="Prägeorte">
       <Button class="clear-filter-btn" @click="clearMintSelection"
@@ -46,6 +23,56 @@
         @selectionChanged="mintSelectionChanged"
       />
     </Sidebar>
+
+    <div class="center-ui center-ui-top">
+      <div class="settings">
+        <SettingsIcon class="settings-icon" @click="toggleSettings" />
+        <div class="settings-window" v-if="settings.visible">
+          <header>
+            <h3>Einstellungen</h3>
+          </header>
+          <label>Kreisgröße</label>
+          <input
+            type="range"
+            v-model="settings.maxRadius.value"
+            :min="settings.maxRadius.min"
+            :max="settings.maxRadius.max"
+          />
+          <label>Innerer Abstand</label>
+          <input
+            type="range"
+            v-model="settings.minRadius.value"
+            :min="settings.minRadius.min"
+            :max="settings.minRadius.max"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="center-ui center-ui-center"></div>
+    <div class="center-ui center-ui-bottom">
+      <timeline
+        ref="timeline"
+        :map="map"
+        :from="timeline.from"
+        :to="timeline.to"
+        :value="timeline.value"
+        @input="timelineChanged"
+        @change="timelineChanged"
+      />
+    </div>
+
+    <Sidebar title="Herrscher" side="right">
+      <Button class="clear-filter-btn" @click="clearRulerSelection"
+        >Auswahl aufheben</Button
+      >
+
+      <multi-select-list
+        id="mints"
+        :items="availableRulers"
+        :selectedIds="selectedRulers"
+        @selectionChanged="rulerSelectionChanged"
+      />
+    </Sidebar>
   </div>
 </template>
 
@@ -54,7 +81,6 @@ import Sidebar from './Sidebar.vue';
 import Color from '../../models/map/color.js';
 import Timeline from './control/Timeline.vue';
 import Checkbox from '../forms/Checkbox.vue';
-import FilterIcon from 'vue-material-design-icons/Filter.vue';
 
 import map from './mixins/map';
 import timeline from './mixins/timeline';
@@ -67,9 +93,19 @@ import MultiSelectList from '../MultiSelectList.vue';
 
 import Person from '../../utils/Person';
 
+import FilterIcon from 'vue-material-design-icons/Filter.vue';
+import SettingsIcon from 'vue-material-design-icons/Cog.vue';
+
 export default {
   name: 'PoliticalMap',
-  components: { Sidebar, Timeline, Checkbox, FilterIcon, MultiSelectList },
+  components: {
+    SettingsIcon,
+    Sidebar,
+    Timeline,
+    Checkbox,
+    FilterIcon,
+    MultiSelectList,
+  },
   data: function () {
     return {
       mints: [],
@@ -81,6 +117,11 @@ export default {
       unavailableMints: [],
       availableRulers: [],
       mintLocation: null,
+      settings: {
+        visible: false,
+        minRadius: { value: 10, min: 0, max: 50 },
+        maxRadius: { value: 30, min: 10, max: 100 },
+      },
     };
   },
   mixins: [map, timeline],
@@ -105,6 +146,14 @@ export default {
       });
     },
   },
+  watch: {
+    settings: {
+      handler: function () {
+        this.update();
+      },
+      deep: true,
+    },
+  },
   mounted: async function () {
     const starTime =
       parseInt(localStorage.getItem('political-timeline')) || 433;
@@ -123,6 +172,9 @@ export default {
     this.mintLocation.removeExistingLocation();
   },
   methods: {
+    toggleSettings() {
+      this.settings.visible = !this.settings.visible;
+    },
     timelineChanged(value) {
       localStorage.setItem('political-timeline', value);
       this.timeChanged(value);
@@ -316,8 +368,8 @@ mint {
               types.push(coin.projectId);
               let rulers = that.extractRulers(coin);
 
-              let minRadius = 0;
-              let maxRadius = 30;
+              let minRadius = that.settings.minRadius.value;
+              let maxRadius = that.settings.maxRadius.value;
               let angle = 360 / coinCount;
 
               let radius = maxRadius;
@@ -378,7 +430,7 @@ mint {
                 for (let [rulerNum, ruler] of rulers.entries()) {
                   const rulerCount = rulers.length;
 
-                  const increment = (maxRadius - minRadius) / (rulerCount + 1);
+                  const increment = (maxRadius - minRadius) / rulerCount;
                   radius = maxRadius - increment * (rulerCount - rulerNum - 1);
 
                   function getOptions(ruler) {
@@ -590,6 +642,54 @@ mint {
 };
 </script>
 
+<style lang="scss">
+.islam-political-map {
+  .side-bar {
+    grid-row: 1 / span 3;
+  }
+
+  .timeline {
+    border: 1px solid $light-gray;
+    background-color: white;
+    // height: 100%;
+    padding: 20px 40px;
+    margin: 100px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .settings {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+
+    h3 {
+      margin: 0;
+      margin-bottom: 1em;
+    }
+
+    .settings-window {
+      width: 240px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: $shadow;
+      border: 1px solid whitesmoke;
+    }
+
+    .material-design-icon svg {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      fill: white;
+      filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
+    }
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .unavailable {
   color: gray;
@@ -608,5 +708,59 @@ mint {
 .grayedOut {
   opacity: 0.3;
   background-color: gray;
+}
+
+.ui {
+  position: absolute;
+  top: 0;
+  // background-color: red;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-rows: 1fr 3fr 1fr;
+
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.settings {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+
+  .material-design-icon {
+    fill: 'red';
+  }
+}
+
+.center-ui {
+  grid-column: 2;
+  position: relative;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  &.center-ui-top {
+    grid-row: 1;
+
+    z-index: 100;
+  }
+  &.center-ui-center {
+    grid-row: 2;
+    pointer-events: none;
+    z-index: 100;
+  }
+  &.center-ui-bottom {
+    grid-row: 3;
+
+    z-index: 100;
+  }
 }
 </style>

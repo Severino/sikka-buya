@@ -32,7 +32,6 @@ export default {
 
 <style lang="scss" scoped>
 .side-bar {
-  position: absolute;
   box-sizing: border-box;
   background-color: rgba($color: $white, $alpha: 0.8);
   padding: 20px;
@@ -40,9 +39,9 @@ export default {
   height: 100%;
   overflow-y: auto;
 
-  min-width: 200px;
-  width: 20vw;
-  max-width: 400px;
+  // min-width: 200px;
+  // width: 20vw;
+  // max-width: 400px;
 }
 
 header {
