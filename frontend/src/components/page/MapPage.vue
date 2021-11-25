@@ -8,8 +8,9 @@
         >Dominion</router-link
       >
     </div> -->
-    <router-view :map="map" />
     <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
+
+    <router-view :map="map" />
   </div>
 </template>
 

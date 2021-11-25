@@ -40,7 +40,7 @@ export default {
     map: Object,
     from: Number,
     to: Number,
-    value: Number
+    value: Number,
   },
   methods: {
     input(event) {
@@ -70,16 +70,16 @@ export default {
     init() {
       L.Control.Timeline = L.Control.extend({
         options: {
-          position: 'middlecenter'
+          position: 'middlecenter',
         },
         onAdd: () => {
           return this.$refs.element;
-        }
+        },
       });
       let timeline = new L.Control.Timeline();
       timeline.addTo(this.map);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -91,17 +91,17 @@ export default {
   }
 }
 
-.timeline {
-  position: absolute;
-  z-index: 1;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: white;
-  margin: 0 auto;
-  padding: 20px;
-  width: 50%;
-}
+// .timeline {
+//   position: absolute;
+//   z-index: 1;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   background-color: white;
+//   margin: 0 auto;
+//   padding: 20px;
+//   width: 50%;
+// }
 
 button {
   border: none;
@@ -109,5 +109,9 @@ button {
 
 input {
   width: 100%;
+}
+
+.label {
+  color: $light-gray;
 }
 </style>
