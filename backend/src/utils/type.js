@@ -10,7 +10,7 @@ const Material = require('../models/material')
 const Nominal = require('../models/nominal')
 const PageInfo = require('../models/pageinfo')
 const graphqlFields = require('graphql-fields')
-
+const { JSDOM } = require("jsdom");
 
 class Type {
 
@@ -22,19 +22,8 @@ class Type {
 
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
-        /**
-         * Thus the avers and reverse data is nested inside a seperate object,
-         * inside the GraphQL interface, we need to transform whose properties
-         * to the top level, to store them inside the database.
-         * 
-         * ADDITIONALLY: The 'unwrapCoinSideInformation' takes care of creating
-         * empty properties, if the CoinSideInformation is not provided and
-         * therefore null.
-         */
-        this.unwrapCoinSideInformation(data, "front_side_", data.avers)
-        this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
 
-        this.cleanupHTMLFields(data)
+        postProcessUpsert(data)
 
         return Database.tx(async t => {
 
@@ -70,6 +59,7 @@ class Type {
             internal_notes = $[internalNotes],
             year_uncertain = $[yearUncertain],
             mint_uncertain = $[mintUncertain]
+            plain_text = $[plainText]
             WHERE id = $[id] 
         `, data)
 
@@ -149,85 +139,128 @@ class Type {
         return target
     }
 
-    static async addType(_, args, context, info) {
+
+    static createPlainTextField(data) {
+
+        const textFields = [
+            "front_side_field_text",
+            "front_side_inner_inscript",
+            "front_side_intermediate_inscript",
+            "front_side_outer_inscript",
+            "front_side_misc",
+            "back_side_field_text",
+            "back_side_inner_inscript",
+            "back_side_intermediate_inscript",
+            "back_side_outer_inscript",
+            "back_side_misc",
+            "literature",
+            "specials",
+        ]
+
+        const text = textFields.map(key => {
+            let fieldText = ""
+            if (data[key]) {
+                const html = data[key]
+                try {
+                    const { document } = (new JSDOM(html)).window;
+                    fieldText = document.body.textContent
+                } catch (e) {
+                    console.error(`Element with ${key} could not be parsed to html: ${e} `)
+                }
+
+            } else console.error(`${data[key].project_id} (${data[key].project_id}): Key ${key} does not exist on data object.`)
+
+            return (fieldText != "") ? `${key}: ${fieldText}` : ""
+        }).filter((txt) => txt != "").join("\n\n\n\n")
+
+        return data.project_id + "\n\n\n\n" + text
+    }
+
+    static postProcessUpsert(data) {
         /**
-         * Thus the avers and reverse data is nested inside a seperate object,
-         * inside the GraphQL interface, we need to transform whose properties
-         * to the top level, to store them inside the database.
-         * 
-         * ADDITIONALLY: The 'unwrapCoinSideInformation' takes care of creating
-         * empty properties, if the CoinSideInformation is not provided and
-         * therefore null.
-         */
-        const data = args.data
+        * Thus the avers and reverse data is nested inside a seperate object,
+        * inside the GraphQL interface, we need to transform whose properties
+        * to the top level, to store them inside the database.
+        * 
+        * ADDITIONALLY: The 'unwrapCoinSideInformation' takes care of creating
+        * empty properties, if the CoinSideInformation is not provided and
+        * therefore null.
+        */
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
-
         this.cleanupHTMLFields(data)
+        data.plainText = this.createPlainTextField(data)
+        return data
+    }
+
+    static async addType(_, args, context, info) {
+        const data = this.postProcessUpsert(args.data)
 
         return Database.tx(async t => {
 
             const { id: type } = await t.one(`
-            INSERT INTO type (
-                project_id, 
-                treadwell_id, 
-                material,
-                mint, 
-                mint_as_on_coin, 
-                nominal, 
-                year_of_mint, 
-                donativ, 
-                procedure, 
-                caliph,
-                front_side_field_text,
-                front_side_inner_inscript,
-                front_side_intermediate_inscript,
-                front_side_outer_inscript,
-                front_side_misc,
-                back_side_field_text,
-                back_side_inner_inscript,
-                back_side_intermediate_inscript,
-                back_side_outer_inscript,
-                back_side_misc,
-                cursive_script,
-                literature,
-                specials,
-                exclude_from_type_catalogue,
-                exclude_from_map_app,
-                internal_notes,
-                mint_uncertain,
-                year_uncertain
-                )  VALUES (
-               $[projectId],
-               $[treadwellId],
-               $[material],
-               $[mint],
-               $[mintAsOnCoin],
-               $[nominal],
-               $[yearOfMint],
-               $[donativ],
-               $[procedure],
-               $[caliph],
-               $[front_side_field_text],
-               $[front_side_inner_inscript],
-               $[front_side_intermediate_inscript],
-               $[front_side_outer_inscript],
-               $[front_side_misc],
-               $[back_side_field_text],
-               $[back_side_inner_inscript],
-               $[back_side_intermediate_inscript],
-               $[back_side_outer_inscript],
-               $[back_side_misc],
-               $[cursiveScript],
-               $[literature],
-                $[specials],
-                $[excludeFromTypeCatalogue],
-                $[excludeFromMapApp],
-                $[internalNotes],
-                $[mintUncertain],
-                $[yearUncertain]
-                ) RETURNING id
-            `, data)
+            INSERT INTO type(
+                        project_id,
+                        treadwell_id,
+                        material,
+                        mint,
+                        mint_as_on_coin,
+                        nominal,
+                        year_of_mint,
+                        donativ,
+                        procedure,
+                        caliph,
+                        front_side_field_text,
+                        front_side_inner_inscript,
+                        front_side_intermediate_inscript,
+                        front_side_outer_inscript,
+                        front_side_misc,
+                        back_side_field_text,
+                        back_side_inner_inscript,
+                        back_side_intermediate_inscript,
+                        back_side_outer_inscript,
+                        back_side_misc,
+                        cursive_script,
+                        literature,
+                        specials,
+                        exclude_from_type_catalogue,
+                        exclude_from_map_app,
+                        internal_notes,
+                        mint_uncertain,
+                        year_uncertain,
+                        plain_text
+                    )  VALUES(
+                        $[projectId],
+                        $[treadwellId],
+                        $[material],
+                        $[mint],
+                        $[mintAsOnCoin],
+                        $[nominal],
+                        $[yearOfMint],
+                        $[donativ],
+                        $[procedure],
+                        $[caliph],
+                        $[front_side_field_text],
+                        $[front_side_inner_inscript],
+                        $[front_side_intermediate_inscript],
+                        $[front_side_outer_inscript],
+                        $[front_side_misc],
+                        $[back_side_field_text],
+                        $[back_side_inner_inscript],
+                        $[back_side_intermediate_inscript],
+                        $[back_side_outer_inscript],
+                        $[back_side_misc],
+                        $[cursiveScript],
+                        $[literature],
+                        $[specials],
+                        $[excludeFromTypeCatalogue],
+                        $[excludeFromMapApp],
+                        $[internalNotes],
+                        $[mintUncertain],
+                        $[yearUncertain],
+                        $[plainText]
+                    ) RETURNING id
+                        `, data)
 
 
             await this.addOverlords(t, data, type)
@@ -386,7 +419,7 @@ class Type {
             LEFT JOIN type_completed tc ON t.id = tc.type
             LEFT JOIN type_reviewed tr ON t.id = tr.type
             ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
-            `, args.filter)
+        `, args.filter)
 
             page = (Math.floor(total / count) < page) ? Math.floor(total / count) : page
             pagination = ` LIMIT ${count} OFFSET ${page * count} `
@@ -398,7 +431,7 @@ class Type {
             })
         }
 
-        let typeList = await Database.manyOrNone(`SELECT 
+        let typeList = await Database.manyOrNone(`SELECT
         id, project_id, treadwell_id,
             CASE 
             WHEN tc.type IS NULL THEN false
@@ -414,7 +447,7 @@ class Type {
         ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
         ORDER BY unaccent(project_id) COLLATE "C"
         ${pagination}
-            ;`, args.filter)
+        ; `, args.filter)
 
 
         const map = {
@@ -434,7 +467,7 @@ class Type {
 
     static buildWhereFilter(conditions) {
         if (!conditions || conditions.length == 0) return ""
-        return `WHERE ${conditions.join(" AND ")}`
+        return `WHERE ${conditions.join(" AND ")} `
     }
 
     static objectToConditions(filterObj) {
@@ -453,12 +486,12 @@ class Type {
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter(conditions)
         const query = `
-SELECT 
-${this.rows}         
-FROM type t 
-${this.joins}
-${whereClause}
-;`
+        SELECT 
+        ${this.rows}         
+        FROM type t 
+        ${this.joins}
+        ${whereClause}
+        ; `
 
 
         const result = await Database.manyOrNone(query)
@@ -477,10 +510,10 @@ ${whereClause}
         const result = await Database.one(`
             SELECT 
                 ${this.rows}
-             FROM type t
+            FROM type t
                 ${this.joins}
             WHERE t.id = $1
-                `, id).catch((e) => {
+            `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
         const fields = graphqlFields(info)
@@ -495,13 +528,13 @@ ${whereClause}
 
         const result = await Database.manyOrNone(`
         WITH rulers AS(
-                    SELECT type FROM overlord WHERE person = $1
+                SELECT type FROM overlord WHERE person = $1
                     UNION
-                    SELECT type from issuer WHERE person =$1
+                    SELECT type from issuer WHERE person = $1
                     UNION
-                    SELECT id AS type from type WHERE caliph=$1
-                )
-            SELECT 
+                    SELECT id AS type from type WHERE caliph = $1
+            )
+        SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
@@ -520,15 +553,15 @@ ${whereClause}
 
     static get rows() {
         return ` t.*,
-                ${Material.query()}
+            ${Material.query()}
         ${Mint.query()}
         ${Nominal.query()}
-            exclude_from_type_catalogue,
-                exclude_from_map_app,
-                internal_notes,
-                year_uncertain,
-                mint_uncertain as guessed_mint,
-                p.id AS caliph_id`
+        exclude_from_type_catalogue,
+            exclude_from_map_app,
+            internal_notes,
+            year_uncertain,
+            mint_uncertain as guessed_mint,
+            p.id AS caliph_id`
     }
 
     static get joins() {
@@ -541,7 +574,7 @@ ${whereClause}
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-                `
+            `
     }
 
     static async postprocessType(type, fields) {
