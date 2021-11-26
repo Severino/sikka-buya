@@ -29,7 +29,7 @@
 
         <div v-if="loggedIn" class="user">
           <router-link :to="{ name: 'Editor' }">
-            <Pencil />
+            <AccountCircle />
           </router-link>
           <div @click="logout">{{ $t('system.logout') }}</div>
         </div>
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import Pencil from 'vue-material-design-icons/Pencil';
+import AccountCircle from 'vue-material-design-icons/AccountCircle';
 
 import Menu from 'vue-material-design-icons/Menu';
 import Close from 'vue-material-design-icons/Close';
@@ -53,11 +53,11 @@ import Auth from '../utils/Auth';
 export default {
   name: 'Navigation',
   components: {
-    Pencil,
+    AccountCircle,
     Menu,
-    Close
+    Close,
   },
-  data: function() {
+  data: function () {
     return {
       active: false,
       minimized: false,
@@ -65,30 +65,30 @@ export default {
         // { name: "Home", target: "undefined" },
         { name: 'Karte', target: { name: 'MapPage' }, auth: true },
         { name: 'Typekatalog', target: { name: 'Catalog' }, auth: true },
-        { name: 'Analytics', target: { name: 'Analytics' }, auth: true }
-      ]
+        { name: 'Analytics', target: { name: 'Analytics' }, auth: true },
+      ],
     };
   },
   methods: {
-    toggleMenu: function() {
+    toggleMenu: function () {
       this.active = !this.active;
     },
-    logout: function() {
+    logout: function () {
       Auth.logout();
       this.$store.commit('logout');
       this.$router.push({ name: 'Home' });
-    }
+    },
   },
-  mounted: function() {
+  mounted: function () {
     this.minimized = this.$route.meta.smallNav ? true : false;
   },
   watch: {
     $route(to, from) {
       this.minimized = to.meta.smallNav ? true : false;
-    }
+    },
   },
   computed: {
-    version: function() {
+    version: function () {
       return this.$store.state.version;
     },
     visibleItems() {
@@ -96,14 +96,14 @@ export default {
       if (this.loggedIn) {
         items = this.items;
       } else {
-        items = this.items.filter(item => !item.auth);
+        items = this.items.filter((item) => !item.auth);
       }
       return items;
     },
-    loggedIn: function() {
+    loggedIn: function () {
       return this.$store.getters.loggedIn;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -210,6 +210,9 @@ a {
   border-radius: 20px;
   margin-left: $padding * 2;
   overflow: hidden;
+  > :first-child {
+    border-right: 2px solid white;
+  }
 
   > * {
     display: block;
@@ -232,9 +235,9 @@ a {
     padding-right: 2 * $padding;
   }
 
-  .material-design-icon {
-    margin-right: $padding;
-  }
+  // .material-design-icon {
+  //   margin-right: $padding;
+  // }
 
   @include media_phone {
     position: absolute;
