@@ -16,11 +16,6 @@
         autofocus
         required
       />
-
-      <div v-for="(obj, key) of languages" :key="'mint-' + key">
-        <div class="label">{{ key }}</div>
-        <input v-model="obj.name" />
-      </div>
     </PropertyFormWrapper>
   </div>
 </template>
@@ -32,28 +27,18 @@ import PropertyFormWrapper from '../PropertyFormWrapper.vue';
 export default {
   components: { PropertyFormWrapper },
   name: 'MaterialForm',
-  created: function() {
+  created: function () {
     let id = this.$route.params.id;
     if (id != null) {
       Query.raw(
         `{
         getMaterial(id: ${id}){id name}
-        getLang (id: ${id},
-    table: "material",
-    lang: "en",
-    attr: "name"
-  )
       }`
       )
-        .then(result => {
+        .then((result) => {
           this.material = result.data.data.getMaterial;
-          const lang = result.data.data.getLang;
-          if (lang) {
-            console.log(lang);
-            this.languages = { en: { name: lang } };
-          }
         })
-        .catch(err => {
+        .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
           console.log(err);
         })
@@ -65,52 +50,34 @@ export default {
     }
   },
   methods: {
-    submit: function() {
-      let langs = [];
-      for (let [langId, langObj] of Object.entries(this.languages)) {
-        console.log(langId, langObj);
-        for (let [key, val] of Object.entries(langObj)) {
-          langs.push(
-            `updateLang(id:${this.material.id}, table: "material", lang: "${langId}", attr: "${key}", value: "${val}" )`
-          );
-        }
-      }
-      langs.join('\n');
-
+    submit: function () {
       Query.raw(
         `
       mutation{
         updateMaterial(data: {id: ${this.material.id}, name: "${this.material.name}" })
-        ${langs}
-        
       }
       `
       )
         .then(() => {
           this.$router.push({
             name: 'Property',
-            params: { property: 'material' }
+            params: { property: 'material' },
           });
         })
-        .catch(err => {
+        .catch((err) => {
           this.error = err.join('\n');
         });
     },
-    cancel: function() {
+    cancel: function () {
       this.$router.push({ path: '/material' });
-    }
+    },
   },
-  data: function() {
+  data: function () {
     return {
       error: '',
       loading: true,
-      languages: {
-        en: {
-          name: ''
-        }
-      },
-      material: { id: -1, name: '' }
+      material: { id: -1, name: '' },
     };
-  }
+  },
 };
 </script>
