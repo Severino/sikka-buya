@@ -228,6 +228,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+thead {
+  position: sticky;
+  top: 0;
+  background-color: rgba(whitesmoke, 0.95);
+}
+
 h1 {
   margin-bottom: 1em;
 }
@@ -258,7 +264,8 @@ h1 {
 
 td {
   text-align: center;
-  min-width: 30px;
+  width: 50px;
+  min-width: 50px;
   height: 30px;
 }
 </style>
