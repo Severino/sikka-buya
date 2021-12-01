@@ -38,13 +38,6 @@
             :min="settings.maxRadius.min"
             :max="settings.maxRadius.max"
           />
-          <label>Innerer Abstand</label>
-          <input
-            type="range"
-            v-model="settings.minRadius.value"
-            :min="settings.minRadius.min"
-            :max="settings.minRadius.max"
-          />
         </div>
       </div>
     </div>
@@ -561,6 +554,7 @@ mint {
       this.update();
     },
     getRulerColor(ruler) {
+      // return '#333333';
       return SikkaColor.fromHash(Person.getName(ruler));
     },
     getContrastColor(ruler) {
@@ -584,8 +578,6 @@ mint {
     updateAvailableMints() {
       let avalMints = {};
       let mints = this.mints;
-
-      console.log(this.types);
 
       if (this.types) {
         for (let type of this.types) {
