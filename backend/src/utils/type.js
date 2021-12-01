@@ -23,7 +23,7 @@ class Type {
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
 
-        postProcessUpsert(data)
+        this.postProcessUpsert(data)
 
         return Database.tx(async t => {
 
@@ -58,7 +58,7 @@ class Type {
             exclude_from_map_app=$[excludeFromMapApp],
             internal_notes = $[internalNotes],
             year_uncertain = $[yearUncertain],
-            mint_uncertain = $[mintUncertain]
+            mint_uncertain = $[mintUncertain],
             plain_text = $[plainText]
             WHERE id = $[id] 
         `, data)
