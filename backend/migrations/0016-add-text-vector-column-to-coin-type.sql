@@ -3,4 +3,4 @@ ALTER TABLE
 ADD
     "search_vectors" tsvector;
 
-Create INDEX idx_search_vectors ON types USING gin(search_vectors);
+Create INDEX idx_search_vectors ON type USING gin(search_vectors);
