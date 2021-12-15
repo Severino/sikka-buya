@@ -6,15 +6,21 @@
         :value="value.count"
         @change="countChanged"
         min="1"
-        :max="value.last + 1"
       />
       <span>Elemente pro Seite</span>
     </div>
+    <div class="center">
+      <span>
+        {{ this.pageItems }}
+        /
+        {{ this.value.total }}
+      </span>
+    </div>
     <div class="right">
       <button @click="changePage(0)">1</button>
-      <button @click="lastPage"><ChevronLeft /></button>
+      <button @click="toLastPage"><ChevronLeft /></button>
       <input type="number" :value="value.page + 1" @change="setPageEvt" />
-      <button @click="nextPage"><ChevronRight /></button>
+      <button @click="toNextPage"><ChevronRight /></button>
       <button @click="changePage(value.last)">
         {{ value.last + 1 }}
       </button>
@@ -52,7 +58,6 @@ export default {
       pageInfo.page =
         pageInfo.page > pageInfo.last ? pageInfo.last : pageInfo.page;
 
-      console.log(pageInfo.total, pageInfo.count, pageInfo.last);
       this.$emit('input', pageInfo);
     },
     countChanged(event) {
@@ -60,10 +65,10 @@ export default {
       pageInfo.count = parseInt(event.target.value);
       this.changed(pageInfo);
     },
-    lastPage() {
+    toLastPage() {
       this.changePage(Math.max(this.value.page - 1, 0));
     },
-    nextPage() {
+    toNextPage() {
       this.changePage(Math.min(this.value.page + 1, this.value.last));
     },
     setPageEvt(evt) {
@@ -80,6 +85,13 @@ export default {
       }
     },
   },
+  computed: {
+    pageItems() {
+      let page = (this.value.page + 1) * this.value.count;
+
+      return Math.min(this.value.total, page);
+    },
+  },
 };
 </script>
 
@@ -89,13 +101,17 @@ export default {
   justify-content: space-between;
 }
 .left,
-.right {
+.right,
+.center {
   display: flex;
-  /* align-items: center; */
+}
+
+.center {
+  align-items: center;
 }
 
 input[type='number'] {
-  width: 75px;
+  width: 65px;
 }
 
 .left span {

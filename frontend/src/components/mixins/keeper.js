@@ -1,4 +1,4 @@
-export default function (managedProperties = []) {
+export default function (managedProperties = [], applyKeep = true) {
     return {
         created() {
             this.initKeep()
@@ -16,13 +16,18 @@ export default function (managedProperties = []) {
                 for (let name of Object.keys(managed)) {
                     this.$data[name] = managed[name]
                 }
+                if (applyKeep)
+                    this.applyKeep(managed)
+            },
+            applyKeep() {
+                console.warn("Overwrite appplyKeep or set applyKeep to false in the mixin!")
             },
             keep(options) {
-                this.$router.replace(Object.assign({}, this.$route, { query: this._filterManaged(options) }))
+                this.$router.replace(Object.assign({}, this.$route, { query: this._filterManaged(options) })).catch(() => { /* Avoid the redundand location error */ })
             },
-            _filterManaged(all) {
+            _filterManaged(options) {
                 let managed = {}
-                keepManagedProperties.forEach(prop => {
+                this.keepManagedProperties.forEach(prop => {
                     if (options[prop]) {
                         managed[prop] = options[prop]
                     }

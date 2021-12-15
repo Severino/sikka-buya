@@ -546,11 +546,11 @@ class Type {
 
     static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
 
+
         const filterExcludesQuery = "NOT (exclude_from_type_catalogue = False AND exclude_from_map_app = False)"
 
 
         pagination = new PageInfo(pagination)
-
         const conditions = this.objectToConditions(filters)
         let whereClause = this.buildWhereFilter(conditions)
         if (whereClause == "") whereClause = "WHERE"
@@ -567,9 +567,7 @@ class Type {
         ${this.joins}
         , websearch_to_tsquery($[text]) as keywords
         ${whereClause}
-        ${pagination.toQuery()}
         ; `
-
         const { total } = await Database.one(test_query, Object.assign(filters, { text }))
         pagination.updateTotal(total)
 
@@ -585,6 +583,9 @@ class Type {
 
 
         const result = await Database.manyOrNone(query, { text })
+        console.log("3")
+
+
         let fields = graphqlFields(info)
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type, fields)

@@ -14,8 +14,7 @@
           </row>
         </Column>
       </div>
-      <pagination-control :value="pageInfo" />
-      <pre>{{ error }}</pre>
+      <pagination-control :value="pageInfo" @input="pageChanged" />
       <List :items="results">
         <list-item
           v-for="{ preview, type } of results"
@@ -67,9 +66,15 @@ export default {
     };
   },
   methods: {
+    applyKeep(options) {
+      if (options.searchText) {
+        this.search(options.searchText);
+      }
+    },
     search: function () {
       console.log(this.searchText);
 
+      this.keep(this.$data);
       return Query.raw(
         `
             query FullSearch($text: String, $pagination: Pagination){
@@ -82,6 +87,7 @@ export default {
                 }
                 results{
                   type {
+                    id
                     projectId
                   }
                   preview
@@ -102,6 +108,12 @@ export default {
           this.results = result.results;
         })
         .catch((err) => (this.error = err));
+    },
+    pageChanged(pageInfo) {
+      console.log(pageInfo);
+      this.pageInfo = pageInfo;
+      console.log('SEARCH');
+      this.search();
     },
   },
   computed: {
@@ -157,5 +169,9 @@ pre {
 
 .catalog-full-search .list-item-row {
   display: block;
+}
+
+.catalog-full-search .pagination-control {
+  margin-top: 3 * $padding;
 }
 </style>
