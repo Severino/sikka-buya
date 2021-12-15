@@ -1,8 +1,4 @@
-const fs = require('fs')
-const graphqlFields = require('graphql-fields')
-const { objectifyList, camelCaseToSnakeCase } = require('./src/utils/sql.js')
-
-
+const fs = require('fs').promises
 
 async function start({
     dbUser,
@@ -59,9 +55,6 @@ async function start({
     const SQLUtils = require("./src/utils/sql.js");
     const Type = require("./src/utils/type.js");
     const Auth = require("./src/auth.js");
-
-
-
 
 
     return new Promise(resolve => {
@@ -352,8 +345,15 @@ async function start({
                 },
                 getPersonExplorerOrder: async function () {
                     return Database.manyOrNone(`SELECT position as order, person FROM person_explorer_custom_sorting`)
+                },
+                fixDiff: async function () {
+                    let result = {}
+                    const stats = await fs.stat("./scripts/out/änderungen_detail.json")
+                    const json = require("./scripts/out/änderungen_detail.json")
+                    result.lastModified = stats.mtime
+                    result.items = json
+                    return JSON.stringify(result)
                 }
-
             }, Mutation: {
                 changePersonExplorerOrder: async function (_, args) {
                     return Database.none("INSERT INTO person_explorer_custom_sorting (person, position) VALUES ($[person], $[position]) ON CONFLICT (person) DO UPDATE SET position=$[position]", args)
@@ -548,16 +548,6 @@ async function start({
             schema,
             graphiql: true
         }))
-
-        app.use('/last-fix', (req, res) => {
-            let result = {}
-            const stats = fs.statSync("./scripts/out/änderungen_detail.json")
-            const json = require("./scripts/out/änderungen_detail.json")
-            result.lastModified = stats.mtime
-            result.items = json
-            res.send(result)
-        })
-
 
         app.use("/", (req, res, next) => {
             res.send("Welcome")

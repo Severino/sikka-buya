@@ -288,6 +288,7 @@ type Query {
   getLang(id: ID!, table: String!, lang: String!, attr: String!): String
 
   getPersonExplorerOrder: [PersonPosition]
+  fixDiff: String
 }
 
 type Mutation {

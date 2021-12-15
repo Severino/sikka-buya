@@ -1,9 +1,9 @@
+
 import axios from "axios"
-const baseURL = process.env.VUE_APP_DATABASE_URL || "http://localhost:4000/graphql"
-const host = baseURL
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
 import store from "../store";
+import { graphqlEndpoint } from './host';
 
 export default class Query {
 
@@ -41,7 +41,7 @@ export default class Query {
                 reject('Operation timed out.')
             }, 5000)
             axios({
-                url: host,
+                url: graphqlEndpoint,
                 method: "post",
                 headers: { "auth": Auth.loadToken() },
                 data: {
