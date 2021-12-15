@@ -1,6 +1,6 @@
 <template>
-  <Button :class="{ waiting }" @click="clicked">
-    <div v-if="waiting">
+  <Button :class="{ pending }" @click="clicked">
+    <div v-if="pending">
       <loading-spinner :size="38" />
     </div>
     <slot v-else />
@@ -14,11 +14,11 @@ import Button from './Button.vue';
 export default {
   components: { Button, LoadingSpinner },
   props: {
-    waiting: Boolean,
+    pending: Boolean,
   },
   methods: {
-    clicked: function() {
-      if (!this.waiting) {
+    clicked: function () {
+      if (!this.pending) {
         this.$emit('click');
       }
     },
@@ -33,7 +33,7 @@ export default {
   align-items: center;
 }
 
-.button.waiting {
+.button.pending {
   padding: 0;
   background-color: desaturate($color: $primary-color, $amount: 15);
   cursor: not-allowed;

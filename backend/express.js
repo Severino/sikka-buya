@@ -346,6 +346,9 @@ async function start({
                 getPersonExplorerOrder: async function () {
                     return Database.manyOrNone(`SELECT position as order, person FROM person_explorer_custom_sorting`)
                 },
+                fullSearchOnTypes: async function () {
+                    return Type.fullSearchTypes(...arguments)
+                },
                 fixDiff: async function () {
                     let result = {}
                     const stats = await fs.stat("./scripts/out/änderungen_detail.json")
