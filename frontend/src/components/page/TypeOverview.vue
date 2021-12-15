@@ -18,7 +18,7 @@
     <SearchField
       ref="search"
       v-model="filter.text"
-      @input="textFilterChanged"
+      :asyncSearch="textFilterChanged"
     />
     <ListFilterContainer
       :filtered="isListFiltered"
@@ -375,7 +375,6 @@ export default {
 }`
       )
         .then(() => {
-          console.log('HALLO');
           const idx = this.$data.items.findIndex((item) => item.id == id);
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
@@ -408,12 +407,12 @@ export default {
       this.filter.mint = val;
       this.filtersChanged();
     },
-    textFilterChanged() {
-      this.filtersChanged();
+    async textFilterChanged() {
+      await this.filtersChanged();
     },
-    filtersChanged() {
+    async filtersChanged() {
       localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
-      this.updateTypeList();
+      await this.updateTypeList();
     },
   },
 };

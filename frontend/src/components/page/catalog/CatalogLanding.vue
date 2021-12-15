@@ -4,6 +4,9 @@
       <div class="search">
         <Column>
           <h2>Typensuche</h2>
+          <router-link class="link" :to="{ name: 'CatalogFullSearch' }"
+            >Zur Volltext Suche</router-link
+          >
           <search-field
             :value="searchText"
             @input="input"
@@ -121,5 +124,12 @@ export default {
 <style lang="scss">
 .catalog-landing .list-item-row {
   padding: $padding;
+}
+
+.link {
+  color: $primary-color !important;
+  font-weight: bold;
+  text-decoration: underline;
+  padding: $padding 0;
 }
 </style>
