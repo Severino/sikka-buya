@@ -23,12 +23,10 @@ class Type {
 
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
-
+        data.id = id
         this.postProcessUpsert(data)
 
         return Database.tx(async t => {
-
-            data.id = id
             await t.none(`
         UPDATE type 
         SET
@@ -143,7 +141,7 @@ class Type {
 
     static async createPlainTextField(type, skipFetch = false) {
 
-
+        console.log(type)
         /**
          * We get the complete type to have all fields available.
          */
