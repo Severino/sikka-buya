@@ -289,6 +289,21 @@ type Query {
 
   getPersonExplorerOrder: [PersonPosition]
   fixDiff: String
+
+  fullSearchOnTypes(
+    text: String
+    pagination: Pagination
+  ): PaginationTypeTextSearch
+}
+
+type PaginationTypeTextSearch {
+  pagination: PageInfo
+  results: [TypeTextSearch]
+}
+
+type TypeTextSearch {
+  type: CoinType
+  preview: String
 }
 
 type Mutation {

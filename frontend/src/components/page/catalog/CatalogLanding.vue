@@ -22,7 +22,7 @@
             v-for="column of columns"
             :key="'type-search-result-' + type.id + '-' + column"
           >
-            {{ type[column] }}
+            {{ type.id }} {{ type[column] }}
           </list-item-cell>
         </list-item>
       </List>

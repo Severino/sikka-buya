@@ -4,7 +4,8 @@ import CRC32 from "crc-32"
 export default class SikkaColor {
 
     static getHash(text) {
-        return Math.abs(CRC32.str(text)).toString(16).substr(0, 6)
+        const hash = Math.abs(CRC32.str(text)).toString(16)
+        return hash.substr(0, 6)
     }
     static fromHash(text) {
         const color = "#" + this.getHash(text)

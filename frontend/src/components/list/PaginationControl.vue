@@ -29,10 +29,21 @@ import ChevronLeft from 'vue-material-design-icons/ChevronLeft.vue';
 export default {
   components: {
     ChevronRight,
-    ChevronLeft
+    ChevronLeft,
   },
   props: {
-    value: Object
+    value: {
+      type: Object,
+      required: true,
+      validator: function (value) {
+        return (
+          Object.prototype.hasOwnProperty.call(value, 'page') &&
+          Object.prototype.hasOwnProperty.call(value, 'last') &&
+          Object.prototype.hasOwnProperty.call(value, 'total') &&
+          Object.prototype.hasOwnProperty.call(value, 'count')
+        );
+      },
+    },
   },
   methods: {
     changed(pageInfo) {
@@ -46,7 +57,7 @@ export default {
     },
     countChanged(event) {
       let pageInfo = this.value;
-      pageInfo.count = event.target.value;
+      pageInfo.count = parseInt(event.target.value);
       this.changed(pageInfo);
     },
     lastPage() {
@@ -67,8 +78,8 @@ export default {
         pageInfo.page = next;
         this.changed(pageInfo);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

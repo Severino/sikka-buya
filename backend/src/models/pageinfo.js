@@ -11,8 +11,12 @@ class PageInfo {
         } = {}) {
         this.count = count
         this.page = page
-        this.total = total
-        this.last = Math.floor(total / count)
+        this.updateTotal(total)
+    }
+
+    updateTotal(total) {
+        this.total = parseInt(total)
+        this.last = (total) ? Math.floor(this.total / this.count) : null
     }
 
     toObject() {
@@ -22,6 +26,10 @@ class PageInfo {
             last: this.page,
             total: this.total
         }
+    }
+
+    toQuery() {
+        return `LIMIT ${this.count} OFFSET ${this.page * this.count} `
     }
 }
 

@@ -1,25 +1,32 @@
 <template>
-  <div class="search" :class="{ active }">
+  <div class="search" :class="{ active, 'input-search': isInputSearch }">
     <input
       type="search"
       :placeholder="$t('message.filter_list')"
       @input="input"
       :value="value"
     />
-    <loading-spinner v-if="pending" class="spinner" :size="30" />
-    <Magnify v-else />
+    <div v-if="isInputSearch" class="search-indicator">
+      <loading-spinner v-if="pending" class="spinner" :size="30" />
+      <Magnify v-else />
+    </div>
+    <async-button v-else :pending="pending" @click="buttonSearch"
+      ><Magnify
+    /></async-button>
   </div>
 </template>
 
 <script>
 import Magnify from 'vue-material-design-icons/Magnify';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
+import AsyncButton from './buttons/AsyncButton.vue';
 export default {
   components: {
     Magnify,
     LoadingSpinner,
+    AsyncButton,
   },
-  data: function() {
+  data: function () {
     return {
       timeout: null,
       delay: 750,
@@ -29,42 +36,64 @@ export default {
     };
   },
   props: {
-    value: String,
-    asyncSearch: Function,
+    value: { type: String, required: true },
+    asyncSearch: {
+      required: true,
+      type: Function,
+    },
+    mode: {
+      type: String,
+      default: 'input',
+      validator(value) {
+        return ['button', 'input'].indexOf(value) != -1;
+      },
+    },
   },
   methods: {
     input(event) {
       let value = event.target.value;
+      this.$emit('input', value);
 
-      if (value != '' && this.asyncSearch) {
-        this.i++;
+      if (this.isInputSearch) {
+        if (value != '' && this.asyncSearch) {
+          this.i++;
 
-        this.pending = true;
-        this.pendingI = this.i;
+          this.pending = true;
+          this.pendingI = this.i;
 
-        if (this.timeout) {
-          clearTimeout(this.timeout);
-          this.timeout = null;
-        }
+          if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+          }
 
-        // We use a local variable, that we dont override a new
-        // search, that may happen before the callback is triggered.
-        this.timeout = setTimeout(() => {
-          this.asyncSearch(this.value).finally(() => {
+          this.search().finally(() => {
             // Only change it back, when no input has occured in the meantime!
             if (this.i == this.pendingI) {
               this.pending = false;
             }
           });
-        }, this.delay);
+
+          // We use a local variable, that we dont override a new
+          // search, that may happen before the callback is triggered.
+          this.timeout = setTimeout(() => {}, this.delay);
+        }
       }
-      this.$emit('input', value);
+    },
+    async buttonSearch() {
+      await this.search();
+      this.pending = false;
+    },
+    async search() {
+      return this.asyncSearch(this.value);
     },
   },
 
   computed: {
-    active: function() {
+    active: function () {
       return this.value != '';
+    },
+    isInputSearch: function () {
+      return this.mode == 'input';
     },
   },
 };
@@ -85,11 +114,13 @@ export default {
     }
   }
 
+  &.input-search {
+    padding-left: 45px;
+  }
+
   > input {
     box-sizing: border-box;
     flex: 1;
-    padding-left: 45px;
-
     transition: all 0.3s;
   }
 
@@ -104,11 +135,12 @@ export default {
     }
   }
 
-  .material-design-icon {
+  .search-indicator {
     position: absolute;
-    top: 7px;
     left: $padding;
-    color: gray;
+    height: 100%;
+    display: flex;
+    align-items: center;
     pointer-events: none;
     transition: all 0.3s;
   }

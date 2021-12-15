@@ -15,7 +15,7 @@
       ref="loginBtn"
       @click="login"
       class="colored"
-      :waiting="buttonDisabled"
+      :pending="buttonDisabled"
     >
       Anmelden
     </async-button>

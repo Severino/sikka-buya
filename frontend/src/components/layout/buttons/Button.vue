@@ -21,9 +21,14 @@ export default {
 <style lang="scss" scoped>
 .button {
   display: flex;
+  flex-direction: row;
   align-items: center;
   text-align: center;
   box-sizing: border-box;
+
+  .material-design-icon:not(:last-child) {
+    margin-right: $padding;
+  }
 }
 
 .button.colored {

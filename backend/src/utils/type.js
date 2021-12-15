@@ -11,6 +11,7 @@ const Nominal = require('../models/nominal')
 const PageInfo = require('../models/pageinfo')
 const graphqlFields = require('graphql-fields')
 const { JSDOM } = require("jsdom");
+const DictDE = require('../dictionaries/dict_de')
 
 class Type {
 
@@ -140,9 +141,40 @@ class Type {
     }
 
 
-    static createPlainTextField(data) {
+    static async createPlainTextField(type, skipFetch = false) {
 
-        const textFields = [
+
+        /**
+         * We get the complete type to have all fields available.
+         */
+        if (!skipFetch)
+            type = await this.getFullType(type.id)
+
+        let textFields = [
+            "project_id",
+            "treadwell_id",
+            "mint_as_on_coin",
+            "year_of_mint",
+        ]
+
+        textFields = textFields.map(attribute => {
+            return { key: attribute, text: type[attribute] }
+        })
+
+        let nameFields = [
+            "material",
+            "mint",
+            "nominal",
+            "donativ",
+            "procedure",
+            "caliph",
+        ]
+
+        nameFields = nameFields.map(attribute => {
+            return { key: attribute, text: type[attribute] ? type[attribute].name : null }
+        })
+
+        let htmlFields = [
             "front_side_field_text",
             "front_side_inner_inscript",
             "front_side_intermediate_inscript",
@@ -157,23 +189,32 @@ class Type {
             "specials",
         ]
 
-        const text = textFields.map(key => {
-            let fieldText = ""
-            if (data[key]) {
-                const html = data[key]
+
+        let errors = {}
+        htmlFields = htmlFields.map(key => {
+            let text = ""
+            if (type[key]) {
+                const html = type[key]
                 try {
                     const { document } = (new JSDOM(html)).window;
-                    fieldText = document.body.textContent
+                    text = document.body.textContent
                 } catch (e) {
-                    console.error(`Element with ${key} could not be parsed to html: ${e} `)
+                    errors[key] = `Element with ${key} could not be parsed to html: ${e} `
                 }
 
-            } else console.error(`${data[key].project_id} (${data[key].project_id}): Key ${key} does not exist on data object.`)
+            } else errors[key] = `Key '${key}' is missing on the element.`
 
-            return (fieldText != "") ? `${key}: ${fieldText}` : ""
-        }).filter((txt) => txt != "").join("\n\n\n\n")
+            return { key, text }
+        })
 
-        return data.project_id + "\n\n\n\n" + text
+        const fields = [...textFields, ...nameFields, ...htmlFields]
+
+
+        let text = fields.filter(({ text }) => (text != null && text != "")).map(({ key, text }) => {
+            return `${DictDE.get(key)}: ${text}`
+        }).join("\n")
+
+        return { text: type.projectId + "\n" + text, errors }
     }
 
     static postProcessUpsert(data) {
@@ -471,6 +512,9 @@ class Type {
     }
 
     static objectToConditions(filterObj) {
+        /**
+         * TODO // WARNING // ALERT // ERROR: HERE WE HAVE THE DANGER OF SQLINJECTION
+         */
         const filters = []
         for (let [key, val] of Object.entries(filterObj)) {
             filters.push(`${camelCaseToSnakeCase(key)}='${val}'`)
@@ -479,9 +523,6 @@ class Type {
     }
 
     static async getTypes(_, filters = {}, context, info) {
-
-
-
 
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter(conditions)
@@ -503,6 +544,64 @@ class Type {
         return result
     }
 
+    static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
+
+        const filterExcludesQuery = "NOT (exclude_from_type_catalogue = False AND exclude_from_map_app = False)"
+
+
+        pagination = new PageInfo(pagination)
+
+        const conditions = this.objectToConditions(filters)
+        let whereClause = this.buildWhereFilter(conditions)
+        if (whereClause == "") whereClause = "WHERE"
+        else whereClause += " AND "
+
+        const additionalWhereClauses = ["search_vectors @@ keywords", filterExcludesQuery]
+        whereClause += " " + additionalWhereClauses.join(" AND ")
+
+
+        const test_query = `
+        SELECT 
+            COUNT(*) as total     
+        FROM type t
+        ${this.joins}
+        , websearch_to_tsquery($[text]) as keywords
+        ${whereClause}
+        ${pagination.toQuery()}
+        ; `
+
+        const { total } = await Database.one(test_query, Object.assign(filters, { text }))
+        pagination.updateTotal(total)
+
+        const query = `
+        SELECT 
+        ${this.rows}, ts_headline(plain_text, keywords) as preview        
+        FROM type t
+        ${this.joins}
+        , websearch_to_tsquery($[text]) as keywords
+        ${whereClause}
+        ${pagination.toQuery()}
+        ; `
+
+
+        const result = await Database.manyOrNone(query, { text })
+        let fields = graphqlFields(info)
+        for (let [idx, type] of result.entries()) {
+            result[idx] = await this.postprocessType(type, fields)
+        }
+        const results = result.map(res => {
+            return {
+                type: res,
+                preview: res.preview
+            }
+        })
+
+        return {
+            pagination,
+            results
+        }
+    }
+
     static async getType(_, { id = null } = {}, context, info) {
 
         if (!id) throw new Error("Id must be provided!")
@@ -518,6 +617,33 @@ class Type {
         })
         const fields = graphqlFields(info)
         return await this.postprocessType(result, fields);
+    }
+
+
+    /**
+     * In contrast to getType, does the
+     * getFullType not take any query into account.
+     * So it can be easily used from utility scripts
+     * that just need to get a type.
+     * 
+     * Therefore the function is also much slower than the getType
+     * function an should only be used when not accessed
+     * via GraphQL and performance is negligile.
+     * 
+     * @param {number} id - If of the type you want to access
+     */
+    static async getFullType(id) {
+        const result = await Database.one(`
+        SELECT 
+            ${this.rows}
+        FROM type t
+            ${this.joins}
+        WHERE t.id = $1
+        `, id).catch((e) => {
+            throw new Error("Requested type does not exist: " + e)
+        })
+
+        return await this.postprocessType(result);
     }
 
     static async getTypesByRuler(_, { id = null } = {}, context, info) {
@@ -601,6 +727,18 @@ class Type {
         config.forEach(conf => delete type[conf.target])
         SQLUtils.objectifyBulk(type, config)
 
+
+        if (fields == null)
+            fields = [
+                "avers",
+                "reverse",
+                "coinMarks",
+                "pieces",
+                "caliph",
+                "otherPersons",
+                "overlords",
+                "issuers",
+            ]
 
         for (let property of Object.keys(fields)) {
             switch (property) {
