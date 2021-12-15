@@ -444,7 +444,7 @@ export default {
     htmlHasContent(val) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(val, 'text/html');
-      return doc.documentElement.innerText;
+      return doc.documentElement.innerText !== '';
     },
     get(property) {
       return this[property];

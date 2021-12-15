@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="fix-diff content">
     <h1>Vergleiche letzte Bereinigung</h1>
 
     <p v-if="error != ''" class="error">
@@ -9,12 +9,10 @@
     <p v-if="data">Letzte Durchführung: {{ data.lastModified }}</p>
 
     <div class="type" v-for="type in data.items" :key="'type-' + type.id">
-      <router-link
-        target="_blank"
-        :to="{ name: 'EditType', params: { id: type.id } }"
-        ><h2>{{ type.name }}</h2></router-link
-      >
-
+      <header>
+        <h2>{{ type.name }}</h2>
+        <Button @click="edit(type)"><PencilIcon /> <span>Edit</span></Button>
+      </header>
       <div
         v-for="[name, diffObj] of Object.entries(type.fields)"
         class="property"
@@ -37,7 +35,12 @@
 </template>
 
 <script>
+import Query from '../../database/query';
+import Button from '../layout/buttons/Button.vue';
+import PencilIcon from 'vue-material-design-icons/Pencil.vue';
+
 export default {
+  components: { Button, PencilIcon },
   name: 'FixDiff',
   data: function () {
     return {
@@ -45,30 +48,34 @@ export default {
       data: {},
     };
   },
-  mounted: function () {
-    const request = new XMLHttpRequest();
-    request.open('GET', 'http://localhost:4000/last-fix');
-    request.onreadystatechange = (event) => {
-      if (request.readyState == 4) {
-        if (request.status >= 200 && request.status < 300) {
-          try {
-            const json = JSON.parse(request.responseText);
-            this.data = json;
-          } catch (e) {
-            this.error = e;
-          }
-        } else {
-          this.error = `Die Datei konnte nicht geladen werden: ${request.statusText} - ${request.responseText}.`;
-        }
-      }
-    };
-    request.send();
-    console.log('Send');
+  mounted: async function () {
+    try {
+      const results = await Query.raw('query { fixDiff }');
+      this.data = JSON.parse(results.data.data.fixDiff);
+      console.log(results);
+    } catch (e) {
+      console.error(e);
+    }
+  },
+  methods: {
+    edit(type) {
+      let route = this.$router.resolve({
+        name: 'EditType',
+        params: { id: type.id },
+      });
+      window.open(route.href, '_blank');
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.fix-diff header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .compare {
   display: grid;
   gap: 3px;
