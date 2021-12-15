@@ -114,7 +114,7 @@ export default {
     }
   }
 
-  &.input-search {
+  &.input-search input {
     padding-left: 45px;
   }
 

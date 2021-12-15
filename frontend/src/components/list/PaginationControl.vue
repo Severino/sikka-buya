@@ -100,6 +100,12 @@ export default {
   display: flex;
   justify-content: space-between;
 }
+
+.pagination-control input,
+.pagination-control button {
+  padding: 3px 5px;
+  min-width: 32px;
+}
 .left,
 .right,
 .center {

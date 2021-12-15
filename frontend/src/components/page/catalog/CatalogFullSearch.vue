@@ -3,7 +3,7 @@
     <Column class="container" :class="{ empty: empty }">
       <div class="search">
         <Column>
-          <h2>Typensuche</h2>
+          <h2>Typensuche (Volltext)</h2>
           <row>
             <search-field
               v-model="searchText"

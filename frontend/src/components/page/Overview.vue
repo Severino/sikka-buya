@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <SearchField :value="textFilter" @input="searchChanged" />
+    <SearchField v-model="textFilter" :asyncSearch="search" />
 
     <List
       @remove="remove"
@@ -103,7 +103,7 @@ export default {
   },
 
   methods: {
-    list() {
+    async list() {
       new Query(this.queryName)
         .list(['id', 'name'])
         .then((obj) => {
@@ -138,18 +138,6 @@ export default {
         .finally(() => {
           this.$data.loading = false;
         });
-    },
-    searchChanged(val) {
-      this.textFilter = val;
-      let searchId = ++this.searchId;
-      setTimeout(() => {
-        if (this.searchId == searchId) {
-          if (this.textFilter === '') this.list();
-          else {
-            this.search();
-          }
-        }
-      }, 500);
     },
     create() {
       if (this.createPage) {
