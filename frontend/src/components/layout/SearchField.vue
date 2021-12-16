@@ -5,6 +5,7 @@
       :placeholder="$t('message.filter_list')"
       @input="input"
       :value="value"
+      ref="searchField"
     />
     <div v-if="isInputSearch" class="search-indicator">
       <loading-spinner v-if="pending" class="spinner" :size="30" />
@@ -20,12 +21,16 @@
 import Magnify from 'vue-material-design-icons/Magnify';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
 import AsyncButton from './buttons/AsyncButton.vue';
+
+import HotKey from '../mixins/hotkey';
+
 export default {
   components: {
     Magnify,
     LoadingSpinner,
     AsyncButton,
   },
+  mixins: [HotKey],
   data: function () {
     return {
       timeout: null,
@@ -85,6 +90,13 @@ export default {
     },
     async search() {
       return this.asyncSearch(this.value);
+    },
+    handleHotkey(event) {
+      if (event.target == this.$refs.searchField) {
+        if (event.key == 'Enter') {
+          this.search();
+        }
+      }
     },
   },
 

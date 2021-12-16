@@ -140,8 +140,6 @@ class Type {
 
 
     static async createPlainTextField(type, skipFetch = false) {
-
-        console.log(type)
         /**
          * We get the complete type to have all fields available.
          */
