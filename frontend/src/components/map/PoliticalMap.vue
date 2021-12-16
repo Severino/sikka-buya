@@ -524,6 +524,12 @@ mint {
                 layer.on('click', () => {
                   bringToFront(allTypesGroup);
                 });
+
+                layer.on('mouseover', () => {
+                  bringToFront(allTypesGroup);
+                });
+
+                layer.on('mouseleave');
               });
               allTypesGroup.addLayer(typeGroup);
             }
