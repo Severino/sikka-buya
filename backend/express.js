@@ -484,7 +484,6 @@ async function start({
                         throw new Error('You are not authenticated!')
                     }
 
-                    console.log(arguments)
                     if (!args.id) throw new Error("No id provided!")
 
                     return Type.updateType(args.id, args.data)
