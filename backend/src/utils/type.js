@@ -542,9 +542,8 @@ class Type {
 
     static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
 
-
-        const filterExcludesQuery = "NOT (exclude_from_type_catalogue = False AND exclude_from_map_app = False)"
-
+        console.log("FULL SEARCH")
+        // const filterExcludesQuery = "NOT (exclude_from_type_catalogue = True AND exclude_from_map_app = True)"
 
         pagination = new PageInfo(pagination)
         const conditions = this.objectToConditions(filters)
@@ -552,7 +551,7 @@ class Type {
         if (whereClause == "") whereClause = "WHERE"
         else whereClause += " AND "
 
-        const additionalWhereClauses = ["search_vectors @@ keywords", filterExcludesQuery]
+        const additionalWhereClauses = ["search_vectors @@ keywords"]
         whereClause += " " + additionalWhereClauses.join(" AND ")
 
 
@@ -572,14 +571,14 @@ class Type {
         ${this.rows}, ts_headline(plain_text, keywords) as preview        
         FROM type t
         ${this.joins}
-        , websearch_to_tsquery($[text]) as keywords
+        , websearch_to_tsquery($[text]) as keywords 
         ${whereClause}
+        ORDER BY t.project_id ASC
         ${pagination.toQuery()}
         ; `
 
 
         const result = await Database.manyOrNone(query, { text })
-        console.log("3")
 
 
         let fields = graphqlFields(info)

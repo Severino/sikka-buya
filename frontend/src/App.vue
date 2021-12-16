@@ -102,6 +102,10 @@ input {
   font-family: $font;
   font-size: $regular-font;
 }
+.emph {
+  color: $primary-color;
+  font-weight: bold;
+}
 
 .content-wrapper {
   width: 1080px;

@@ -4,6 +4,11 @@
       <div class="search">
         <Column>
           <h2>Typensuche (Volltext)</h2>
+          <p class="emph">
+            Beachte: Da dies vorerst als Bearbeiter-Tool gedacht ist, werden
+            alle Typen angezeigt ungeachtet davon, ob 'Nicht für Typenkatalog"
+            angegeben ist!
+          </p>
           <row>
             <search-field
               v-model="searchText"
@@ -72,8 +77,6 @@ export default {
       }
     },
     search: function () {
-      console.log(this.searchText);
-
       this.keep(this.$data);
       return Query.raw(
         `
@@ -103,16 +106,13 @@ export default {
       )
         .then((response) => {
           const result = response.data.data.fullSearchOnTypes;
-          console.log(result);
           this.pageInfo = result.pagination;
           this.results = result.results;
         })
         .catch((err) => (this.error = err));
     },
     pageChanged(pageInfo) {
-      console.log(pageInfo);
       this.pageInfo = pageInfo;
-      console.log('SEARCH');
       this.search();
     },
   },
