@@ -1,5 +1,5 @@
 <template>
-  <form class="types-page" @submit.prevent="">
+  <form class="types-page" submit.prevent="" novalidate="true">
     <modal :active="confirmVisible" @close="() => forceRedirect(false)">
       <confirmation @result="forceRedirect"
         >Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabei
@@ -306,7 +306,7 @@
         <button @click="applyJSON" v-if="debug">Apply {{ debug }}</button>
         <button @click="exportJSON" v-if="debug">Export</button>
         <button @click.stop.prevent="cancel">{{ $t('form.cancel') }}</button>
-        <button @click.stop="submitForm" type="submit">
+        <button @click.stop.prevent="submitForm" type="submit">
           {{ $t('form.submit') }}
         </button>
       </Row>
@@ -555,10 +555,11 @@ export default {
     if (this.submitted) {
       window.onbeforeunload = null;
       next();
+    } else {
+      this.confirmVisible = true;
     }
 
     this.next = next;
-    this.confirmVisible = true;
   },
   methods: {
     compareJSON: function (event) {
@@ -585,17 +586,9 @@ export default {
         fr.readAsText(file);
       }
 
-      let that = this;
       function receivedText(e) {
         let lines = e.target.result;
         var obj = JSON.parse(lines);
-
-        if (JSON.stringify(obj) == JSON.stringify(that.coin)) {
-          console.log('EQUAL', obj, that.coin);
-        } else {
-          console.log('DIFFERENT', obj, that.coin);
-        }
-
         window.loadedCoin = obj;
       }
     },
@@ -782,6 +775,12 @@ export default {
       }
 
       let invalid = false;
+      this.errorMessages = [];
+
+      if (this.coin.projectId == '') {
+        this.addError(`ID muss angegeben werden!`);
+        invalid = true;
+      }
 
       this.coin.issuers.forEach((issuer, index) => {
         if (!validateTitledPerson(issuer)) {

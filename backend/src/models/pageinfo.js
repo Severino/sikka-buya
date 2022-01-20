@@ -16,7 +16,7 @@ class PageInfo {
 
     updateTotal(total) {
         this.total = parseInt(total)
-        this.last = (total) ? Math.floor(this.total / this.count) : null
+        this.last = (total) ? (this.count == 0) ? 0 : Math.floor(this.total / this.count) : null
     }
 
     toObject() {

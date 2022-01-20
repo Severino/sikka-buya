@@ -1,11 +1,14 @@
 $sans-serif: 'Arimo';
-$font: $sans-serif, 'Times New Roman', sans-serif;
+$font: $sans-serif,
+'Times New Roman',
+sans-serif;
 
 $padding: 10px;
 $big-padding: 30px;
 $big-box-padding: 30px 50px;
 
 $white: #fefefe;
+$dark-white: #f1f1f1;
 $light-gray: #bfbebe;
 $gray: rgb(126, 126, 126);
 $dark-gray: #333;
@@ -13,11 +16,10 @@ $black: #111;
 
 $text-color: $black;
 $background-color: whitesmoke;
-$border-color: rgb(204, 204, 204);
 
 $primary-color: #48ac48;
 
-$yellow: #f9d939;
+$yellow: #e4b20d;
 $green: #18f2b2;
 $red: #da4133;
 
@@ -28,11 +30,14 @@ $regular-font: 1rem;
 $small-font: 0.8em;
 $xtra-small-font: 0.6em;
 
+$border-color: rgb(204, 204, 204);
 $border-radius: 10px;
+$border-width: 2px;
+$border: solid $border-width $border-color;
 
 $transition-time: 0.3s;
 $long-transition-time: 0.6s;
 
-$shadow-offset: 1px 2px ;
+$shadow-offset: 1px 2px;
 $shadow: $shadow-offset 5px rgba(0, 0, 0, 0.02);
 $strong-shadow: $shadow-offset 5px rgba(66, 66, 66, 0.2);

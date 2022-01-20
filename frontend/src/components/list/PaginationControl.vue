@@ -11,9 +11,10 @@
     </div>
     <div class="center">
       <span>
-        {{ this.pageItems }}
-        /
-        {{ this.value.total }}
+        {{ this.fromItem }}
+        ...
+        {{ this.toItem }}
+        ({{ this.value.total }})
       </span>
     </div>
     <div class="right">
@@ -51,6 +52,14 @@ export default {
       },
     },
   },
+  watch: {
+    value: {
+      handler(val) {
+        this.changed(val);
+      },
+      deep: true,
+    },
+  },
   methods: {
     changed(pageInfo) {
       pageInfo.page = Math.max(Math.min(pageInfo.page, pageInfo.total), 0);
@@ -86,9 +95,11 @@ export default {
     },
   },
   computed: {
-    pageItems() {
+    fromItem() {
+      return Math.min(this.value.total, this.value.page * this.value.count + 1);
+    },
+    toItem() {
       let page = (this.value.page + 1) * this.value.count;
-
       return Math.min(this.value.total, page);
     },
   },

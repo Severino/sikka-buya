@@ -281,6 +281,7 @@ a {
   transform: translateX(-100%);
   @include interactive;
 
+  background-color: white;
   @include media_phone {
     display: block;
     align-self: flex-start;

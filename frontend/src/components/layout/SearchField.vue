@@ -59,29 +59,27 @@ export default {
       let value = event.target.value;
       this.$emit('input', value);
 
-      if (this.isInputSearch) {
-        if (value != '' && this.asyncSearch) {
-          this.i++;
+      if (this.isInputSearch && this.asyncSearch) {
+        this.i++;
 
-          this.pending = true;
-          this.pendingI = this.i;
+        this.pending = true;
+        this.pendingI = this.i;
 
-          if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = null;
-          }
-
-          this.search().finally(() => {
-            // Only change it back, when no input has occured in the meantime!
-            if (this.i == this.pendingI) {
-              this.pending = false;
-            }
-          });
-
-          // We use a local variable, that we dont override a new
-          // search, that may happen before the callback is triggered.
-          this.timeout = setTimeout(() => {}, this.delay);
+        if (this.timeout) {
+          clearTimeout(this.timeout);
+          this.timeout = null;
         }
+
+        this.search().finally(() => {
+          // Only change it back, when no input has occured in the meantime!
+          if (this.i == this.pendingI) {
+            this.pending = false;
+          }
+        });
+
+        // We use a local variable, that we dont override a new
+        // search, that may happen before the callback is triggered.
+        this.timeout = setTimeout(() => {}, this.delay);
       }
     },
     async buttonSearch() {

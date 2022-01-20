@@ -102,6 +102,13 @@ class Auth {
         if (!token) throw new Error("401")
         else return this.verify(token)
     }
+
+    static requireAuthContext(context) {
+        let auth = Auth.verifyContext(context)
+        if (!auth) {
+            throw new Error('You are not authenticated!')
+        }
+    }
 }
 
 module.exports = Auth

@@ -171,7 +171,7 @@ const error = {
         "Das angefragte Element konnte nicht geladen werden. Gehe zur Liste zurück oder erstelle ein neues Element hier. Kontaktiere einen Admin, falls das Problem weiterhin besteht."
     ,
     loading_list:
-        "List konnte nicht geladen werden. Anscheinend ist die Datenbank nicht verfügbar.",
+        "List konnte nicht geladen werden. Anscheinend ist die Datenbank nicht verfügbar. Oder es liegt ein Anfragefehler vor.",
     delete_list_item_prevented:
         "Eintrag konnte nicht gelöscht werden. Wahscheinlich wird er noch von anderen Einträgen referenziert."
 }

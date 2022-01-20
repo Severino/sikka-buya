@@ -115,8 +115,6 @@ async function start({
                         mint.overlords = result || []
                     }
 
-                    // console.log(mints.findIndex(mint => mint.person.length > 0))
-
                     mints = SQLUtils.objectifyList(mints, {
                         prefix: "mint_",
                         target: "mint",
@@ -131,19 +129,17 @@ async function start({
                 },
                 timespan: async () => {
 
-                    let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint !='';`)
+                    let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint !='' AND exclude_from_map_app=false;`)
                     range = range.map(row => row.year_of_mint).filter(res => res && res.match(/^\d+$/g)).sort()
 
                     if (range.length == 0) throw new Error("Could not get Range!")
 
                     return { from: range[0], to: range[range.length - 1] }
                 },
-                getReducedCoinTypeList: async function () {
-                    return Type.getTypesReducedList(...arguments)
-                },
                 getCoinType: async function () {
                     return Type.getType(...arguments)
                 },
+
                 coinType: async function () {
                     return Type.list(...arguments)
                 },
@@ -267,7 +263,28 @@ async function start({
                 searchType: async function () {
                     return Type.searchType(...arguments)
                 },
-                getTypes: function () { return Type.getTypes(...arguments) },
+                /**
+               * Same as getCoinTypes, but also allow to filter for evaluation filters.
+               */
+                modGetTypes: async function (_, args, context) {
+                    Auth.requireAuthContext(context)
+
+                    args.additionalRows = [`CASE WHEN tc.type is null
+                    then False
+                    else True 
+                    END AS completed`, `CASE WHEN tr.type is null
+                    then False
+                    else True 
+                    END AS reviewed`]
+                    args.additionalJoin = `LEFT JOIN type_completed tc ON t.id = tc.type
+            LEFT JOIN type_reviewed tr ON t.id = tr.type`
+
+
+
+                    const modTypes = await Type.getTypes(...arguments)
+                    modTypes.modReview = modTypes.types
+                    return modTypes
+                },
                 getTypeComplete: async function (_, { id = null } = {}) {
                     const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);
                     return result.exists
@@ -470,7 +487,6 @@ async function start({
                     return Type.addType(_, args, context, info)
                 },
                 inviteUser: async function (_, { email } = {}, context) {
-                    // console.log("SEND MAIL TO: ", arguments)
                     if (!Auth.verifyContext(context)) {
                         throw new Error('You are not authenticated!')
                     }

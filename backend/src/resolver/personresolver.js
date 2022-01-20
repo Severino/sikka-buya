@@ -47,8 +47,6 @@ class PersonResolver extends Resolver {
 
     async list(_, filters = {}) {
 
-        console.log(filters)
-
         const whereClauses = []
 
         let queryParameters = {

@@ -196,9 +196,13 @@ export default {
 
       Query.raw(query)
         .then((result) => {
-          this.searchResults = result.data.data[queryCommand];
-          this.internal_error = '';
-          console.log(this.searchResults.length);
+          if (result?.data?.data[queryCommand]) {
+            this.searchResults = result.data.data[queryCommand];
+            this.internal_error = '';
+          } else {
+            console.error('Could not get value');
+            this.internal_error = 'Unknown Search Error';
+          }
         })
         .catch((error) => {
           this.internal_error = error;

@@ -61,23 +61,17 @@ input CoinSideInformationInput {
   misc: String = ""
 }
 
-type ReducedCoinTypePagination {
+type CoinTypePagination {
   pageInfo: PageInfo
-  types: [ReducedCoinType]
+  types: [CoinType]
 }
 
-type ReducedCoinType {
-  id: ID
-  projectId: String
-  treadwellId: String
-  yearOfMint: String
-  material: Name
-  nominal: String
-  donativ: Boolean
-  procedure: String
-  completed: Boolean
-  reviewed: Boolean
+type ModCoinTypePagination {
+  pageInfo: PageInfo
+  types: [ModCoinType]
 }
+
+
 
 type CoinType {
   id: ID
@@ -106,6 +100,43 @@ type CoinType {
   internalNotes: String
   yearUncertain: Boolean
   mintUncertain: Boolean
+}
+
+
+type ModCoinType {
+  id: ID
+  projectId: String
+  treadwellId: String
+  mint: Mint
+  mintAsOnCoin: String
+  material: Name
+  nominal: Name
+  yearOfMint: String
+  donativ: Boolean
+  procedure: String
+  issuers: [TitledPerson]
+  overlords: [Overlord]
+  otherPersons: [Person]
+  caliph: Person
+  avers: CoinSideInformation
+  reverse: CoinSideInformation
+  cursiveScript: Boolean
+  coinMarks: [CoinMark]
+  literature: String
+  pieces: [String]
+  specials: String
+  excludeFromTypeCatalogue: Boolean
+  excludeFromMapApp: Boolean
+  internalNotes: String
+  yearUncertain: Boolean
+  mintUncertain: Boolean
+  reviewed:Boolean,
+  completed: Boolean
+}
+
+type ModReview {
+  completed: Boolean
+  reviewed: Boolean
 }
 
 input CoinTypeInput {
@@ -235,7 +266,7 @@ type Query {
   getPerson(id: Int!): Person
 
   # Tested in 030_coin_type
-  coinType(count: Int, page: Int): [CoinType]
+  coinType(pagination: Pagination, filters: TypeFilter): CoinTypePagination
 
   searchType(
     text: String
@@ -251,17 +282,9 @@ type Query {
   searchProvince(text: String): [Name]
   getProvince(id: ID!): [Name]
 
-  getReducedCoinTypeList(
-    pagination: Pagination
-    filter: ListFilter
-  ): ReducedCoinTypePagination
   getTypesByRuler(id: ID!): [CoinType]
-  getTypes(
-    yearOfMint: Int
-    mint: ID
-    excludeFromMapApp: Boolean
-    excludeFromTypeCatalogue: Boolean
-  ): [CoinType]
+  modGetTypes(pagination: Pagination, filters: ModTypeFilter, evalFilters:EvalFilter): ModCoinTypePagination
+
 
   timespan: Range
   getAnalytics: Analytics
@@ -391,10 +414,13 @@ input Pagination {
   page: Int!
 }
 
-input ListFilter {
-  text: String
+input EvalFilter {
   completed: Boolean
   reviewed: Boolean
+}
+
+input ModTypeFilter {
+  text: String
   donativ: Boolean
   cursiveScript: Boolean
   excludeFromTypeCatalogue: Boolean
@@ -405,6 +431,25 @@ input ListFilter {
   caliph: ID
   nominal: ID
   material: ID
+  coinMark: ID
+  reviewed: Boolean
+  completed: Boolean
+}
+
+input TypeFilter {
+  text: String
+  donativ: Boolean
+  cursiveScript: Boolean
+  excludeFromTypeCatalogue: Boolean
+  excludeFromMapApp: Boolean
+  yearOfMint: String
+  yearUncertain: Boolean
+  mintUncertain: Boolean
+  mint: ID
+  caliph: ID
+  nominal: ID
+  material: ID
+  coinMark: ID
 }
 
 type PageInfo {
