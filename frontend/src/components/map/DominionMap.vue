@@ -29,7 +29,7 @@ export default {
   name: 'DominionMap',
   components: { Sidebar, Timeline, Checkbox, FilterIcon },
   mixins: [map, timeline],
-  mounted: async function() {
+  mounted: async function () {
     await this.initTimeline();
     this.updateDominion();
   },
@@ -37,10 +37,10 @@ export default {
     updateTimeline() {
       this.update();
     },
-    update: function() {
+    update: function () {
       this.updateDominion();
     },
-    updateDominion: function() {
+    updateDominion: function () {
       let component = this;
       Query.raw(
         `
@@ -71,10 +71,10 @@ export default {
     }
   }}`
       )
-        .then(result => {
+        .then((result) => {
           if (this.mintGeoJSONLayer) this.mintGeoJSONLayer.remove();
           this.mintGeoJSONLayer = component.L.geoJSON([], {
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new component.L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -82,11 +82,11 @@ export default {
               opacity: 0.75,
               color: 'red',
               fillColor: '#48ac48',
-              fillOpacity: 0.1
-            }
+              fillOpacity: 0.1,
+            },
           }).addTo(this.featureGroup);
 
-          result.data.data.ruledMint.forEach(mint => {
+          result.data.data.ruledMint.forEach((mint) => {
             if (mint.location) {
               try {
                 mint.location = JSON.parse(mint.location);
@@ -97,8 +97,8 @@ export default {
             }
           });
 
-          result.data.data.getDominion.forEach(dominion => {
-            dominion.mints.forEach(mint => {
+          result.data.data.getDominion.forEach((dominion) => {
+            dominion.mints.forEach((mint) => {
               try {
                 mint.location = JSON.parse(mint.location);
               } catch (e) {
@@ -109,14 +109,14 @@ export default {
 
           let dominionData = result.data.data.getDominion;
           dominionData.filter(
-            data =>
+            (data) =>
               data?.mints?.location?.coordinates &&
               Array.isArray(data.mints.location.coordinates) &&
               data.mints.location.coordinates.length > 0
           );
           dominionData.forEach((dominion, idx) => {
             let points = [];
-            dominion.mints.forEach(mint => {
+            dominion.mints.forEach((mint) => {
               let distance = 0.2 / (idx + 1);
               let resolution = 10;
               let vertices = resolution * 4;
@@ -141,14 +141,14 @@ export default {
 
           let i = 0;
           this.dominionLayer = component.L.geoJSON(dominionData, {
-            onEachFeature: function(feature, layer) {
+            onEachFeature: function (feature, layer) {
               let color = Color.byIndex(i++);
               layer.setStyle({
                 color,
-                fillColor: color
+                fillColor: color,
               });
             },
-            coordsToLatLng: function(coords) {
+            coordsToLatLng: function (coords) {
               return new component.L.LatLng(coords[0], coords[1], coords[2]);
             },
             style: {
@@ -156,23 +156,23 @@ export default {
               opacity: 0.75,
               color: '#48ac48',
               fillColor: '#48ac48',
-              fillOpacity: 0.5
-            }
+              fillOpacity: 0.5,
+            },
           }).addTo(this.featureGroup);
           this.dominionLayer.bindTooltip(
-            layer => {
+            (layer) => {
               return layer.feature.dominion.overlord.shortName;
             },
             {
               sticky: true,
-              direction: 'top'
+              direction: 'top',
             }
           );
 
           console.log(this.featureGroup);
         })
         .catch(console.error);
-    }
-  }
+    },
+  },
 };
 </script>
