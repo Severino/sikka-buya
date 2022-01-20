@@ -1,25 +1,23 @@
 <template>
   <div :class="'info ' + type" :hidden="hidden">
-    <p>
-      {{ message }}
-    </p>
+    <slot />
   </div>
 </template>
 
 <script>
 export default {
-  name: "Info",
+  name: 'Info',
   props: {
-    message: {
-      type: String,
-      required: true,
-    },
     type: {
       type: String,
-      default: "info",
+      default: 'info',
       validator: (value) => {
-        return ["info", "error", "warning"].indexOf(value) != -1;
+        return ['info', 'error', 'warning'].indexOf(value) != -1;
       },
+    },
+    alwaysShow: {
+      default: false,
+      type: Boolean,
     },
     trigger: {
       default: 0,
@@ -32,7 +30,7 @@ export default {
   },
   data: function () {
     return {
-      hidden: true,
+      trigger_show: true,
     };
   },
   watch: {
@@ -42,29 +40,40 @@ export default {
   },
   methods: {
     show: function () {
-      this.$data.hidden = false;
+      this.$data.trigger_show = false;
 
       if (this.$props.time > 0) {
         setTimeout(this.hide, this.$props.time);
       }
     },
     hide: function () {
-      this.$data.hidden = true;
+      this.$data.trigger_show = true;
+    },
+  },
+  computed: {
+    visible() {
+      return this.alwaysShow || (this.trigger > 0 && this.trigger_show);
+    },
+    hidden() {
+      return !this.visible;
     },
   },
 };
 </script>
 
 <style lang="scss">
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .info {
   color: white;
   background-color: gray;
-  padding: $padding 2 * $padding;
+  font-weight: bold;
+  font-style: italic;
+  padding: $padding;
   width: 100%;
   font-size: $small-font;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .warning {

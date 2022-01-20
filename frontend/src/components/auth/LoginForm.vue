@@ -1,8 +1,7 @@
 <template>
-  <Box class="login-form">
+  <Box class="login-form" title="Login">
     <form ref="form" @keydown="enter">
       <user-form
-        title="Login"
         :email="email"
         :password="password"
         :disabled="buttonDisabled"
@@ -102,23 +101,9 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.box {
-  align-items: stretch;
-  max-width: 100%;
-  width: 512px;
-  background-color: $white;
-  padding: 50px 60px;
-  border-radius: 15px;
-  box-shadow: $shadow;
-
-  > *:not(:last-child) {
-    margin-bottom: $padding * 2;
-  }
-}
-
-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
+// form {
+//   width: 100%;
+//   display: flex;
+//   flex-direction: column;
+// }
 </style>

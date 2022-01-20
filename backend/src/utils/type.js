@@ -213,7 +213,7 @@ class Type {
         return { text: type.projectId + "\n" + text, errors }
     }
 
-    static postProcessUpsert(data) {
+    static postProcessUpsert(data, skipFetch) {
         /**
         * Thus the avers and reverse data is nested inside a seperate object,
         * inside the GraphQL interface, we need to transform whose properties
@@ -226,12 +226,12 @@ class Type {
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
         this.cleanupHTMLFields(data)
-        data.plainText = this.createPlainTextField(data)
+        data.plainText = this.createPlainTextField(data, skipFetch)
         return data
     }
 
     static async addType(_, args, context, info) {
-        const data = this.postProcessUpsert(args.data)
+        const data = this.postProcessUpsert(args.data, true)
 
         return Database.tx(async t => {
 
@@ -387,120 +387,79 @@ class Type {
         return result
     }
 
-    static async getTypesReducedList(_, args) {
+    // static async getTypesReducedList(_, { filters = {}, pagination = {} } = {}) {
 
-        let { page = 0, count = 10 } = (args.pagination)
+    //     pagination = new PageInfo(pagination)
 
-        let filter = []
-        if (args.filter) {
-            let { text, completed, reviewed } = args.filter
+    //     let filter = this.buildWhereFilter(this.objectToConditions(filters))
+    //     throw new Error("STOP");
 
+    //     // let pageInfo = null
+    //     // let pagination = ""
+    //     // if (page != null && count != null) {
 
+    //     //     let { total } = await Database.one(`
+    //     //     SELECT COUNT(id) AS total FROM type t
+    //     //     LEFT JOIN type_completed tc ON t.id = tc.type
+    //     //     LEFT JOIN type_reviewed tr ON t.id = tr.type
+    //     //     ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
+    //     // `, args.filter)
 
-            if (text) {
-                args.filter.text = `%${args.filter.text}%`
-                filter.push("unaccent(project_id) ILIKE unaccent($[text])")
-            }
+    //     //     page = (Math.floor(total / count) < page) ? Math.floor(total / count) : page
+    //     //     pagination = ` LIMIT ${count} OFFSET ${page * count} `
 
-            let {
-                donativ,
-                cursiveScript,
-                excludeFromTypeCatalogue,
-                excludeFromMapApp,
-                yearUncertain,
-                mintUncertain,
-                mint,
-                caliph,
-                nominal,
-                material,
-            } = args.filter
-
-            let obj = {
-                donativ,
-                cursiveScript,
-                excludeFromTypeCatalogue,
-                excludeFromMapApp,
-                yearUncertain,
-                mintUncertain,
-                mint,
-                caliph,
-                nominal,
-                material,
-            }
+    //     //     pageInfo = new PageInfo({
+    //     //         count,
+    //     //         page,
+    //     //         total
+    //     //     })
+    //     // }
 
 
+    //     const test_query = `
+    //     SELECT 
+    //         COUNT(*) as total     
+    //     FROM type t
+    //     ${this.joins}
+    //     , websearch_to_tsquery($[text]) as keywords
+    //     ${whereClause}
+    //     ; `
+    //     const { total } = await Database.one(test_query, Object.assign(filters, { text }))
+    //     pagination.updateTotal(total)
 
-            for (let [key, val] of Object.entries(obj)) {
-                if (val != null) {
-                    filter.push(`t.${camelCaseToSnakeCase(key)}=$[${key}]`)
-                }
-            }
-
-
-
-            if (completed != null) {
-                filter.push(`tc.type IS ${(completed == true) ? "NOT" : ""} NULL`)
-            }
-
-            if (reviewed != null) {
-                filter.push(`tr.type IS ${(reviewed == true) ? "NOT" : ""} NULL`)
-            }
-        }
-
-        let pageInfo = null
-        let pagination = ""
-        if (page != null && count != null) {
-
-            let { total } = await Database.one(`
-            SELECT COUNT(id) AS total FROM type t
-            LEFT JOIN type_completed tc ON t.id = tc.type
-            LEFT JOIN type_reviewed tr ON t.id = tr.type
-            ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
-        `, args.filter)
-
-            page = (Math.floor(total / count) < page) ? Math.floor(total / count) : page
-            pagination = ` LIMIT ${count} OFFSET ${page * count} `
-
-            pageInfo = new PageInfo({
-                count,
-                page,
-                total
-            })
-        }
-
-        let typeList = await Database.manyOrNone(`SELECT
-        id, project_id, treadwell_id,
-            CASE 
-            WHEN tc.type IS NULL THEN false
-            ELSE true
-        END AS completed,
-            CASE 
-            WHEN tr.type IS NULL THEN false
-            ELSE true
-        END AS reviewed
-        FROM type t
-        LEFT JOIN type_completed tc ON t.id = tc.type
-        LEFT JOIN type_reviewed tr ON t.id = tr.type
-        ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
-        ORDER BY unaccent(project_id) COLLATE "C"
-        ${pagination}
-        ; `, args.filter)
+    //     let typeList = await Database.manyOrNone(`SELECT
+    //     id, project_id, treadwell_id,
+    //         CASE 
+    //         WHEN tc.type IS NULL THEN false
+    //         ELSE true
+    //     END AS completed,
+    //         CASE 
+    //         WHEN tr.type IS NULL THEN false
+    //         ELSE true
+    //     END AS reviewed
+    //     FROM type t
+    //     LEFT JOIN type_completed tc ON t.id = tc.type
+    //     LEFT JOIN type_reviewed tr ON t.id = tr.type
+    //     ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
+    //     ORDER BY unaccent(project_id) COLLATE "C"
+    //     ${pagination}
+    //     ; `, args.filter)
 
 
-        const map = {
-            project_id: "projectId",
-            treadwell_id: "treadwellId"
-        }
+    //     const map = {
+    //         project_id: "projectId",
+    //         treadwell_id: "treadwellId"
+    //     }
 
-        typeList = typeList.map(type => {
-            for (let [key, val] of Object.entries(map)) {
-                type[val] = type[key]
-            }
-            return type
-        })
+    //     typeList = typeList.map(type => {
+    //         for (let [key, val] of Object.entries(map)) {
+    //             type[val] = type[key]
+    //         }
+    //         return type
+    //     })
 
-        return { pageInfo, types: typeList }
-    }
+    //     return { pageInfo, types: typeList }
+    // }
 
     static buildWhereFilter(conditions) {
         if (!conditions || conditions.length == 0) return ""
@@ -511,39 +470,124 @@ class Type {
         /**
          * TODO // WARNING // ALERT // ERROR: HERE WE HAVE THE DANGER OF SQLINJECTION
          */
-        const filters = []
+
+        const where = []
         for (let [key, val] of Object.entries(filterObj)) {
-            filters.push(`${camelCaseToSnakeCase(key)}='${val}'`)
+            let db_key = camelCaseToSnakeCase(key)
+            if (val == null || val == "") continue
+            where.push(pgp.as.format("$1:name=$2", [db_key, val]))
         }
-        return filters
+        return where
     }
 
-    static async getTypes(_, filters = {}, context, info) {
+    static async getTypes(_, { pagination = { count: 50, total: 0, page: 0 }, filters = {}, additionalJoin = "", additionalRows = [] }, context, info) {
+
+        /**
+         * 
+         * Better innerjoin for coin_marks:
+         * 
+         * 
+         * 
+         *  SELECT * FROM type
+            RIGHT JOIN
+            (SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) FROM type_coin_marks 
+            JOIN coin_marks ON coin_marks.id = type_coin_marks.coin_mark
+            GROUP BY type_coin_marks.type) AS cm
+            ON cm.type = type.id
+         */
+
+        const { join: complex_join, where: complex_where } = this.complexFilters(filters)
+
 
         const conditions = this.objectToConditions(filters)
-        const whereClause = this.buildWhereFilter(conditions)
-        const query = `
-        SELECT 
-        ${this.rows}         
+        const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
+        const pageInfo = new PageInfo(pagination)
+
+        const totalQuery = `
+        SELECT count(*)
         FROM type t 
         ${this.joins}
+        ${complex_join.join("\n")}
+        ${additionalJoin}
         ${whereClause}
-        ; `
+        `
+
+        const total = await Database.one(totalQuery)
+        pageInfo.updateTotal(total.count)
+
+        const query = `
+        SELECT 
+        ${[this.rows,
+            ...additionalRows
+            ].join(",")
+            }
+        FROM type t 
+        ${this.joins}
+        ${complex_join.join("\n")}
+        ${additionalJoin}
+        ${whereClause}
+        ORDER BY t.project_id ASC
+        ${pageInfo.toQuery()}
+; `
 
 
         const result = await Database.manyOrNone(query)
         let fields = graphqlFields(info)
+
         for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type, fields)
+            result[idx] = await this.postprocessType(type, fields.types)
         }
 
-        return result
+        return { types: result, pageInfo }
+    }
+
+    static complexFilters(filter) {
+        let where = [], join = []
+        if (Object.hasOwnProperty.bind(filter)("coinMark")) {
+            const cmJoin = `RIGHT JOIN(
+    SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) AS coin_mark, array_agg(type_coin_marks.coin_mark) as coin_mark_ids 
+                FROM type_coin_marks 
+                JOIN coin_marks 
+                ON coin_marks.id = type_coin_marks.coin_mark
+                GROUP BY type_coin_marks.type
+) AS cm
+            ON cm.type = t.id`
+            join.push(cmJoin)
+
+            const cmWhere = pgp.as.format("$1=ANY(cm.coin_mark_ids)", [filter.coinMark])
+            delete filter.coinMark
+            where.push(cmWhere)
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("completed")) {
+            if (filter.completed != null) {
+                let completedWhere = (filter.completed) ? "tc.type IS NOT NULL" : "tc.type IS NULL"
+                where.push(completedWhere)
+            }
+            delete filter.completed
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("reviewed")) {
+            if (filter.reviewed != null) {
+                let reviewedWhere = (filter.reviewed) ? "tr.type IS NOT NULL" : "tr.type IS NULL"
+                where.push(reviewedWhere)
+            }
+            delete filter.reviewed
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("text")) {
+            filter.text = filter.text.trim()
+            if (filter.text != "") {
+                let text = pgp.as.format("unaccent(t.project_id) ILIKE unaccent($1)", [filter.text])
+                where.push(text)
+            }
+            delete filter.text
+        }
+
+        return { where, join }
     }
 
     static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
-
-        console.log("FULL SEARCH")
-        // const filterExcludesQuery = "NOT (exclude_from_type_catalogue = True AND exclude_from_map_app = True)"
 
         pagination = new PageInfo(pagination)
         const conditions = this.objectToConditions(filters)
@@ -556,18 +600,18 @@ class Type {
 
 
         const test_query = `
-        SELECT 
-            COUNT(*) as total     
+SELECT
+COUNT(*) as total     
         FROM type t
         ${this.joins}
         , websearch_to_tsquery($[text]) as keywords
         ${whereClause}
-        ; `
+; `
         const { total } = await Database.one(test_query, Object.assign(filters, { text }))
         pagination.updateTotal(total)
 
         const query = `
-        SELECT 
+SELECT 
         ${this.rows}, ts_headline(plain_text, keywords) as preview        
         FROM type t
         ${this.joins}
@@ -575,7 +619,7 @@ class Type {
         ${whereClause}
         ORDER BY t.project_id ASC
         ${pagination.toQuery()}
-        ; `
+; `
 
 
         const result = await Database.manyOrNone(query, { text })
@@ -603,12 +647,12 @@ class Type {
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
-            SELECT 
+SELECT 
                 ${this.rows}
             FROM type t
                 ${this.joins}
             WHERE t.id = $1
-            `, id).catch((e) => {
+    `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
         const fields = graphqlFields(info)
@@ -630,12 +674,12 @@ class Type {
      */
     static async getFullType(id) {
         const result = await Database.one(`
-        SELECT 
+SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
         WHERE t.id = $1
-        `, id).catch((e) => {
+    `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
 
@@ -650,13 +694,13 @@ class Type {
 
         const result = await Database.manyOrNone(`
         WITH rulers AS(
-                SELECT type FROM overlord WHERE person = $1
+        SELECT type FROM overlord WHERE person = $1
                     UNION
                     SELECT type from issuer WHERE person = $1
                     UNION
                     SELECT id AS type from type WHERE caliph = $1
-            )
-        SELECT 
+    )
+SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
@@ -675,15 +719,15 @@ class Type {
 
     static get rows() {
         return ` t.*,
-            ${Material.query()}
+    ${Material.query()}
         ${Mint.query()}
         ${Nominal.query()}
-        exclude_from_type_catalogue,
-            exclude_from_map_app,
-            internal_notes,
-            year_uncertain,
-            mint_uncertain as guessed_mint,
-            p.id AS caliph_id`
+exclude_from_type_catalogue,
+    exclude_from_map_app,
+    internal_notes,
+    year_uncertain,
+    mint_uncertain as guessed_mint,
+    p.id AS caliph_id`
     }
 
     static get joins() {
@@ -696,7 +740,7 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-            `
+    `
     }
 
     static async postprocessType(type, fields) {

@@ -2,115 +2,119 @@ const chai = require('chai')
 const expect = chai.expect
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
+const gql = String.raw
 
 chai.config.truncateThreshold = 0
 chai.config.showDiff = true
 
-const body = ` 
+const body = gql` 
       id
 projectId
 treadwellId
 mint {
-id
-name
-location
-uncertain
-uncertainArea
+  id
+  name
+  location
+  uncertain
+  uncertainArea
 }
 mintAsOnCoin
 material {
-id
-name
+  id
+  name
 }
 nominal {
-id
-name
+  id
+  name
 }
 yearOfMint
 donativ
 procedure
 issuers {
-id
-titles {
-id
-name
-}
-honorifics {
-id
-name
-}
-name
-shortName
-role {
-id
-name
-}
-dynasty {
-id
-name
-}
+  id
+  titles {
+    id
+    name
+  }
+  honorifics {
+    id
+    name
+  }
+  name
+  shortName
+  role {
+    id
+    name
+  }
+  dynasty {
+    id
+    name
+  }
 
 }
 overlords {
-id
-rank
-name
-titles {
-id
-name
-}
-honorifics {
-id
-name
-}
-dynasty {
-id
-name
-}
-shortName
-role {
-id
-name
-}
+  id
+  rank
+  name
+  titles {
+    id
+    name
+  }
+  honorifics {
+    id
+    name
+  }
+  dynasty {
+    id
+    name
+  }
+  shortName
+  role {
+    id
+    name
+  }
 }
 otherPersons {
-id
-name
-shortName
-role {
-id
-name
-}
-dynasty{id,name}
+  id
+  name
+  shortName
+  role {
+    id
+    name
+  }
+  dynasty{
+      id,
+      name
+    }
 }
 caliph {
-id
-name
-shortName
-role {
-id
-name
-}
-dynasty{id,name}
+  id
+  name
+  shortName
+  role {
+    id
+    name
+  }
+  dynasty{id,name}
 }
 avers {
-fieldText
-innerInscript
-intermediateInscript
-outerInscript
-misc
+  fieldText
+  innerInscript
+  intermediateInscript
+  outerInscript
+  misc
 }
 reverse {
-fieldText
-innerInscript
-intermediateInscript
-outerInscript
-misc
+  fieldText
+  innerInscript
+  intermediateInscript
+  outerInscript
+  misc
 }
 cursiveScript
 coinMarks {
-id
-name
+  id
+  name
 }
 literature
 pieces
@@ -124,15 +128,19 @@ mintUncertain
 
 describe(`Type Queries`, function () {
   it(`List`, async function () {
-    console.log(`{ coinType{ ${body}}}`)
-    let result = await graphql(`{coinType{${body}}}`)
+    let result = await graphql(`{ coinType{
+      types {
+      ${body}
+    }}}`)
 
     expect(result.data).to.deep.equal({
       "data": {
-        "coinType": [
-          GERMAN_TYPE,
-          FRENCH_TYPE
-        ]
+        "coinType": {
+          "types": [
+            FRENCH_TYPE,
+            GERMAN_TYPE,
+          ]
+        }
       }
     })
   })
@@ -194,14 +202,16 @@ describe(`Type Queries`, function () {
   })
 
   it("Add was successfull", async function () {
-    let result = await graphql(`{coinType{${body}}}`)
+    let result = await graphql(`{coinType{ types {${body}}}}`)
 
     expect(result.data.data).to.deep.equal({
-      "coinType": [
-        ATLANTIS_TYPE,
-        GERMAN_TYPE,
-        FRENCH_TYPE,
-      ]
+      "coinType": {
+        "types": [
+          ATLANTIS_TYPE,
+          FRENCH_TYPE,
+          GERMAN_TYPE,
+        ]
+      }
     })
   })
 

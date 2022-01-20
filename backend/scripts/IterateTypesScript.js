@@ -49,7 +49,6 @@ class IterateTypesScript {
             writeStream.end()
         }
 
-        console.log(exitMessage)
         console.log("Updated all types.\nThanks for keeping SIKKA:BUYA up to date!")
 
     }
