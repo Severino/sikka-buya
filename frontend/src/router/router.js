@@ -75,6 +75,7 @@ import Auth from "../utils/Auth.js"
 import MapPage from "@/components/page/MapPage.vue"
 import PoliticalMap from "@/components/map/PoliticalMap"
 import DominionMap from "@/components/map/DominionMap"
+import PlaygroundPage from "@/components/map/Playground"
 
 
 Vue.use(VueRouter)
@@ -108,6 +109,8 @@ const routes = [
         name: "Home",
         component: LandingPage
       },
+
+
       analyticsRoutes,
       {
         path: "/persons/",
@@ -157,7 +160,13 @@ const routes = [
             name: "DominionMap",
             component: DominionMap,
             meta: { smallNav: true },
-          }
+          },
+          {
+            path: "playground",
+            name: "Playground",
+            component: PlaygroundPage,
+            meta: { smallNav: true },
+          },
         ]
       },
       {
