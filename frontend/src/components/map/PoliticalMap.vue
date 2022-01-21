@@ -48,7 +48,8 @@
         :map="map"
         :from="timeline.from"
         :to="timeline.to"
-        :value="timeline.value"
+        :value="raw_timeline.value"
+        :valid="timelineValid"
         @input="timelineChanged"
         @change="timelineChanged"
       />
@@ -77,6 +78,7 @@ import Checkbox from '../forms/Checkbox.vue';
 
 import map from './mixins/map';
 import timeline from './mixins/timeline';
+import localstore from '../mixins/localstore';
 
 import Query from '../../database/query';
 
@@ -86,8 +88,16 @@ import MultiSelectList from '../MultiSelectList.vue';
 
 import Person from '../../utils/Person';
 
+import L from 'leaflet';
+
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
+import { concentricCircles } from '../../models/map/geometry';
+import {
+  coinsToRulerData,
+  dataFromRulers,
+  rulersFromCoin,
+} from '../../models/rulers';
 
 export default {
   name: 'PoliticalMap',
@@ -101,6 +111,7 @@ export default {
   },
   data: function () {
     return {
+      types: [],
       mints: [],
       rulers: [],
       selectedRulers: [],
@@ -117,7 +128,7 @@ export default {
       },
     };
   },
-  mixins: [map, timeline],
+  mixins: [map, timeline, localstore('political-map-settings', ['settings'])],
   computed: {
     filtersActive: function () {
       return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
@@ -143,6 +154,7 @@ export default {
     settings: {
       handler: function () {
         this.update();
+        this.save();
       },
       deep: true,
     },
@@ -160,6 +172,8 @@ export default {
 
     await this.initTimeline(starTime);
     this.updateTimeline();
+
+    console.log(this.settings.maxRadius.value);
   },
   unmounted: function () {
     this.mintLocation.removeExistingLocation();
@@ -185,7 +199,8 @@ mint {
   location
   uncertain
 }
-  getTypes(yearOfMint:${this.timeline.value}, excludeFromMapApp: false){
+  coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
+    types{
     id
     projectId
     material {name}
@@ -216,10 +231,11 @@ mint {
     }
     excludeFromTypeCatalogue
   }
+  }
 }`
           )
             .then((result) => {
-              let data = result.data.data.getTypes;
+              let data = result.data.data.coinType.types;
               let mints = result.data.data.mint.filter(
                 (mint) => mint.location != null
               );
@@ -349,200 +365,23 @@ mint {
           pointToLayer: function (feature, latlng) {
             let types = [];
 
-            const allTypesGroup = that.L.featureGroup();
-
             const popupOptions = { offset: that.L.point(0, -1) };
 
             const coinCount = feature.coins.length;
-            for (let coinNum = 0; coinNum < coinCount; coinNum++) {
-              let circles = [];
-              const coin = feature.coins[coinNum];
 
-              types.push(coin.projectId);
-              let rulers = that.extractRulers(coin);
+            const data = coinsToRulerData(feature.coins);
 
-              let minRadius = that.settings.minRadius.value;
-              let maxRadius = that.settings.maxRadius.value;
-              let angle = 360 / coinCount;
-
-              let radius = maxRadius;
-              function createPopup(coin, clickedRuler) {
-                function buildRulerList(personsArr, orderedList = false) {
-                  function printName(person) {
-                    let name = person.shortName || person.name;
-                    if (person.id == clickedRuler.id)
-                      name = `<span class="active">${name}</span>`;
-                    return name;
-                  }
-
-                  if (!personsArr || personsArr.length == 0) return '-';
-                  else if (Array.isArray(personsArr) && personsArr.length > 1) {
-                    let str = orderedList ? '<ol>' : '<ul>';
-                    personsArr.forEach((person) => {
-                      str += `<li>${printName(person)}</li>`;
-                    });
-
-                    return str + (orderedList ? '</ol>' : '</ul>');
-                  } else {
-                    if (Array.isArray(personsArr)) personsArr = personsArr[0];
-                    return printName(personsArr);
-                  }
-                }
-
-                let caliphText = buildRulerList(coin.caliph);
-
-                let overlordsText;
-                if (coin.overlords) {
-                  let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
-                  overlordsText = buildRulerList(sorted, true);
-                } else {
-                  overlordsText = '-';
-                }
-                let issuersText = buildRulerList(coin.issuers);
-                return `
-                    <header>
-                      <span class="subtitle">${coin.mint.name}</span>
-                    </header>
-                    <h2>${coin.projectId}</h2>
-                    ${
-                      !coin.excludeFromTypeCatalogue
-                        ? `<a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>`
-                        : ''
-                    }
-                    
-                    <h3>Münzherren</h3>
-                    ${issuersText}
-                    <h3>Oberherren</h3>
-                    ${overlordsText}
-                     <h3>Kalif</h3>
-                    ${caliphText}
-                  `;
-              }
-
-              if (rulers.length > 0) {
-                for (let [rulerNum, ruler] of rulers.entries()) {
-                  const rulerCount = rulers.length;
-
-                  const increment = (maxRadius - minRadius) / rulerCount;
-                  radius = maxRadius - increment * (rulerCount - rulerNum - 1);
-
-                  function getOptions(ruler) {
-                    let active = that.selectedRulers.length > 0;
-                    let selected =
-                      active && that.selectedRulers.indexOf(ruler.id) != -1;
-
-                    let fillColor =
-                      active && !selected ? '#ccc' : that.getRulerColor(ruler);
-
-                    return {
-                      radius,
-                      weight: 0.75,
-                      stroke: true,
-                      color: '#fff',
-                      fillColor,
-                      fillOpacity: 1,
-                    };
-                  }
-
-                  let circle;
-
-                  if (Array.isArray(ruler) && ruler.length == 1)
-                    ruler = ruler[0];
-
-                  if (Array.isArray(ruler)) {
-                    const subAngle = angle / ruler.length;
-                    circle = that.L.layerGroup();
-
-                    for (let [subRulerNum, subRuler] of ruler.entries()) {
-                      const subOptions = getOptions(subRuler);
-                      const subPopup = createPopup(coin, subRuler);
-                      let semiCircle = that.L.semiCircleMarker(
-                        latlng,
-                        subOptions
-                      ).setDirection(
-                        (angle * coinNum + subAngle * subRulerNum) % 360,
-                        subAngle
-                      );
-                      semiCircle.bindPopup(subPopup, {
-                        offset: that.L.point(0, 100),
-                      });
-                      semiCircle.addTo(circle);
-                    }
-                  } else {
-                    const options = getOptions(ruler);
-                    const popup = createPopup(coin, ruler);
-                    if (coinCount == 1) {
-                      circle = that.L.circleMarker(latlng, options);
-                    } else {
-                      circle = that.L.semiCircleMarker(
-                        latlng,
-                        options
-                      ).setDirection((angle * coinNum) % 360, angle);
-                    }
-                    circle.bindPopup(popup, popupOptions);
-                  }
-
-                  if (circle) circles.push(circle);
-                  radius += increment;
-                }
-
-                circles.reverse();
-              } else {
-                let circle = that.L.semiCircleMarker(latlng, {
-                  radius: maxRadius,
-                  weight: 0.75,
-                  stroke: true,
-                  color: '#fff',
-                  fillColor: '#fff',
-                  fillOpacity: 1,
-                }).setDirection((angle * coinNum) % 360, angle);
-                const popup = createPopup(coin);
-                circle.bindPopup(popup, popupOptions);
-                circles.push(circle);
-              }
-
-              /**
-               * Would be more elegant with a featureGroup,
-               * but it also dictates the style, so it's not possible.
-               *
-               * NTH: Custom class that behaves like a featureGroup without
-               * dictating the style.
-               */
-              const typeGroup = that.L.layerGroup(circles);
-
-              function bringToFront(layer) {
-                console.log(layer);
-                if (layer.getLayers) {
-                  layer.getLayers().forEach(bringToFront);
-                } else {
-                  console.log(layer);
-                  layer.bringToFront();
-                }
-              }
-
-              typeGroup.getLayers().forEach((layer) => {
-                layer.on('click', () => {
-                  bringToFront(allTypesGroup);
-                });
-
-                layer.on('mouseover', () => {
-                  bringToFront(allTypesGroup);
-                });
-
-                layer.on('mouseleave');
-              });
-              allTypesGroup.addLayer(typeGroup);
-            }
-
-            return allTypesGroup;
+            return concentricCircles(latlng, {
+              data,
+              innerRadius: that.settings.minRadius.value,
+              radius: that.settings.maxRadius.value,
+            });
           },
 
           coordsToLatLng: function (coords) {
             return new that.L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
-            stroke: false,
-            fillColor: '#629bf0',
             fillOpacity: 1,
           },
         }
@@ -550,7 +389,6 @@ mint {
 
       this.concentricCircles.addTo(this.featureGroup);
     },
-
     clearMintSelection() {
       this.selectedMints = [];
       this.update();
@@ -571,15 +409,6 @@ mint {
       );
 
       return contrastColor;
-    },
-    extractRulers(coin) {
-      let rulers = [];
-
-      if (coin.issuers && coin.issuers.length > 0) rulers.push(coin.issuers);
-      if (coin.overlords && coin.overlords.length > 0)
-        rulers = [...rulers, ...coin.overlords];
-      if (coin.caliph) rulers.push(coin.caliph);
-      return rulers;
     },
     updateAvailableMints() {
       let avalMints = {};
@@ -654,7 +483,6 @@ mint {
     margin: 100px;
     margin-bottom: 20px;
     border-radius: 10px;
-    overflow: hidden;
   }
 
   .settings {
