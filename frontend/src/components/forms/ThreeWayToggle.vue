@@ -40,6 +40,15 @@ export default {
 </script>
 
 
+<style lang="scss">
+.three-way-toggle {
+  .material-design-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .three-way-toggle {
   display: inline-flex;

@@ -24,7 +24,7 @@
       :filtered="isListFiltered"
       @clearFilters="clearFilters"
     >
-      <div id="toggle-group">
+      <div class="toggle-group">
         <labeled-property
           v-for="name of evalFilter"
           :key="'toggle-filter-' + name"
@@ -36,7 +36,7 @@
           />
         </labeled-property>
       </div>
-      <div id="toggle-group">
+      <div class="toggle-group">
         <labeled-property
           v-for="name of toggleFilter"
           :key="'toggle-filter-' + name"
@@ -48,66 +48,67 @@
           />
         </labeled-property>
       </div>
-
-      <labeled-property
-        v-for="name of objectFilter"
-        :key="'obj-filter-' + name"
-        :label="$tc('property.' + name)"
-      >
-        <DataSelectField
-          v-if="name == 'caliph'"
-          :value="filter[name]"
-          attribute="name"
-          table="person"
-          queryCommand="searchPersonsWithRole"
-          :queryParams="['id', { role: ['id', 'name'] }, 'name']"
-          :additionalParameters="{ include: ['caliph'] }"
-          @input="filterChanged(name, $event)"
-        />
-        <div v-else-if="name == 'coin_mark'">
-          <data-select-field
+      <div class="data-select-filters">
+        <labeled-property
+          v-for="name of objectFilter"
+          :key="'obj-filter-' + name"
+          :label="$tc('property.' + name)"
+        >
+          <DataSelectField
+            v-if="name == 'caliph'"
             :value="filter[name]"
             attribute="name"
-            table="coinMark"
+            table="person"
+            queryCommand="searchPersonsWithRole"
+            :queryParams="['id', { role: ['id', 'name'] }, 'name']"
+            :additionalParameters="{ include: ['caliph'] }"
             @input="filterChanged(name, $event)"
           />
-        </div>
-        <DataSelectField
-          v-else
-          :value="filter[name]"
-          attribute="name"
-          :table="name"
-          @input="filterChanged(name, $event)"
-        />
-      </labeled-property>
+          <div v-else-if="name == 'coin_mark'">
+            <data-select-field
+              :value="filter[name]"
+              attribute="name"
+              table="coinMark"
+              @input="filterChanged(name, $event)"
+            />
+          </div>
+          <DataSelectField
+            v-else
+            :value="filter[name]"
+            attribute="name"
+            :table="name"
+            @input="filterChanged(name, $event)"
+          />
+        </labeled-property>
+      </div>
     </ListFilterContainer>
 
-    <pagination-control :value="pageInfo" @input="updatePagination" />
-
-    <List :error="error" :items="list" :loading="loading">
-      <ListItem
-        v-for="item of items"
-        v-bind:key="item.key"
-        :to="{
-          name: 'EditType',
-          params: { id: item.id },
-        }"
-        :class="item.completed ? 'completed' : 'incomplete'"
-      >
-        <ListItemCell>
-          {{ item.projectId }}
-        </ListItemCell>
-        <CompletedToggle
-          :value="item.completed"
-          @input="changeCompleteState($event, item)"
-        />
-        <CompletedToggle
-          :value="item.reviewed"
-          @input="changeReviewedState($event, item)"
-        />
-        <!-- <DynamicDeleteButton @click="remove(item.id)" />-->
-      </ListItem>
-    </List>
+    <pagination :pageInfo="pageInfo" @input="updatePagination">
+      <List :error="error" :items="list" :loading="loading">
+        <ListItem
+          v-for="item of items"
+          v-bind:key="item.key"
+          :to="{
+            name: 'EditType',
+            params: { id: item.id },
+          }"
+          :class="item.completed ? 'completed' : 'incomplete'"
+        >
+          <ListItemCell>
+            {{ item.projectId }}
+          </ListItemCell>
+          <CompletedToggle
+            :value="item.completed"
+            @input="changeCompleteState($event, item)"
+          />
+          <CompletedToggle
+            :value="item.reviewed"
+            @input="changeReviewedState($event, item)"
+          />
+          <!-- <DynamicDeleteButton @click="remove(item.id)" />-->
+        </ListItem>
+      </List>
+    </pagination>
   </div>
 </template>
 
@@ -134,6 +135,7 @@ import DataSelectField from '../forms/DataSelectField.vue';
 import LabeledProperty from '../display/LabeledProperty.vue';
 import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
 import { camelCase } from 'change-case';
+import Pagination from '../list/Pagination.vue';
 
 const defaultFilters = {
   text: '',
@@ -174,6 +176,7 @@ export default {
     DataSelectField,
     LabeledProperty,
     ThreeWayToggle,
+    Pagination,
   },
   mounted: function () {
     let filters = localStorage.getItem('type-list-filter');
@@ -262,14 +265,12 @@ export default {
     clearFilters() {
       this.filter.text = '';
 
-      this.toggleFilter.forEach((name) => {
-        if (!this.filter[name]) console.warn('No such filter found', name);
-        else this.filter[name] = null;
+      [...this.evalFilter, ...this.toggleFilter].forEach((name) => {
+        this.filter[name] = null;
       });
 
       this.objectFilter.forEach((name) => {
-        if (!this.filter[name]) console.warn('No such filter found', name);
-        else this.filter[name] = { id: null };
+        this.filter[name] = { id: null };
       });
 
       this.updateTypeList();
@@ -481,6 +482,10 @@ export default {
 .type-overview .list-item-row {
   height: 44px;
 }
+
+.toggle-group .labeled-property {
+  //
+}
 </style>
 
 <style lang="scss" scoped>
@@ -488,15 +493,18 @@ export default {
 .list {
   display: flex;
   flex-direction: column;
-  margin: $padding 0;
-  // padding: $padding;
   overflow: hidden;
   background-color: rgb(78, 78, 78);
 
   background-color: whitesmoke;
-  border-radius: 3px;
 
   box-shadow: inset 1px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.data-select-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $padding;
 }
 
 .list-item {
@@ -546,10 +554,10 @@ export default {
   margin-bottom: $padding;
 }
 
-#toggle-group {
+.toggle-group {
   display: grid;
   gap: 20px;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
   justify-items: center;
   text-align: center;
   align-items: flex-end;

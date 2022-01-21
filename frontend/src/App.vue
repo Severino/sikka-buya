@@ -98,6 +98,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+button,
 input {
   font-family: $font;
   font-size: $regular-font;
@@ -313,6 +314,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+  // width: 22px;
+  // height: 22px;
 }
 
 input:read-only {

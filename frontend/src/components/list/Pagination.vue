@@ -1,0 +1,69 @@
+<template>
+  <div class="pagination">
+    <header>
+      <pagination-control
+        :count="pageInfo.count"
+        :page="pageInfo.page"
+        :total="pageInfo.total"
+        :last="pageInfo.last"
+        @input="(evt) => $emit('input', evt)"
+      />
+    </header>
+    <div class="pagination-container">
+      <slot />
+    </div>
+  </div>
+</template>
+
+<script>
+import PageInfo from '../../models/pageinfo';
+import PaginationControl from './PaginationControl.vue';
+export default {
+  components: { PaginationControl },
+  props: {
+    pageInfo: {
+      type: Object,
+      validator(prop) {
+        return PageInfo.isPageInfo(prop);
+      },
+    },
+  },
+};
+</script>
+
+<style lang="scss">
+.pagination {
+  background-color: $light-gray;
+  input,
+  button {
+    border: none;
+    padding: 0 !important;
+  }
+
+  .list {
+    margin: 0;
+  }
+
+  .list-item-row {
+    // margin-bottom: 3px;
+    // border-bottom-width: 3px;
+  }
+}
+</style>
+
+<style lang="scss" scoped>
+.pagination {
+  border: $border;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+header {
+  padding: $small-padding;
+  background-color: $light-gray;
+}
+
+.pagination-container {
+  background-color: $white;
+}
+</style>
