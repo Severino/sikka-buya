@@ -503,6 +503,9 @@ class Type {
         const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
         const pageInfo = new PageInfo(pagination)
 
+
+
+
         const totalQuery = `
         SELECT count(*)
         FROM type t 
@@ -578,7 +581,7 @@ class Type {
         if (Object.hasOwnProperty.bind(filter)("text")) {
             filter.text = filter.text.trim()
             if (filter.text != "") {
-                let text = pgp.as.format("unaccent(t.project_id) ILIKE unaccent($1)", [filter.text])
+                let text = pgp.as.format("unaccent(t.project_id) ILIKE unaccent('%$1#%')", [filter.text])
                 where.push(text)
             }
             delete filter.text
