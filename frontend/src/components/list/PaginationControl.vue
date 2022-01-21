@@ -1,12 +1,7 @@
 <template>
   <div class="pagination-control">
     <div class="left">
-      <input
-        type="number"
-        :value="value.count"
-        @change="countChanged"
-        min="1"
-      />
+      <input type="number" :value="count" @change="countChanged" min="1" />
       <span>Elemente pro Seite</span>
     </div>
     <div class="center">
@@ -14,16 +9,21 @@
         {{ this.fromItem }}
         ...
         {{ this.toItem }}
-        ({{ this.value.total }})
+        ({{ this.total }})
       </span>
     </div>
     <div class="right">
       <button @click="changePage(0)">1</button>
       <button @click="toLastPage"><ChevronLeft /></button>
-      <input type="number" :value="value.page + 1" @change="setPageEvt" />
+      <input
+        class="page-input"
+        type="text"
+        :value="pageValue"
+        @input="setPageEvt"
+      />
       <button @click="toNextPage"><ChevronRight /></button>
-      <button @click="changePage(value.last)">
-        {{ value.last + 1 }}
+      <button @click="changePage(last)">
+        {{ last + 1 }}
       </button>
     </div>
   </div>
@@ -39,46 +39,57 @@ export default {
     ChevronLeft,
   },
   props: {
-    value: {
-      type: Object,
+    page: {
+      type: Number,
       required: true,
-      validator: function (value) {
-        return (
-          Object.prototype.hasOwnProperty.call(value, 'page') &&
-          Object.prototype.hasOwnProperty.call(value, 'last') &&
-          Object.prototype.hasOwnProperty.call(value, 'total') &&
-          Object.prototype.hasOwnProperty.call(value, 'count')
-        );
-      },
+    },
+    last: {
+      type: Number,
+      required: true,
+    },
+    total: {
+      type: Number,
+      required: true,
+    },
+    count: {
+      type: Number,
+      required: true,
     },
   },
   watch: {
-    value: {
+    page: {
       handler(val) {
-        this.changed(val);
+        console.log(val);
       },
-      deep: true,
     },
   },
   methods: {
-    changed(pageInfo) {
-      pageInfo.page = Math.max(Math.min(pageInfo.page, pageInfo.total), 0);
-      pageInfo.last = Math.floor(pageInfo.total / pageInfo.count);
-      pageInfo.page =
-        pageInfo.page > pageInfo.last ? pageInfo.last : pageInfo.page;
+    changed(obj) {
+      const pageInfo = Object.assign(
+        {},
+        {
+          page: this.page,
+          last: this.last,
+          total: this.total,
+          count: this.count,
+        },
+        obj
+      );
 
+      pageInfo.page = Math.max(Math.min(pageInfo.page, pageInfo.last), 0);
+      pageInfo.last = Math.floor(pageInfo.total / pageInfo.count);
+
+      console.log('changed', pageInfo.page);
       this.$emit('input', pageInfo);
     },
     countChanged(event) {
-      let pageInfo = this.value;
-      pageInfo.count = parseInt(event.target.value);
-      this.changed(pageInfo);
+      this.changed({ count: parseInt(event.target.value) });
     },
     toLastPage() {
-      this.changePage(Math.max(this.value.page - 1, 0));
+      this.changePage(Math.max(this.page - 1, 0));
     },
     toNextPage() {
-      this.changePage(Math.min(this.value.page + 1, this.value.last));
+      this.changePage(Math.min(this.page + 1, this.last));
     },
     setPageEvt(evt) {
       const value = parseInt(evt.target.value);
@@ -87,29 +98,38 @@ export default {
       }
     },
     changePage(next = null) {
-      let pageInfo = this.value;
-      if (pageInfo.page != next) {
-        pageInfo.page = next;
-        this.changed(pageInfo);
+      console.log(next, this.page);
+      if (this.page != next) {
+        this.changed({ page: next });
       }
     },
   },
   computed: {
     fromItem() {
-      return Math.min(this.value.total, this.value.page * this.value.count + 1);
+      return Math.min(this.total, this.page * this.count + 1);
     },
     toItem() {
-      let page = (this.value.page + 1) * this.value.count;
-      return Math.min(this.value.total, page);
+      let page = (this.page + 1) * this.count;
+      return Math.min(this.total, page);
+    },
+    pageValue() {
+      return this.page + 1;
     },
   },
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.pagination-control,
+input,
+button {
+  font-size: $small-font;
+}
+
 .pagination-control {
   display: flex;
   justify-content: space-between;
+  color: $white;
 }
 
 .pagination-control input,
@@ -123,12 +143,25 @@ export default {
   display: flex;
 }
 
+.right {
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: $shadow;
+}
+
 .center {
   align-items: center;
 }
 
+.page-input {
+  text-align: center;
+  width: 36px;
+}
+
 input[type='number'] {
   width: 65px;
+  text-align: center;
+  border-radius: 3px;
 }
 
 .left span {

@@ -24,7 +24,7 @@ class Type {
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
         data.id = id
-        this.postProcessUpsert(data)
+        data = await this.postProcessUpsert(data)
 
         return Database.tx(async t => {
             await t.none(`
@@ -213,7 +213,7 @@ class Type {
         return { text: type.projectId + "\n" + text, errors }
     }
 
-    static postProcessUpsert(data, skipFetch) {
+    static async postProcessUpsert(data, skipFetch) {
         /**
         * Thus the avers and reverse data is nested inside a seperate object,
         * inside the GraphQL interface, we need to transform whose properties
@@ -226,12 +226,15 @@ class Type {
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
         this.cleanupHTMLFields(data)
-        data.plainText = this.createPlainTextField(data, skipFetch)
+        data.plainText = (await this.createPlainTextField(data, skipFetch)).text
+        console.log(data.plainText)
         return data
     }
 
     static async addType(_, args, context, info) {
-        const data = this.postProcessUpsert(args.data, true)
+        const data = await this.postProcessUpsert(args.data, true)
+
+        console.log(data.plainText)
 
         return Database.tx(async t => {
 
@@ -590,7 +593,12 @@ class Type {
         return { where, join }
     }
 
+    static counter = 0
+
     static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
+
+
+        this.counter++
 
         pagination = new PageInfo(pagination)
         const conditions = this.objectToConditions(filters)

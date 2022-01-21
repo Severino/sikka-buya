@@ -28,6 +28,19 @@ class PageInfo {
         }
     }
 
+    static equals(a, b) {
+        const keysToCompare = [
+            "count",
+            "page",
+            "last",
+            "total",
+        ]
+
+        return keysToCompare.every(key => {
+            return a[key] === b[key]
+        })
+    }
+
     toQuery() {
         return `LIMIT ${this.count} OFFSET ${this.page * this.count} `
     }

@@ -19,23 +19,26 @@
           </row>
         </Column>
       </div>
-      <pagination-control :value="pageInfo" @input="pageChanged" />
-      <List :items="results">
-        <list-item
-          v-for="{ preview, type } of results"
-          :key="'type-search-result-' + type.id"
-          :to="{ name: 'CatalogEntry', params: { id: type.id } }"
-        >
-          <div class="result-id">{{ type.projectId }}</div>
-          <pre class="result-preview" v-html="preview"></pre>
-        </list-item>
-      </List>
+
+      <pagination :pageInfo="pageInfo" @input="pageChanged">
+        <List :items="results">
+          <list-item
+            v-for="{ preview, type } of results"
+            :key="'type-search-result-' + type.id"
+            :to="{ name: 'CatalogEntry', params: { id: type.id } }"
+          >
+            <div class="result-id">{{ type.projectId }}</div>
+            <pre class="result-preview" v-html="preview"></pre>
+          </list-item>
+        </List>
+      </pagination>
     </Column>
   </div>
 </template>
 
 <script>
 import Query from '../../../database/query';
+import PageInfo from '../../../models/pageinfo';
 import SearchField from '../../layout/SearchField.vue';
 import List from '../../layout/List.vue';
 import ListItemCell from '../../layout/list/ListItemCell.vue';
@@ -44,6 +47,7 @@ import Row from '../../layout/Row.vue';
 import Column from '../../layout/tabs/Column.vue';
 import PaginationControl from '../../list/PaginationControl.vue';
 import keeper from '../../mixins/keeper';
+import Pagination from '../../list/Pagination.vue';
 export default {
   components: {
     Column,
@@ -53,6 +57,7 @@ export default {
     ListItemCell,
     SearchField,
     PaginationControl,
+    Pagination,
   },
   name: 'CatalogFullSearch',
   mixins: [keeper(['searchText'])],
@@ -112,6 +117,7 @@ export default {
         .catch((err) => (this.error = err));
     },
     pageChanged(pageInfo) {
+      console.log(pageInfo);
       this.pageInfo = pageInfo;
       this.search();
     },
@@ -149,16 +155,16 @@ pre {
 }
 
 .result-id {
-  padding: 20px;
+  padding: $padding;
 }
 
 .result-preview {
-  padding: 20px;
+  padding: $padding;
   color: black;
   background-color: whitesmoke;
   margin: 0;
 
-  box-shadow: inset $strong-shadow;
+  // box-shadow: inset $strong-shadow;
 }
 </style>
 
@@ -169,9 +175,5 @@ pre {
 
 .catalog-full-search .list-item-row {
   display: block;
-}
-
-.catalog-full-search .pagination-control {
-  margin-top: 3 * $padding;
 }
 </style>

@@ -97,7 +97,7 @@ h3 {
 
 .draft::before {
   content: 'DRAFT';
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: $font;
   font-size: 0.5rem;
   color: white;
   font-weight: bold;

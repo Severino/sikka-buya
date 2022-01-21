@@ -55,15 +55,19 @@ export default {
 }
 
 .message {
+  cursor: pointer;
+  user-select: none;
+  font-size: $small-font;
   padding: $padding/3 $padding;
   text-align: center;
   background-color: $primary-color;
   color: whitesmoke;
-  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   .material-design-icon {
+    width: 16px;
+    height: 16px;
     padding-right: $padding;
   }
 }
