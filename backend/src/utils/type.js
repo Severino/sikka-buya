@@ -227,14 +227,11 @@ class Type {
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
         this.cleanupHTMLFields(data)
         data.plainText = (await this.createPlainTextField(data, skipFetch)).text
-        console.log(data.plainText)
         return data
     }
 
     static async addType(_, args, context, info) {
         const data = await this.postProcessUpsert(args.data, true)
-
-        console.log(data.plainText)
 
         return Database.tx(async t => {
 
