@@ -21,9 +21,8 @@ export function dataFromRulers(rulers) {
     } else {
         const ruler = rulers
         const fillColor = SikkaColor.fromHash(SikkaColor.getHash(ruler.name))
-        console.log(fillColor)
         value = {
-            id: ruler.id,
+            data: ruler,
             fillColor,
             color: "#fff",
             stroke: true,
@@ -37,7 +36,10 @@ export function dataFromRulers(rulers) {
 export function coinsToRulerData(coins) {
     let data = []
     coins.forEach(coin => {
-        data.push(dataFromRulers(rulersFromCoin(coin)))
+        data.push({
+            groupData: coin,
+            data: dataFromRulers(rulersFromCoin(coin))
+        })
     })
 
     return data
