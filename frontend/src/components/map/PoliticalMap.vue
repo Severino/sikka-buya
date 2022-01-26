@@ -1,10 +1,5 @@
 <template>
   <div class="islam-political-map ui">
-    <!-- <div v-if="filtersActive" class="notification">
-      <FilterIcon /> Filter aktiv
-      <Button @click="resetFilters">Zurücksetzen</Button>
-    </div> -->
-
     <Sidebar title="Prägeorte">
       <Button class="clear-filter-btn" @click="clearMintSelection"
         >Auswahl aufheben</Button
@@ -87,17 +82,14 @@ import SikkaColor from '../../utils/Color';
 import MultiSelectList from '../MultiSelectList.vue';
 
 import Person from '../../utils/Person';
+import { rulerPopup } from '../../models/map/political';
 
 import L from 'leaflet';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import { concentricCircles } from '../../models/map/geometry';
-import {
-  coinsToRulerData,
-  dataFromRulers,
-  rulersFromCoin,
-} from '../../models/rulers';
+import { coinsToRulerData } from '../../models/rulers';
 
 export default {
   name: 'PoliticalMap',
@@ -363,16 +355,13 @@ mint {
 
         {
           pointToLayer: function (feature, latlng) {
-            let types = [];
-
-            const popupOptions = { offset: that.L.point(0, -1) };
-
-            const coinCount = feature.coins.length;
-
             const data = coinsToRulerData(feature.coins);
+            console.log(data);
 
-            return concentricCircles(latlng, {
-              data,
+            return concentricCircles(latlng, data, {
+              openPopup: function ({ data, groupData }) {
+                return rulerPopup(groupData, data?.data);
+              },
               innerRadius: that.settings.minRadius.value,
               radius: that.settings.maxRadius.value,
             });
