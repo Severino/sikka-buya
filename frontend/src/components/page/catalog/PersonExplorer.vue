@@ -361,8 +361,6 @@ export default {
       person.activeType = this.types[person.id].find(
         (element) => element.projectId == type
       );
-
-      console.log(person.activeType);
     },
     availableTypes(mintListObject) {
       const selected = [];

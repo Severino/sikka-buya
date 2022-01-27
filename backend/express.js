@@ -212,11 +212,20 @@ async function start({
                     const exclude = args.exclude
                     const search = `%${args.text}%`
 
-                    let query = pgp.as.format(`SELECT p.*, r.id AS role_id, r.name AS role_name, d.id AS dynasty_id, d.name AS dynasty_name FROM person p
-            LEFT JOIN person_role r ON p.role = r.id
-            LEFT JOIN dynasty d ON p.dynasty = d.id
-            WHERE r IS NOT NULL 
-            AND unaccent(p.name) ILIKE $1`, search)
+                    let query = pgp.as.format(`
+                    SELECT 
+                    p.*, 
+                    r.id AS role_id, 
+                    r.name AS role_name, 
+                    d.id AS dynasty_id, 
+                    d.name AS dynasty_name ,
+                    c.color AS color
+                    FROM person p
+                    LEFT JOIN person_role r ON p.role = r.id
+                    LEFT JOIN dynasty d ON p.dynasty = d.id
+                    LEFT JOIN person_color c ON c.person = p.id
+                    WHERE r IS NOT NULL 
+                    AND unaccent(p.name) ILIKE $1`, search)
 
 
                     if (include) {

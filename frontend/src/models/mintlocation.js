@@ -81,7 +81,6 @@ export default class MintLocation {
         return new L.geoJSON(features, {
             pointToLayer: function (feature, latlng) {
                 const mint = feature.mint
-                console.log(mint)
                 return L.marker(latlng, {
                     icon: that.uncertainIcon
                 })

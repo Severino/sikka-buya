@@ -1,6 +1,5 @@
 <template>
   <div class="editor">
-  
     <div class="content-wrapper">
       <router-view> </router-view>
     </div>
@@ -8,12 +7,11 @@
 </template>
 
 <script>
-import Auth from "../../../utils/Auth";
+import Auth from '../../../utils/Auth';
 export default {
-  name: "EditorPage",
+  name: 'EditorPage',
   created: function () {
     let user = Auth.loadUser();
-    console.log(user);
     if (user) {
       this.$data.user = user;
     }
@@ -21,7 +19,7 @@ export default {
   data: function () {
     return {
       user: {
-        email: "Unknown",
+        email: 'Unknown',
         id: 0,
       },
     };
@@ -29,7 +27,7 @@ export default {
   methods: {
     logout: function () {
       Auth.logout();
-      this.$router.push("/");
+      this.$router.push('/');
     },
   },
 };
@@ -38,7 +36,7 @@ export default {
 <style lang="scss" scoped>
 h3 {
   color: $primary-color;
-  font-weight: "black";
+  font-weight: 'black';
   text-transform: uppercase;
 }
 

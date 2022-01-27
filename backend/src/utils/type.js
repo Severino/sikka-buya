@@ -299,7 +299,6 @@ class Type {
                     ) RETURNING id
                         `, data)
 
-
             await this.addOverlords(t, data, type)
             await this.addIssuers(t, data, type)
             await this.addOtherPersons(t, data, type)
@@ -727,7 +726,8 @@ exclude_from_type_catalogue,
     internal_notes,
     year_uncertain,
     mint_uncertain as guessed_mint,
-    p.id AS caliph_id`
+    p.id AS caliph_id,
+    pc.color AS caliph_color`
     }
 
     static get joins() {
@@ -740,6 +740,8 @@ exclude_from_type_catalogue,
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
+        LEFT JOIN person_color pc
+        ON p.id = pc.person
     `
     }
 
@@ -896,6 +898,7 @@ exclude_from_type_catalogue,
             p.short_name as person_short_name,
             p.name as person_name,
             p.role as person_role,
+            c.color as person_color,
             r.id as person_role_id,
             r.name as person_role_name,
             d.id as person_dynasty_id,
@@ -921,6 +924,7 @@ exclude_from_type_catalogue,
                 ON o.person = p.id
             LEFT JOIN dynasty d ON p.dynasty=d.id
             LEFT JOIN person_role r ON p.role=r.id
+            LEFT JOIN person_color c ON c.person = p.id
 			WHERE o.type = $1
             ORDER BY o.rank ASC
             `, type_id)
@@ -935,6 +939,7 @@ exclude_from_type_catalogue,
         SELECT i.id, i.type,p.id as person_id,
                 p.short_name as person_short_name,
                 p.name as person_name,
+                c.color as person_color,
                 r.id as person_role_id,
                 r.name as person_role_name,
                 d.id as person_dynasty_id,
@@ -960,6 +965,7 @@ exclude_from_type_catalogue,
                 ON i.person = p.id
             LEFT JOIN dynasty d ON p.dynasty=d.id
             LEFT JOIN person_role r ON p.role=r.id
+            LEFT JOIN person_color c ON c.person = p.id
 			WHERE i.type = $1
             `, type_id)
 

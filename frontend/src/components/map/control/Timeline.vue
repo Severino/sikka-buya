@@ -51,11 +51,9 @@ export default {
   },
   methods: {
     input(event) {
-      console.log(event);
       this.$emit('input', parseFloat(event.target.value));
     },
     change(event) {
-      console.log(event);
       this.$emit('change', parseFloat(event.target.value));
     },
     enableMap() {

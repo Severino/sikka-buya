@@ -61,13 +61,9 @@ export default {
     closeLoginForm: function () {
       this.$store.commit('closeLoginForm');
       this.$store.commit('increment');
-      console.log(this.$store.state.showLoginForm);
     },
     plusOne: function () {
       this.$store.commit('increment');
-    },
-    test: function () {
-      console.log('asdasd');
     },
   },
   computed: {
