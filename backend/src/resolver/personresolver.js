@@ -12,7 +12,19 @@ class PersonResolver extends Resolver {
 
     async add(_, args) {
         args.data = transformPropertyToSnakeCase(args.data, "shortName")
-        return super.add(...arguments)
+
+
+        return Database.tx(async t => {
+            const id = await t.one(`
+                INSERT INTO person
+                (name, short_name, role, dynasty)
+                VALUES
+                ($[name], $[short_name], $[role], $[dynasty])
+                RETURNING id
+            `, args.data)
+            if (args.data.color != null)
+                await t.none(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: id, color: args.color })
+        })
     }
 
     async update(_, args) {
@@ -22,17 +34,30 @@ class PersonResolver extends Resolver {
         args.data = transformPropertyToSnakeCase(args.data, "shortName")
 
 
-        return super.update(...arguments)
+        return Database.tx(async t => {
+            const id = t.one(`
+                UPDATE person
+                (name, short_name, role, dynasty)
+                VALUES
+                ($[name], $[short_name], $[role], $[dynasty])
+                RETURNING id
+            `)
+
+            if (args.color != null)
+                await t.none(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: id, color: args.color })
+        })
     }
 
     async get(_, args) {
         let result = await Database.one(`
         SELECT p.id, p.name, p.short_name,
         r.id AS role_id, r.name AS role_name,
-        d.id AS dynasty_id, d.name AS dynasty_name
+        d.id AS dynasty_id, d.name AS dynasty_name,
+        c.color AS color
         FROM $[table:name] p
         LEFT JOIN person_role r ON p.role = r.id 
         LEFT JOIN dynasty d ON p.dynasty = d.id
+        LEFT JOIN person_color c ON c.person = p.id
         WHERE p.id=$[id]
         ORDER BY name ASC
         `, {
@@ -76,10 +101,12 @@ class PersonResolver extends Resolver {
         let result = await Database.manyOrNone(`
         SELECT p.id, p.name, p.short_name,
         r.id AS role_id, r.name AS role_name,
-        d.id AS dynasty_id, d.name AS dynasty_name
+        d.id AS dynasty_id, d.name AS dynasty_name,
+        c.color AS color
         FROM $[table:name] p
         LEFT JOIN person_role r ON p.role = r.id 
         LEFT JOIN dynasty d ON p.dynasty = d.id
+        LEFT JOIN person_color c ON c.person = p.id
         ${where}
         ORDER BY name ASC`,
             queryParameters)
@@ -97,10 +124,12 @@ class PersonResolver extends Resolver {
         let result = await Database.manyOrNone(`
         SELECT p.id, p.name, p.short_name,
         r.id AS role_id, r.name AS role_name,
-        d.id AS dynasty_id, d.name AS dynasty_name
+        d.id AS dynasty_id, d.name AS dynasty_name,
+        c.color AS color
         FROM $[table:name] p
         LEFT JOIN person_role r ON p.role = r.id 
         LEFT JOIN dynasty d ON p.dynasty = d.id
+        LEFT JOIN person_color c ON c.person = p.id
         WHERE unaccent(p.name) 
         ILIKE unaccent($[search]) 
         ORDER BY p.name ASC

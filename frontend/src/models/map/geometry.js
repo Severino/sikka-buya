@@ -52,8 +52,6 @@ export function concentricCircles(latlng, data, {
         const subStartAngle = startAngle + angleWidth * i
         const stopAngle = subStartAngle + angleWidth
 
-        console.log()
-
         if (slice.data.length == 0) {
             const graphics = L.semiCircleMarker(latlng, Object.assign({}, { radius, startAngle: subStartAngle, stopAngle, fillColor: "#ddd", weight: 1, color: "#fff", stroke: "true" }))
             concentricCircles.push(graphics)
@@ -94,7 +92,6 @@ export function concentricCircle(latlng, {
 
     if (!Array.isArray(data))
         data = [data]
-    // console.log(data)
     // const circle = L.semiCircleMarker(latlng, Object.assign({}, { innerRadius, radius, startAngle, stopAngle }, data))
     // this.assignGeometryProperties(circle, data)
     // circles.push(circle)

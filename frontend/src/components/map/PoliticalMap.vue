@@ -164,8 +164,6 @@ export default {
 
     await this.initTimeline(starTime);
     this.updateTimeline();
-
-    console.log(this.settings.maxRadius.value);
   },
   unmounted: function () {
     this.mintLocation.removeExistingLocation();
@@ -204,6 +202,7 @@ mint {
       name,
       shortName
       id
+      color
     }
     mint {
       id
@@ -214,12 +213,14 @@ mint {
       id
       name
       shortName
+      color
     }
     overlords {
       id
       name
       shortName
       rank
+      color
     }
     excludeFromTypeCatalogue
   }
@@ -288,8 +289,8 @@ mint {
         id: ruler.id,
         text: ruler.shortName || ruler.name || 'Unbenannter Herrscher',
         style: {
-          backgroundColor: this.getRulerColor(ruler),
-          color: this.getContrastColor(ruler),
+          border: '2px solid ' + this.getRulerColor(ruler),
+          'border-left': '15px solid ' + this.getRulerColor(ruler),
           marginBottom: '3px',
         },
       }));
@@ -356,7 +357,6 @@ mint {
         {
           pointToLayer: function (feature, latlng) {
             const data = coinsToRulerData(feature.coins);
-            console.log(data);
 
             return concentricCircles(latlng, data, {
               openPopup: function ({ data, groupData }) {
@@ -388,7 +388,7 @@ mint {
     },
     getRulerColor(ruler) {
       // return '#333333';
-      return SikkaColor.fromHash(Person.getName(ruler));
+      return ruler.color || '#ff00ff';
     },
     getContrastColor(ruler) {
       const contrastColor = SikkaColor.getContrastColor(

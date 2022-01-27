@@ -50,7 +50,7 @@ issuers {
     id
     name
   }
-
+  color
 }
 overlords {
   id
@@ -73,6 +73,7 @@ overlords {
     id
     name
   }
+  color
 }
 otherPersons {
   id
@@ -86,6 +87,7 @@ otherPersons {
       id,
       name
     }
+  color
 }
 caliph {
   id
@@ -96,6 +98,7 @@ caliph {
     name
   }
   dynasty{id,name}
+  color
 }
 avers {
   fieldText

@@ -39,20 +39,6 @@ const TEST_DATA_BODY = `{
     , province: 1
 }`
 
-
-const UPDATE_DATA = `
-{
-    "id": 5,
-    "name": "Renamed",
-    "location": "{'type':'Point','coordinates':[12,51]}",
-    "uncertain": false,
-    "uncertainArea": "{'type':'Polygon','coordinates':[[[11,51],[11,51],[12,50],[12,50],[13,51],[12,51],[11,51]]]}",
-    "province": {
-               "id": "1"
-               "name": "France"
-             }
-}`
-
 const UPDATE_DATA_BODY = `
 {
     id: 5,
@@ -141,12 +127,12 @@ describe(`Mint Queries`, function () {
     })
 
     it("Unauthorized Add Rejected", async function () {
-        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, true)
+        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Add", async function () {
-        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, {}, TestUser.users[0].token, true)
+        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
 
     })

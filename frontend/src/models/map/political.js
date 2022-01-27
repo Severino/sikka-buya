@@ -22,7 +22,6 @@ function buildRulerList(personsArr, clickedRuler, orderedList = false,) {
 }
 
 export function rulerPopup(coin, clickedRuler) {
-    console.log(coin)
     let caliphText = buildRulerList(coin.caliph, clickedRuler);
     let overlordsText;
     if (coin.overlords) {

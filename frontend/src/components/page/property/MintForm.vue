@@ -152,7 +152,6 @@ export default {
   },
   computed: {
     isUpdate() {
-      console.log(this.mint.id);
       return !!this.mint?.id && this.mint.id > 0;
     },
   },
@@ -217,7 +216,6 @@ export default {
     },
     query: async function (name, data = {}) {
       const body = GraphQLUtils.buildMutationParams(data);
-      console.log(body);
       const query = `mutation {
         ${name}(data: ${body}) 
         }`;
@@ -232,7 +230,6 @@ export default {
       this.$router.push({ path: '/mint' });
     },
     updateLocation: function (geoJson) {
-      console.log(geoJson);
       this.mint.location = geoJson;
     },
     updateUncertainArea: function (geoJson) {

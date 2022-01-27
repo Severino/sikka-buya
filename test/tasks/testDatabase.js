@@ -32,8 +32,6 @@ async function setupDatabase() {
         host,
         database: user
     };
-    console.log(dbconf)
-
     SuperDatabase = pgp(dbconf, {})
 
     console.log(`Remove database ${database} if exists ...`)

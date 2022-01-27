@@ -1,5 +1,3 @@
-import SikkaColor from '../utils/Color';
-
 export function rulersFromCoin(coin) {
     let rulers = [];
     if (coin.issuers && coin.issuers.length > 0) rulers.push(coin.issuers);
@@ -20,7 +18,7 @@ export function dataFromRulers(rulers) {
         })
     } else {
         const ruler = rulers
-        const fillColor = SikkaColor.fromHash(SikkaColor.getHash(ruler.name))
+        const fillColor = ruler.color || "#ff00ff"
         value = {
             data: ruler,
             fillColor,

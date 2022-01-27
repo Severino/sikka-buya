@@ -88,7 +88,6 @@ export default {
    * Therefore we may access the mounted map here.
    */
   mounted: function () {
-    console.log(this.$refs.input);
     this.$refs.input.addEventListener('paste', async (evt) => {
       let paste = (evt.clipboardData || window.clipboardData).getData('text');
       this.paste(paste);
@@ -101,7 +100,6 @@ export default {
     pasteEvt: async function () {
       this.$refs.input.focus();
       let text = await navigator.clipboard.readText();
-      console.log(text);
       this.paste(text);
     },
     paste(text) {
@@ -114,7 +112,6 @@ export default {
           !isNaN(parseFloat(arr[1]))
         ) {
           const coords = { lat: parseFloat(arr[0]), lng: parseFloat(arr[1]) };
-          console.log(coords);
           this.addPoint(coords);
         } else {
           console.error('Wrong format of paste.');
@@ -140,8 +137,6 @@ export default {
       }
 
       this.activeMarkerIndex = i;
-
-      console.log(this.handles[this.activeMarkerIndex], this.activeMarkerIndex);
       this.handles[this.activeMarkerIndex].setStyle({
         fillColor: '#ff0000',
       });
@@ -189,7 +184,6 @@ export default {
                 break;
               }
               case 'insert': {
-                console.log('INSERT:', prevPosition.index);
                 coordinates.splice(prevPosition.index, 1);
                 break;
               }
@@ -249,7 +243,6 @@ export default {
     },
     addPoint(location) {
       let coordinates = this.coordinates == null ? [] : this.coordinates;
-      console.log(location);
       if (this.isPolygon) {
         coordinates.push([location.lat, location.lng]);
       } else {

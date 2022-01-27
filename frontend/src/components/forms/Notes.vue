@@ -68,7 +68,6 @@ export default {
         .then((response) => {
           let data = response.data.data.getNotes;
           data = data.map((el) => {
-            console.log(el);
             el.text = decodeURIComponent(el.text).trim();
             return el;
           });

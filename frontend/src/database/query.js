@@ -61,7 +61,7 @@ export default class Query {
                 }
             }).catch((e) => {
                 if (e.isAxiosError) {
-                    console.log(e.response.data.errors[0])
+                    console.error(e.response.data.errors[0])
                     reject(e.response.data.errors.map(item => item.message).join(" --- "))
                 } else reject(e)
             })

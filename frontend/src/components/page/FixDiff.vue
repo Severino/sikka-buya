@@ -52,7 +52,6 @@ export default {
     try {
       const results = await Query.raw('query { fixDiff }');
       this.data = JSON.parse(results.data.data.fixDiff);
-      console.log(results);
     } catch (e) {
       console.error(e);
     }

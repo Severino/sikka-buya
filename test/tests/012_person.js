@@ -18,7 +18,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#FFFF00"
             },
             {
                 "id": "5",
@@ -31,7 +32,8 @@ const startData = {
                 "dynasty": {
                     "id": "1",
                     "name": "Deutsche"
-                }
+                },
+                "color": "#FF00FF"
             },
             {
                 "id": "2",
@@ -44,7 +46,8 @@ const startData = {
                 "dynasty": {
                     "id": "1",
                     "name": "Deutsche"
-                }
+                },
+                "color": "#0000FF"
             },
             {
                 "id": "22",
@@ -57,7 +60,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#FF0000"
             },
             {
                 "id": "10",
@@ -70,7 +74,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#DDDD00"
             },
             {
                 "id": "15",
@@ -83,7 +88,8 @@ const startData = {
                 "dynasty": {
                     "id": "3",
                     "name": "Briten"
-                }
+                },
+                "color": "#DDDDFF"
             },
             {
                 "id": "6",
@@ -96,7 +102,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#00CC0F"
             },
             {
                 "id": "20",
@@ -109,7 +116,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#0000FF"
             },
             {
                 "id": "7",
@@ -122,7 +130,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#58ecF0"
             },
             {
                 "id": "25",
@@ -135,7 +144,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#AB87DF"
             },
             {
                 "id": "17",
@@ -148,7 +158,8 @@ const startData = {
                 "dynasty": {
                     "id": "1",
                     "name": "Deutsche"
-                }
+                },
+                "color": "#DD33FF"
             },
             {
                 "id": "1",
@@ -161,7 +172,8 @@ const startData = {
                 "dynasty": {
                     "id": "1",
                     "name": "Deutsche"
-                }
+                },
+                "color": "#111111"
             },
             {
                 "id": "9",
@@ -174,7 +186,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#FF1996"
             },
             {
                 "id": "3",
@@ -187,7 +200,8 @@ const startData = {
                 "dynasty": {
                     "id": "1",
                     "name": "Deutsche"
-                }
+                },
+                "color": "#EE3333"
             },
             {
                 "id": "4",
@@ -200,7 +214,8 @@ const startData = {
                 "dynasty": {
                     "id": "1",
                     "name": "Deutsche"
-                }
+                },
+                "color": "#F3C3A3"
             },
             {
                 "id": "11",
@@ -213,7 +228,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#3333FF"
             },
             {
                 "id": "24",
@@ -226,7 +242,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#3FF3FF"
             },
             {
                 "id": "8",
@@ -239,7 +256,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#EECCAA"
             },
             {
                 "id": "19",
@@ -252,7 +270,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#11FFAA"
             },
             {
                 "id": "18",
@@ -265,7 +284,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#99FFAA"
             },
             {
                 "id": "13",
@@ -278,7 +298,8 @@ const startData = {
                 "dynasty": {
                     "id": "2",
                     "name": "Franzosen"
-                }
+                },
+                "color": "#FE0101"
             },
             {
                 "id": "23",
@@ -291,7 +312,8 @@ const startData = {
                 "dynasty": {
                     "id": null,
                     "name": null
-                }
+                },
+                "color": "#DD0101"
             },
             {
                 "id": "21",
@@ -304,7 +326,8 @@ const startData = {
                 "dynasty": {
                     "id": "5",
                     "name": "Atlant"
-                }
+                },
+                "color": "#222222"
             },
             {
                 "id": "16",
@@ -317,7 +340,8 @@ const startData = {
                 "dynasty": {
                     "id": "3",
                     "name": "Briten"
-                }
+                },
+                "color": "#555555"
             },
             {
                 "id": "14",
@@ -330,7 +354,8 @@ const startData = {
                 "dynasty": {
                     "id": "3",
                     "name": "Briten"
-                }
+                },
+                "color": "#004433"
             }
         ]
     }
@@ -343,7 +368,8 @@ const body = `{
     }, dynasty {
         id
             name
-    }
+    },
+    color
 }`
 
 
@@ -375,7 +401,8 @@ describe(`Person Queries`, function () {
                     "dynasty": {
                         "id": "2",
                         "name": "Franzosen"
-                    }
+                    },
+                    "color": "#FFFF00"
                 }
             }
         })
@@ -399,7 +426,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#58ecF0"
                     }
                 ]
             }
@@ -424,7 +452,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#58ecF0"
                     }
                 ]
             }
@@ -448,7 +477,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#FFFF00"
                     },
                     {
                         "id": "5",
@@ -461,7 +491,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "1",
                             "name": "Deutsche"
-                        }
+                        },
+                        "color": "#FF00FF"
                     },
                     {
                         "id": "15",
@@ -474,7 +505,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "3",
                             "name": "Briten"
-                        }
+                        },
+                        "color": "#DDDDFF"
                     },
                     {
                         "id": "25",
@@ -487,7 +519,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#AB87DF"
                     },
                     {
                         "id": "4",
@@ -500,7 +533,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "1",
                             "name": "Deutsche"
-                        }
+                        },
+                        "color": "#F3C3A3"
                     },
                     {
                         "id": "11",
@@ -513,7 +547,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#3333FF"
                     },
                     {
                         "id": "24",
@@ -526,7 +561,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#3FF3FF"
                     },
                     {
                         "id": "18",
@@ -539,7 +575,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#99FFAA"
                     },
                     {
                         "id": "13",
@@ -552,7 +589,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#FE0101"
                     },
                     {
                         "id": "21",
@@ -565,7 +603,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#222222"
                     },
                     {
                         "id": "16",
@@ -578,7 +617,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "3",
                             "name": "Briten"
-                        }
+                        },
+                        "color": "#555555"
                     }
                 ]
             }

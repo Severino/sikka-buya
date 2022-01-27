@@ -14,7 +14,7 @@ class Overlord {
             {
                 prefix: `person_`,
                 target: null,
-                keys: ["id", "name", {
+                keys: ["id", "name", "color", {
                     prefix: "role_",
                     target: "role",
                     keys: ["id", "name"]
