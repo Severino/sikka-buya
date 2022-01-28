@@ -356,7 +356,9 @@ mint {
 
         {
           pointToLayer: function (feature, latlng) {
-            const data = coinsToRulerData(feature.coins);
+            const data = coinsToRulerData(feature.coins, that.selectedRulers);
+
+            console.log(that.selectedMints);
 
             return concentricCircles(latlng, data, {
               openPopup: function ({ data, groupData }) {
