@@ -80,11 +80,7 @@ import Query from '../../database/query';
 import MintLocation from '../../models/mintlocation';
 import SikkaColor from '../../utils/Color';
 import MultiSelectList from '../MultiSelectList.vue';
-
-import Person from '../../utils/Person';
 import { rulerPopup } from '../../models/map/political';
-
-import L from 'leaflet';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
@@ -141,6 +137,14 @@ export default {
         };
       });
     },
+    mintMarkerOptions() {
+      return {
+        radius: 8,
+        stroke: false,
+        fillColor: 'white',
+        fillOpacity: 1,
+      };
+    },
   },
   watch: {
     settings: {
@@ -155,18 +159,13 @@ export default {
     const starTime =
       parseInt(localStorage.getItem('political-timeline')) || 433;
 
-    this.mintLocation = new MintLocation(this, {
-      radius: 8,
-      stroke: false,
-      fillColor: 'white',
-      fillOpacity: 1,
-    });
+    this.mintLocation = new MintLocation(this.mintMarkerOptions);
 
     await this.initTimeline(starTime);
     this.updateTimeline();
   },
   unmounted: function () {
-    this.mintLocation.removeExistingLocation();
+    if (this.mintLocations) this.mintLocations.clearLayers();
   },
   methods: {
     toggleSettings() {
@@ -270,17 +269,17 @@ mint {
       this.update();
     },
     update() {
+      this.updateMintLocationMarker();
       this.updateConcentricCircles();
       this.updateAvailableMints();
-      this.updateMintLocationMarker();
       this.updateAvailableRulers();
       this.$emit('timeline-updated', this.value);
     },
     updateMintLocationMarker() {
-      this.mintLocation.removeExistingLocation();
+      console.log(this.mintLocations);
+      if (this.mintLocations) this.mintLocations.clearLayers();
       let features = this.mintLocation.mapToGeoJsonFeature(this.mints);
       this.mintLocations = this.mintLocation.createGeometryLayer(features);
-
       this.mintLocations.addTo(this.featureGroup);
     },
     updateAvailableRulers() {
@@ -314,14 +313,7 @@ mint {
         );
       }
 
-      this.rulerColorMap = {};
-      let i = 0;
-
       this.rulers = rulers;
-      Object.values(rulers).forEach((ruler) => {
-        this.rulerColorMap[ruler.id] = Color.byIndex(i);
-        i++;
-      });
 
       if (this.concentricCircles) {
         this.concentricCircles.remove();
@@ -357,16 +349,29 @@ mint {
         {
           pointToLayer: function (feature, latlng) {
             const data = coinsToRulerData(feature.coins, that.selectedRulers);
-
-            console.log(that.selectedMints);
-
-            return concentricCircles(latlng, data, {
+            const featureGroup = concentricCircles(latlng, data, {
               openPopup: function ({ data, groupData }) {
                 return rulerPopup(groupData, data?.data);
               },
               innerRadius: 7,
               radius: that.settings.maxRadius.value,
             });
+
+            if (feature?.coins?.length > 0) {
+              const mintFeature = {
+                mint: feature.coins[0].mint,
+              };
+
+              const mintLocations = new MintLocation(that.mintMarkerOptions);
+              mintLocations
+                .createMarker(mintFeature, latlng)
+                .addTo(featureGroup);
+            }
+            featureGroup.on('mouseover', () => featureGroup.bringToFront());
+
+            featureGroup.on('click', () => featureGroup.bringToFront());
+
+            return featureGroup;
           },
 
           coordsToLatLng: function (coords) {
