@@ -364,7 +364,7 @@ mint {
               openPopup: function ({ data, groupData }) {
                 return rulerPopup(groupData, data?.data);
               },
-              innerRadius: that.settings.minRadius.value,
+              innerRadius: 7,
               radius: that.settings.maxRadius.value,
             });
           },

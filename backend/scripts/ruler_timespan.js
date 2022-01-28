@@ -2,18 +2,16 @@
 
 const { Database } = require('../src/utils/database');
 
-let colors = [
-    "#e55f66",
-    "#71d453",
-    "#d160d0",
-    "#d1d350",
-    "#a78fd2",
-    "#d28d42",
-    "#7bb4c7",
-    "#8ba861",
-    "#cba99b",
-    "#78d6ac"
-]
+let colors = ["#d286c0",
+    "#527338",
+    "#85c44a",
+    "#5cb096",
+    "#aa3e6e",
+    "#6283ba",
+    "#cf5644",
+    "#7b4faf",
+    "#c69c49",
+    "#8e5a3b"]
 
 async function main() {
 
@@ -69,7 +67,7 @@ UNION ALL
                 let activeColor = colors.pop()
                 activeColors[item.person] = activeColor
 
-                await Database.query(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) `, { person: item.person, color: activeColor })
+                await Database.query(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: item.person, color: activeColor })
             }
 
             if (active.length > max) {
@@ -79,7 +77,7 @@ UNION ALL
 
             while (active.length > 0 && active[0].to == year) {
                 let item = active.shift()
-                colors.push(activeColors[item.person])
+                colors.unshift(activeColors[item.person])
                 delete activeColors[item.person]
             }
             year++;
