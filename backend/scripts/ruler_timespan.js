@@ -15,18 +15,6 @@ let colors = ["#d286c0",
 
 async function main() {
 
-    // WITH rulers as(
-    // 	(SELECT person, type, 'overlord' as is from overlord )
-    // UNION ALL
-    // (SELECT person, type, 'issuer' as is from issuer )
-    // UNION ALL
-    // (SELECT caliph as person, id AS type, 'caliph' as is from type)
-    // 	)
-    // 	SELECT person, MIN(year_of_mint) AS from, MAX(year_of_mint) AS to, (MAX(year_of_mint)::int - MIN(year_of_mint)::int) AS span  FROM rulers
-    // 	LEFT JOIN type ON type.id = rulers.type 
-    // 	WHERE person IS NOT NULL AND year_of_mint ~ '^([0-9]+)$' 
-    // 	GROUP BY person
-
     const rows = await Database.query(`
 WITH rulers as((SELECT person, type, 'overlord' as is from overlord )
      UNION ALL

@@ -18,7 +18,12 @@
       </div>
 
       <textarea v-model="text" cols="30" rows="5"> </textarea>
-      <button :diabled="disabled" class="button" @click="submit">
+      <button
+        type="button"
+        :diabled="disabled"
+        class="button"
+        @click.stop.prevent="submit"
+      >
         Comment
       </button>
 

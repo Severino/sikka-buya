@@ -3,3 +3,5 @@
 
 # Ignores files starting with an underscore
 _** 
+
+test/token.txt

@@ -10,7 +10,7 @@
       :required="required"
     />
 
-    <Button id="clear-btn" @click="clear()"><Close /></Button>
+    <Button id="clear-btn" @click.stop.prevent="clear()"><Close /></Button>
 
     <div class="indicator">
       <Alert v-if="invalid" class="alert" />
