@@ -168,8 +168,6 @@ export default {
               direction: 'top',
             }
           );
-
-          console.log(this.featureGroup);
         })
         .catch(console.error);
     },

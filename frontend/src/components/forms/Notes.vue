@@ -18,7 +18,12 @@
       </div>
 
       <textarea v-model="text" cols="30" rows="5"> </textarea>
-      <button :diabled="disabled" class="button" @click="submit">
+      <button
+        type="button"
+        :diabled="disabled"
+        class="button"
+        @click.stop.prevent="submit"
+      >
         Comment
       </button>
 
@@ -68,7 +73,6 @@ export default {
         .then((response) => {
           let data = response.data.data.getNotes;
           data = data.map((el) => {
-            console.log(el);
             el.text = decodeURIComponent(el.text).trim();
             return el;
           });

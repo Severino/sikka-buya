@@ -61,13 +61,9 @@ export default {
     closeLoginForm: function () {
       this.$store.commit('closeLoginForm');
       this.$store.commit('increment');
-      console.log(this.$store.state.showLoginForm);
     },
     plusOne: function () {
       this.$store.commit('increment');
-    },
-    test: function () {
-      console.log('asdasd');
     },
   },
   computed: {
@@ -103,6 +99,20 @@ input {
   font-family: $font;
   font-size: $regular-font;
 }
+
+input::placeholder {
+  color: $light-gray;
+  font-style: italic;
+}
+
+input[type='color'] {
+  flex: unset !important;
+  display: block;
+  padding: 0;
+  min-width: 200px;
+  min-height: 40px;
+}
+
 .emph {
   color: $primary-color;
   font-weight: bold;

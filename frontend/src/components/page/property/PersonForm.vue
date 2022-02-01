@@ -35,19 +35,23 @@
         table="dynasty"
         attribute="name"
       />
+
+      <labeled-input-container label="Farbe auf Karte">
+        <input type="color" v-model="person.color" />
+      </labeled-input-container>
     </PropertyFormWrapper>
   </div>
 </template>
 
 <script>
-import Query from "../../../database/query.js";
-import PropertyFormWrapper from "../PropertyFormWrapper.vue";
-import DataSelectField from "@/components/forms/DataSelectField.vue";
-import AxiosHelper from "@/utils/AxiosHelper.js";
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
+import DataSelectField from '@/components/forms/DataSelectField.vue';
+import LabeledInputContainer from '@/components/LabeledInputContainer.vue';
 
 export default {
-  components: { PropertyFormWrapper, DataSelectField },
-  name: "PersonForm",
+  components: { PropertyFormWrapper, DataSelectField, LabeledInputContainer },
+  name: 'PersonForm',
   created: function () {
     let id = +this.$route.params.id;
 
@@ -67,6 +71,7 @@ export default {
             id
             name
           }
+          color
         }
       }
       
@@ -75,10 +80,10 @@ export default {
       )
         .then((result) => {
           this.person = result.data.data.getPerson;
-          if (this.person.role == null) this.person.role = " ";
+          if (this.person.role == null) this.person.role = ' ';
         })
         .catch((err) => {
-          this.$data.error = this.$t("error.loading_element");
+          this.$data.error = this.$t('error.loading_element');
           console.log(err);
         })
         .finally(() => {
@@ -90,10 +95,19 @@ export default {
   },
   methods: {
     submit: function () {
-      let query, variables;
+      let query;
+
+      let variables = {
+        name: this.person.name,
+        shortName: this.person.shortName,
+        role: this.person.role.id,
+        dynasty: this.person.dynasty.id,
+        color: this.person.color,
+      };
 
       if (this.person.id && this.person.id > 0) {
-        query = `mutation($id:ID, $name: String,$shortName: String, $role:ID, $dynasty:ID)
+        variables.id = this.person.id;
+        query = `mutation($id:ID, $name: String,$shortName: String, $role:ID, $dynasty:ID, $color:String)
       {
             updatePerson (
               data: {
@@ -101,63 +115,53 @@ export default {
                 name: $name,
                 shortName: $shortName,
                 role: $role,
-                dynasty: $dynasty
+                dynasty: $dynasty,
+                color: $color
               }
             )
         }`;
-        variables = {
-          id: this.person.id && this.person.id > 0 ? this.person.id : null,
-          name: this.person.name,
-          shortName: this.person.shortName,
-          role: this.person.role.id,
-          dynasty: this.person.dynasty.id,
-        };
       } else {
-        query = `mutation($name: String,$shortName: String, $role:ID, $dynasty:ID)
+        query = `mutation($name: String,$shortName: String, $role:ID, $dynasty:ID, $color:String)
       {
             addPerson (
               data: {
                 name: $name,
                 shortName: $shortName,
                 role: $role,
-                dynasty: $dynasty
+                dynasty: $dynasty,
+                color: $color
               }
             )
         }`;
-        variables = {
-          name: this.person.name,
-          shortName: this.person.shortName,
-          role: this.person.role.id,
-          dynasty: this.person.dynasty.id,
-        };
       }
 
       Query.raw(query, variables)
         .then((result) => {
           this.$router.push({
-              name: "Property",
-              params: { property: "person" },
-            });
+            name: 'Property',
+            params: { property: 'person' },
+          });
         })
         .catch((err) => {
-          this.error = this.$t("error.could_not_update_element");
+          this.error = this.$t('error.could_not_update_element');
           console.error(err);
         });
     },
     cancel: function () {
-      this.$router.push({ path: "/person" });
+      this.$router.push({ path: '/person' });
     },
   },
   data: function () {
     return {
-      error: "",
+      error: '',
       loading: true,
       person: {
         id: -1,
-        name: "",
-        shortName: "",
-        role: { id: null, name: "" },
-        dynasty: { id: null, name: "" },
+        name: '',
+        shortName: '',
+        role: { id: null, name: '' },
+        dynasty: { id: null, name: '' },
+        color: '#000000',
       },
     };
   },

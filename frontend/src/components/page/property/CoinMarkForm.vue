@@ -22,12 +22,12 @@
 </template>
 
 <script>
-import Query from "../../../database/query.js";
-import PropertyFormWrapper from "../PropertyFormWrapper.vue";
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
 
 export default {
   components: { PropertyFormWrapper },
-  name: "CoinMarkForm",
+  name: 'CoinMarkForm',
   created: function () {
     let id = this.$route.params.id;
     if (id != null) {
@@ -44,8 +44,8 @@ export default {
           this.value = data;
         })
         .catch((err) => {
-          this.$data.error = this.$t("error.loading_element");
-          console.log(err);
+          this.$data.error = this.$t('error.loading_element');
+          console.error(err);
         })
         .finally(() => {
           this.$data.loading = false;
@@ -72,27 +72,26 @@ export default {
         }`;
       }
 
-
       Query.raw(query)
         .then(() => {
           this.$router.push({
-            name: "CoinMarkOverview",
+            name: 'CoinMarkOverview',
           });
         })
         .catch((err) => {
-          this.error = this.$t("error.could_not_update_element");
+          this.error = this.$t('error.could_not_update_element');
           console.error(err);
         });
     },
     cancel: function () {
-      this.$router.push({ name: "CoinMarkOverview" });
+      this.$router.push({ name: 'CoinMarkOverview' });
     },
   },
   data: function () {
     return {
-      error: "",
+      error: '',
       loading: true,
-      value: { id: -1, name: "" },
+      value: { id: -1, name: '' },
     };
   },
 };

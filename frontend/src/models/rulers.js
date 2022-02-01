@@ -1,5 +1,3 @@
-import SikkaColor from '../utils/Color';
-
 export function rulersFromCoin(coin) {
     let rulers = [];
     if (coin.issuers && coin.issuers.length > 0) rulers.push(coin.issuers);
@@ -9,21 +7,24 @@ export function rulersFromCoin(coin) {
     return rulers;
 }
 
-export function dataFromRulers(rulers) {
-
+export function dataFromRulers(rulers, selected = []) {
     let value = rulers
     if (Array.isArray(rulers)) {
         value = []
         rulers.forEach(ruler => {
-            const subdata = dataFromRulers(ruler)
+            const subdata = dataFromRulers(ruler, selected)
             value.push(subdata)
         })
     } else {
         const ruler = rulers
-        const fillColor = SikkaColor.fromHash(SikkaColor.getHash(ruler.name))
-        console.log(fillColor)
+
+        let fillColor = ruler.color || "#ff00ff"
+        if (selected.length > 0) {
+            fillColor = selected.indexOf(ruler.id) == -1 ? "#dddddd" : fillColor
+        }
+
         value = {
-            id: ruler.id,
+            data: ruler,
             fillColor,
             color: "#fff",
             stroke: true,
@@ -34,10 +35,13 @@ export function dataFromRulers(rulers) {
     return value
 }
 
-export function coinsToRulerData(coins) {
+export function coinsToRulerData(coins, selected = []) {
     let data = []
     coins.forEach(coin => {
-        data.push(dataFromRulers(rulersFromCoin(coin)))
+        data.push({
+            groupData: coin,
+            data: dataFromRulers(rulersFromCoin(coin), selected)
+        })
     })
 
     return data

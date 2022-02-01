@@ -3,7 +3,7 @@ import Vuex from "vuex";
 
 Vue.use(Vuex)
 
-let version = require("../package.json").version;
+let version = require("../../package.json").version;
 
 const store = new Vuex.Store({
   state: {

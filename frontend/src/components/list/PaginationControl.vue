@@ -13,16 +13,16 @@
       </span>
     </div>
     <div class="right">
-      <button @click="changePage(0)">1</button>
-      <button @click="toLastPage"><ChevronLeft /></button>
+      <button type="button" @click="changePage(0)">1</button>
+      <button type="button" @click="toLastPage"><ChevronLeft /></button>
       <input
         class="page-input"
         type="text"
         :value="pageValue"
         @input="setPageEvt"
       />
-      <button @click="toNextPage"><ChevronRight /></button>
-      <button @click="changePage(last)">
+      <button type="button" @click="toNextPage"><ChevronRight /></button>
+      <button type="button" @click="changePage(last)">
         {{ last + 1 }}
       </button>
     </div>
@@ -56,13 +56,6 @@ export default {
       required: true,
     },
   },
-  watch: {
-    page: {
-      handler(val) {
-        console.log(val);
-      },
-    },
-  },
   methods: {
     changed(obj) {
       const pageInfo = Object.assign(
@@ -79,7 +72,6 @@ export default {
       pageInfo.page = Math.max(Math.min(pageInfo.page, pageInfo.last), 0);
       pageInfo.last = Math.floor(pageInfo.total / pageInfo.count);
 
-      console.log('changed', pageInfo.page);
       this.$emit('input', pageInfo);
     },
     countChanged(event) {
@@ -93,12 +85,13 @@ export default {
     },
     setPageEvt(evt) {
       const value = parseInt(evt.target.value);
-      if (value != null) {
+      if (!isNaN(value)) {
         this.changePage(value - 1);
+      } else {
+        this.changePage(0);
       }
     },
     changePage(next = null) {
-      console.log(next, this.page);
       if (this.page != next) {
         this.changed({ page: next });
       }

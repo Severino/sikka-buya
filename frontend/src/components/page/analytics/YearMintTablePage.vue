@@ -194,7 +194,6 @@ export default {
     },
 
     getLabel(attr, item, vari = '') {
-      console.log(vari, attr, item, item[attr]);
       if (this.plainValues.indexOf(attr) != -1) return item[attr];
       if (this.nameObjects.indexOf(attr) != -1) {
         return item[attr] && item[attr].name ? item[attr].name : 'NULL';

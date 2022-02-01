@@ -1,349 +1,78 @@
 const { expect, config } = require('chai')
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
+const { UDERZO,
+    DUERER,
+    MERKEL,
+    ARIELLE,
+    CHARLES_DE_GAULLE,
+    ELIZABETH_II,
+    MACRON,
+    FISCH,
+    HOLLANDE,
+    BERNINI,
+    WESTERWELLE,
+    KOHL,
+    CHIRAC,
+    GAUCK,
+    KARL,
+    LOUIS,
+    MICHELANGELO,
+    SARKOZY,
+    PLANKTON,
+    POSEIDON,
+    GOSCINNY,
+    SEBASTIAN,
+    WAL,
+    TURNER,
+    CHURCHILL } = require('../mockdata/persons')
+
 
 // config.truncateThreshold = 0
 
 const startData = {
     "data": {
         "person": [
-            {
-                "id": "12",
-                "name": "Albert Uderzo",
-                "shortName": "Uderzo",
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "5",
-                "name": "Albrecht Dürer",
-                "shortName": "Dürer",
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "1",
-                    "name": "Deutsche"
-                }
-            },
-            {
-                "id": "2",
-                "name": "Angela Merkel",
-                "shortName": "Merkel",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "1",
-                    "name": "Deutsche"
-                }
-            },
-            {
-                "id": "22",
-                "name": "Arielle",
-                "shortName": "Ari",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "10",
-                "name": "Charles de Gaulle",
-                "shortName": "de Gaulle",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "15",
-                "name": "Elizabeth II",
-                "shortName": "The Queen",
-                "role": {
-                    "id": "1",
-                    "name": "caliph"
-                },
-                "dynasty": {
-                    "id": "3",
-                    "name": "Briten"
-                }
-            },
-            {
-                "id": "6",
-                "name": "Emmanuel Macron",
-                "shortName": "Macron",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "20",
-                "name": "Fisch",
-                "shortName": null,
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "7",
-                "name": "François Hollande",
-                "shortName": "Hollande",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "25",
-                "name": "Gian Lorenzo Bernini",
-                "shortName": "Bernini",
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "17",
-                "name": "Guido Westerwelle",
-                "shortName": "Westerwelle",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "1",
-                    "name": "Deutsche"
-                }
-            },
-            {
-                "id": "1",
-                "name": "Helmut Kohl",
-                "shortName": "Kohl",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "1",
-                    "name": "Deutsche"
-                }
-            },
-            {
-                "id": "9",
-                "name": "Jaques Chirac",
-                "shortName": "Chirac",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "3",
-                "name": "Joachim Gauck",
-                "shortName": "Gauck",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "1",
-                    "name": "Deutsche"
-                }
-            },
-            {
-                "id": "4",
-                "name": "Karl der Große",
-                "shortName": "Karl",
-                "role": {
-                    "id": "1",
-                    "name": "caliph"
-                },
-                "dynasty": {
-                    "id": "1",
-                    "name": "Deutsche"
-                }
-            },
-            {
-                "id": "11",
-                "name": "Louis XVI",
-                "shortName": "Louis",
-                "role": {
-                    "id": "1",
-                    "name": "caliph"
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "24",
-                "name": "Michelangelo",
-                "shortName": "Miquel",
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "8",
-                "name": "Nicolas Sarkozy",
-                "shortName": "Sarkozy",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "19",
-                "name": "Plankton",
-                "shortName": "Planki",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "18",
-                "name": "Poseidon",
-                "shortName": "Neptun",
-                "role": {
-                    "id": "1",
-                    "name": "caliph"
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "13",
-                "name": "René Goscinny",
-                "shortName": "Goscinny",
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "2",
-                    "name": "Franzosen"
-                }
-            },
-            {
-                "id": "23",
-                "name": "Sebastian",
-                "shortName": "Sebi",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": null,
-                    "name": null
-                }
-            },
-            {
-                "id": "21",
-                "name": "Wal",
-                "shortName": null,
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "5",
-                    "name": "Atlant"
-                }
-            },
-            {
-                "id": "16",
-                "name": "William Turner",
-                "shortName": "Turner",
-                "role": {
-                    "id": "2",
-                    "name": "cutter"
-                },
-                "dynasty": {
-                    "id": "3",
-                    "name": "Briten"
-                }
-            },
-            {
-                "id": "14",
-                "name": "Winston Churchill",
-                "shortName": "Churchill",
-                "role": {
-                    "id": null,
-                    "name": null
-                },
-                "dynasty": {
-                    "id": "3",
-                    "name": "Briten"
-                }
-            }
+            UDERZO,
+            DUERER,
+            MERKEL,
+            ARIELLE,
+            CHARLES_DE_GAULLE,
+            ELIZABETH_II,
+            MACRON,
+            FISCH,
+            HOLLANDE,
+            BERNINI,
+            WESTERWELLE,
+            KOHL,
+            CHIRAC,
+            GAUCK,
+            KARL,
+            LOUIS,
+            MICHELANGELO,
+            SARKOZY,
+            PLANKTON,
+            POSEIDON,
+            GOSCINNY,
+            SEBASTIAN,
+            WAL,
+            TURNER,
+            CHURCHILL
         ]
     }
 }
 
 const body = `{
-    id name shortName role {
+    id name shortName 
+    role {
         id
         name
-    }, dynasty {
+    } 
+    dynasty {
         id
-            name
+        name
     }
+    color
 }`
 
 
@@ -375,7 +104,8 @@ describe(`Person Queries`, function () {
                     "dynasty": {
                         "id": "2",
                         "name": "Franzosen"
-                    }
+                    },
+                    "color": "#FFFF00"
                 }
             }
         })
@@ -399,7 +129,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#58ecF0"
                     }
                 ]
             }
@@ -424,7 +155,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#58ecF0"
                     }
                 ]
             }
@@ -437,19 +169,7 @@ describe(`Person Queries`, function () {
         expect(result.data).to.deep.equal({
             "data": {
                 "searchPersonsWithRole": [
-                    {
-                        "id": "12",
-                        "name": "Albert Uderzo",
-                        "shortName": "Uderzo",
-                        "role": {
-                            "id": "2",
-                            "name": "cutter"
-                        },
-                        "dynasty": {
-                            "id": "2",
-                            "name": "Franzosen"
-                        }
-                    },
+                    UDERZO,
                     {
                         "id": "5",
                         "name": "Albrecht Dürer",
@@ -461,7 +181,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "1",
                             "name": "Deutsche"
-                        }
+                        },
+                        "color": "#FF00FF"
                     },
                     {
                         "id": "15",
@@ -474,7 +195,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "3",
                             "name": "Briten"
-                        }
+                        },
+                        "color": "#DDDDFF"
                     },
                     {
                         "id": "25",
@@ -487,7 +209,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#AB87DF"
                     },
                     {
                         "id": "4",
@@ -500,7 +223,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "1",
                             "name": "Deutsche"
-                        }
+                        },
+                        "color": "#F3C3A3"
                     },
                     {
                         "id": "11",
@@ -513,7 +237,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#3333FF"
                     },
                     {
                         "id": "24",
@@ -526,7 +251,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#3FF3FF"
                     },
                     {
                         "id": "18",
@@ -539,7 +265,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#99FFAA"
                     },
                     {
                         "id": "13",
@@ -552,7 +279,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "2",
                             "name": "Franzosen"
-                        }
+                        },
+                        "color": "#FE0101"
                     },
                     {
                         "id": "21",
@@ -565,7 +293,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "5",
                             "name": "Atlant"
-                        }
+                        },
+                        "color": "#222222"
                     },
                     {
                         "id": "16",
@@ -578,7 +307,8 @@ describe(`Person Queries`, function () {
                         "dynasty": {
                             "id": "3",
                             "name": "Briten"
-                        }
+                        },
+                        "color": "#555555"
                     }
                 ]
             }
@@ -602,15 +332,16 @@ describe(`Person Queries`, function () {
     })
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed"})}`)
+        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed", role: 1, dynasty: 1, color:"#ff0000"})}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed", role: 1, dynasty: 1, color:"#00ff00"})}`, {}, TestUser.users[0].token)
         await expect(promise).to.be.fulfilled
     })
 
+    //TODO CHECK IF UPDATED SUCCESSFULLY
 
     it("Unauthorized Delete Rejected", async function () {
         let promise = graphql(`mutation{deletePerson(id:26)}`)

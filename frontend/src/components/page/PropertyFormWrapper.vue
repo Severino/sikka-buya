@@ -2,25 +2,29 @@
   <div class="material-page">
     <h1>{{ title }}</h1>
     <LoadingSpinner class="loading-spinner" v-if="loading" />
-    <form v-if="!loading" @submit.prevent="submit">
+    <form v-if="!loading" @submit.prevent>
       <slot></slot>
       <div v-if="error" class="information error">
         {{ error }}
       </div>
       <Row class="button-bar">
-        <button type="button" @click.prevent.stop="cancel">{{ $t("form.cancel") }}</button>
-        <button id="submit-btn" type="submit">{{ $t("form.submit") }}</button>
+        <button type="button" @click.prevent.stop="cancel">
+          {{ $t('form.cancel') }}
+        </button>
+        <button id="submit-btn" type="submit" @click="submit">
+          {{ $t('form.submit') }}
+        </button>
       </Row>
     </form>
   </div>
 </template>
 
 <script>
-import Row from "../layout/Row.vue";
-import LoadingSpinner from "../misc/LoadingSpinner.vue";
+import Row from '../layout/Row.vue';
+import LoadingSpinner from '../misc/LoadingSpinner.vue';
 
 export default {
-  name: "PropertyFormWrapper",
+  name: 'PropertyFormWrapper',
   props: {
     title: String,
     property: {
@@ -37,14 +41,14 @@ export default {
   },
   methods: {
     submit: function () {
-      this.$emit("submit");
+      this.$emit('submit');
     },
     cancel: function () {
       if (this.overwriteRoute) {
         this.$router.push({ name: this.overwriteRoute });
       } else {
         this.$router.push({
-          name: "Property",
+          name: 'Property',
           params: { property: this.property },
         });
       }
@@ -54,7 +58,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 form {
   display: flex;

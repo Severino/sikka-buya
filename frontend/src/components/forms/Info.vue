@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import CoinSideGroupVue from '../display/CoinSideGroup.vue';
 export default {
   name: 'Info',
   props: {
@@ -30,29 +31,32 @@ export default {
   },
   data: function () {
     return {
-      trigger_show: true,
+      trigger_show: false,
     };
   },
   watch: {
     trigger: function () {
+      console.log(this.trigger);
       this.show();
     },
   },
   methods: {
     show: function () {
-      this.$data.trigger_show = false;
-
-      if (this.$props.time > 0) {
-        setTimeout(this.hide, this.$props.time);
+      if (this.trigger_show == false) {
+        this.trigger_show = true;
+        if (this.$props.time > 0) {
+          console.log('SET TIMEOUT');
+          setTimeout(this.hide, this.$props.time);
+        }
       }
     },
     hide: function () {
-      this.$data.trigger_show = true;
+      this.trigger_show = false;
     },
   },
   computed: {
     visible() {
-      return this.alwaysShow || (this.trigger > 0 && this.trigger_show);
+      return this.alwaysShow || this.trigger_show;
     },
     hidden() {
       return !this.visible;

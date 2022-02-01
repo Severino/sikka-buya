@@ -43,7 +43,6 @@ export default {
   methods: {
     enter(evt) {
       if (evt.key === 'Enter') {
-        console.log('ENTER');
         this.$refs['loginBtn'].$el.click();
       }
     },
@@ -67,7 +66,6 @@ export default {
              * quickly. So we introduce an artifical delay to improve the UX.
              */
             const timeLeft = minSecondsToWait * 1000 - (Date.now() - startTime);
-            console.log(timeLeft);
             await Async.sleep(timeLeft);
 
             if (!success) {

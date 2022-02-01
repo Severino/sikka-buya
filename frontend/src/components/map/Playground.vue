@@ -50,7 +50,6 @@ export default {
           ],
         ],
       });
-      console.log(group);
       window.group = group;
       group.addTo(this.map);
     }, 10);
