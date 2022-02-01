@@ -15,19 +15,23 @@ class PersonResolver extends Resolver {
 
 
         return Database.tx(async t => {
-            const id = await t.one(`
+            const result = await t.one(`
                 INSERT INTO person
                 (name, short_name, role, dynasty)
                 VALUES
                 ($[name], $[short_name], $[role], $[dynasty])
                 RETURNING id
             `, args.data)
-            if (args.data.color != null)
-                await t.none(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: id, color: args.color })
+            if (result.id && args.data.color != null) {
+                const id = result.id
+                await t.none(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: id, color: args.data.color })
+            }
         })
     }
 
     async update(_, args) {
+        if (!args.data.id)
+            throw new Error("Id must be set when updating a value!")
 
         SQLUtils.removeNullProperty(args, "dynasty")
         SQLUtils.removeNullProperty(args, "role")
@@ -35,16 +39,18 @@ class PersonResolver extends Resolver {
 
 
         return Database.tx(async t => {
-            const id = t.one(`
+            await t.none(`
                 UPDATE person
-                (name, short_name, role, dynasty)
-                VALUES
-                ($[name], $[short_name], $[role], $[dynasty])
-                RETURNING id
-            `)
+               SET
+                name=$[name], short_name=$[short_name], role=$[role], dynasty=$[dynasty]
+                WHERE id=$[id]
+            `, args.data)
 
-            if (args.color != null)
-                await t.none(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: id, color: args.color })
+
+            if (args.data.color != null) {
+                const id = args.data.id
+                await t.none(`INSERT INTO person_color (person, color) VALUES ($[person], $[color]) ON CONFLICT (person) DO UPDATE SET color=$[color]`, { person: id, color: args.data.color })
+            }
         })
     }
 

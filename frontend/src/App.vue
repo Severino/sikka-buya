@@ -98,6 +98,20 @@ input {
   font-family: $font;
   font-size: $regular-font;
 }
+
+input::placeholder {
+  color: $light-gray;
+  font-style: italic;
+}
+
+input[type='color'] {
+  flex: unset !important;
+  display: block;
+  padding: 0;
+  min-width: 200px;
+  min-height: 40px;
+}
+
 .emph {
   color: $primary-color;
   font-weight: bold;

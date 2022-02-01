@@ -1,11 +1,11 @@
 <template>
   <div class="list">
-    <div class="wrapper" >
+    <div class="wrapper">
       <Row class="title-row">
         <label v-if="title" class="title"
-          >{{ title }} {{ length !== null ? `(${length})` : "" }}</label
+          >{{ title }} {{ length !== null ? `(${length})` : '' }}</label
         >
-        <button @click.stop.prevent="addEntry">+</button>
+        <button type="button" @click.stop.prevent="addEntry">+</button>
       </Row>
     </div>
 
@@ -13,15 +13,15 @@
     <div class="list-container">
       <slot />
     </div>
-    <button @click.stop.prevent="addEntry">+</button>
+    <button type="button" @click.stop.prevent="addEntry">+</button>
   </div>
 </template>
 
 <script>
-import Row from "../layout/Row.vue";
+import Row from '../layout/Row.vue';
 export default {
   components: { Row },
-  name: "List",
+  name: 'List',
   props: {
     title: String,
     description: String,
@@ -34,14 +34,14 @@ export default {
   },
   methods: {
     addEntry: function () {
-      this.$emit("add");
+      this.$emit('add');
     },
   },
 };
 </script>
 
 <style lang="scss">
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 .list-container {
   box-sizing: border-box;
 
@@ -59,7 +59,7 @@ export default {
 
   &:not(:empty) {
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       $size: 10px;
       width: $size;
@@ -72,7 +72,7 @@ export default {
 
     &::after {
       height: 50%;
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       border-left: 2px solid $gray;
@@ -105,7 +105,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .list {
   position: relative;
@@ -130,15 +130,14 @@ export default {
   text-transform: capitalize;
 }
 
-  button{
-    max-width: 38px;
-    width: 38px;
-    height: 38px;
-  }
+button {
+  max-width: 38px;
+  width: 38px;
+  height: 38px;
+}
 
 .title-row {
   align-items: baseline;
-
 
   > * :first-child {
     flex: 1;

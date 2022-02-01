@@ -18,11 +18,11 @@
       </span>
     </div>
     <div class="right">
-      <button @click="changePage(0)">1</button>
-      <button @click="toLastPage"><ChevronLeft /></button>
+      <button type="button" @click="changePage(0)">1</button>
+      <button type="button" @click="toLastPage"><ChevronLeft /></button>
       <input type="number" :value="value.page + 1" @change="setPageEvt" />
-      <button @click="toNextPage"><ChevronRight /></button>
-      <button @click="changePage(value.last)">
+      <button type="button" @click="toNextPage"><ChevronRight /></button>
+      <button type="button" @click="changePage(value.last)">
         {{ value.last + 1 }}
       </button>
     </div>

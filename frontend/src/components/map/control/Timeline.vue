@@ -14,7 +14,7 @@
     <br />
 
     <div class="toolbox">
-      <button @click.stop.prevent="down">
+      <button type="button" @click.stop.prevent="down">
         <MenuLeft />
       </button>
       <input
@@ -26,7 +26,7 @@
         @pointerdown="disableMap"
         @pointerup="enableMap"
       />
-      <button @click.stop.prevent="up">
+      <button type="button" @click.stop.prevent="up">
         <MenuRight />
       </button>
     </div>

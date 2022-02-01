@@ -990,7 +990,8 @@ exclude_from_type_catalogue,
             d.id as dynasty_id,
             d.name as dynasty_name,
             r.id as role_id,
-            r.name as role_name
+            r.name as role_name,
+            c.color as color
         FROM 
             other_person op 
         LEFT JOIN person p
@@ -999,6 +1000,8 @@ exclude_from_type_catalogue,
             dynasty d ON p.dynasty=d.id
         LEFT JOIN 
             person_role r ON p.role=r.id
+        LEFT JOIN
+            person_color c ON p.id = c.person
 		WHERE 
             op.type = $1
             `, type_id)
