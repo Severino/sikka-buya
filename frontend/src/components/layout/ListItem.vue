@@ -11,21 +11,27 @@
 
 <script>
 export default {
-  name: "ListItem",
+  name: 'ListItem',
   props: {
     to: Object,
   },
   methods: {
-    click: function() {
-      this.$emit("click");
+    click: function () {
+      this.$emit('click');
     },
   },
 };
 </script>
 
+<style lang="scss">
+.list-item-row .icon {
+  margin: -$padding;
+}
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .list-item:not(:last-of-type) {
   background-color: red;
@@ -37,7 +43,7 @@ export default {
 .list-item-row {
   @include interactive();
   @include input();
-  padding: 3px $padding;
+  padding: $padding;
 
   position: relative;
   display: flex;

@@ -144,6 +144,8 @@ const role = {
 const attribute = {
     name:
         "Name | Namen",
+    shortName:
+        "Kurzform",
     longitude:
         "Längengrad",
     latitude:

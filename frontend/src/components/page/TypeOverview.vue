@@ -189,7 +189,8 @@ export default {
       }
     }
 
-    this.pageInfo.count = localStorage.getItem('pagination-count') || 15;
+    this.pageInfo.count =
+      parseInt(localStorage.getItem('pagination-count')) || 15;
     this.updateTypeList();
     this.$refs.search.$el.querySelector('input').focus();
   },
@@ -380,9 +381,6 @@ export default {
           // this.loading = false;
         });
     },
-    handleKeys(event) {
-      console.log(event.key);
-    },
     create() {
       this.$router.push({
         name: `TypeCreationPage`,
@@ -462,11 +460,9 @@ export default {
       this.filtersChanged();
     },
     async textFilterChanged() {
-      console.log('CHANGED');
       await this.filtersChanged();
     },
     async filtersChanged() {
-      console.log(this.filter);
       localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
       await this.updateTypeList();
     },

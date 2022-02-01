@@ -21,23 +21,23 @@
 </template>
 
 <script>
-import Query from "../../../database/query.js";
-import PropertyFormWrapper from "../PropertyFormWrapper.vue";
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
 
 export default {
   components: { PropertyFormWrapper },
-  name: "DynastyForm",
+  name: 'DynastyForm',
   created: function () {
     let id = this.$route.params.id;
     if (id != null) {
-      new Query("dynasty")
-        .get(id, ["id", "name"])
+      new Query('dynasty')
+        .get(id, ['id', 'name'])
         .then((result) => {
           this.dynasty = result.data.data.getDynasty;
         })
         .catch((err) => {
-          this.$data.error = this.$t("error.loading_element");
-          console.log(err);
+          this.$data.error = this.$t('error.loading_element');
+          console.error(err);
         })
         .finally(() => {
           this.$data.loading = false;
@@ -48,28 +48,28 @@ export default {
   },
   methods: {
     submit: function () {
-      new Query("dynasty")
+      new Query('dynasty')
         .update(this.dynasty)
         .then(() => {
           this.$router.push({
-            name: "Property",
-            params: { property: "dynasty" },
+            name: 'Property',
+            params: { property: 'dynasty' },
           });
         })
         .catch((err) => {
-          this.error = this.$t("error.could_not_update_element");
+          this.error = this.$t('error.could_not_update_element');
           console.error(err);
         });
     },
     cancel: function () {
-      this.$router.push({ path: "/dynasty" });
+      this.$router.push({ path: '/dynasty' });
     },
   },
   data: function () {
     return {
-      error: "",
+      error: '',
       loading: true,
-      dynasty: { id: -1, name: "" },
+      dynasty: { id: -1, name: '' },
     };
   },
 };

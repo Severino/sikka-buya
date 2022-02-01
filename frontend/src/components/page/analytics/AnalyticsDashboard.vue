@@ -39,8 +39,6 @@ export default {
         this.mintCount = obj.data.data.getAnalytics.mintCount;
         this.typeCount = obj.data.data.getAnalytics.typeCount;
         this.yearCount = obj.data.data.getAnalytics.yearCount;
-
-        console.log('RESUK', obj);
       })
       .catch(console.error);
   },

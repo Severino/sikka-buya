@@ -9,7 +9,7 @@
       id="edit-button"
       :to="{ name: 'EditType', params: { id: type.id } }"
     >
-      <button>
+      <button type="button">
         <EditIcon />
       </button>
     </router-link>

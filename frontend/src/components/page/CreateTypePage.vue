@@ -303,9 +303,13 @@
 
       <Row>
         <input type="file" @change="compareJSON" v-if="debug" />
-        <button @click="applyJSON" v-if="debug">Apply {{ debug }}</button>
-        <button @click="exportJSON" v-if="debug">Export</button>
-        <button @click.stop.prevent="cancel">{{ $t('form.cancel') }}</button>
+        <button type="button" @click="applyJSON" v-if="debug">
+          Apply {{ debug }}
+        </button>
+        <button type="button" @click="exportJSON" v-if="debug">Export</button>
+        <button type="button" @click.stop.prevent="cancel">
+          {{ $t('form.cancel') }}
+        </button>
         <button @click.stop.prevent="submitForm" type="submit">
           {{ $t('form.submit') }}
         </button>

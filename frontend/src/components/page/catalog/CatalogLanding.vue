@@ -53,9 +53,7 @@ export default {
   },
   methods: {
     input: function (value) {
-      console.log('value');
       if (value == '') {
-        console.log('CLEAR');
         this.types = [];
       }
       this.searchText = value;
@@ -76,7 +74,6 @@ export default {
       )
         .then((result) => {
           const data = result.data.data.searchType;
-          console.log(data);
 
           this.types = data.map((item) => {
             return {

@@ -14,7 +14,7 @@
     <br />
 
     <div class="toolbox">
-      <button @click.stop.prevent="down">
+      <button type="button" @click.stop.prevent="down">
         <MenuLeft />
       </button>
       <input
@@ -26,7 +26,7 @@
         @pointerdown="disableMap"
         @pointerup="enableMap"
       />
-      <button @click.stop.prevent="up">
+      <button type="button" @click.stop.prevent="up">
         <MenuRight />
       </button>
     </div>
@@ -51,11 +51,9 @@ export default {
   },
   methods: {
     input(event) {
-      console.log(event);
       this.$emit('input', parseFloat(event.target.value));
     },
     change(event) {
-      console.log(event);
       this.$emit('change', parseFloat(event.target.value));
     },
     enableMap() {

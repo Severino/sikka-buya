@@ -28,14 +28,6 @@ input NameInput {
   name: String
 }
 
-input PersonInput {
-  id: ID
-  name: String
-  shortName: String
-  role: ID
-  dynasty: ID
-}
-
 input MintInput {
   id: ID
   name: String
@@ -182,18 +174,27 @@ type Mint {
   province: Name
 }
 
-type Person {
+input PersonInput  {
   id: ID
   name: String
   shortName: String
-  role: Name
-  dynasty: Name
+  role: ID
+  dynasty: ID
+  color: String
 }
 
 input TitledPersonInput {
   person: ID!
   titles: [ID]!
   honorifics: [ID]!
+}
+
+input OverlordInput {
+  type: ID
+  person: ID!
+  rank: Int!
+  titles: [Int]!
+  honorifics: [Int]!
 }
 
 type Dominion {
@@ -471,33 +472,54 @@ type Comment {
   text: String
 }
 
-type Overlord {
+
+interface IPerson{
   id: ID
   name: String
   shortName: String
   role: Name
   dynasty: Name
-  titles: [Name]!
-  honorifics: [Name]!
-  rank: Int
 }
 
-type TitledPerson {
+interface ITitled {
+  titles: [Name]
+  honorifics: [Name]
+}
+
+type Person implements IPerson {
   id: ID
   name: String
   shortName: String
   role: Name
   dynasty: Name
+  color: String
+}
+
+# input TitledPerson {
+#   id: ID
+# }
+
+type TitledPerson implements IPerson & ITitled {
+  id: ID
+  name: String
+  shortName: String
+  role: Name
+  dynasty: Name
+  color: String
   titles: [Name]!
   honorifics: [Name]!
 }
 
-input OverlordInput {
-  type: ID
-  person: ID!
+type Overlord implements IPerson & ITitled{
+  id: ID
+  name: String
+  shortName: String
+  role: Name
+  dynasty: Name
+  color: String
   rank: Int!
-  titles: [Int]!
-  honorifics: [Int]!
+  titles: [Name]!
+  honorifics: [Name]!
 }
 
 type Analytics {

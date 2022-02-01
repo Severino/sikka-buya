@@ -43,11 +43,6 @@ export default {
   .list {
     margin: 0;
   }
-
-  .list-item-row {
-    // margin-bottom: 3px;
-    // border-bottom-width: 3px;
-  }
 }
 </style>
 
