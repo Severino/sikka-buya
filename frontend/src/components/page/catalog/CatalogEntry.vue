@@ -45,7 +45,6 @@ export default {
           misc: '',
         },
         cursiveScript: false,
-        coinMarks: [],
         pieces: [],
         specials: '',
       },
@@ -142,10 +141,6 @@ export default {
                   misc
                 }
                 cursiveScript
-                coinMarks {
-                  id
-                  name
-                }
                 literature
                 pieces
                 specials

@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import gql from 'graphql-tag';
 import Query from '../../../database/query';
 export default {
   name: 'YearMintTablePage',
@@ -135,20 +136,65 @@ export default {
     };
   },
   methods: {
-    fetchTypes() {
-      Query.raw(
-        `{
-      getTypes{
-          ${this.getQuery(this.x)}
-          ${this.getQuery(this.y)}
+    async fetchTypes() {
+      let page = 0;
+      const requestSize = 100;
+      let done = false;
+      let types = [];
+      try {
+        while (!done) {
+          const query = gql`
+            {
+              coinType(pagination: { count: ${requestSize}, page: ${page} }) {
+                types {
+                  ${this.getQuery(this.x)}
+                   ${this.getQuery(this.y)}
+                }
+                pageInfo {
+                  page
+                  count
+                  last
+                }
+              }
+            }
+          `;
+
+          let results = await Query.gql(query);
+          console.log(results);
+
+          const properties = results?.data?.data?.coinType;
+          const pageInfo = properties?.pageInfo;
+          const _types = properties?.types;
+
+          if (_types) {
+            types.push(..._types);
+          }
+
+          if (!properties || !pageInfo || pageInfo.last === pageInfo.page) {
+            done = true;
+          }
+          page++;
+        }
+
+        this.types = types;
+        this.updateMap();
+      } catch (e) {
+        console.error('Could not fetch types: ', e);
       }
-    }`
-      )
-        .then((result) => {
-          this.types = result?.data?.data?.getTypes;
-          this.updateMap();
-        })
-        .catch(console.error);
+
+      //   Query.raw(
+      //     `{
+      //   type(){
+      //       ${this.getQuery(this.x)}
+      //       ${this.getQuery(this.y)}
+      //   }
+      // }`
+      //   )
+      //     .then((result) => {
+      //       this.types = result?.data?.data?.getTypes;
+      //       this.updateMap();
+      //     })
+      //     .catch(console.error);
     },
     xChanged(event) {
       this.x = event.target.value;
