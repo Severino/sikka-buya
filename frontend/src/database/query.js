@@ -1,9 +1,9 @@
+
 import axios from "axios"
-const baseURL = process.env.VUE_APP_DATABASE_URL || "http://localhost:4000/graphql"
-const host = baseURL
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
 import store from "../store";
+import { graphqlEndpoint } from './host';
 
 export default class Query {
 
@@ -35,13 +35,13 @@ export default class Query {
 
 
     async raw(query, variables = {}) {
-        console.log(query)
+        // console.log(query)
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')
             }, 5000)
             axios({
-                url: host,
+                url: graphqlEndpoint,
                 method: "post",
                 headers: { "auth": Auth.loadToken() },
                 data: {
@@ -59,7 +59,12 @@ export default class Query {
 
                     reject(errors)
                 }
-            }).catch(reject)
+            }).catch((e) => {
+                if (e.isAxiosError) {
+                    console.error(e.response.data.errors[0])
+                    reject(e.response.data.errors.map(item => item.message).join(" --- "))
+                } else reject(e)
+            })
                 .finally(() => clearTimeout(timeout))
         })
     }

@@ -32,8 +32,8 @@
   @include focus();
 }
 @mixin disabled_input {
-  border: 1px solid rgb(204, 204, 204);
-  background-color: rgb(204, 204, 204);
+  border: 1px solid $border-color;
+  background-color: $border-color;
   user-select: none;
   color: white;
   user-select: none;
@@ -41,7 +41,7 @@
 }
 
 @mixin box-padding($size) {
-  padding: $size 1.75 * $size;
+  padding: $size 1.5 * $size;
 }
 
 @mixin media-tablet {

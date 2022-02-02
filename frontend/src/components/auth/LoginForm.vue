@@ -1,8 +1,7 @@
 <template>
-  <Box>
-    <form ref="form">
+  <Box class="login-form" title="Login">
+    <form ref="form" @keydown="enter">
       <user-form
-        title="Login"
         :email="email"
         :password="password"
         :disabled="buttonDisabled"
@@ -11,7 +10,12 @@
     </form>
     <ErrorMessage v-if="loginError">{{ loginError }}</ErrorMessage>
 
-    <async-button @click="login" :waiting="buttonDisabled">
+    <async-button
+      ref="loginBtn"
+      @click="login"
+      class="colored"
+      :pending="buttonDisabled"
+    >
       Anmelden
     </async-button>
   </Box>
@@ -28,7 +32,7 @@ import Async from '../../utils/Async';
 export default {
   components: { Box, UserForm, AsyncButton, ErrorMessage },
   name: 'LoginForm',
-  data: function() {
+  data: function () {
     return {
       email: '',
       password: '',
@@ -37,13 +41,19 @@ export default {
     };
   },
   methods: {
+    enter(evt) {
+      if (evt.key === 'Enter') {
+        this.$refs['loginBtn'].$el.click();
+      }
+    },
+
     inputChanged({ email, password } = {}) {
       Object.assign(this.$data, {
         email: email,
         password,
       });
     },
-    login: function() {
+    login: function () {
       if (this.$refs.form.checkValidity()) {
         this.loginError = '';
         this.buttonDisabled = true;
@@ -56,7 +66,6 @@ export default {
              * quickly. So we introduce an artifical delay to improve the UX.
              */
             const timeLeft = minSecondsToWait * 1000 - (Date.now() - startTime);
-            console.log(timeLeft);
             await Async.sleep(timeLeft);
 
             if (!success) {
@@ -81,22 +90,18 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.box {
-  align-items: stretch;
-  max-width: 100%;
-  width: 512px;
-  background-color: $white;
-  @include box-padding($big-padding);
-
-  > *:not(:last-child) {
-    margin-bottom: $padding;
+<style lang="scss">
+.login-form {
+  .button {
+    justify-content: center;
   }
 }
+</style>
 
-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
+<style lang="scss" scoped>
+// form {
+//   width: 100%;
+//   display: flex;
+//   flex-direction: column;
+// }
 </style>

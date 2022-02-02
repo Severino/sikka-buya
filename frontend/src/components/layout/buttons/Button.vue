@@ -1,5 +1,5 @@
 <template>
-  <div class="button" @click="clicked">
+  <div class="button" :class="{ colored }" @click.stop="clicked">
     <slot />
   </div>
 </template>
@@ -8,9 +8,10 @@
 export default {
   props: {
     disabled: Boolean,
+    colored: Boolean,
   },
   methods: {
-    clicked: function($) {
+    clicked: function () {
       if (!this.disabled) this.$emit('click');
     },
   },
@@ -19,7 +20,18 @@ export default {
 
 <style lang="scss" scoped>
 .button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   text-align: center;
+  box-sizing: border-box;
+
+  .material-design-icon:not(:last-child) {
+    margin-right: $padding;
+  }
+}
+
+.button.colored {
   color: $white;
   background-color: $primary-color;
   border-radius: 3px;

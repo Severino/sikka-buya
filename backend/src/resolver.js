@@ -62,8 +62,20 @@ class Resolver {
         return Database.one(`SELECT * FROM ${this.tableName} WHERE id=$1 `, [args.id])
     }
 
-    async list() {
-        return Database.manyOrNone(`SELECT * FROM ${this.tableName} ORDER BY name ASC`)
+    async list(_, { language } = {}) {
+        let joinQuery = ""
+        if (language && language.length < 4 && language != "de") {
+            let langTable = `${this.tableName}_${language}`
+            return Database.manyOrNone(`
+            SELECT a.id, 
+            CASE WHEN b.name IS NOT NULL THEN b.name ELSE a.name END
+            FROM ${this.tableName} a
+            LEFT JOIN ${langTable} b ON a.id= b.id
+            ORDER BY a.name ASC
+            `)
+
+        } else
+            return Database.manyOrNone(`SELECT * FROM ${this.tableName} ORDER BY ${this.tableName}.name ASC`)
     }
 
     async search(_, args) {

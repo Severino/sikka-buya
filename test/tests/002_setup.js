@@ -1,11 +1,13 @@
 const chai = require('chai');
 const expect = chai.expect
+const fs = require("fs/promises")
 
 const chaiPromise = require('chai-as-promised')
 chai.use(chaiPromise)
 
 const { graphql } = require('../helpers/graphql');
 const TestUser = require('../helpers/test-user');
+const path = require('path');
 
 
 
@@ -43,6 +45,9 @@ describe(`Setup test environment`, async function () {
               }`)
 
 
+
+
+    await fs.writeFile(path.join(__dirname, "..", "token.txt"), result.data.data.setup.token)
 
     expect(result.data.data.setup).to.deep.include({
       success: true,

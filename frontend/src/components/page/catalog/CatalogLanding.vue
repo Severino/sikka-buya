@@ -4,6 +4,9 @@
       <div class="search">
         <Column>
           <h2>Typensuche</h2>
+          <router-link class="link" :to="{ name: 'CatalogFullSearch' }"
+            >Zur Volltext Suche</router-link
+          >
           <search-field
             :value="searchText"
             @input="input"
@@ -22,7 +25,7 @@
             v-for="column of columns"
             :key="'type-search-result-' + type.id + '-' + column"
           >
-            {{ type[column] }}
+            {{ type.id }} {{ type[column] }}
           </list-item-cell>
         </list-item>
       </List>
@@ -41,7 +44,7 @@ import Column from '../../layout/tabs/Column.vue';
 export default {
   components: { Column, Row, List, ListItem, ListItemCell, SearchField },
   name: 'CatalogLanding',
-  data: function() {
+  data: function () {
     return {
       types: [],
       searchText: '',
@@ -49,32 +52,17 @@ export default {
     };
   },
   methods: {
-    input: function(value) {
-      console.log('value');
+    input: function (value) {
       if (value == '') {
-        console.log('CLEAR');
         this.types = [];
       }
       this.searchText = value;
     },
-    search: function(value) {
-      console.log(
-        `
-            {
-                searchType(text: "${value}") {
-                    id
-                    projectId
-                    mint{name}
-                    material {name}
-                    nominal{name}
-                }
-            }
-          `
-      );
+    search: function (value) {
       return Query.raw(
         `
             {
-                searchType(text: "${value}") {
+                searchType(text: "${value}", excludeFromTypeCatalogue: false) {
                     id
                     projectId
                     mint{name}
@@ -86,7 +74,6 @@ export default {
       )
         .then((result) => {
           const data = result.data.data.searchType;
-          console.log(data);
 
           this.types = data.map((item) => {
             return {
@@ -102,10 +89,10 @@ export default {
     },
   },
   computed: {
-    blocked: function() {
+    blocked: function () {
       return Date.now() - this.lastBlockTime < this.blockTime;
     },
-    empty: function() {
+    empty: function () {
       return this.searchText == '';
     },
   },
@@ -134,5 +121,12 @@ export default {
 <style lang="scss">
 .catalog-landing .list-item-row {
   padding: $padding;
+}
+
+.link {
+  color: $primary-color !important;
+  font-weight: bold;
+  text-decoration: underline;
+  padding: $padding 0;
 }
 </style>

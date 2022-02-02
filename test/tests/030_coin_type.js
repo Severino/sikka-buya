@@ -2,115 +2,123 @@ const chai = require('chai')
 const expect = chai.expect
 const { graphql } = require('../helpers/graphql')
 const TestUser = require('../helpers/test-user')
+const { KOHL, WESTERWELLE, MERKEL, DUERER, KARL, CHIRAC, CHARLES_DE_GAULLE, MACRON, HOLLANDE, SARKOZY, UDERZO, GOSCINNY, LOUIS, ARIELLE, SEBASTIAN, PLANKTON, FISCH, WAL, MICHELANGELO, BERNINI, POSEIDON, ELIZABETH_II, GAUCK } = require('../mockdata/persons')
+const gql = String.raw
 
 chai.config.truncateThreshold = 0
 chai.config.showDiff = true
 
-const body = ` 
+const body = gql` 
       id
 projectId
 treadwellId
 mint {
-id
-name
-location
-uncertain
-uncertainArea
+  id
+  name
+  location
+  uncertain
+  uncertainArea
 }
 mintAsOnCoin
 material {
-id
-name
+  id
+  name
 }
 nominal {
-id
-name
+  id
+  name
 }
 yearOfMint
 donativ
 procedure
 issuers {
-id
-titles {
-id
-name
-}
-honorifics {
-id
-name
-}
-name
-shortName
-role {
-id
-name
-}
-dynasty {
-id
-name
-}
-
+  id
+  titles {
+    id
+    name
+  }
+  honorifics {
+    id
+    name
+  }
+  name
+  shortName
+  role {
+    id
+    name
+  }
+  dynasty {
+    id
+    name
+  }
+  color
 }
 overlords {
-id
-rank
-name
-titles {
-id
-name
-}
-honorifics {
-id
-name
-}
-dynasty {
-id
-name
-}
-shortName
-role {
-id
-name
-}
+  id
+  rank
+  name
+  titles {
+    id
+    name
+  }
+  honorifics {
+    id
+    name
+  }
+  dynasty {
+    id
+    name
+  }
+  shortName
+  role {
+    id
+    name
+  }
+  color
 }
 otherPersons {
-id
-name
-shortName
-role {
-id
-name
-}
-dynasty{id,name}
+  id
+  name
+  shortName
+  role {
+    id
+    name
+  }
+  dynasty{
+      id,
+      name
+    }
+  color
 }
 caliph {
-id
-name
-shortName
-role {
-id
-name
-}
-dynasty{id,name}
+  id
+  name
+  shortName
+  role {
+    id
+    name
+  }
+  dynasty{id,name}
+  color
 }
 avers {
-fieldText
-innerInscript
-intermediateInscript
-outerInscript
-misc
+  fieldText
+  innerInscript
+  intermediateInscript
+  outerInscript
+  misc
 }
 reverse {
-fieldText
-innerInscript
-intermediateInscript
-outerInscript
-misc
+  fieldText
+  innerInscript
+  intermediateInscript
+  outerInscript
+  misc
 }
 cursiveScript
 coinMarks {
-id
-name
+  id
+  name
 }
 literature
 pieces
@@ -124,14 +132,19 @@ mintUncertain
 
 describe(`Type Queries`, function () {
   it(`List`, async function () {
-    let result = await graphql(`{coinType{${body}}}`)
+    let result = await graphql(`{ coinType{
+      types {
+      ${body}
+    }}}`)
 
     expect(result.data).to.deep.equal({
       "data": {
-        "coinType": [
-          GERMAN_TYPE,
-          FRENCH_TYPE
-        ]
+        "coinType": {
+          "types": [
+            FRENCH_TYPE,
+            GERMAN_TYPE,
+          ]
+        }
       }
     })
   })
@@ -193,14 +206,16 @@ describe(`Type Queries`, function () {
   })
 
   it("Add was successfull", async function () {
-    let result = await graphql(`{coinType{${body}}}`)
+    let result = await graphql(`{coinType{ types {${body}}}}`)
 
     expect(result.data.data).to.deep.equal({
-      "coinType": [
-        ATLANTIS_TYPE,
-        GERMAN_TYPE,
-        FRENCH_TYPE,
-      ]
+      "coinType": {
+        "types": [
+          ATLANTIS_TYPE,
+          FRENCH_TYPE,
+          GERMAN_TYPE,
+        ]
+      }
     })
   })
 
@@ -254,8 +269,7 @@ const GERMAN_TYPE = {
   "donativ": true,
   "procedure": "pressed",
   "issuers": [
-    {
-      "id": "1",
+    Object.assign({
       "titles": [
         {
           "id": "1",
@@ -275,24 +289,12 @@ const GERMAN_TYPE = {
           "id": "2",
           "name": "die Birne"
         }
-      ],
-      "name": "Helmut Kohl",
-      "shortName": "Kohl",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      }
-    }
+      ]
+    }, KOHL)
   ],
   "overlords": [
-    {
-      "id": "17",
+    Object.assign({
       "rank": 1,
-      "name": "Guido Westerwelle",
       "titles": [
         {
           "id": "2",
@@ -305,20 +307,9 @@ const GERMAN_TYPE = {
           "name": "von Deutschland"
         }
       ],
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      },
-      "shortName": "Westerwelle",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    },
-    {
-      "id": "2",
+    }, WESTERWELLE),
+    Object.assign({
       "rank": 2,
-      "name": "Angela Merkel",
       "titles": [
         {
           "id": "1",
@@ -334,46 +325,13 @@ const GERMAN_TYPE = {
           "id": "6",
           "name": "von Deutschland"
         }
-      ],
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      },
-      "shortName": "Merkel",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    }
+      ]
+    }, MERKEL)
   ],
   "otherPersons": [
-    {
-      "id": "5",
-      "name": "Albrecht Dürer",
-      "shortName": "Dürer",
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      },
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      }
-    }
+    DUERER
   ],
-  "caliph": {
-    "id": "4",
-    "name": "Karl der Große",
-    "shortName": "Karl",
-    "role": {
-      "id": "1",
-      "name": "caliph"
-    },
-    "dynasty": {
-      "id": "1",
-      "name": "Deutsche"
-    }
-  },
+  "caliph": KARL,
   "avers": {
     "fieldText": "<div>Abbildung des deutschen Michels</div>",
     "innerInscript": "<div>Danach lasst uns alle streben</div>",
@@ -437,45 +395,34 @@ const FRENCH_TYPE = {
   "donativ": true,
   "procedure": "cast",
   "issuers": [
-    {
-      "id": "9",
-      "titles": [
-        {
-          "id": "1",
-          "name": "Prof."
-        },
-        {
-          "id": "2",
-          "name": "Dr."
-        },
-        {
-          "id": "3",
-          "name": "Monsieur"
-        }
-      ],
-      "honorifics": [
-        {
-          "id": "3",
-          "name": "bulldozer"
-        },
-        {
-          "id": "4",
-          "name": "le Français"
-        }
-      ],
-      "name": "Jaques Chirac",
-      "shortName": "Chirac",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      }
-    },
-    {
-      "id": "10",
+    Object.assign(
+      {
+        "titles": [
+          {
+            "id": "1",
+            "name": "Prof."
+          },
+          {
+            "id": "2",
+            "name": "Dr."
+          },
+          {
+            "id": "3",
+            "name": "Monsieur"
+          }
+        ],
+        "honorifics": [
+          {
+            "id": "3",
+            "name": "bulldozer"
+          },
+          {
+            "id": "4",
+            "name": "le Français"
+          }
+        ]
+      }, CHIRAC),
+    Object.assign({
       "titles": [
         {
           "id": "3",
@@ -491,24 +438,13 @@ const FRENCH_TYPE = {
           "id": "5",
           "name": "le générale"
         }
-      ],
-      "name": "Charles de Gaulle",
-      "shortName": "de Gaulle",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      }
-    }
+      ]
+    },
+      CHARLES_DE_GAULLE)
   ],
   "overlords": [
-    {
-      "id": "6",
+    Object.assign({
       "rank": 1,
-      "name": "Emmanuel Macron",
       "titles": [
         {
           "id": "1",
@@ -525,20 +461,9 @@ const FRENCH_TYPE = {
           "name": "von Deutschland"
         }
       ],
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      },
-      "shortName": "Macron",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    },
-    {
-      "id": "7",
+    }, MACRON),
+    Object.assign({
       "rank": 2,
-      "name": "François Hollande",
       "titles": [
         {
           "id": "2",
@@ -559,20 +484,9 @@ const FRENCH_TYPE = {
           "name": "bulldozer"
         }
       ],
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      },
-      "shortName": "Hollande",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    },
-    {
-      "id": "8",
+    }, HOLLANDE),
+    Object.assign({
       "rank": 3,
-      "name": "Nicolas Sarkozy",
       "titles": [
         {
           "id": "3",
@@ -585,58 +499,13 @@ const FRENCH_TYPE = {
           "name": "le Français"
         }
       ],
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      },
-      "shortName": "Sarkozy",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    }
+    }, SARKOZY)
   ],
   "otherPersons": [
-    {
-      "id": "12",
-      "name": "Albert Uderzo",
-      "shortName": "Uderzo",
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      },
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      }
-    },
-    {
-      "id": "13",
-      "name": "René Goscinny",
-      "shortName": "Goscinny",
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      },
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      }
-    }
+    UDERZO,
+    GOSCINNY
   ],
-  "caliph": {
-    "id": "11",
-    "name": "Louis XVI",
-    "shortName": "Louis",
-    "role": {
-      "id": "1",
-      "name": "caliph"
-    },
-    "dynasty": {
-      "id": "2",
-      "name": "Franzosen"
-    }
-  },
+  "caliph": LOUIS,
   "avers": {
     "fieldText": "<div>Abb. Französische Flagge</div>",
     "innerInscript": "<div>Contre nous de la tyrannie</div>",
@@ -698,8 +567,7 @@ const ATLANTIS_TYPE = {
   "donativ": true,
   "procedure": "cast",
   "issuers": [
-    {
-      "id": "22",
+    Object.assign({
       "titles": [
         {
           "id": "5",
@@ -715,20 +583,9 @@ const ATLANTIS_TYPE = {
           "id": "9",
           "name": "Wesen des Meeres"
         }
-      ],
-      "name": "Arielle",
-      "shortName": "Ari",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      }
-    },
-    {
-      "id": "23",
+      ]
+    }, ARIELLE),
+    Object.assign({
       "titles": [
         {
           "id": "3",
@@ -744,58 +601,37 @@ const ATLANTIS_TYPE = {
           "id": "9",
           "name": "Wesen des Meeres"
         }
-      ],
-      "name": "Sebastian",
-      "shortName": "Sebi",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": null,
-        "name": null
-      }
-    }
+      ]
+    }, SEBASTIAN)
+
   ],
   "overlords": [
-    {
-      "id": "19",
-      "rank": 1,
-      "name": "Plankton",
-      "titles": [
-        {
-          "id": "3",
-          "name": "Monsieur"
-        },
-        {
-          "id": "6",
-          "name": "Tier"
-        }
-      ],
-      "honorifics": [
-        {
-          "id": "9",
-          "name": "Wesen des Meeres"
-        },
-        {
-          "id": "7",
-          "name": "Meerjungfrau"
-        }
-      ],
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      },
-      "shortName": "Planki",
-      "role": {
-        "id": null,
-        "name": null
-      }
-    },
-    {
-      "id": "20",
+    Object.assign(
+      {
+        "rank": 1,
+        "titles": [
+          {
+            "id": "3",
+            "name": "Monsieur"
+          },
+          {
+            "id": "6",
+            "name": "Tier"
+          }
+        ],
+        "honorifics": [
+          {
+            "id": "9",
+            "name": "Wesen des Meeres"
+          },
+          {
+            "id": "7",
+            "name": "Meerjungfrau"
+          }
+        ]
+      }, PLANKTON),
+    Object.assign({
       "rank": 2,
-      "name": "Fisch",
       "titles": [
         {
           "id": "6",
@@ -811,21 +647,10 @@ const ATLANTIS_TYPE = {
           "id": "9",
           "name": "Wesen des Meeres"
         }
-      ],
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      },
-      "shortName": null,
-      "role": {
-        "id": null,
-        "name": null
-      }
-    },
-    {
-      "id": "21",
+      ]
+    }, FISCH),
+    Object.assign({
       "rank": 3,
-      "name": "Wal",
       "titles": [
         {
           "id": "6",
@@ -837,59 +662,14 @@ const ATLANTIS_TYPE = {
           "id": "9",
           "name": "Wesen des Meeres"
         }
-      ],
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      },
-      "shortName": null,
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      }
-    }
+      ]
+    }, WAL)
   ],
   "otherPersons": [
-    {
-      "id": "24",
-      "name": "Michelangelo",
-      "shortName": "Miquel",
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      },
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      }
-    },
-    {
-      "id": "25",
-      "name": "Gian Lorenzo Bernini",
-      "shortName": "Bernini",
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      },
-      "dynasty": {
-        "id": "5",
-        "name": "Atlant"
-      }
-    }
+    MICHELANGELO,
+    BERNINI
   ],
-  "caliph": {
-    "id": "18",
-    "name": "Poseidon",
-    "shortName": "Neptun",
-    "role": {
-      "id": "1",
-      "name": "caliph"
-    },
-    "dynasty": {
-      "id": "5",
-      "name": "Atlant"
-    }
-  },
+  "caliph": POSEIDON,
   "avers": {
     "fieldText": "<div>Ein Mann in Lokführermontur vor einer Dampflokomotive.</div>",
     "innerInscript": "<div>Eine Insel mit zwei Bergen,</div>",
@@ -1104,8 +884,7 @@ const ATLANTIS_TYPE_UPDATED = {
   "donativ": false,
   "procedure": "pressed",
   "issuers": [
-    {
-      "id": "1",
+    Object.assign({
       "titles": [
         {
           "id": "2",
@@ -1125,20 +904,9 @@ const ATLANTIS_TYPE_UPDATED = {
           "id": "2",
           "name": "die Birne"
         }
-      ],
-      "name": "Helmut Kohl",
-      "shortName": "Kohl",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      }
-    },
-    {
-      "id": "9",
+      ]
+    }, KOHL),
+    Object.assign({
       "titles": [
         {
           "id": "1",
@@ -1159,33 +927,11 @@ const ATLANTIS_TYPE_UPDATED = {
           "name": "le générale"
         }
       ],
-      "name": "Jaques Chirac",
-      "shortName": "Chirac",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      }
-    }
-
+    }, CHIRAC)
   ],
   "overlords": [
-    {
-      "id": "2",
-      "name": "Angela Merkel",
-      "shortName": "Merkel",
+    Object.assign({
       "rank": 1,
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      },
       "titles": [
         {
           "id": "1",
@@ -1207,20 +953,9 @@ const ATLANTIS_TYPE_UPDATED = {
         "name": "der Große"
       }
       ]
-    },
-    {
-      "id": "6",
+    }, MERKEL),
+    Object.assign({
       "rank": 2,
-      "name": "Emmanuel Macron",
-      "shortName": "Macron",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "2",
-        "name": "Franzosen"
-      },
       "titles": [{
         "id": "2",
         "name": "Dr."
@@ -1229,49 +964,12 @@ const ATLANTIS_TYPE_UPDATED = {
         "id": "4",
         "name": "le Français"
       }]
-    }
+    }, MACRON)
   ],
   "otherPersons": [
-    {
-      "id": "3",
-      "name": "Joachim Gauck",
-      "shortName": "Gauck",
-      "role": {
-        "id": null,
-        "name": null
-      },
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      }
-    }, {
-      "id": "5",
-      "name": "Albrecht Dürer",
-      "shortName": "Dürer",
-      "role": {
-        "id": "2",
-        "name": "cutter"
-      },
-      "dynasty": {
-        "id": "1",
-        "name": "Deutsche"
-      }
-    }
-
+    GAUCK, DUERER
   ],
-  "caliph": {
-    "id": "15",
-    "name": "Elizabeth II",
-    "shortName": "The Queen",
-    "role": {
-      "id": "1",
-      "name": "caliph"
-    },
-    "dynasty": {
-      "id": "3",
-      "name": "Briten"
-    }
-  },
+  "caliph": ELIZABETH_II,
   "avers": {
     "fieldText": "<div>Dampflokomotive</div>",
     "innerInscript": "<div>Bergen</div>",

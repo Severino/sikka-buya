@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "0.3.2",
+  "version": "0.3.8",
   "description": "Backend for the coin collection.",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
+    "cli-progress": "^3.9.1",
+    "colors": "^1.4.0",
     "commander": "^8.1.0",
     "cors": "^2.8.5",
     "db-migrate": "^0.11.12",
@@ -24,8 +26,9 @@
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "graphql": "^15.4.0",
+    "graphql-fields": "^2.0.3",
     "graphql-tools": "^7.0.2",
-    "jsdom": "^16.6.0",
+    "jsdom": "^18.1.1",
     "jsonwebtoken": "^8.5.1",
     "node-pg-migrate": "^5.9.0",
     "nodemailer": "^6.6.0",
@@ -34,6 +37,7 @@
     "sendmail": "^1.6.1"
   },
   "devDependencies": {
+    "htmldiff-js": "^1.0.5",
     "nodemon": "^2.0.7"
   }
 }

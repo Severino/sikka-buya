@@ -1,5 +1,4 @@
-
-
+const fs = require('fs').promises
 
 async function start({
     dbUser,
@@ -58,9 +57,6 @@ async function start({
     const Auth = require("./src/auth.js");
 
 
-
-
-
     return new Promise(resolve => {
         const app = express()
 
@@ -92,6 +88,7 @@ async function start({
             new Resolver("province")
         ]
 
+        const langTables = ['material_en']
 
 
         /**
@@ -118,8 +115,6 @@ async function start({
                         mint.overlords = result || []
                     }
 
-                    // console.log(mints.findIndex(mint => mint.person.length > 0))
-
                     mints = SQLUtils.objectifyList(mints, {
                         prefix: "mint_",
                         target: "mint",
@@ -134,60 +129,19 @@ async function start({
                 },
                 timespan: async () => {
 
-                    let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint !='';`)
+                    let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint !='' AND exclude_from_map_app=false;`)
                     range = range.map(row => row.year_of_mint).filter(res => res && res.match(/^\d+$/g)).sort()
 
                     if (range.length == 0) throw new Error("Could not get Range!")
 
                     return { from: range[0], to: range[range.length - 1] }
                 },
-                getReducedCoinTypeList: async function () {
-                    return Type.getTypesReducedList()
+                getCoinType: async function () {
+                    return Type.getType(...arguments)
                 },
-                getCoinType: async function (_, args) {
-                    return Type.getType(args.id)
-                },
-                coinType: async function (_, args) {
-                    return Type.list(args)
-                },
-                getRulers: async function (_, args) {
-                    if (!args.year) throw new Error("year is required")
-                    let types = await Type.getTypes({ year_of_mint: args.year })
 
-                    let overlord_ids = []
-                    let overlords = []
-
-                    types.forEach(type => {
-                        let rulers = [...type.issuers, ...type.overlords]
-
-
-                        for (let i = 0; i < rulers.length; i++) {
-                            const ruler = rulers[i]
-                            let overlord = { overlord: ruler.name, mints: new Set(), superiors: new Set() }
-                            const ov_index = overlord_ids.indexOf(ruler.id)
-                            console.log(ruler.id)
-                            if (ov_index == -1) {
-                                overlord_ids.push(ruler.id)
-                                overlords.push(overlord)
-                            } else {
-                                overlord = overlords[ov_index]
-                            }
-
-                            overlord.mints.add(type.mint.name)
-
-                            if (i < rulers.length - 1) {
-                                const superior = rulers[i + 1]
-                                overlord.superiors.add(superior.name)
-                            }
-
-                        }
-
-
-
-                    })
-
-                    console.log(overlords)
-
+                coinType: async function () {
+                    return Type.list(...arguments)
                 },
                 getDominion: async function (_, args) {
                     const year = args.year
@@ -235,13 +189,6 @@ async function start({
                             }
                         }
 
-                        if (obj.mint?.location) {
-                            try {
-                                obj.mint.location = JSON.parse(obj.mint.location)
-                            } catch (e) { console.error(e, obj.mint.location) }
-                        } else obj.mint.location = null
-
-
                         arr.push(obj)
                     })
 
@@ -265,11 +212,20 @@ async function start({
                     const exclude = args.exclude
                     const search = `%${args.text}%`
 
-                    let query = pgp.as.format(`SELECT p.*, r.id AS role_id, r.name AS role_name, d.id AS dynasty_id, d.name AS dynasty_name FROM person p
-            LEFT JOIN person_role r ON p.role = r.id
-            LEFT JOIN dynasty d ON p.dynasty = d.id
-            WHERE r IS NOT NULL 
-            AND unaccent(p.name) ILIKE $1`, search)
+                    let query = pgp.as.format(`
+                    SELECT 
+                    p.*, 
+                    r.id AS role_id, 
+                    r.name AS role_name, 
+                    d.id AS dynasty_id, 
+                    d.name AS dynasty_name ,
+                    c.color AS color
+                    FROM person p
+                    LEFT JOIN person_role r ON p.role = r.id
+                    LEFT JOIN dynasty d ON p.dynasty = d.id
+                    LEFT JOIN person_color c ON c.person = p.id
+                    WHERE r IS NOT NULL 
+                    AND unaccent(p.name) ILIKE $1`, search)
 
 
                     if (include) {
@@ -278,7 +234,7 @@ async function start({
                         query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", exclude)}`
                     }
 
-                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC LIMIT ${process.env.MAX_SEARCH}`)
+                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
 
                     result.forEach((item, idx) => {
 
@@ -310,15 +266,33 @@ async function start({
 
                     return result
                 },
-                getTypesByOverlord: async function (_, args) {
-                    return Type.getTypesByOverlord(args.id)
+                getTypesByRuler: async function () {
+                    return Type.getTypesByRuler(...arguments)
                 },
-                searchType: async function (_, args) {
-                    const text = args.text
-                    return Type.searchType(text)
+                searchType: async function () {
+                    return Type.searchType(...arguments)
                 },
-                getTypes: async function (_, args) {
-                    return Type.getTypes(args)
+                /**
+               * Same as getCoinTypes, but also allow to filter for evaluation filters.
+               */
+                modGetTypes: async function (_, args, context) {
+                    Auth.requireAuthContext(context)
+
+                    args.additionalRows = [`CASE WHEN tc.type is null
+                    then False
+                    else True 
+                    END AS completed`, `CASE WHEN tr.type is null
+                    then False
+                    else True 
+                    END AS reviewed`]
+                    args.additionalJoin = `LEFT JOIN type_completed tc ON t.id = tc.type
+            LEFT JOIN type_reviewed tr ON t.id = tr.type`
+
+
+
+                    const modTypes = await Type.getTypes(...arguments)
+                    modTypes.modReview = modTypes.types
+                    return modTypes
                 },
                 getTypeComplete: async function (_, { id = null } = {}) {
                     const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);
@@ -347,8 +321,117 @@ async function start({
                         return await Database.manyOrNone("SELECT id, email FROM app_user")
                     }
                 },
+                getComments: async function (_, args, context) {
+                    let auth = Auth.verifyContext(context)
+                    if (!auth) {
+                        throw new Error('You are not authenticated!')
+                    } else {
+                        let { property,
+                            propertyId: property_id } = args
 
+                        let results = await Database.manyOrNone(
+                            `SELECT n.*, u.email as user_email FROM comment n 
+                        LEFT JOIN app_user u ON  n.user_id=u.id 
+                        WHERE property=$[property] AND property_id=$[property_id]
+                    `, { property, property_id })
+
+
+                        SQLUtils.objectifyList(results, {
+                            prefix: "user_",
+                            target: "user",
+                            keys: [
+                                "id",
+                                "email"
+                            ]
+                        })
+
+                        return results
+                    }
+                },
+                getNote: async function (_, args) {
+
+                    let { propertyId, property } = args
+
+                    let result = await Database.oneOrNone(`SELECT note.text from note WHERE property=$[property] AND property_id=$[propertyId]`, { propertyId, property })
+                    return result?.text || ""
+                },
+                getLang: async function (_, args) {
+                    let { id,
+                        table,
+                        lang,
+                        attr } = args
+
+
+                    const langTable = `${table}_${lang}`
+
+                    if (langTables.indexOf(langTable) != -1) {
+                        let result = await Database.oneOrNone(`SELECT $[attr:name] FROM ${langTable} WHERE id=$[id]`, { attr, id })
+                        return result[attr]
+                    } else return ""
+                },
+                getPersonExplorerOrder: async function () {
+                    return Database.manyOrNone(`SELECT position as order, person FROM person_explorer_custom_sorting`)
+                },
+                fullSearchOnTypes: async function () {
+                    return Type.fullSearchTypes(...arguments)
+                },
+                fixDiff: async function () {
+                    let result = {}
+                    const stats = await fs.stat("./scripts/out/änderungen_detail.json")
+                    const json = require("./scripts/out/änderungen_detail.json")
+                    result.lastModified = stats.mtime
+                    result.items = json
+                    return JSON.stringify(result)
+                }
             }, Mutation: {
+                changePersonExplorerOrder: async function (_, args) {
+                    return Database.none("INSERT INTO person_explorer_custom_sorting (person, position) VALUES ($[person], $[position]) ON CONFLICT (person) DO UPDATE SET position=$[position]", args)
+                },
+                updateNote: async function (_, args) {
+                    let { text, property, propertyId: property_id } = args
+                    await Database.none(`
+                    INSERT INTO note (text, property, property_id) 
+                    VALUES ($[text], $[property], $[property_id])
+                    ON CONFLICT (property, property_id)
+                    DO UPDATE SET text=$[text]
+                    WHERE note.property=$[property] AND note.property_id=$[property_id];
+                    `, { text, property, property_id })
+
+                },
+                updateLang: async function (_, args) {
+                    let { id,
+                        table,
+                        lang,
+                        attr,
+                        value } = args
+                    const langTable = `${table}_${lang}`
+
+                    if (langTables.indexOf(langTable) == -1) {
+                        throw new Error(`The table you want to enter a language attribute into is not whitelisted. Contact developer if you really want to update '${langTable}'.`)
+                    } else {
+                        let obj = {
+                            id
+                        }
+                        obj[attr] = value
+                        const query = pgp.helpers.insert(obj, null, langTable)
+                        await Database.none(query + " ON CONFLICT (id) DO UPDATE SET $[attr:name]=$[value]", { attr, value })
+                    }
+                },
+                addComment: async function (_, args) {
+                    let { text,
+                        user,
+                        property,
+                        propertyId: property_id } = args
+
+
+
+                    await Database.none("INSERT INTO comment (text, property, property_id, user_id) VALUES ($[text], $[property], $[property_id],$[user])", {
+                        text,
+                        property,
+                        property_id,
+                        user
+                    })
+                },
                 acceptInvite: async function (_, { email, password } = {}) {
                     let pwValidator = Auth.validatePassword(password)
                     if (pwValidator.failed) {
@@ -404,16 +487,15 @@ async function start({
                         throw new Error("Superuser was already initialized!")
                     }
                 },
-                addCoinType: async function (_, args, context) {
+                addCoinType: async function (_, args, context, info) {
 
                     if (!Auth.verifyContext(context)) {
                         throw new Error('You are not authenticated!')
                     }
 
-                    return Type.addType(args.data)
+                    return Type.addType(_, args, context, info)
                 },
                 inviteUser: async function (_, { email } = {}, context) {
-                    // console.log("SEND MAIL TO: ", arguments)
                     if (!Auth.verifyContext(context)) {
                         throw new Error('You are not authenticated!')
                     }
@@ -426,6 +508,8 @@ async function start({
                     if (!Auth.verifyContext(context)) {
                         throw new Error('You are not authenticated!')
                     }
+
+                    if (!args.id) throw new Error("No id provided!")
 
                     return Type.updateType(args.id, args.data)
                 },
@@ -494,7 +578,6 @@ async function start({
             schema,
             graphiql: true
         }))
-
 
         app.use("/", (req, res, next) => {
             res.send("Welcome")

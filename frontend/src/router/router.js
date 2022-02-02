@@ -33,17 +33,21 @@ import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
  */
 import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
 import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
+import CatalogFullSearch from "@/components/page/catalog/CatalogFullSearch.vue"
+
+import PersonExplorer from "@/components/page/catalog/PersonExplorer.vue"
+import PersonExplorer2 from "@/components/page/catalog/PersonExplorer2.vue"
 
 /**
  * Editor Page
  */
 import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
-import MapPage from "@/components/page/MapPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
+import FixDiff from "@/components/page/FixDiff.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
@@ -62,6 +66,16 @@ import ProvinceForm from "@/components/page/property/ProvinceForm"
 import RoleForm from "@/components/page/property/RoleForm"
 import TitleForm from "@/components/page/property/TitleForm"
 import Auth from "../utils/Auth.js"
+
+
+/**
+ * Maps
+ */
+
+import MapPage from "@/components/page/MapPage.vue"
+import PoliticalMap from "@/components/map/PoliticalMap"
+import DominionMap from "@/components/map/DominionMap"
+import PlaygroundPage from "@/components/map/Playground"
 
 
 Vue.use(VueRouter)
@@ -86,16 +100,6 @@ const analyticsRoutes = {
 
 const routes = [
 
-  // {
-  //   path: '/explorer',
-  //   name: 'Explorer',
-  //   component: TreeExplorer
-  // }, {
-  //   path: '/explorer2',
-  //   name: 'Explorer2',
-  //   component: SideTree
-  // }, 
-
   {
     path: "*",
     component: CommonMain,
@@ -105,7 +109,18 @@ const routes = [
         name: "Home",
         component: LandingPage
       },
+
+
       analyticsRoutes,
+      {
+        path: "/persons/",
+        name: "OverlordAccordeon",
+        component: PersonExplorer
+      }, {
+        path: "/persons2/",
+        name: "OverlordAccordeon2",
+        component: PersonExplorer2
+      },
       {
         path: '/catalog/',
         component: RouterContainer,
@@ -116,14 +131,43 @@ const routes = [
           component: CatalogLanding
         },
         {
+          path: 'full',
+          name: 'CatalogFullSearch',
+          component: CatalogFullSearch
+        },
+        {
           path: '/catalog/:id',
           name: 'CatalogEntry',
           component: CatalogEntry
         }]
       }, {
-        path: "/map",
+        path: "/map/",
         name: "MapPage",
-        component: MapPage
+        component: MapPage,
+        meta: { smallNav: true },
+        redirect: {
+          name: "PoliticalMap"
+        },
+        children: [
+          {
+            path: '',
+            name: 'PoliticalMap',
+            component: PoliticalMap,
+            meta: { smallNav: true },
+          },
+          {
+            path: "dominion",
+            name: "DominionMap",
+            component: DominionMap,
+            meta: { smallNav: true },
+          },
+          {
+            path: "playground",
+            name: "Playground",
+            component: PlaygroundPage,
+            meta: { smallNav: true },
+          },
+        ]
       },
       {
         path: '/setup',
@@ -152,6 +196,13 @@ const routes = [
             component: EditorPanel,
             meta: { auth: true },
           },
+
+          {
+            path: "fixdiff",
+            name: "FixDiff",
+            component: FixDiff,
+            meta: { auth: true },
+          },
           {
             path: 'user',
             name: 'UserManagement',
@@ -165,7 +216,7 @@ const routes = [
             component: TypeOverview
           },
           {
-            path: "coinmark",
+            path: "coin_mark",
             name: "CoinMarkOverview",
             component: CoinMarkOverview
           },
@@ -183,11 +234,11 @@ const routes = [
             component: CreateTypePage
           },
           {
-            path: "coinmark/create",
+            path: "coin_mark/create",
             name: "CreateCoinMark",
             component: CoinMarkForm
           }, {
-            path: "coinmark/:id",
+            path: "coin_mark/:id",
             name: "EditCoinMark",
             component: CoinMarkForm
           }, {
@@ -265,15 +316,13 @@ const routes = [
           },
           {
             path: "*",
-            name: "PageNotFound",
-            component: PageNotFoundPage
+            redirect: { name: "PageNotFound" }
           }
         ]
       },
       {
         path: "*",
-        name: "PageNotFound",
-        component: PageNotFoundPage
+        redirect: { name: "PageNotFound" }
       }
     ]
   },
@@ -287,7 +336,36 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+
+    /**
+     * Dont change scroll if we stay on same site.
+     * E.g. reload while reading an article.
+     */
+    if (to.name == from.name) {
+      return false
+    }
+
+    /**
+     * You may specify a scrollgroup for sites, that should retain scroll on 
+     * reload. E.g. in tab-like routed component.
+     */
+    if (!to.scrollGroup || !from.scrollGroup) {
+      return { x: 0, y: 0 }
+    }
+
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      const position = {}
+      if (to.hash && document.querySelector(to.hash)) {
+        position.selector = to.hash
+        return position
+      }
+      return false
+    }
+  }
 })
 
 router.beforeEach(async (to, from, next) => {
@@ -301,19 +379,21 @@ router.beforeEach(async (to, from, next) => {
     if (auth) {
       next()
     } else {
-      console.log("LOGIN")
       router.push({ name: "Login" })
     }
   } else {
 
-    // await Login
+    let redirect = false
+    if (to.name == "Login") {
+      let auth = await Auth.check()
+      if (auth) {
+        redirect = true
+        router.push({ name: "Editor" })
+      }
+    }
 
-    // if (to.name == "Login") {
-
-    //   let auth = await Auth.check()
-    //   if (auth) router.push({ name: "Editor" })
-    // }
-    next()
+    if (!redirect)
+      next()
   }
 })
 

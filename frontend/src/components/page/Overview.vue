@@ -1,9 +1,10 @@
 <template>
   <div :class="`overview ${this.property}-page`">
     <BackHeader :to="{ name: 'Editor' }" />
-    <h1>{{ $tc(`property.${propertyName}`) }}</h1>
-    <section>
+    <header>
+      <h1>{{ $tc(`property.${propertyName}`) }}</h1>
       <div
+        id="create-button"
         class="button"
         @click="create"
         tabindex="1"
@@ -13,37 +14,34 @@
         <PlusCircleOutline />
         <span>{{ $t('form.create') }}</span>
       </div>
+    </header>
 
-      <SearchField v-model="textFilter" />
+    <SearchField v-model="textFilter" :asyncSearch="search" />
 
-      <List
-        @remove="remove"
-        :error="error"
-        :loading="loading"
-        :items="list"
-        :filteredItems="filteredItems"
+    <List
+      @remove="remove"
+      :error="error"
+      :loading="loading"
+      :items="items"
+      :filteredItems="items"
+    >
+      <ListItem
+        v-for="item of items"
+        v-bind:key="item.key"
+        :id="item.id"
+        :to="{
+          path: `${item.id}`,
+          append: true,
+        }"
       >
-        <ListItem
-          v-for="item of filteredItems"
-          v-bind:key="item.key"
-          :id="item.id"
-          :to="{
-            path: `${item.id}`,
-            append: true,
-          }"
-        >
-          <ListItemCell>{{ item.name }}</ListItemCell>
-          <DynamicDeleteButton @click="remove(item.id)" />
-        </ListItem>
-      </List>
-    </section>
+        <ListItemCell>{{ item.name }}</ListItemCell>
+        <DynamicDeleteButton @click="remove(item.id)" />
+      </ListItem>
+    </List>
   </div>
 </template>
 
 <script>
-import SearchUtils from '../../utils/SearchUtils.js';
-import AxiosHelper from '../../utils/AxiosHelper.js';
-
 import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
 
 import List from '../layout/List.vue';
@@ -55,6 +53,7 @@ import ListItemIdField from '../layout/list/ListItemIdField.vue';
 import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListItem from '../layout/ListItem.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+import { camelCase } from 'change-case';
 
 export default {
   name: 'OverviewPage',
@@ -68,18 +67,8 @@ export default {
     ListItemCell,
     DynamicDeleteButton,
   },
-  created: function() {
-    new Query(this.queryName)
-      .list(['id', 'name'])
-      .then((obj) => {
-        this.$data.items = obj.data.data[this.queryName];
-      })
-      .catch(() => {
-        this.error = this.$t('error.loading_list');
-      })
-      .finally(() => {
-        this.$data.loading = false;
-      });
+  created: function () {
+    this.list();
   },
   props: {
     query: String,
@@ -88,47 +77,74 @@ export default {
     createPage: String,
   },
   computed: {
-    propertyName: function() {
+    propertyName: function () {
       return this.overridePropertyName
         ? this.overridePropertyName
         : this.property;
     },
-    queryName: function() {
-      return this.query ? this.query : this.property;
+    queryName: function () {
+      return this.query ? this.query : camelCase(this.property);
     },
-    property: function() {
+    property: function () {
       return this.overrideProperty
         ? this.overrideProperty
         : this.$route.params.property.toLowerCase();
     },
-    list: function() {
-      return this.$data.items;
-    },
-    filteredItems: function() {
-      let list = this.$data.items;
-
-      list = SearchUtils.filter(this.textFilter, list);
-
-      return list;
-    },
   },
-  data: function() {
+  data: function () {
     return {
       loading: true,
       items: [],
       error_id: 0,
       error: '',
       textFilter: '',
+      searchId: 0,
     };
   },
 
   methods: {
+    async list() {
+      new Query(this.queryName)
+        .list(['id', 'name'])
+        .then((obj) => {
+          this.$data.items = obj.data.data[this.queryName];
+        })
+        .catch(() => {
+          this.error = this.$t('error.loading_list');
+        })
+        .finally(() => {
+          this.$data.loading = false;
+        });
+    },
+    search() {
+      let queryCommand = `search${
+        this.queryName[0].toUpperCase() + this.queryName.substr(1)
+      }`;
+      Query.raw(
+        `{
+            ${queryCommand}
+            (text: "${this.textFilter}"){
+              id, name
+            }
+          }`
+      )
+        .then((obj) => {
+          this.$data.items = obj.data.data[queryCommand];
+        })
+        .catch((e) => {
+          console.err('Could not search', e);
+          this.error = this.$t('error.loading_list');
+        })
+        .finally(() => {
+          this.$data.loading = false;
+        });
+    },
     create() {
       if (this.createPage) {
         this.$router.push({ name: this.createPage });
       } else {
         this.$router.push({
-          path: `${this.property}/create`,
+          path: `${camelCase(this.property)}/create`,
         });
       }
     },
@@ -215,5 +231,19 @@ export default {
 
 section > * {
   margin-bottom: $padding;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#create-button {
+  background-color: $primary-color;
+  color: $white;
+  // position: absolute;
+  right: 0;
+  top: 0;
 }
 </style>

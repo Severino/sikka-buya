@@ -5,8 +5,28 @@ const SQLUtils = require('../utils/sql.js')
 class MintResolver extends Resolver {
 
     async add(_, args) {
-        this.fixGeoJSON(args.data)
-        super.add(...arguments)
+        const data = args.data
+        this.fixGeoJSON(data)
+
+        const query = `
+        INSERT INTO mint (name,
+            location,
+            uncertain,
+            uncertain_area,
+            province
+            )  
+        VALUES
+        (
+            $[name],
+            ${data.location ? "ST_GeomFromGeoJSON($[location])" : null} ,
+            $[uncertain],
+            ${data.uncertain_area ? "ST_GeomFromGeoJSON($[uncertain_area])" : null} ,
+            $[province]
+        )
+        RETURNING id;`
+        let result = await this.request(query, data)
+        return (result.length > 0) ? result[0].id : null
+
     }
 
     async update(_, args) {
@@ -17,12 +37,14 @@ class MintResolver extends Resolver {
 
         const query = `UPDATE mint 
         SET name=$[name],
-        location=ST_GeomFromGeoJSON($[location]),
+        location=${data.location ? "ST_GeomFromGeoJSON($[location])" : null} ,
         uncertain=$[uncertain],
-        uncertain_area=$[uncertain_area],
+        uncertain_area=${data.uncertain_area ? "ST_GeomFromGeoJSON($[uncertain_area])" : null},
         province=$[province]
-        WHERE id=$[id]`
-        return this.request(query, data)
+        WHERE id=$[id]
+        RETURNING id;`
+        await this.request(query, data)
+        return data.id
     }
 
 
@@ -31,7 +53,8 @@ class MintResolver extends Resolver {
         ST_AsGeoJSON(location) AS location,
         ST_AsGeoJSON(uncertain_area) AS uncertain_area,
         p.id AS province_id,
-        p.name AS province_name`
+        p.name AS province_name
+        `
     }
 
     get JOIN() {
@@ -40,10 +63,6 @@ class MintResolver extends Resolver {
 
     get ORDER() {
         return `ORDER BY mi.name ASC`
-    }
-
-    get LIMIT() {
-        return `LIMIT ${process.env.MAX_SEARCH}`
     }
 
     async get(_, args) {
@@ -76,7 +95,7 @@ class MintResolver extends Resolver {
              ${this.JOIN}
              WHERE unaccent(mi.name) ILIKE  unaccent($1) 
              ${this.ORDER}
-            ${this.LIMIT}`, `%${text}%`)
+             `, `%${text}%`)
 
             return this.postProcessMany(p)
         } else return []
@@ -89,7 +108,6 @@ class MintResolver extends Resolver {
          FROM ${this.name} mi
          ${this.JOIN}
          ${this.ORDER}
-         ${this.LIMIT}
          `, [args.id])
 
         return this.postProcessMany(p)
@@ -119,10 +137,9 @@ class MintResolver extends Resolver {
     }
 
     fixGeoJSON(obj) {
-
-        obj["uncertain_area"] = obj.uncertainArea
+        obj["uncertain_area"] = (obj.uncertainArea) ? obj.uncertainArea.replace(/'/g, '"') : null
         delete obj.uncertainArea
-
+        obj["location"] = (obj["location"]) ? obj.location.replace(/'/g, '"') : null
     }
 }
 

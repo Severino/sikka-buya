@@ -3,10 +3,7 @@
     <h1>Explorer</h1>
     <main>
       <nav>
-        <TreeView
-          :children="twigs"
-          @changed="treeviewchanged"
-        />
+        <TreeView :children="twigs" @changed="treeviewchanged" />
       </nav>
       <div class="content"></div>
     </main>
@@ -14,9 +11,9 @@
 </template>
 
 <script>
-import Query from "../../database/query.js";
-import TreeView from "../layout/TreeView.vue";
-import Tabs from "../layout/tabs/Tabs.vue";
+import Query from '../../database/query.js';
+import TreeView from '../layout/TreeView.vue';
+import Tabs from '../layout/tabs/Tabs.vue';
 
 export default {
   components: {
@@ -126,7 +123,7 @@ export default {
           const data = children.data.data.getTypesByOverlord;
 
           if (!data || data.length == 0) {
-            return [{ name: "KEINE EINTRÄGE!", key: this.twigId++ }];
+            return [{ name: 'KEINE EINTRÄGE!', key: this.twigId++ }];
           }
 
           let output = {};
@@ -139,9 +136,8 @@ export default {
               ? output[type.yearOfMint]
               : {};
 
-            console.log(type);
             const mint =
-              type.mint && type.mint.name ? type.mint.name : "NO MINT";
+              type.mint && type.mint.name ? type.mint.name : 'NO MINT';
 
             output[type.yearOfMint][mint] = output[type.yearOfMint][mint]
               ? output[type.yearOfMint][mint]
@@ -159,15 +155,13 @@ export default {
                 inline: true,
                 key: that.twigId++,
                 children: Object.entries(project).map(([name, data]) => {
-                  return { name, collapsed: true, leaf: "TypeLeaf", data };
+                  return { name, collapsed: true, leaf: 'TypeLeaf', data };
                 }),
               };
             });
           }
 
           const mapped = Object.entries(output).map(([name, mint]) => {
-            console.log(mapMints(mint));
-
             return {
               name,
               key: this.twigId++,
@@ -175,8 +169,6 @@ export default {
               children: mapMints(mint),
             };
           });
-
-          console.log(mapped);
 
           return mapped;
 
@@ -200,26 +192,18 @@ export default {
     };
   },
   methods: {
-    treeviewchanged: function ({ path = "", object = {} } = {}) {
-      console.log(path);
-
-      const parts = path.split("/");
+    treeviewchanged: function ({ path = '', object = {} } = {}) {
+      const parts = path.split('/');
       const root = parts.shift();
       // let target = this.twigs[root];
 
       let part = parts.shift();
       let target = this.twigs[part];
-      console.log(target, part);
 
       while (parts.length > 1) {
         let part = parts.shift();
-        console.log(parts, target.children);
         target = target.children[part];
-        console.log(target, part);
       }
-
-      console.log(object.collapsed, target);
-
       // console.log(target.collapsed);
       // this.twigs.splice(root, 1, this.twigs[root]);
 

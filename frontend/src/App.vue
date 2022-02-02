@@ -61,7 +61,6 @@ export default {
     closeLoginForm: function () {
       this.$store.commit('closeLoginForm');
       this.$store.commit('increment');
-      console.log(this.$store.state.showLoginForm);
     },
     plusOne: function () {
       this.$store.commit('increment');
@@ -86,11 +85,8 @@ body {
   background-color: $background-color;
   color: $text-color;
 }
-
-$fonts: 'TimesNewRoman', 'Arimo', sans-serif;
-
 body {
-  font-family: $fonts;
+  font-family: $font;
   font-size: $regular-font;
 
   -webkit-font-smoothing: antialiased;
@@ -98,9 +94,28 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+button,
 input {
-  font-family: $fonts;
+  font-family: $font;
   font-size: $regular-font;
+}
+
+input::placeholder {
+  color: $light-gray;
+  font-style: italic;
+}
+
+input[type='color'] {
+  flex: unset !important;
+  display: block;
+  padding: 0;
+  min-width: 200px;
+  min-height: 40px;
+}
+
+.emph {
+  color: $primary-color;
+  font-weight: bold;
 }
 
 .content-wrapper {
@@ -127,6 +142,13 @@ h1 {
   font-size: 3rem;
 }
 
+.subtitle {
+  display: block;
+  color: $gray;
+  font-size: $regular-font;
+  font-weight: bold;
+}
+
 .hero {
   width: 100%;
   height: 100%;
@@ -138,7 +160,6 @@ section {
   h3 {
     font-size: 1.5em;
     font-weight: bold;
-    margin-bottom: 0;
   }
 }
 
@@ -166,10 +187,10 @@ button[disabled] {
 }
 
 select,
-.button,
 input,
 button {
   @include input;
+  box-sizing: border-box;
 }
 
 button[type='submit'] {
@@ -184,9 +205,32 @@ button[type='submit'] {
 .button,
 button {
   display: block;
-  text-transform: capitalize;
   @include input;
   @include interactive();
+}
+
+.button.ghost-btn {
+  position: absolute;
+  right: 0;
+  border: none;
+  border-radius: 0;
+  background-color: rgba($gray, 0);
+  color: $gray;
+
+  &:hover {
+    background-color: rgba($gray, 0.5);
+  }
+}
+
+.button-list,
+li {
+  &:not(:last-child-of-type) > .button {
+    border-bottom: none;
+  }
+
+  > .button {
+    border-radius: 0;
+  }
 }
 
 .transparent-button {
@@ -247,6 +291,10 @@ label {
 
 a {
   text-decoration: none;
+
+  &:visited {
+    color: unset;
+  }
 }
 
 .icon-button {
@@ -275,6 +323,9 @@ a {
 .material-design-icon {
   display: flex;
   align-items: center;
+  justify-content: center;
+  // width: 22px;
+  // height: 22px;
 }
 
 input:read-only {

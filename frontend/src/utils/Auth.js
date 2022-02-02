@@ -11,11 +11,11 @@ export default class Auth {
     }
 
     static saveUser(user) {
-        sessionStorage.setItem(this.userStore, JSON.stringify(user))
+        localStorage.setItem(this.userStore, JSON.stringify(user))
     }
 
     static loadUser() {
-        let userStr = sessionStorage.getItem(this.userStore)
+        let userStr = localStorage.getItem(this.userStore)
         let user = { id: 0, email: "Unknown" }
         try {
             user = JSON.parse(userStr)
@@ -27,11 +27,11 @@ export default class Auth {
     }
 
     static saveToken(token) {
-        sessionStorage.setItem(this.tokenStore, token)
+        localStorage.setItem(this.tokenStore, token)
     }
 
     static loadToken() {
-        return sessionStorage.getItem(this.tokenStore)
+        return localStorage.getItem(this.tokenStore)
     }
 
     static load() {
@@ -65,8 +65,6 @@ export default class Auth {
                 auth(token:"${token}"){id}
             }`)
 
-            console.log(response)
-
             return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
         } else {
             status = false
@@ -76,8 +74,8 @@ export default class Auth {
 
 
     static logout() {
-        sessionStorage.removeItem(this.tokenStore)
-        sessionStorage.removeItem(this.userStore)
+        localStorage.removeItem(this.tokenStore)
+        localStorage.removeItem(this.userStore)
     }
 
     static async queryLogin(email, password) {

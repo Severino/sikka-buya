@@ -33,6 +33,8 @@ const property = {
         "Sonstige Personen",
     backside:
         "Revers",
+
+    caliph: "Kalif | Kalifen",
     misc:
         "Randbeschriftung",
     circular_text:
@@ -41,10 +43,16 @@ const property = {
         "Mzz. und Einzelworte",
     cursive_script:
         "kursive Schriftart",
+    completed:
+        "Geprüft",
     donativ:
         "Geschenkmünze",
     dynasty:
         "Dynastie | Dynastien",
+    exclude_from_type_catalogue:
+        "Von Katalog ausschließen",
+    exclude_from_map_app:
+        "Von Karte ausschließen",
     field_text:
         "Feld",
     frontside:
@@ -93,6 +101,7 @@ const property = {
             "geprägt",
     },
     province: "Provinz | Provinzen",
+    reviewed: "Erledigt",
     role:
         "Rolle | Rollen",
     sides:
@@ -135,6 +144,8 @@ const role = {
 const attribute = {
     name:
         "Name | Namen",
+    shortName:
+        "Kurzform",
     longitude:
         "Längengrad",
     latitude:
@@ -152,7 +163,7 @@ const info = {
 const message = {
     list_empty: "Keine Elemente in der Liste.",
     filter_list: "Text eingeben um Liste zu filtern ...",
-    filter_is_active: "Filter sind derzeit aktiv!"
+    filter_is_active: "Filter sind derzeit aktiv! Clicken zum deaktivieren!"
 }
 
 const error = {
@@ -162,7 +173,7 @@ const error = {
         "Das angefragte Element konnte nicht geladen werden. Gehe zur Liste zurück oder erstelle ein neues Element hier. Kontaktiere einen Admin, falls das Problem weiterhin besteht."
     ,
     loading_list:
-        "List konnte nicht geladen werden. Anscheinend ist die Datenbank nicht verfügbar.",
+        "List konnte nicht geladen werden. Anscheinend ist die Datenbank nicht verfügbar. Oder es liegt ein Anfragefehler vor.",
     delete_list_item_prevented:
         "Eintrag konnte nicht gelöscht werden. Wahscheinlich wird er noch von anderen Einträgen referenziert."
 }
