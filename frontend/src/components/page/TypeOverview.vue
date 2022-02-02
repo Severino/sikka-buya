@@ -1,81 +1,161 @@
 <template>
-  <div :class="`overview type-page`">
+  <div :class="`overview type-overview`">
     <BackHeader :to="{ name: 'Editor' }" />
-    <h1>{{ $t("attribute.test") }}</h1>
-
-    <div
-      class="button"
-      @click="create"
-      tabindex="1"
-      autofocus
-      @keydown.enter="create"
+    <header>
+      <h1>{{ $t('attribute.test') }}</h1>
+      <div
+        id="create-button"
+        class="button"
+        @click="create"
+        tabindex="1"
+        autofocus
+        @keydown.enter="create"
+      >
+        <PlusCircleOutline />
+        <span>{{ $t('form.create') }}</span>
+      </div>
+    </header>
+    <SearchField
+      ref="search"
+      v-model="filter.text"
+      :asyncSearch="textFilterChanged"
+    />
+    <ListFilterContainer
+      :filtered="isListFiltered"
+      @clearFilters="clearFilters"
     >
-      <PlusCircleOutline />
-      <span>{{ $t("form.create") }}</span>
-    </div>
-
-    <ListFilterContainer :filtered="isListFiltered">
-      <SearchField v-model="textFilter" />
-      <ButtonGroup
-        id="completeFilterButtonGroup"
-        v-model="completeFilter"
-        :labels="['work', 'completed', 'none']"
-        :options="['work', 'completed', 'none']"
-      />
+      <div class="toggle-group">
+        <labeled-property
+          v-for="name of evalFilter"
+          :key="'toggle-filter-' + name"
+          :label="$tc('property.' + name)"
+        >
+          <three-way-toggle
+            :value="filter[name]"
+            @input="filterChanged(name, $event)"
+          />
+        </labeled-property>
+      </div>
+      <div class="toggle-group">
+        <labeled-property
+          v-for="name of toggleFilter"
+          :key="'toggle-filter-' + name"
+          :label="$tc('property.' + name)"
+        >
+          <three-way-toggle
+            :value="filter[name]"
+            @input="filterChanged(name, $event)"
+          />
+        </labeled-property>
+      </div>
+      <div class="data-select-filters">
+        <labeled-property
+          v-for="name of objectFilter"
+          :key="'obj-filter-' + name"
+          :label="$tc('property.' + name)"
+        >
+          <DataSelectField
+            v-if="name == 'caliph'"
+            :value="filter[name]"
+            attribute="name"
+            table="person"
+            queryCommand="searchPersonsWithRole"
+            :queryParams="['id', { role: ['id', 'name'] }, 'name']"
+            :additionalParameters="{ include: ['caliph'] }"
+            @input="filterChanged(name, $event)"
+          />
+          <div v-else-if="name == 'coin_mark'">
+            <data-select-field
+              :value="filter[name]"
+              attribute="name"
+              table="coinMark"
+              @input="filterChanged(name, $event)"
+            />
+          </div>
+          <DataSelectField
+            v-else
+            :value="filter[name]"
+            attribute="name"
+            :table="name"
+            @input="filterChanged(name, $event)"
+          />
+        </labeled-property>
+      </div>
     </ListFilterContainer>
 
-    <List
-      :error="error"
-      :items="list"
-      :filteredItems="filteredList"
-      :loading="loading"
-    >
-      <ListItem
-        v-for="item of filteredList"
-        v-bind:key="item.key"
-        :to="{
-          name: 'EditType',
-          params: {id: item.id },
-        }"
-        :class="item.completed ? 'completed' : 'incomplete'"
-      >
-        <ListItemCell>
-          {{ item.projectId }}
-        </ListItemCell>
-        <CompletedToggle
-          :value="item.completed"
-          @input="changeCompleteState($event, item)"
-        />
-        <reviewed-toggle
-          :value="item.reviewed"
-          @input="changeReviewedState($event, item)"
-        />
-        <!-- <DynamicDeleteButton @click="remove(item.id)" /> -->
-      </ListItem>
-    </List>
+    <pagination :pageInfo="pageInfo" @input="updatePagination">
+      <List :error="error" :items="list" :loading="loading">
+        <ListItem
+          v-for="item of items"
+          v-bind:key="item.key"
+          :to="{
+            name: 'EditType',
+            params: { id: item.id },
+          }"
+          :class="item.completed ? 'completed' : 'incomplete'"
+        >
+          <ListItemCell>
+            {{ item.projectId }}
+          </ListItemCell>
+          <CompletedToggle
+            :value="item.completed"
+            @input="changeCompleteState($event, item)"
+          />
+          <CompletedToggle
+            :value="item.reviewed"
+            @input="changeReviewedState($event, item)"
+          />
+          <!-- <DynamicDeleteButton @click="remove(item.id)" />-->
+        </ListItem>
+      </List>
+    </pagination>
   </div>
 </template>
 
 <script>
-import PlusCircleOutline from "vue-material-design-icons/PlusCircleOutline";
-import List from "../layout/List.vue";
-import Query from "../../database/query.js";
-import BackHeader from "../layout/BackHeader.vue";
-import SearchField from "../layout/SearchField.vue";
-import ListItem from "../layout/ListItem.vue";
-import CompletedToggle from "../layout/buttons/CompletedToggle.vue";
-import DynamicDeleteButton from "../layout/DynamicDeleteButton.vue";
-import ListItemIdField from "../layout/list/ListItemIdField.vue";
-import ListItemCell from "../layout/list/ListItemCell.vue";
-import ListFilterContainer from "../layout/list/ListFilterContainer.vue";
-import ButtonGroup from "../forms/ButtonGroup.vue";
-import AxiosHelper from "@/utils/AxiosHelper.js";
-import SearchUtils from "@/utils/SearchUtils.js";
-import ReviewedToggle from "../layout/buttons/ReviewedToggle.vue";
-import Auth from "../../utils/Auth";
+import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
+import List from '../layout/List.vue';
+import Query from '../../database/query.js';
+import BackHeader from '../layout/BackHeader.vue';
+import SearchField from '../layout/SearchField.vue';
+import ListItem from '../layout/ListItem.vue';
+import CompletedToggle from '../layout/buttons/CompletedToggle.vue';
+import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+import ListItemIdField from '../layout/list/ListItemIdField.vue';
+import ListItemCell from '../layout/list/ListItemCell.vue';
+import ListFilterContainer from '../layout/list/ListFilterContainer.vue';
+import ButtonGroup from '../forms/ButtonGroup.vue';
+import AxiosHelper from '@/utils/AxiosHelper.js';
+import ReviewedToggle from '../layout/buttons/ReviewedToggle.vue';
+import Button from '../layout/buttons/Button.vue';
+import Row from '../layout/Row.vue';
+import PaginationControl from '../list/PaginationControl.vue';
+import Checkbox from '../forms/Checkbox.vue';
+import DataSelectField from '../forms/DataSelectField.vue';
+import LabeledProperty from '../display/LabeledProperty.vue';
+import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
+import { camelCase } from 'change-case';
+import Pagination from '../list/Pagination.vue';
+
+const defaultFilters = {
+  text: '',
+  completed: null,
+  reviewed: null,
+  exclude_from_type_catalogue: null,
+  exclude_from_map_app: null,
+  mint_uncertain: null,
+  year_uncertain: null,
+  cursive_script: null,
+  donativ: null,
+  nominal: { id: null },
+  material: { id: null },
+  caliph: { id: null },
+  mint: { id: null },
+  coin_mark: { id: null },
+};
 
 export default {
-  name: "TypeOverviewPage",
+  name: 'TypeOverviewPage',
   components: {
     PlusCircleOutline,
     List,
@@ -89,57 +169,217 @@ export default {
     ListFilterContainer,
     ButtonGroup,
     ReviewedToggle,
+    Button,
+    Row,
+    PaginationControl,
+    Checkbox,
+    DataSelectField,
+    LabeledProperty,
+    ThreeWayToggle,
+    Pagination,
   },
-  created: function() {
-    new Query(`
-     getReducedCoinTypeList`)
-      .list(["id", "projectId", "treadwellId", "completed", "reviewed"])
-      .then((result) => {
-        if (AxiosHelper.ok(result)) {
-          this.$data.items = result.data.data["getReducedCoinTypeList"];
-        } else {
-          this.error = AxiosHelper.getErrors(result).join("\n");
-        }
-      })
-      .catch(() => {
-        this.error = this.$t("error.loading_list");
-      })
-      .finally(() => {
-        this.$data.loading = false;
-      });
+  mounted: function () {
+    let filters = localStorage.getItem('type-list-filter');
+    if (filters) {
+      try {
+        let filterObj = JSON.parse(filters);
+        Object.assign(this.$data.filter, filterObj);
+      } catch (e) {
+        console.error('Could not parse filters.');
+      }
+    }
+
+    this.pageInfo.count =
+      parseInt(localStorage.getItem('pagination-count')) || 15;
+    this.updateTypeList();
+    this.$refs.search.$el.querySelector('input').focus();
   },
   computed: {
-    isListFiltered: function() {
-      return !(this.completeFilter == "none" && !this.textFilter);
-    },
-    filteredList: function() {
-      let list = this.$data.items;
+    isListFiltered: function () {
+      let filtered = false;
+      for (let [key, val] of Object.entries(this.filter)) {
+        if (defaultFilters[key] === undefined) {
+          console.warn('Filter is not implemented in defaults!', key);
+          continue;
+        }
 
-      list = SearchUtils.filter(this.textFilter, list, "projectId");
-
-      if (this.completeFilter == "work" || this.completeFilter == "completed") {
-        const state = this.completeFilter == "completed";
-        list = list.filter((item) => item.completed == state);
+        if (val != null && typeof val === 'object') {
+          if (val.id && val.id >= 0) {
+            filtered = true;
+            break;
+          }
+        } else {
+          if (defaultFilters[key] != val) {
+            filtered = true;
+            break;
+          }
+        }
       }
 
-      return list;
+      return filtered;
     },
-    list: function() {
+    list: function () {
       return this.$data.items;
     },
   },
-  data: function() {
+  data: function () {
     return {
-      loading: true,
+      loading: false,
       items: [],
-      error: "",
-      textFilter: "",
-      completeFilter: "none",
+      countList: [10, 25, 50],
+      pageInfo: {
+        count: 20,
+        page: 0,
+        last: 0,
+        total: 0,
+      },
+      error: '',
+      filter: {
+        text: '',
+        completed: null,
+        reviewed: null,
+        exclude_from_type_catalogue: null,
+        exclude_from_map_app: null,
+        mint_uncertain: null,
+        year_uncertain: null,
+        cursive_script: null,
+        donativ: null,
+        nominal: { id: null },
+        material: { id: null },
+        caliph: { id: null },
+        mint: { id: null },
+        coin_mark: { id: null },
+      },
+      objectFilter: ['mint', 'material', 'nominal', 'caliph', 'coin_mark'],
+      toggleFilter: [
+        'exclude_from_type_catalogue',
+        'exclude_from_map_app',
+        'mint_uncertain',
+        'year_uncertain',
+        'cursive_script',
+        'donativ',
+      ],
+      evalFilter: ['completed', 'reviewed'],
     };
   },
   methods: {
-    handleKeys(event) {
-      console.log(event.key);
+    clearFilters() {
+      this.filter.text = '';
+
+      [...this.evalFilter, ...this.toggleFilter].forEach((name) => {
+        this.filter[name] = null;
+      });
+
+      this.objectFilter.forEach((name) => {
+        this.filter[name] = { id: null };
+      });
+
+      this.updateTypeList();
+      this.filtersChanged();
+    },
+    getEvalFilters() {
+      let activeFilter = [];
+      this.evalFilter.forEach((name) => {
+        if (this.filter[name] != null) {
+          activeFilter.push(`${camelCase(name)}: ${this.filter[name]}`);
+        }
+      });
+      return activeFilter.join('\n');
+    },
+    getToggleFilters() {
+      let activeFilter = [];
+      this.toggleFilter.forEach((name) => {
+        if (this.filter[name] != null) {
+          activeFilter.push(`${camelCase(name)}: ${this.filter[name]}`);
+        }
+      });
+      return activeFilter.join('\n');
+    },
+    getObjectFilters() {
+      let activeFilter = [];
+      this.objectFilter.forEach((name) => {
+        if (this.filter[name] != null && this.filter[name]?.id != null) {
+          activeFilter.push(`${camelCase(name)}: ${this.filter[name].id}`);
+        }
+      });
+      return activeFilter.join('\n');
+    },
+    updateTypeList: async function () {
+      if (this.loading) return;
+
+      this.loading = true;
+      Query.raw(
+        `
+    {
+      modGetTypes(
+          pagination: {
+          count:${this.pageInfo.count}, page:${this.pageInfo.page}
+          },
+          filters: {
+            text: "${this.filter.text}"
+            ${this.getObjectFilters()}
+            ${this.getToggleFilters()}
+             ${this.getEvalFilters()}
+            
+          }
+        ) {
+        types {
+            id
+            projectId
+            completed
+            reviewed
+        }
+        pageInfo {
+          page
+          count
+          total
+          last
+        }
+      }
+    }`
+      )
+        .then((result) => {
+          if (AxiosHelper.ok(result)) {
+            this.loading = false;
+            let data = result.data.data.modGetTypes;
+
+            if (data) {
+              const lastPage = Math.floor(
+                data.pageInfo.total / (data.pageInfo.count || 1)
+              );
+
+              if (this.pageInfo.page > lastPage) {
+                let pageInfo = data.pageInfo;
+                pageInfo.page = lastPage;
+                this.pageInfo = pageInfo;
+              } else {
+                this.$data.items = data.types;
+                if (
+                  !(
+                    this.pageInfo.page === data.pageInfo.page &&
+                    this.pageInfo.total === data.pageInfo.total &&
+                    this.pageInfo.current === data.pageInfo.current &&
+                    this.pageInfo.last === data.pageInfo.last
+                  )
+                )
+                  this.pageInfo = data.pageInfo;
+                this.error = '';
+              }
+            } else {
+              this.error = 'Keine Daten wurden zurückgegeben.';
+            }
+          } else {
+            this.error = AxiosHelper.getErrors(result).join('\n');
+          }
+        })
+        .catch((e) => {
+          console.error(e);
+          this.error = this.$t('error.loading_list');
+        })
+        .finally(() => {
+          this.$data.loading = false;
+          // this.loading = false;
+        });
     },
     create() {
       this.$router.push({
@@ -156,7 +396,7 @@ export default {
       )
         .then((result) => {
           if (result.status >= 200 && result.status <= 200) {
-            item.reviewed = state;
+            item.reviewed = result.data.data.setTypeReviewed;
           }
         })
         .catch((err) => {
@@ -173,7 +413,7 @@ export default {
       )
         .then((result) => {
           if (result.status >= 200 && result.status <= 200) {
-            item.completed = state;
+            item.completed = result.data.data.setTypeComplete;
           }
         })
         .catch((err) => {
@@ -187,36 +427,80 @@ export default {
 }`
       )
         .then(() => {
-          console.log("HALLO");
           const idx = this.$data.items.findIndex((item) => item.id == id);
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((answer) => {
           console.dir(
-            answer.response.data.errors.map((item) => item.message).join("\n")
+            answer.response.data.errors.map((item) => item.message).join('\n')
           );
           // this.error =
           // console.error(err);
         });
     },
+    filterChanged(name, val) {
+      this.filter[name] = val;
+      this.filtersChanged();
+    },
+    updatePagination(val) {
+      this.pageInfo = val;
+      this.updateTypeList();
+      localStorage.setItem('pagination-count', this.pageInfo.count);
+    },
+    completedChanged(val) {
+      this.filter.completed = val;
+      this.filtersChanged();
+    },
+    reviewedChanged(val) {
+      this.filter.reviewed = val;
+      this.filtersChanged();
+    },
+    mintChanged(val) {
+      this.filter.mint = val;
+      this.filtersChanged();
+    },
+    async textFilterChanged() {
+      await this.filtersChanged();
+    },
+    async filtersChanged() {
+      localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
+      await this.updateTypeList();
+    },
   },
 };
 </script>
 
+<style lang="scss">
+.type-overview .labeled-property .label {
+  margin-bottom: $padding/2;
+}
+
+.type-overview .list-item-row {
+  height: 44px;
+}
+
+.toggle-group .labeled-property {
+  //
+}
+</style>
+
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 .list {
   display: flex;
   flex-direction: column;
-  margin: $padding 0;
-  // padding: $padding;
   overflow: hidden;
   background-color: rgb(78, 78, 78);
 
   background-color: whitesmoke;
-  border-radius: 3px;
 
   box-shadow: inset 1px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.data-select-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $padding;
 }
 
 .list-item {
@@ -264,5 +548,33 @@ export default {
 
 .overview > * {
   margin-bottom: $padding;
+}
+
+.toggle-group {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  justify-items: center;
+  text-align: center;
+  align-items: flex-end;
+  margin: 40px 0;
+
+  @include media-phone {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#create-button {
+  background-color: $primary-color;
+  color: $white;
+  // position: absolute;
+  right: 0;
+  top: 0;
 }
 </style>

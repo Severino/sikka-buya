@@ -21,23 +21,26 @@
 </template>
 
 <script>
-import Query from "../../../database/query.js";
-import PropertyFormWrapper from "../PropertyFormWrapper.vue";
+import Query from '../../../database/query.js';
+import PropertyFormWrapper from '../PropertyFormWrapper.vue';
 
 export default {
   components: { PropertyFormWrapper },
-  name: "MaterialForm",
+  name: 'MaterialForm',
   created: function () {
     let id = this.$route.params.id;
     if (id != null) {
-      new Query("material")
-        .get(id, ["id", "name"])
+      Query.raw(
+        `{
+        getMaterial(id: ${id}){id name}
+      }`
+      )
         .then((result) => {
           this.material = result.data.data.getMaterial;
         })
         .catch((err) => {
-          this.$data.error = this.$t("error.loading_element");
-          console.log(err);
+          this.$data.error = this.$t('error.loading_element');
+          console.error(err);
         })
         .finally(() => {
           this.$data.loading = false;
@@ -48,28 +51,32 @@ export default {
   },
   methods: {
     submit: function () {
-      new Query("material")
-        .update(this.material)
+      Query.raw(
+        `
+      mutation{
+        updateMaterial(data: {id: ${this.material.id}, name: "${this.material.name}" })
+      }
+      `
+      )
         .then(() => {
           this.$router.push({
-            name: "Property",
-            params: { property: "material" },
+            name: 'Property',
+            params: { property: 'material' },
           });
         })
         .catch((err) => {
-          this.error = this.$t("error.could_not_update_element");
-          console.error(err);
+          this.error = err.join('\n');
         });
     },
     cancel: function () {
-      this.$router.push({ path: "/material" });
+      this.$router.push({ path: '/material' });
     },
   },
   data: function () {
     return {
-      error: "",
+      error: '',
       loading: true,
-      material: { id: -1, name: "" },
+      material: { id: -1, name: '' },
     };
   },
 };

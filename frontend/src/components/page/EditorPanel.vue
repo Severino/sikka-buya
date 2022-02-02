@@ -34,73 +34,11 @@
       >
         <span>{{ $tc('property.' + property) }}</span>
       </router-link>
-      <!-- <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'honorific' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.honorific") }}</span>
-      </router-link>
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'CoinMarkOverview' }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.coin_mark") }}</span>
-      </router-link>
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'material' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.material") }}</span>
-      </router-link>
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'mint' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.mint") }}</span>
-      </router-link>
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'nominal' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.nominal") }}</span>
-      </router-link>
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'person' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.person") }}</span>
-      </router-link>
-
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'title' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.title") }}</span>
-      </router-link>
-
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'dynasty' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.dynasty") }}</span>
-      </router-link>
-
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'Property', params: { property: 'role' } }"
-        draggable="false"
-      >
-        <span>{{ $tc("property.role") }}</span>
-      </router-link> -->
     </div>
+    <h3>Hilfsprogramme</h3>
+    <router-link class="button icon-button" :to="{ name: 'FixDiff' }"
+      >Vergleiche letzte Bereinigung</router-link
+    >
   </div>
 </template>
 
@@ -119,8 +57,7 @@ export default {
         'honorific',
         'coin_mark',
         'material',
-        // TODO: Implement mint correctly.
-        // 'mint',
+        'mint',
         'nominal',
         'person',
         'title',
@@ -160,7 +97,7 @@ h3 {
 
 .draft::before {
   content: 'DRAFT';
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: $font;
   font-size: 0.5rem;
   color: white;
   font-weight: bold;
@@ -169,5 +106,10 @@ h3 {
   position: absolute;
   top: 0;
   transform: translate(20px, -50%);
+}
+
+a:not(:last-child) {
+  margin-bottom: 0;
+  border-bottom: none;
 }
 </style>

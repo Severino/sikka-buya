@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        body,
+        html {
+            margin: 0;
+
+        }
+
+        input {
+            margin: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .wrapper {
+            margin: 0 20px;
+        }
+
+        .row {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .col {
+            padding: 50px;
+        }
+
+        .row .col {
+            background-color: whitesmoke;
+        }
+
+        .row:nth-child(odd) .col {
+            background-color: rgb(196, 196, 196);
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <div id="error"></div>
+        <input id="fileInput" type="file" />
+        <div id="output">
+
+        </div>
+    </main>
+    <script>
+
+        const main = document.getElementsByTagName("main")[0]
+        fileInput.addEventListener("change", (event) => {
+            const reader = new FileReader()
+            reader.onload = onReaderLoad
+            reader.readAsText(event.target.files[0])
+        })
+
+        function onReaderLoad(event) {
+            try {
+                const json = JSON.parse(event.target.result)
+                updateOutput(json)
+            } catch (e) {
+                printError(e)
+            }
+        }
+
+        function updateOutput(data) {
+            data.forEach(type => {
+                let wrapper = document.createElement("div")
+                wrapper.className = "wrapper"
+                let heading = document.createElement("h2")
+                heading.innerText = type.name
+                wrapper.appendChild(heading)
+                for (let [property, changeObj] of Object.entries(type.fields)) {
+
+                    let propertyHeading = document.createElement("h3")
+                    propertyHeading.innerText = property
+                    wrapper.appendChild(propertyHeading)
+
+                    let row = document.createElement("div")
+                    row.className = "row"
+                    wrapper.appendChild(row)
+
+
+
+                    for (let [name, value] of Object.entries(changeObj)) {
+                        let col = document.createElement("div")
+                        col.className = "col"
+                        col.innerHTML = value
+                        row.appendChild(col)
+                    }
+                }
+
+
+                output.appendChild(wrapper)
+            })
+        }
+
+        function printError(err) {
+            error.innerText = err
+        }
+    </script>
+</body>
+
+</html>

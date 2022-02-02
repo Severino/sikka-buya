@@ -5,21 +5,21 @@
     @click.stop.prevent="requestRemove"
   >
     <Delete class="icon" />
-    <span id="text">{{ $t("general.delete_submit") }}</span>
+    <span id="text">{{ $t('general.delete_submit') }}</span>
   </div>
 </template>
 
 <script>
-import Delete from "vue-material-design-icons/Delete";
+import Delete from 'vue-material-design-icons/Delete';
 export default {
   components: {
     Delete,
   },
   props: {
-      time: {
-          type: Number,
-          default: 1500
-      }
+    time: {
+      type: Number,
+      default: 1500,
+    },
   },
   data: function () {
     return {
@@ -31,7 +31,8 @@ export default {
       if (!this.active) {
         this.open();
       } else {
-        this.$emit("click");
+        this.$emit('click');
+        this.active = false;
       }
     },
     open: function () {
@@ -48,7 +49,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 #delete {
   // background-color: gray;

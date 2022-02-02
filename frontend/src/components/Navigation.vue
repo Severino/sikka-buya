@@ -1,9 +1,14 @@
 <template>
-  <header>
+  <header :class="{ minimized }">
     <div class="content-wrapper">
       <div class="brand">
         <router-link :to="{ name: 'Home' }">
-          <img src="@/assets/images/sikka-buya.png" alt="" />
+          <img
+            v-if="minimized"
+            src="@/assets/images/sikka-buya-no-logo.png"
+            alt=""
+          />
+          <img v-else src="@/assets/images/sikka-buya.png" alt="" />
         </router-link>
       </div>
       <div class="nav-menu" :class="{ active: active }">
@@ -24,9 +29,9 @@
 
         <div v-if="loggedIn" class="user">
           <router-link :to="{ name: 'Editor' }">
-            <Pencil />
+            <AccountCircle />
           </router-link>
-          <div @click="logout">{{ $t("system.logout") }}</div>
+          <div @click="logout">{{ $t('system.logout') }}</div>
         </div>
         <div class="nav-toggle" @click="toggleMenu()">
           <Close v-if="active" />
@@ -38,28 +43,29 @@
 </template>
 
 <script>
-import Pencil from "vue-material-design-icons/Pencil";
+import AccountCircle from 'vue-material-design-icons/AccountCircle';
 
-import Menu from "vue-material-design-icons/Menu";
-import Close from "vue-material-design-icons/Close";
+import Menu from 'vue-material-design-icons/Menu';
+import Close from 'vue-material-design-icons/Close';
 
-import Auth from "../utils/Auth";
+import Auth from '../utils/Auth';
 
 export default {
-  name: "Navigation",
+  name: 'Navigation',
   components: {
-    Pencil,
+    AccountCircle,
     Menu,
     Close,
   },
   data: function () {
     return {
       active: false,
+      minimized: false,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: "Karte", target: { name: "MapPage" }, auth: true },
-        { name: "Typekatalog", target: { name: "Catalog" }, auth: true },
-        { name: "Analytics", target: { name: "Analytics" }, auth: true },
+        { name: 'Karte', target: { name: 'MapPage' }, auth: true },
+        { name: 'Typekatalog', target: { name: 'Catalog' }, auth: true },
+        { name: 'Analytics', target: { name: 'Analytics' }, auth: true },
       ],
     };
   },
@@ -69,17 +75,18 @@ export default {
     },
     logout: function () {
       Auth.logout();
-      this.$store.commit("logout");
-      this.$router.push({ name: "Home" });
+      this.$store.commit('logout');
+      this.$router.push({ name: 'Home' });
     },
   },
-  ////TODO: Remove if this was not necessary.
-  //// User is now stored in VUEX.
-  // watch: {
-  //     $route(to, from) {
-  //       this.$store.commit("login", this.user);
-  //     },
-  //   },
+  mounted: function () {
+    this.minimized = this.$route.meta.smallNav ? true : false;
+  },
+  watch: {
+    $route(to, from) {
+      this.minimized = to.meta.smallNav ? true : false;
+    },
+  },
   computed: {
     version: function () {
       return this.$store.state.version;
@@ -114,10 +121,21 @@ header {
   .content-wrapper {
     display: flex;
     align-items: center;
+
+    > * {
+      padding: $big-padding 0;
+    }
   }
 
-  .content-wrapper > * {
-    padding: $big-padding 0;
+  &.minimized {
+    img {
+      margin-top: 5px;
+      height: 30px;
+    }
+
+    .content-wrapper > * {
+      padding: 5px 0;
+    }
   }
 }
 
@@ -125,13 +143,13 @@ header {
   display: flex;
   align-items: center;
 
-  z-index: 2000;
+  z-index: 20000000;
 
   @include media_phone {
+    position: fixed;
     justify-content: flex-end;
     align-items: stretch;
     flex-direction: column-reverse;
-    position: fixed;
     top: 0;
     left: 100vw;
     width: 100vw;
@@ -192,6 +210,9 @@ a {
   border-radius: 20px;
   margin-left: $padding * 2;
   overflow: hidden;
+  > :first-child {
+    border-right: 2px solid white;
+  }
 
   > * {
     display: block;
@@ -214,12 +235,12 @@ a {
     padding-right: 2 * $padding;
   }
 
-  .material-design-icon {
-    margin-right: $padding;
-  }
+  // .material-design-icon {
+  //   margin-right: $padding;
+  // }
 
   @include media_phone {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
     justify-content: flex-end;
@@ -260,6 +281,7 @@ a {
   transform: translateX(-100%);
   @include interactive;
 
+  background-color: white;
   @include media_phone {
     display: block;
     align-self: flex-start;

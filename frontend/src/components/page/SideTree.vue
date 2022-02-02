@@ -15,13 +15,13 @@
 </template>
 
 <script>
-import Query from "../../database/query.js";
-import TreeView from "../layout/TreeView.vue";
-import TypeView from "./TypeView.vue";
-import Tabs from "../layout/tabs/Tabs.vue";
+import Query from '../../database/query.js';
+import TreeView from '../layout/TreeView.vue';
+import TypeView from './TypeView.vue';
+import Tabs from '../layout/tabs/Tabs.vue';
 
 export default {
-  name: "SideTree",
+  name: 'SideTree',
   components: {
     TreeView,
     Tabs,
@@ -130,7 +130,7 @@ export default {
           const data = children.data.data.getTypesByOverlord;
 
           if (!data || data.length == 0) {
-            return [{ name: "KEINE EINTRÄGE!", key: this.twigId++ }];
+            return [{ name: 'KEINE EINTRÄGE!', key: this.twigId++ }];
           }
 
           let output = {};
@@ -143,9 +143,8 @@ export default {
               ? output[type.yearOfMint]
               : {};
 
-            console.log(type);
             const mint =
-              type.mint && type.mint.name ? type.mint.name : "NO MINT";
+              type.mint && type.mint.name ? type.mint.name : 'NO MINT';
 
             output[type.yearOfMint][mint] = output[type.yearOfMint][mint]
               ? output[type.yearOfMint][mint]
@@ -167,7 +166,7 @@ export default {
                     name,
                     preventCollapse: true,
                     collapsed: true,
-                    leaf: "TypeLeaf",
+                    leaf: 'TypeLeaf',
                     data,
                   };
                 }),
@@ -176,8 +175,6 @@ export default {
           }
 
           const mapped = Object.entries(output).map(([name, mint]) => {
-            console.log(mapMints(mint));
-
             return {
               name,
               key: this.twigId++,
@@ -185,8 +182,6 @@ export default {
               children: mapMints(mint),
             };
           });
-
-          console.log(mapped);
 
           return mapped;
 
@@ -212,8 +207,6 @@ export default {
   },
   methods: {
     setData: function (data) {
-      console.log("SETDATA: " + data);
-
       this.$data.selected = data;
     },
   },

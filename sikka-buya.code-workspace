@@ -44,6 +44,14 @@
     "version": "0.2.0",
     "configurations": [
       {
+        "name": "Update Plain Text Fields",
+        "cwd": "${workspaceRoot}\\backend",
+        "program": "${workspaceRoot}\\backend\\scripts\\update_plain_text_field_for_all_types.js",
+        "request": "launch",
+        "skipFiles": ["<node_internals>/**"],
+        "type": "pwa-node"
+      },
+      {
         "name": "Launch localhost",
         "type": "firefox",
         "request": "launch",

@@ -1,4 +1,3 @@
-const { request } = require("express")
 const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fields")
 const { Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
@@ -9,35 +8,25 @@ const { camelCaseToSnakeCase } = require("./sql")
 const Person = require('../models/person')
 const Material = require('../models/material')
 const Nominal = require('../models/nominal')
-
+const PageInfo = require('../models/pageinfo')
+const graphqlFields = require('graphql-fields')
+const { JSDOM } = require("jsdom");
+const DictDE = require('../dictionaries/dict_de')
 
 class Type {
 
 
     static async list() {
-        return this.getTypes(null)
+        return this.getTypes(...arguments)
     }
 
 
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
-        /**
-         * Thus the avers and reverse data is nested inside a seperate object,
-         * inside the GraphQL interface, we need to transform whose properties
-         * to the top level, to store them inside the database.
-         * 
-         * ADDITIONALLY: The 'unwrapCoinSideInformation' takes care of creating
-         * empty properties, if the CoinSideInformation is not provided and
-         * therefore null.
-         */
-        this.unwrapCoinSideInformation(data, "front_side_", data.avers)
-        this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
-
-        this.cleanupHTMLFields(data)
+        data.id = id
+        data = await this.postProcessUpsert(data)
 
         return Database.tx(async t => {
-
-            data.id = id
             await t.none(`
         UPDATE type 
         SET
@@ -68,7 +57,8 @@ class Type {
             exclude_from_map_app=$[excludeFromMapApp],
             internal_notes = $[internalNotes],
             year_uncertain = $[yearUncertain],
-            mint_uncertain = $[mintUncertain]
+            mint_uncertain = $[mintUncertain],
+            plain_text = $[plainText]
             WHERE id = $[id] 
         `, data)
 
@@ -148,85 +138,166 @@ class Type {
         return target
     }
 
-    static async addType(data) {
+
+    static async createPlainTextField(type, skipFetch = false) {
         /**
-         * Thus the avers and reverse data is nested inside a seperate object,
-         * inside the GraphQL interface, we need to transform whose properties
-         * to the top level, to store them inside the database.
-         * 
-         * ADDITIONALLY: The 'unwrapCoinSideInformation' takes care of creating
-         * empty properties, if the CoinSideInformation is not provided and
-         * therefore null.
+         * We get the complete type to have all fields available.
          */
+        if (!skipFetch)
+            type = await this.getFullType(type.id)
+
+        let textFields = [
+            "project_id",
+            "treadwell_id",
+            "mint_as_on_coin",
+            "year_of_mint",
+        ]
+
+        textFields = textFields.map(attribute => {
+            return { key: attribute, text: type[attribute] }
+        })
+
+        let nameFields = [
+            "material",
+            "mint",
+            "nominal",
+            "donativ",
+            "procedure",
+            "caliph",
+        ]
+
+        nameFields = nameFields.map(attribute => {
+            return { key: attribute, text: type[attribute] ? type[attribute].name : null }
+        })
+
+        let htmlFields = [
+            "front_side_field_text",
+            "front_side_inner_inscript",
+            "front_side_intermediate_inscript",
+            "front_side_outer_inscript",
+            "front_side_misc",
+            "back_side_field_text",
+            "back_side_inner_inscript",
+            "back_side_intermediate_inscript",
+            "back_side_outer_inscript",
+            "back_side_misc",
+            "literature",
+            "specials",
+        ]
+
+
+        let errors = {}
+        htmlFields = htmlFields.map(key => {
+            let text = ""
+            if (type[key]) {
+                const html = type[key]
+                try {
+                    const { document } = (new JSDOM(html)).window;
+                    text = document.body.textContent
+                } catch (e) {
+                    errors[key] = `Element with ${key} could not be parsed to html: ${e} `
+                }
+
+            } else errors[key] = `Key '${key}' is missing on the element.`
+
+            return { key, text }
+        })
+
+        const fields = [...textFields, ...nameFields, ...htmlFields]
+
+
+        let text = fields.filter(({ text }) => (text != null && text != "")).map(({ key, text }) => {
+            return `${DictDE.get(key)}: ${text}`
+        }).join("\n")
+
+        return { text: type.projectId + "\n" + text, errors }
+    }
+
+    static async postProcessUpsert(data, skipFetch) {
+        /**
+        * Thus the avers and reverse data is nested inside a seperate object,
+        * inside the GraphQL interface, we need to transform whose properties
+        * to the top level, to store them inside the database.
+        * 
+        * ADDITIONALLY: The 'unwrapCoinSideInformation' takes care of creating
+        * empty properties, if the CoinSideInformation is not provided and
+        * therefore null.
+        */
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
-
         this.cleanupHTMLFields(data)
+        data.plainText = (await this.createPlainTextField(data, skipFetch)).text
+        return data
+    }
+
+    static async addType(_, args, context, info) {
+        const data = await this.postProcessUpsert(args.data, true)
 
         return Database.tx(async t => {
 
             const { id: type } = await t.one(`
-            INSERT INTO type (
-                project_id, 
-                treadwell_id, 
-                material,
-                mint, 
-                mint_as_on_coin, 
-                nominal, 
-                year_of_mint, 
-                donativ, 
-                procedure, 
-                caliph,
-                front_side_field_text,
-                front_side_inner_inscript,
-                front_side_intermediate_inscript,
-                front_side_outer_inscript,
-                front_side_misc,
-                back_side_field_text,
-                back_side_inner_inscript,
-                back_side_intermediate_inscript,
-                back_side_outer_inscript,
-                back_side_misc,
-                cursive_script,
-                literature,
-                specials,
-                exclude_from_type_catalogue,
-                exclude_from_map_app,
-                internal_notes,
-                mint_uncertain,
-                year_uncertain
-                )  VALUES (
-               $[projectId],
-               $[treadwellId],
-               $[material],
-               $[mint],
-               $[mintAsOnCoin],
-               $[nominal],
-               $[yearOfMint],
-               $[donativ],
-               $[procedure],
-               $[caliph],
-               $[front_side_field_text],
-               $[front_side_inner_inscript],
-               $[front_side_intermediate_inscript],
-               $[front_side_outer_inscript],
-               $[front_side_misc],
-               $[back_side_field_text],
-               $[back_side_inner_inscript],
-               $[back_side_intermediate_inscript],
-               $[back_side_outer_inscript],
-               $[back_side_misc],
-               $[cursiveScript],
-               $[literature],
-                $[specials],
-                $[excludeFromTypeCatalogue],
-                $[excludeFromMapApp],
-                $[internalNotes],
-                $[mintUncertain],
-                $[yearUncertain]
-                ) RETURNING id
-            `, data)
-
+            INSERT INTO type(
+                        project_id,
+                        treadwell_id,
+                        material,
+                        mint,
+                        mint_as_on_coin,
+                        nominal,
+                        year_of_mint,
+                        donativ,
+                        procedure,
+                        caliph,
+                        front_side_field_text,
+                        front_side_inner_inscript,
+                        front_side_intermediate_inscript,
+                        front_side_outer_inscript,
+                        front_side_misc,
+                        back_side_field_text,
+                        back_side_inner_inscript,
+                        back_side_intermediate_inscript,
+                        back_side_outer_inscript,
+                        back_side_misc,
+                        cursive_script,
+                        literature,
+                        specials,
+                        exclude_from_type_catalogue,
+                        exclude_from_map_app,
+                        internal_notes,
+                        mint_uncertain,
+                        year_uncertain,
+                        plain_text
+                    )  VALUES(
+                        $[projectId],
+                        $[treadwellId],
+                        $[material],
+                        $[mint],
+                        $[mintAsOnCoin],
+                        $[nominal],
+                        $[yearOfMint],
+                        $[donativ],
+                        $[procedure],
+                        $[caliph],
+                        $[front_side_field_text],
+                        $[front_side_inner_inscript],
+                        $[front_side_intermediate_inscript],
+                        $[front_side_outer_inscript],
+                        $[front_side_misc],
+                        $[back_side_field_text],
+                        $[back_side_inner_inscript],
+                        $[back_side_intermediate_inscript],
+                        $[back_side_outer_inscript],
+                        $[back_side_misc],
+                        $[cursiveScript],
+                        $[literature],
+                        $[specials],
+                        $[excludeFromTypeCatalogue],
+                        $[excludeFromMapApp],
+                        $[internalNotes],
+                        $[mintUncertain],
+                        $[yearUncertain],
+                        $[plainText]
+                    ) RETURNING id
+                        `, data)
 
             await this.addOverlords(t, data, type)
             await this.addIssuers(t, data, type)
@@ -289,122 +360,364 @@ class Type {
         }
     }
 
-    static async searchType(text) {
+    static async searchType(_, filters = {}, context, info) {
+
+        let text = filters.text
+        delete filters.text
+
+        const f = this.objectToConditions(filters)
+        const whereClause = this.buildWhereFilter([...f, "unaccent(t.project_id) ILIKE unaccent($[searchText])"])
+
         let result = await Database.manyOrNone(
             `
         SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
-        WHERE unaccent(t.project_id) ILIKE unaccent($[searchText])
+            ${whereClause}
         LIMIT ${process.env.MAX_SEARCH}
         `, { searchText: "%" + text + "%" })
 
+        let fields = graphqlFields(info)
         for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type)
+            result[idx] = await this.postprocessType(type, fields)
         }
 
         return result
     }
 
-    static async getTypesReducedList() {
-        let typeList = await Database.manyOrNone(`SELECT 
-        id, project_id, treadwell_id,
-            CASE 
-            WHEN tc.type IS NULL THEN false
-            ELSE true
-        END AS completed,
-            CASE 
-            WHEN tr.type IS NULL THEN false
-            ELSE true
-        END AS reviewed
-        FROM type t
-        LEFT JOIN type_completed tc ON t.id = tc.type
-        LEFT JOIN type_reviewed tr ON t.id = tr.type
-        ORDER BY project_id
-        COLLATE "C";
-            `)
+    // static async getTypesReducedList(_, { filters = {}, pagination = {} } = {}) {
 
-        const map = {
-            project_id: "projectId",
-            treadwell_id: "treadwellId"
+    //     pagination = new PageInfo(pagination)
+
+    //     let filter = this.buildWhereFilter(this.objectToConditions(filters))
+    //     throw new Error("STOP");
+
+    //     // let pageInfo = null
+    //     // let pagination = ""
+    //     // if (page != null && count != null) {
+
+    //     //     let { total } = await Database.one(`
+    //     //     SELECT COUNT(id) AS total FROM type t
+    //     //     LEFT JOIN type_completed tc ON t.id = tc.type
+    //     //     LEFT JOIN type_reviewed tr ON t.id = tr.type
+    //     //     ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
+    //     // `, args.filter)
+
+    //     //     page = (Math.floor(total / count) < page) ? Math.floor(total / count) : page
+    //     //     pagination = ` LIMIT ${count} OFFSET ${page * count} `
+
+    //     //     pageInfo = new PageInfo({
+    //     //         count,
+    //     //         page,
+    //     //         total
+    //     //     })
+    //     // }
+
+
+    //     const test_query = `
+    //     SELECT 
+    //         COUNT(*) as total     
+    //     FROM type t
+    //     ${this.joins}
+    //     , websearch_to_tsquery($[text]) as keywords
+    //     ${whereClause}
+    //     ; `
+    //     const { total } = await Database.one(test_query, Object.assign(filters, { text }))
+    //     pagination.updateTotal(total)
+
+    //     let typeList = await Database.manyOrNone(`SELECT
+    //     id, project_id, treadwell_id,
+    //         CASE 
+    //         WHEN tc.type IS NULL THEN false
+    //         ELSE true
+    //     END AS completed,
+    //         CASE 
+    //         WHEN tr.type IS NULL THEN false
+    //         ELSE true
+    //     END AS reviewed
+    //     FROM type t
+    //     LEFT JOIN type_completed tc ON t.id = tc.type
+    //     LEFT JOIN type_reviewed tr ON t.id = tr.type
+    //     ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
+    //     ORDER BY unaccent(project_id) COLLATE "C"
+    //     ${pagination}
+    //     ; `, args.filter)
+
+
+    //     const map = {
+    //         project_id: "projectId",
+    //         treadwell_id: "treadwellId"
+    //     }
+
+    //     typeList = typeList.map(type => {
+    //         for (let [key, val] of Object.entries(map)) {
+    //             type[val] = type[key]
+    //         }
+    //         return type
+    //     })
+
+    //     return { pageInfo, types: typeList }
+    // }
+
+    static buildWhereFilter(conditions) {
+        if (!conditions || conditions.length == 0) return ""
+        return `WHERE ${conditions.join(" AND ")} `
+    }
+
+    static objectToConditions(filterObj) {
+        /**
+         * TODO // WARNING // ALERT // ERROR: HERE WE HAVE THE DANGER OF SQLINJECTION
+         */
+
+        const where = []
+        for (let [key, val] of Object.entries(filterObj)) {
+            let db_key = camelCaseToSnakeCase(key)
+            if (val == null || val == "") continue
+            where.push(pgp.as.format("$1:name=$2", [db_key, val]))
+        }
+        return where
+    }
+
+    static async getTypes(_, { pagination = { count: 50, total: 0, page: 0 }, filters = {}, additionalJoin = "", additionalRows = [] }, context, info) {
+
+        /**
+         * 
+         * Better innerjoin for coin_marks:
+         * 
+         * 
+         * 
+         *  SELECT * FROM type
+            RIGHT JOIN
+            (SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) FROM type_coin_marks 
+            JOIN coin_marks ON coin_marks.id = type_coin_marks.coin_mark
+            GROUP BY type_coin_marks.type) AS cm
+            ON cm.type = type.id
+         */
+
+        const { join: complex_join, where: complex_where } = this.complexFilters(filters)
+
+
+        const conditions = this.objectToConditions(filters)
+        const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
+        const pageInfo = new PageInfo(pagination)
+
+
+
+
+        const totalQuery = `
+        SELECT count(*)
+        FROM type t 
+        ${this.joins}
+        ${complex_join.join("\n")}
+        ${additionalJoin}
+        ${whereClause}
+        `
+
+        const total = await Database.one(totalQuery)
+        pageInfo.updateTotal(total.count)
+
+        const query = `
+        SELECT 
+        ${[this.rows,
+            ...additionalRows
+            ].join(",")
+            }
+        FROM type t 
+        ${this.joins}
+        ${complex_join.join("\n")}
+        ${additionalJoin}
+        ${whereClause}
+        ORDER BY t.project_id ASC
+        ${pageInfo.toQuery()}
+; `
+
+
+        const result = await Database.manyOrNone(query)
+        let fields = graphqlFields(info)
+
+        for (let [idx, type] of result.entries()) {
+            result[idx] = await this.postprocessType(type, fields.types)
         }
 
-        typeList = typeList.map(type => {
-            for (let [key, val] of Object.entries(map)) {
-                type[val] = type[key]
+        return { types: result, pageInfo }
+    }
+
+    static complexFilters(filter) {
+        let where = [], join = []
+        if (Object.hasOwnProperty.bind(filter)("coinMark")) {
+            const cmJoin = `RIGHT JOIN(
+    SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) AS coin_mark, array_agg(type_coin_marks.coin_mark) as coin_mark_ids 
+                FROM type_coin_marks 
+                JOIN coin_marks 
+                ON coin_marks.id = type_coin_marks.coin_mark
+                GROUP BY type_coin_marks.type
+) AS cm
+            ON cm.type = t.id`
+            join.push(cmJoin)
+
+            const cmWhere = pgp.as.format("$1=ANY(cm.coin_mark_ids)", [filter.coinMark])
+            delete filter.coinMark
+            where.push(cmWhere)
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("completed")) {
+            if (filter.completed != null) {
+                let completedWhere = (filter.completed) ? "tc.type IS NOT NULL" : "tc.type IS NULL"
+                where.push(completedWhere)
             }
-            return type
+            delete filter.completed
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("reviewed")) {
+            if (filter.reviewed != null) {
+                let reviewedWhere = (filter.reviewed) ? "tr.type IS NOT NULL" : "tr.type IS NULL"
+                where.push(reviewedWhere)
+            }
+            delete filter.reviewed
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("text")) {
+            filter.text = filter.text.trim()
+            if (filter.text != "") {
+                let text = pgp.as.format("unaccent(t.project_id) ILIKE unaccent('%$1#%')", [filter.text])
+                where.push(text)
+            }
+            delete filter.text
+        }
+
+        return { where, join }
+    }
+
+    static counter = 0
+
+    static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
+
+
+        this.counter++
+
+        pagination = new PageInfo(pagination)
+        const conditions = this.objectToConditions(filters)
+        let whereClause = this.buildWhereFilter(conditions)
+        if (whereClause == "") whereClause = "WHERE"
+        else whereClause += " AND "
+
+        const additionalWhereClauses = ["search_vectors @@ keywords"]
+        whereClause += " " + additionalWhereClauses.join(" AND ")
+
+
+        const test_query = `
+SELECT
+COUNT(*) as total     
+        FROM type t
+        ${this.joins}
+        , websearch_to_tsquery($[text]) as keywords
+        ${whereClause}
+; `
+        const { total } = await Database.one(test_query, Object.assign(filters, { text }))
+        pagination.updateTotal(total)
+
+        const query = `
+SELECT 
+        ${this.rows}, ts_headline(plain_text, keywords) as preview        
+        FROM type t
+        ${this.joins}
+        , websearch_to_tsquery($[text]) as keywords 
+        ${whereClause}
+        ORDER BY t.project_id ASC
+        ${pagination.toQuery()}
+; `
+
+
+        const result = await Database.manyOrNone(query, { text })
+
+
+        let fields = graphqlFields(info)
+        for (let [idx, type] of result.entries()) {
+            result[idx] = await this.postprocessType(type, fields)
+        }
+        const results = result.map(res => {
+            return {
+                type: res,
+                preview: res.preview
+            }
         })
 
-        return typeList
+        return {
+            pagination,
+            results
+        }
     }
 
-    static async getTypes(filters = {}) {
+    static async getType(_, { id = null } = {}, context, info) {
 
-        function objAsWhereClause(filterObj) {
-            if (!filterObj || Object.keys(filterObj).length == 0) return ""
-            let filterTxt = "WHERE "
-            for (let [key, val] of Object.entries(filterObj)) {
-                filterTxt += `${camelCaseToSnakeCase(key)}='${val}'`
-            }
-            return filterTxt
-        }
-
-        const result = await Database.manyOrNone(`
-        SELECT 
-            ${this.rows}         
-         FROM type t 
-            ${this.joins}
-            ${objAsWhereClause(filters)}
-            `)
-
-        for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type)
-        }
-
-        return result
-    }
-
-    static async getType(id) {
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
-            SELECT 
+SELECT 
                 ${this.rows}
-             FROM type t
+            FROM type t
                 ${this.joins}
             WHERE t.id = $1
-            `, id).catch((e) => {
+    `, id).catch((e) => {
+            throw new Error("Requested type does not exist: " + e)
+        })
+        const fields = graphqlFields(info)
+        return await this.postprocessType(result, fields);
+    }
+
+
+    /**
+     * In contrast to getType, does the
+     * getFullType not take any query into account.
+     * So it can be easily used from utility scripts
+     * that just need to get a type.
+     * 
+     * Therefore the function is also much slower than the getType
+     * function an should only be used when not accessed
+     * via GraphQL and performance is negligile.
+     * 
+     * @param {number} id - If of the type you want to access
+     */
+    static async getFullType(id) {
+        const result = await Database.one(`
+SELECT 
+            ${this.rows}
+        FROM type t
+            ${this.joins}
+        WHERE t.id = $1
+    `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
 
         return await this.postprocessType(result);
     }
 
-    static async getTypesByOverlord(person) {
+    static async getTypesByRuler(_, { id = null } = {}, context, info) {
+
+        const person = id
         if (!person) throw new Error("Person must be provided!")
-        // const result = await Database.one(
-        //     , person).catch(() => {
-        //     throw new Error("Requested type does not exist!")
-        // })
-
-
 
 
         const result = await Database.manyOrNone(`
-        WITH overlords AS(
-                SELECT type FROM overlord WHERE person = $1
-            )
-        SELECT 
+        WITH rulers AS(
+        SELECT type FROM overlord WHERE person = $1
+                    UNION
+                    SELECT type from issuer WHERE person = $1
+                    UNION
+                    SELECT id AS type from type WHERE caliph = $1
+    )
+SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
-        WHERE t.id IN(SELECT type FROM overlords)
+        WHERE t.id IN(SELECT type FROM rulers)
             `, person);
 
+
+        const fields = graphqlFields(info)
         for (let [key, value] of result.entries()) {
-            result[key] = await this.postprocessType(value)
+            result[key] = await this.postprocessType(value, fields)
         }
 
 
@@ -412,16 +725,17 @@ class Type {
     }
 
     static get rows() {
-        return ` t.*, 
-        ${Material.query()}
+        return ` t.*,
+    ${Material.query()}
         ${Mint.query()}
         ${Nominal.query()}
-        exclude_from_type_catalogue,
-        exclude_from_map_app,
-        internal_notes,
-        year_uncertain,
-        mint_uncertain as guessed_mint,
-        p.id AS caliph_id`
+exclude_from_type_catalogue,
+    exclude_from_map_app,
+    internal_notes,
+    year_uncertain,
+    mint_uncertain as guessed_mint,
+    p.id AS caliph_id,
+    pc.color AS caliph_color`
     }
 
     static get joins() {
@@ -434,10 +748,12 @@ class Type {
         ON t.nominal = n.id
         LEFT JOIN person p
         ON t.caliph = p.id
-        `
+        LEFT JOIN person_color pc
+        ON p.id = pc.person
+    `
     }
 
-    static async postprocessType(type) {
+    static async postprocessType(type, fields) {
         if (!type) throw new Error(`Type was not provided!`)
 
         const config = [
@@ -461,15 +777,59 @@ class Type {
         config.forEach(conf => delete type[conf.target])
         SQLUtils.objectifyBulk(type, config)
 
-        type.avers = this.wrapCoinSideInformation(type, "front_side_")
-        type.reverse = this.wrapCoinSideInformation(type, "back_side_")
 
-        type.overlords = await Type.getOverlordsByType(type.id)
-        type.issuers = await Type.getIssuerByType(type.id)
-        type.caliph = (type.caliph == null) ? null : await Person.get(type.caliph)
-        type.otherPersons = await Type.getOtherPersonsByType(type.id)
-        type.pieces = await Type.getPieces(type.id)
-        type.coinMarks = await Type.getCoinMarks(type.id)
+        if (fields == null)
+            fields = [
+                "avers",
+                "reverse",
+                "coinMarks",
+                "pieces",
+                "caliph",
+                "otherPersons",
+                "overlords",
+                "issuers",
+            ]
+
+        for (let property of Object.keys(fields)) {
+            switch (property) {
+
+                case 'avers':
+                    type.avers = this.wrapCoinSideInformation(type, "front_side_")
+                    break;
+                case "reverse":
+                    type.reverse = this.wrapCoinSideInformation(type, "back_side_")
+                    break;
+
+                // Arrays
+                case "coinMarks":
+                    type.coinMarks = await Type.getCoinMarks(type.id)
+                    break
+                case "pieces":
+                    type.pieces = await Type.getPieces(type.id)
+                    break
+
+                // Persons
+                case 'caliph':
+                    type.caliph = (type.caliph == null) ? null : await Person.get(type.caliph)
+                    break;
+                case 'otherPersons':
+                    type.otherPersons = await Type.getOtherPersonsByType(type.id)
+                    break
+
+                // Titled Persons
+                case "overlords":
+                    type.overlords = await Type.getOverlordsByType(type.id)
+                    break;
+                case "issuers":
+                    type.issuers = await Type.getIssuerByType(type.id)
+                    break;
+
+
+            }
+        }
+
+
+
 
         for (let [key, val] of Object.entries(this.databaseToGraphQlMap)) {
             if (type[key] != null) {
@@ -499,7 +859,6 @@ class Type {
 
 
     // static async getOverlord(id) {
-    //     console.log("GET OVERLORD",)
 
     //     const request = await Database.one(`
     //         SELECT O.ID,
@@ -547,6 +906,7 @@ class Type {
             p.short_name as person_short_name,
             p.name as person_name,
             p.role as person_role,
+            c.color as person_color,
             r.id as person_role_id,
             r.name as person_role_name,
             d.id as person_dynasty_id,
@@ -572,10 +932,10 @@ class Type {
                 ON o.person = p.id
             LEFT JOIN dynasty d ON p.dynasty=d.id
             LEFT JOIN person_role r ON p.role=r.id
+            LEFT JOIN person_color c ON c.person = p.id
 			WHERE o.type = $1
             ORDER BY o.rank ASC
             `, type_id)
-
 
         let result = response[0]
         let overlords = Overlord.extractList(result)
@@ -587,6 +947,7 @@ class Type {
         SELECT i.id, i.type,p.id as person_id,
                 p.short_name as person_short_name,
                 p.name as person_name,
+                c.color as person_color,
                 r.id as person_role_id,
                 r.name as person_role_name,
                 d.id as person_dynasty_id,
@@ -612,6 +973,7 @@ class Type {
                 ON i.person = p.id
             LEFT JOIN dynasty d ON p.dynasty=d.id
             LEFT JOIN person_role r ON p.role=r.id
+            LEFT JOIN person_color c ON c.person = p.id
 			WHERE i.type = $1
             `, type_id)
 
@@ -636,7 +998,8 @@ class Type {
             d.id as dynasty_id,
             d.name as dynasty_name,
             r.id as role_id,
-            r.name as role_name
+            r.name as role_name,
+            c.color as color
         FROM 
             other_person op 
         LEFT JOIN person p
@@ -645,6 +1008,8 @@ class Type {
             dynasty d ON p.dynasty=d.id
         LEFT JOIN 
             person_role r ON p.role=r.id
+        LEFT JOIN
+            person_color c ON p.id = c.person
 		WHERE 
             op.type = $1
             `, type_id)

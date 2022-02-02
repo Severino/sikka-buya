@@ -3,20 +3,24 @@
     <div class="slot">
       <slot></slot>
     </div>
-    <button :class="removing ? 'removing' : ''" @click="triggerRemove">
+    <button
+      type="button"
+      :class="removing ? 'removing' : ''"
+      @click="triggerRemove"
+    >
       <Minus />
     </button>
   </div>
 </template>
 
 <script>
-import Minus from "vue-material-design-icons/Minus";
+import Minus from 'vue-material-design-icons/Minus';
 
 export default {
   components: {
     Minus,
   },
-  name: "Section",
+  name: 'Section',
   props: {
     object: {
       default: null,
@@ -31,7 +35,7 @@ export default {
   methods: {
     triggerRemove: function () {
       if (this.removing) {
-        this.$emit("remove", this.$props.object);
+        this.$emit('remove', this.$props.object);
       } else {
         this.removing = true;
         setTimeout(() => {
@@ -46,7 +50,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .list-item {
   display: flex;
@@ -74,10 +78,10 @@ button {
 
   transition: background-color 0.2s;
 
- .material-design-icon {
+  .material-design-icon {
     margin-top: 4px;
   }
- 
+
   background-color: #bdbdbd;
 
   &.removing {

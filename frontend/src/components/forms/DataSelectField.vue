@@ -10,6 +10,8 @@
       :required="required"
     />
 
+    <Button id="clear-btn" @click.stop.prevent="clear()"><Close /></Button>
+
     <div class="indicator">
       <Alert v-if="invalid" class="alert" />
       <Check v-else class="check" />
@@ -23,7 +25,7 @@
       <li
         v-if="
           (!internal_error && !loading && !searchResults) ||
-            searchResults.length == 0
+          searchResults.length == 0
         "
         class="non-selectable"
       >
@@ -51,11 +53,12 @@ import Query from '../../../src/database/query';
 
 import Alert from 'vue-material-design-icons/Alert';
 import Check from 'vue-material-design-icons/Check';
+import Close from 'vue-material-design-icons/Close';
 
 export default {
   name: 'DataSelectField',
-  components: { Alert, Check },
-  data: function() {
+  components: { Alert, Check, Close },
+  data: function () {
     return {
       id: null,
       listVisible: false,
@@ -68,15 +71,14 @@ export default {
   props: {
     value: {
       type: Object,
-      validator: function(obj) {
+      validator: function (obj) {
         return obj.id == null || !isNaN(parseInt(obj.id));
       },
     },
-
     error: String,
     queryParams: {
       type: Array,
-      default: function() {
+      default: function () {
         return ['id', 'name'];
       },
     },
@@ -107,12 +109,12 @@ export default {
     placeholder: String,
   },
   computed: {
-    invalid: function() {
+    invalid: function () {
       return this.value.id == null;
     },
   },
   methods: {
-    setValue: function(event) {
+    setValue: function (event) {
       const target = event.target;
       const value = this.value;
       this.listVisible = false;
@@ -121,14 +123,14 @@ export default {
       this.$emit('input', value);
       this.$emit('select', value);
     },
-    input: async function(event, preventSimiliarityCheck = false) {
+    input: async function (event, preventSimiliarityCheck = false) {
       let value = this.value;
       value[this.attribute] = event.target.value;
       value.id = null;
       this.checkMatch(value);
       this.$emit('input', value);
     },
-    checkMatch: async function(value) {
+    checkMatch: async function (value) {
       await this.searchEntry(value[this.attribute]);
       for (let entry of this.searchResults.values()) {
         let regex = new RegExp('^' + value.name + '$', 'i');
@@ -139,15 +141,15 @@ export default {
         }
       }
     },
-    focus: async function() {
+    focus: async function () {
       await this.checkMatch(this.value);
       this.showList();
     },
-    showList: function() {
+    showList: function () {
       if (this.hideTimeout) clearTimeout(this.hideTimeout);
       this.listVisible = true;
     },
-    hideList: function() {
+    hideList: function () {
       this.hideTimeout = setTimeout(() => {
         this.listVisible = false;
 
@@ -158,12 +160,12 @@ export default {
         // }
       }, 200);
     },
-    initId: function() {
+    initId: function () {
       this.getData().forEach((el) => {
         if (el.id > this.$data.id) this.$data.id = el.id + 1;
       });
     },
-    getData: function() {
+    getData: function () {
       let loaded;
       try {
         loaded = JSON.parse(window.localStorage.getItem(this.$props.table));
@@ -173,7 +175,7 @@ export default {
 
       return loaded || [];
     },
-    searchEntry: async function(str = null) {
+    searchEntry: async function (str = null) {
       let searchString = str !== null ? str : this.value[this.attribute] || '';
 
       const queryCommand = this.queryCommand
@@ -194,9 +196,13 @@ export default {
 
       Query.raw(query)
         .then((result) => {
-          this.searchResults = result.data.data[queryCommand];
-          this.internal_error = '';
-          console.log(this.searchResults.length);
+          if (result?.data?.data[queryCommand]) {
+            this.searchResults = result.data.data[queryCommand];
+            this.internal_error = '';
+          } else {
+            console.error('Could not get value');
+            this.internal_error = 'Unknown Search Error';
+          }
         })
         .catch((error) => {
           this.internal_error = error;
@@ -205,9 +211,9 @@ export default {
           this.loading = false;
         });
     },
-    transformTextContent: function(search) {
+    transformTextContent: function (search) {
       if (this.text) {
-        return this.text.replace(/\${(.+?)}/g, function(match, name) {
+        return this.text.replace(/\${(.+?)}/g, function (match, name) {
           const path = name.split('.');
           let target = search;
           for (let i = 0; i < path.length && target != null; i++) {
@@ -219,6 +225,11 @@ export default {
       } else {
         return search[this.attribute] || '';
       }
+    },
+    clear() {
+      let obj = { id: null };
+      obj[this.attribute] = '';
+      this.$emit('input', obj);
     },
   },
 };
@@ -260,9 +271,27 @@ export default {
   color: $red;
 }
 
+#clear-btn {
+  right: 0;
+  top: 1px;
+  padding: 0;
+  padding-left: 5px;
+  right: 1px;
+  width: 35px;
+  background-color: none;
+  height: calc(100% - 2px);
+  position: absolute;
+  border: none;
+  z-index: 1;
+
+  &:hover {
+    background-color: rgba($color: $gray, $alpha: 0.2);
+  }
+}
+
 .indicator {
   position: absolute;
-  right: 0;
+  right: 40px;
   border-left: none;
   padding: 0 5px;
   box-sizing: border-box;
@@ -317,7 +346,7 @@ button {
   width: 100%;
   // padding: 10px;
   box-sizing: border-box;
-  z-index: 1000;
+  z-index: 2000;
   max-height: 50vh;
   overflow-y: auto;
 

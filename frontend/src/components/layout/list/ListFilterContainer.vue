@@ -12,19 +12,19 @@
     <div v-if="!collapsed" class="list-filter-container-content">
       <slot />
     </div>
-    <div v-if="filtered" class="message">
-      <AlertCircleOutline /> {{ $t("message.filter_is_active") }}
+    <div v-if="filtered" class="message" @click="$emit('clearFilters')">
+      <AlertCircleOutline /> {{ $t('message.filter_is_active') }}
     </div>
   </div>
 </template>
 
 <script>
-import Plus from "vue-material-design-icons/Plus";
-import Minus from "vue-material-design-icons/Minus";
-import AlertCircleOutline from "vue-material-design-icons/AlertCircleOutline";
+import Plus from 'vue-material-design-icons/Plus';
+import Minus from 'vue-material-design-icons/Minus';
+import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline';
 
 export default {
-  name: "ListFilterContainer",
+  name: 'ListFilterContainer',
   components: {
     Plus,
     Minus,
@@ -47,30 +47,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../scss/_import.scss";
+@import '../../../scss/_import.scss';
 
 .list-filter-container {
   border: 1px solid #ccc;
   border-radius: 3px;
-  overflow: hidden;
 }
 
 .message {
+  cursor: pointer;
+  user-select: none;
+  font-size: $small-font;
   padding: $padding/3 $padding;
   text-align: center;
   background-color: $primary-color;
   color: whitesmoke;
-  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   .material-design-icon {
+    width: 16px;
+    height: 16px;
     padding-right: $padding;
   }
 }
 
 header {
-  background-color: whitesmoke;
+  background-color: white;
   display: flex;
   align-items: center;
   user-select: none;
