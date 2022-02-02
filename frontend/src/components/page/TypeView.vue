@@ -83,19 +83,6 @@
       </catalog-property>
     </div>
 
-    <catalog-property class="coin-marks gm2" :label="$t('property.coin_mark')">
-      <div class="error" v-if="!type.coinMarks">
-        Münzzeichen konnten nicht geladen werden
-      </div>
-      <div v-if="type.coinMarks && type.coinMarks.length > 0">
-        <span v-for="(cm, idx) in type.coinMarks" :key="`coin_mark-${cm.id}`"
-          >{{ cm.name
-          }}<template v-if="idx < type.coinMarks.length - 1">, </template></span
-        >
-      </div>
-      <div v-else>-</div>
-    </catalog-property>
-
     <catalog-property
       v-if="type.cursive"
       :label="$t('property.cursive')"

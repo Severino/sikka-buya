@@ -4,6 +4,7 @@ import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
 import store from "../store";
 import { graphqlEndpoint } from './host';
+import { print } from 'graphql/language/printer';
 
 export default class Query {
 
@@ -27,15 +28,17 @@ export default class Query {
         return Query.raw(query)
     }
 
-    static async raw(query, variables) {
-
-        return new Query().raw(query, variables)
-
+    async raw(query, variables) {
+        return Query.raw(query, variables)
     }
 
 
-    async raw(query, variables = {}) {
-        // console.log(query)
+    static async gql(query, variables) {
+        const string = print(query)
+        return this.raw(string, variables)
+    }
+
+    static async raw(query, variables = {}) {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')
