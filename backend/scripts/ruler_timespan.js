@@ -2,16 +2,19 @@
 
 const { Database } = require('../src/utils/database');
 
-let colors = ["#d286c0",
-    "#527338",
-    "#85c44a",
-    "#5cb096",
-    "#aa3e6e",
-    "#6283ba",
-    "#cf5644",
-    "#7b4faf",
-    "#c69c49",
-    "#8e5a3b"]
+let colors = ["#c6b952",
+    "#592a8a",
+    "#71c159",
+    "#6669d0",
+    "#587230",
+    "#c777cf",
+    "#58c3a6",
+    "#c93c86",
+    "#c47e3f",
+    "#6e93d0",
+    "#b33f34",
+    "#642a55",
+    "#d3768b"]
 
 async function main() {
 
