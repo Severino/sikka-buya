@@ -471,13 +471,22 @@ mint {
   }
 
   .timeline {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     border: 1px solid $light-gray;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
     // height: 100%;
     padding: 20px 40px;
-    margin: 100px;
-    margin-bottom: 20px;
-    border-radius: 10px;
+
+    border-radius: $border-radius;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-width: 0;
+
+    max-width: 400px;
+    margin: 0 auto;
   }
 
   .settings {
@@ -538,7 +547,7 @@ mint {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-columns: 1fr 5fr 1fr;
   grid-template-rows: 1fr 3fr 1fr;
 
   pointer-events: none;
@@ -580,7 +589,7 @@ mint {
   }
   &.center-ui-bottom {
     grid-row: 3;
-
+    display: flex;
     z-index: 100;
   }
 }

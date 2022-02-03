@@ -38,7 +38,17 @@
 
     <h2>{{ $tc('property.person', 2) }}</h2>
     <div class="person-container gm1 gt1 gd1">
-      <catalog-property
+      <person-view
+        :overlords="type.overlords"
+        :issuers="type.issuers"
+        :caliph="type.caliph"
+        :warden="warden"
+        :cutter="cutter"
+        :heir="heir"
+      />
+
+      <!-- <PersonView> -->
+      <!-- <catalog-property
         v-for="(personObj, idx) of persons"
         v-bind:key="`person-${idx}`"
         :label="
@@ -59,7 +69,7 @@
           </ul>
         </template>
         <template v-else>{{ personObj.value }}</template>
-      </catalog-property>
+      </catalog-property> -->
     </div>
 
     <div
@@ -153,6 +163,7 @@ import Web from '../../utils/Web';
 
 import EditIcon from 'vue-material-design-icons/Pen.vue';
 import Button from '../layout/buttons/Button.vue';
+import PersonView from '../Person/PersonView.vue';
 
 export default {
   name: 'TypeView',
@@ -171,6 +182,7 @@ export default {
     Row,
     Tag,
     Button,
+    PersonView,
   },
   methods: {
     getUndefinedString() {
@@ -280,43 +292,53 @@ export default {
     },
   },
   computed: {
-    persons: function () {
-      let personType = [
-        'issuers',
-        'overlords',
-        'caliph',
-        'heir',
-        'warden',
-        'cutter',
-      ];
-
-      let filteredPersons = [];
-
-      personType.forEach((t) => {
-        if (this.type[t]) {
-          if (Array.isArray(this.type[t])) {
-            if (this.type[t].length == 1) {
-              filteredPersons.push({
-                name: t,
-                value: this.type[t][0].name,
-              });
-            } else if (this.type[t].length > 1) {
-              filteredPersons.push({
-                name: t,
-                value: this.type[t].map((item) => item.name),
-              });
-            }
-          } else {
-            filteredPersons.push({
-              name: t,
-              value: this.type[t].name,
-            });
-          }
-        }
+    warden: function () {
+      return this.type?.otherPersons.filter((person) => {
+        return person?.role?.name === 'warden';
       });
-
-      return filteredPersons;
     },
+    cutter: function () {
+      return this.type?.otherPersons.filter((person) => {
+        return person?.role?.name === 'cutter';
+      });
+    },
+    heir: function () {
+      return this.type?.otherPersons.filter((person) => {
+        return person?.role?.name === 'heir';
+      });
+    },
+    // persons: function () {
+    //   let alwaysShow = ['issuers', 'overlords', 'caliph'];
+    //   let persons = [];
+    //   alwaysShow.forEach(type =>{
+    //   })
+    //   let onlyShowIfPresent = ['heir', 'warden', 'cutter'];
+    // alwaysShow.forEach((t) => {
+    //   if (this.type[t]) {
+    //     if (Array.isArray(this.type[t])) {
+    //       if (this.type[t].length == 1) {
+    //         filteredPersons.push({
+    //           name: t,
+    //           value: this.type[t][0].name,
+    //         });
+    //       } else if (this.type[t].length > 1) {
+    //         filteredPersons.push({
+    //           name: t,
+    //           value: this.type[t].map((item) => item.name),
+    //         });
+    //       }
+    //     } else {
+    //       filteredPersons.push({
+    //         name: t,
+    //         value: this.type[t].name,
+    //       });
+    //     }
+    //   }else{
+    //   }
+    // });
+    // console.log(filteredPersons);
+    //   return persons;
+    // },
   },
 };
 </script>
