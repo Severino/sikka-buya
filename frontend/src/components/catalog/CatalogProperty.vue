@@ -21,18 +21,17 @@
 </template>
 
 <script>
-import InfoIcon from "vue-material-design-icons/InformationOutline.vue";
-import Popup from "../Popup.vue";
+import InfoIcon from 'vue-material-design-icons/InformationOutline.vue';
+import Popup from '../Popup.vue';
 
 export default {
-  name: "CatalogProperty",
+  name: 'CatalogProperty',
   components: {
     InfoIcon,
     Popup,
   },
   props: {
     label: String,
-    value: String,
     html: String,
     info: String,
   },

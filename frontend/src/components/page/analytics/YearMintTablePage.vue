@@ -57,71 +57,6 @@ export default {
   name: 'YearMintTablePage',
   created: function () {
     this.fetchTypes();
-
-    // Query.raw(
-    //   `{
-    //         getTypes{projectId, yearOfMint, mint{name} }
-    //     }`
-    // )
-    //   .then((result) => {
-    //     let data =
-    //       result && result.data && result.data.data && result.data.data.getTypes
-    //         ? result.data.data.getTypes
-    //         : null;
-    //     if (data) {
-    //       let map = {};
-    //       let years = new Set();
-    //       data.forEach((d) => {
-    //         if (d.mint !== null && d.mint.name !== null) {
-    //           const mint = d.mint.name;
-    //           const year = d.yearOfMint;
-    //           if (!map[mint]) map[mint] = new Set();
-    //           map[mint].add(year);
-    //           if (year.match(/^[1-9]*$/)) {
-    //             let numYear = parseInt(year);
-    //             if (numYear) {
-    //               years.add(numYear);
-    //             } else console.error('Year is no number', year);
-    //           }
-    //         }
-    //       });
-    //       // Max Gap must be x >= 2
-    //       const maxGap = 5;
-    //       const values = years.values();
-    //       let yearArray = Array.from(values).sort();
-    //       let yearWithGapsArray = [];
-    //       if (yearArray.length > 0) {
-    //         for (let i = 0; i <= yearArray.length - 1; i++) {
-    //           // if(year == 123) continue
-    //           const year = yearArray[i];
-    //           yearWithGapsArray.push(year);
-    //           let nextYear = yearArray[i + 1];
-    //           let gap = nextYear - year;
-    //           if (gap > maxGap) {
-    //             yearWithGapsArray.push(
-    //               `${year + 1} ... ${nextYear - 1} (${nextYear - year - 2})`
-    //             );
-    //           } else {
-    //             for (let j = parseInt(year) + 1; j < nextYear; j++) {
-    //               if (j == 125) console.error('DANGER', year, nextYear);
-    //               yearWithGapsArray.push(j);
-    //             }
-    //           }
-    //         }
-    //         yearWithGapsArray.push(yearArray[yearArray.length - 1]);
-    //       }
-    //       this.years = yearWithGapsArray;
-    //       this.map = map;
-    //     } else {
-    //       const message = 'No data received!';
-    //       console.error(message);
-    //       this.error = message;
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     this.error = err;
-    //     console.log(err);
-    //   });
   },
   data: function () {
     return {
@@ -181,20 +116,6 @@ export default {
       } catch (e) {
         console.error('Could not fetch types: ', e);
       }
-
-      //   Query.raw(
-      //     `{
-      //   type(){
-      //       ${this.getQuery(this.x)}
-      //       ${this.getQuery(this.y)}
-      //   }
-      // }`
-      //   )
-      //     .then((result) => {
-      //       this.types = result?.data?.data?.getTypes;
-      //       this.updateMap();
-      //     })
-      //     .catch(console.error);
     },
     xChanged(event) {
       this.x = event.target.value;
