@@ -46,3 +46,7 @@ export function coinsToRulerData(coins, selected = []) {
 
     return data
 }
+
+export function hasSelectedRuler(coins, selected) {
+    console.log(selected)
+}

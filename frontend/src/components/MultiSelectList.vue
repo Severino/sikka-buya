@@ -5,20 +5,18 @@
         v-for="(item, index) of items"
         :key="item.id"
         @click="selected(item)"
+        class="select-list-item"
         :class="{ selected: isSelected(item) }"
         :style="getItemStyle(index)"
       >
-        <input
-          :class="{
-            grayedOut: !selectionActive,
-            nonInteractive: !selectionActive,
-          }"
-          type="checkbox"
-          :checked="isSelected(item)"
-          @input.stop="checkboxSelect($event, item)"
-          @click.stop
-        />
-        {{ getItemText(index) }}
+        <div class="checkbox">
+          <label @click.stop="checkboxSelect(item)">
+            <div class="box" :class="{ active: isSelected(item) }"></div>
+          </label>
+        </div>
+        <span>
+          {{ getItemText(index) }}
+        </span>
       </li>
     </ul>
     <!-- <ul>
@@ -44,9 +42,10 @@
 </template>
 
 <script>
+import Label from './display/Label.vue';
 import Button from './layout/buttons/Button.vue';
 export default {
-  components: { Button },
+  components: { Button, Label },
   name: 'MultiSelectList',
   props: {
     selectedIds: {
@@ -61,15 +60,15 @@ export default {
     },
   },
   methods: {
-    checkboxSelect(event, item) {
+    checkboxSelect(item) {
       const selection = this.selectedIds;
-      if (event.target.checked) {
-        selection.push(item.id);
+
+      const itemIdx = selection.indexOf(item.id);
+
+      if (itemIdx != -1) {
+        selection.splice(itemIdx, 1);
       } else {
-        const itemIdx = selection.indexOf(item.id);
-        if (itemIdx != -1) {
-          selection.splice(itemIdx, 1);
-        }
+        selection.push(item.id);
       }
 
       this.selectionChanged(selection);
@@ -87,6 +86,7 @@ export default {
       }
     },
     selectionChanged(selection) {
+      console.log('SELECTION', selection);
       this.$emit('selectionChanged', selection);
     },
     isSelected(item) {
@@ -142,6 +142,15 @@ export default {
 
 <style lang="scss">
 .multi-select-list {
+  .select-list-item {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+
+    & > *:not(.checkbox) {
+      align-self: center;
+    }
+  }
+
   .hidden {
     visibility: hidden;
   }
@@ -157,6 +166,56 @@ export default {
 
   ul {
     margin-left: -15px;
+  }
+
+  .checkbox {
+    display: flex;
+
+    .box {
+      position: relative;
+      &::after,
+      &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 100%;
+        border-bottom: 2px solid currentColor;
+        top: calc(50% - 1px);
+        transform-origin: center center;
+        transition: transform 0.3s;
+      }
+      &::after {
+        transform: scale(0) rotate(45deg);
+      }
+
+      &::before {
+        transform: scale(0) rotate(-45deg);
+      }
+
+      &.active {
+        &::after {
+          transform: scale(1) rotate(45deg);
+        }
+
+        &::before {
+          transform: scale(1) rotate(-45deg);
+        }
+      }
+    }
+
+    $size: 12px;
+    label {
+      display: flex;
+      align-items: center;
+
+      padding: 5px;
+      .box {
+        width: $size;
+        height: $size;
+        border: 1px solid currentColor;
+        border-radius: 3px;
+      }
+    }
   }
 }
 </style>
