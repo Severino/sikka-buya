@@ -145,7 +145,6 @@ export default {
 
   li {
     margin-bottom: 10px;
-    padding: 5px 10px;
     border-radius: 10px;
     cursor: pointer;
     box-sizing: border-box;

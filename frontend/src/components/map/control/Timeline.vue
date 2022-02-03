@@ -1,5 +1,6 @@
 <template>
   <div class="timeline" ref="element">
+    <h3>Zeitleiste</h3>
     <div class="input-wrapper">
       <input
         type="number"
@@ -17,7 +18,7 @@
       <button type="button" @click.stop.prevent="down">
         <MenuLeft />
       </button>
-      <input
+      <!-- <input
         type="range"
         :min="from"
         :max="to"
@@ -25,7 +26,8 @@
         @change.stop="change"
         @pointerdown="disableMap"
         @pointerup="enableMap"
-      />
+      /> -->
+
       <button type="button" @click.stop.prevent="up">
         <MenuRight />
       </button>
@@ -94,9 +96,6 @@ export default {
   > input[type='slider'] {
     flex: 1;
   }
-}
-
-.error {
 }
 
 // .timeline {

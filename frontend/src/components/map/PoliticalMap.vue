@@ -67,7 +67,6 @@
 
 <script>
 import Sidebar from './Sidebar.vue';
-import Color from '../../models/map/color.js';
 import Timeline from './control/Timeline.vue';
 import Checkbox from '../forms/Checkbox.vue';
 
@@ -264,8 +263,8 @@ mint {
       this.update();
     },
     resetFilters: function () {
-      this.selectedMints = [];
-      this.selectedRulers = [];
+      this.mintSelectionChanged([], true);
+      this.rulerSelectionChanged([], true);
       this.update();
     },
     update() {
@@ -287,6 +286,7 @@ mint {
         id: ruler.id,
         text: ruler.shortName || ruler.name || 'Unbenannter Herrscher',
         style: {
+          color: this.getRulerColor(ruler),
           border: '2px solid ' + this.getRulerColor(ruler),
           'border-left': '15px solid ' + this.getRulerColor(ruler),
           marginBottom: '3px',
@@ -385,12 +385,10 @@ mint {
       this.concentricCircles.addTo(this.featureGroup);
     },
     clearMintSelection() {
-      this.selectedMints = [];
-      this.update();
+      this.mintSelectionChanged([]);
     },
     clearRulerSelection() {
-      this.selectedRulers = [];
-      this.update();
+      this.rulerSelectionChanged([]);
     },
     getRulerColor(ruler) {
       // return '#333333';
@@ -436,13 +434,13 @@ mint {
         this.unavailableMints = unavailMints;
       }
     },
-    mintSelectionChanged(selected) {
+    mintSelectionChanged(selected, preventUpdate = false) {
       this.selectedMints = selected;
-      this.update();
+      if (!preventUpdate) this.update();
     },
-    rulerSelectionChanged(selected) {
+    rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
-      this.update();
+      if (!preventUpdate) this.update();
     },
     mintHasActiveRuler(type) {
       if (!type.mint) return false;
@@ -470,15 +468,33 @@ mint {
     grid-row: 1 / span 3;
   }
 
+  .side-bar-right {
+    .select-list-item {
+      transition: background-color 0.3s;
+      background-color: initial;
+
+      > * {
+        color: black;
+      }
+
+      &.selected {
+        background-color: currentColor;
+      }
+
+      span {
+        align-self: center;
+      }
+    }
+  }
+
   .timeline {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     border: 1px solid $light-gray;
     background-color: rgba(255, 255, 255, 0.8);
     // height: 100%;
-    padding: 20px 40px;
+    padding: 5px 40px;
 
     border-radius: $border-radius;
     border-bottom-left-radius: 0;
@@ -548,6 +564,15 @@ mint {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 5fr 1fr;
+
+  @media screen and (max-width: 1080px) {
+    grid-template-columns: 1fr 3fr 1fr;
+  }
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+
   grid-template-rows: 1fr 3fr 1fr;
 
   pointer-events: none;
