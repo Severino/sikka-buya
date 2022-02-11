@@ -14,7 +14,6 @@ import ButtonGroup from './components/forms/ButtonGroup.vue';
 import Modal from './components/layout/Modal.vue';
 import Auth from './utils/Auth';
 import PopupHandler from './popup';
-import Query from './database/query';
 
 export default {
   components: { ButtonGroup, LoginForm, Modal },
@@ -42,12 +41,6 @@ export default {
     } else {
       this.languageChanged('de');
     }
-
-    // Query.raw('environment')
-    //   .then((env) => {
-    //     window.sikkaEnvironment = env;
-    //   })
-    //   .catch((e) => (window.sikkaEnvironment = null));
   },
   methods: {
     languageChanged: function (lang) {

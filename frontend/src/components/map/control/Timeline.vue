@@ -1,6 +1,10 @@
 <template>
   <div class="timeline" ref="element">
     <h3>Zeitleiste</h3>
+    <button class="play-btn" @click="play">
+      <PlayIcon v-if="!playing" />
+      <PauseIcon v-else />
+    </button>
     <div class="input-wrapper">
       <input
         type="number"
@@ -28,6 +32,15 @@
         @pointerup="enableMap"
       /> -->
 
+      <timeline-slider
+        :min="from"
+        :max="to"
+        :value="value"
+        @change.stop="change"
+        @input.stop="change"
+        :labeledValue="10"
+        :subdivisions="2"
+      />
       <button type="button" @click.stop.prevent="up">
         <MenuRight />
       </button>
@@ -42,8 +55,19 @@ import MenuLeft from 'vue-material-design-icons/MenuLeft.vue';
 import MenuRight from 'vue-material-design-icons/MenuRight.vue';
 import Info from '../../forms/Info.vue';
 
+import PlayIcon from 'vue-material-design-icons/Play.vue';
+import PauseIcon from 'vue-material-design-icons/Pause.vue';
+import TimelineSlider from '../../forms/TimelineSlider.vue';
+
 export default {
-  components: { MenuLeft, MenuRight, Info },
+  components: {
+    MenuLeft,
+    MenuRight,
+    Info,
+    PlayIcon,
+    PauseIcon,
+    TimelineSlider,
+  },
   props: {
     map: Object,
     from: Number,
@@ -51,12 +75,38 @@ export default {
     value: Number,
     valid: Boolean,
   },
+  data() {
+    return {
+      playInterval: null,
+    };
+  },
+  computed: {
+    playing() {
+      return this.playInterval != null;
+    },
+  },
   methods: {
+    play() {
+      if (this.playing) this.stop();
+      else this.start();
+    },
+    start() {
+      this.playInterval = setInterval(() => {
+        if (this.value + 1 <= this.to) {
+          this.up();
+        } else this.stop();
+      }, 750);
+    },
+    stop() {
+      clearInterval(this.playInterval);
+      this.playInterval = null;
+    },
     input(event) {
-      this.$emit('input', parseFloat(event.target.value));
+      console.log(event);
+      this.$emit('input', parseFloat(event.currentTarget.value));
     },
     change(event) {
-      this.$emit('change', parseFloat(event.target.value));
+      this.$emit('change', parseFloat(event.currentTarget.value));
     },
     enableMap() {
       this.map.dragging.enable();
@@ -64,14 +114,10 @@ export default {
     disableMap() {
       this.map.dragging.disable();
     },
-    down(event) {
-      event.preventDefault();
-      event.stopPropagation();
+    down() {
       this.$emit('change', parseFloat(this.value - 1));
     },
-    up(event) {
-      event.preventDefault();
-      event.stopPropagation();
+    up() {
       this.$emit('change', parseFloat(this.value + 1));
     },
     init() {
@@ -93,7 +139,7 @@ export default {
 <style lang="scss" scoped>
 .toolbox {
   display: flex;
-  > input[type='slider'] {
+  > .slider {
     flex: 1;
   }
 }
@@ -132,5 +178,18 @@ input {
     top: -$padding/2;
     transform: translateY(-100%);
   }
+}
+
+.play-btn {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: $border;
+
+  $size: 75px;
+  width: $size;
+  height: $size;
+  border-radius: $size/2;
 }
 </style>

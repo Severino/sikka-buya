@@ -73,7 +73,9 @@ export default {
     });
 
     // Set the position and zoom level of the map
-    map.setView([33.284619968887675, 49.921875], 5);
+    map.setView([30.82752724017578, 51.34690253697896], 6.4);
+
+    window.map = map;
 
     if (this.height) {
       this.$refs.map.style.height = this.height;

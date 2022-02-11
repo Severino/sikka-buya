@@ -29,10 +29,10 @@
         v-for="(property, idx) of properties"
         :key="'prop-' + idx"
         class="button icon-button"
-        :to="{ name: 'Property', params: { property } }"
+        :to="property.to"
         draggable="false"
       >
-        <span>{{ $tc('property.' + property) }}</span>
+        <span>{{ $tc('property.' + property.name) }}</span>
       </router-link>
     </div>
     <h3>Hilfsprogramme</h3>
@@ -65,9 +65,34 @@ export default {
         'role',
         'province',
       ];
+
+      let propertyMap = {
+        person: () => {
+          return {
+            name: 'PersonOverview',
+          };
+        },
+      };
+
       props = props.sort((a, b) =>
         this.$tc('property.' + a).localeCompare(this.$tc('property.' + b))
       );
+
+      props = props.map((name) => {
+        if (propertyMap[name]) {
+          console.log(propertyMap[name]);
+          return {
+            name,
+            to: propertyMap[name](),
+          };
+        } else {
+          return {
+            name,
+            to: { name: 'Property', params: { property: name } },
+          };
+        }
+      });
+
       return props;
     },
     superuser: function () {
