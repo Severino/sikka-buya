@@ -58,7 +58,8 @@ class Type {
             internal_notes = $[internalNotes],
             year_uncertain = $[yearUncertain],
             mint_uncertain = $[mintUncertain],
-            plain_text = $[plainText]
+            plain_text = $[plainText],
+            search_vectors = to_tsvector('german', plain_text)
             WHERE id = $[id] 
         `, data)
 
@@ -265,7 +266,8 @@ class Type {
                         internal_notes,
                         mint_uncertain,
                         year_uncertain,
-                        plain_text
+                        plain_text,
+                        search_vectors
                     )  VALUES(
                         $[projectId],
                         $[treadwellId],
@@ -295,7 +297,8 @@ class Type {
                         $[internalNotes],
                         $[mintUncertain],
                         $[yearUncertain],
-                        $[plainText]
+                        $[plainText],
+                        to_tsvector('german', $[plainText])
                     ) RETURNING id
                         `, data)
 
