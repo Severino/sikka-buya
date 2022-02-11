@@ -6,11 +6,6 @@ export default class MintLocation {
 
 
         this.iconSize = this.circleOptions.radius * 3 / 2
-
-        this.uncertainIcon = L.icon({
-            iconUrl: "/icons/help.svg",
-            iconSize: [this.iconSize, this.iconSize]
-        })
     }
 
 
@@ -49,8 +44,20 @@ export default class MintLocation {
         else {
 
             let group = L.layerGroup([circle])
-            const marker = L.marker(latlng, { icon: this.uncertainIcon })
-            marker.interactive = false
+
+
+            const uncertainIcon = L.icon({
+                iconUrl: "/icons/help.svg",
+                iconSize: [this.iconSize, this.iconSize]
+            })
+
+            console.log(uncertainIcon)
+
+            const marker = L.marker(latlng, {
+                icon: uncertainIcon,
+                interactive: false
+            })
+
             return group.addLayer(marker)
         }
     }

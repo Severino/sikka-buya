@@ -52,6 +52,7 @@ import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import Overview from "@/components/page/Overview.vue"
+import PersonOverview from "@/components/page/PersonOverview"
 
 import TypeOverview from "@/components/page/TypeOverview.vue"
 
@@ -78,6 +79,8 @@ import DominionMap from "@/components/map/DominionMap"
 import PlaygroundPage from "@/components/map/Playground"
 
 
+import TemplatePage from "@/components/page/_TemplatePage"
+
 Vue.use(VueRouter)
 
 const analyticsRoutes = {
@@ -99,7 +102,10 @@ const analyticsRoutes = {
 
 
 const routes = [
-
+  {
+    path: "/template",
+    component: TemplatePage
+  },
   {
     path: "*",
     component: CommonMain,
@@ -109,8 +115,6 @@ const routes = [
         name: "Home",
         component: LandingPage
       },
-
-
       analyticsRoutes,
       {
         path: "/persons/",
@@ -219,6 +223,11 @@ const routes = [
             path: "coin_mark",
             name: "CoinMarkOverview",
             component: CoinMarkOverview
+          },
+          {
+            path: "person",
+            name: "PersonOverview",
+            component: PersonOverview
           },
           {
             path: ":property",

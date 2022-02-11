@@ -503,6 +503,10 @@ mint {
 
     max-width: 400px;
     margin: 0 auto;
+
+    .slider {
+      color: $primary-color;
+    }
   }
 
   .settings {

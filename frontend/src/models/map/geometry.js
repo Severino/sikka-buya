@@ -92,9 +92,7 @@ export function concentricCircle(latlng, {
 
     if (!Array.isArray(data))
         data = [data]
-    // const circle = L.semiCircleMarker(latlng, Object.assign({}, { innerRadius, radius, startAngle, stopAngle }, data))
-    // this.assignGeometryProperties(circle, data)
-    // circles.push(circle)
+
 
     for (let i = data.length - 1; i >= 0; i--) {
         let item = data[i]

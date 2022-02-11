@@ -1,21 +1,29 @@
 import Query from '../../../database/query';
+import RequestBuffer from '../../../models/request-buffer';
 
 export default {
     data: function () {
         return {
-            raw_timeline: { from: null, to: null, value: null },
+            raw_timeline: { from: 0, to: 100, value: 0 }, timeBuffer: null
         }
+    },
+    mounted() {
+        this.timeBuffer = new RequestBuffer(100)
     },
     methods: {
         timeChanged: async function (val) {
-            this.raw_timeline.value = val;
-            this.selectedMints = [];
-            /** 
-             * To allow proper editing, but also preventing the timeline
-             * to go above min and above max, we clamp the values for the 
-             * updateTimeline.
-             */
-            this.updateTimeline();
+
+            this.timeBuffer.update(val, () => {
+                this.raw_timeline.value = val;
+                this.selectedMints = [];
+                /** 
+                 * To allow proper editing, but also preventing the timeline
+                 * to go above min and above max, we clamp the values for the 
+                 * updateTimeline.
+                 */
+                this.updateTimeline();
+            })
+
         },
         initTimeline: async function (value) {
             try {
