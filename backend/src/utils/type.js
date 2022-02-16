@@ -59,7 +59,7 @@ class Type {
             year_uncertain = $[yearUncertain],
             mint_uncertain = $[mintUncertain],
             plain_text = $[plainText],
-            search_vectors = to_tsvector('german', plain_text)
+            search_vectors = to_tsvector('german_tag', plain_text)
             WHERE id = $[id] 
         `, data)
 
@@ -189,26 +189,41 @@ class Type {
 
         let errors = {}
         htmlFields = htmlFields.map(key => {
-            let text = ""
-            if (type[key]) {
-                const html = type[key]
-                try {
-                    const { document } = (new JSDOM(html)).window;
-                    text = document.body.textContent
-                } catch (e) {
-                    errors[key] = `Element with ${key} could not be parsed to html: ${e} `
-                }
+            let text = type[key]
+            // if (type[key]) {
+            //     const html = type[key]
+            //     try {
+            //         const { document } = (new JSDOM(html)).window;
+            //         text = document.body.textContent
+            //     } catch (e) {
+            //         errors[key] = `Element with ${key} could not be parsed to html: ${e} `
+            //     }
 
-            } else errors[key] = `Key '${key}' is missing on the element.`
+            // } else errors[key] = `Key '${key}' is missing on the element.`
 
             return { key, text }
         })
 
-        const fields = [...textFields, ...nameFields, ...htmlFields]
+        const fields = [...textFields, ...nameFields, ...htmlFields].filter(obj => {
+
+            if (!obj || !obj.text || obj.text.trim() === "")
+                return false
+
+
+            try {
+                const { document } = (new JSDOM(obj.text)).window;
+                if (document.body.textContent.trim() === "") return false
+            } catch (e) {
+                errors[key] = `Element with ${key} could not be parsed to html: ${e} `
+            }
+
+            return true
+
+        })
 
 
         let text = fields.filter(({ text }) => (text != null && text != "")).map(({ key, text }) => {
-            return `${DictDE.get(key)}: ${text}`
+            return `<h3>${DictDE.get(key)}</h3>${text}`
         }).join("\n")
 
         return { text: type.projectId + "\n" + text, errors }
@@ -298,7 +313,7 @@ class Type {
                         $[mintUncertain],
                         $[yearUncertain],
                         $[plainText],
-                        to_tsvector('german', $[plainText])
+                        to_tsvector('german_tag', $[plainText])
                     ) RETURNING id
                         `, data)
 
@@ -622,7 +637,7 @@ COUNT(*) as total
 
         const query = `
 SELECT 
-        ${this.rows}, ts_headline(plain_text, keywords) as preview        
+        ${this.rows}, ts_headline(plain_text, keywords, 'MaxFragments=10, HighlightALL=true') as preview        
         FROM type t
         ${this.joins}
         , websearch_to_tsquery($[text]) as keywords 
