@@ -151,7 +151,6 @@ $caretWidth: 5px;
     width: 100%;
     height: 100%;
     box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
   }
 
   .slider-bar {
@@ -161,7 +160,6 @@ $caretWidth: 5px;
     height: 100%;
 
     background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
     pointer-events: none;
     z-index: 1;
   }

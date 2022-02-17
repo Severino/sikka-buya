@@ -295,7 +295,7 @@ a {
   display: flex;
   align-items: center;
 
-  :first-child {
+  :first-child:not(:last-child) {
     margin-right: $padding;
   }
 }
