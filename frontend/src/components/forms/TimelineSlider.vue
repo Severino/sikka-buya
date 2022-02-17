@@ -115,16 +115,16 @@ export default {
   position: absolute;
   color: rgb(41, 41, 41);
   bottom: 0;
-  height: 75%;
+  height: 90%;
+  width: 10px;
 
   .lable {
     position: absolute;
     display: block;
     font-weight: bold;
     font-size: 0.6rem;
-    transform: rotate(90deg) translate(-100%, 50%);
+    transform: rotate(90deg) translate(-50%, 50%);
     transform-origin: left bottom;
-    top: 0;
   }
 
   &::after {
@@ -133,7 +133,7 @@ export default {
     position: absolute;
     bottom: 0;
     border-left: 1px solid currentColor;
-    height: 50%;
+    height: 60%;
   }
 }
 </style>

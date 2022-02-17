@@ -51,8 +51,6 @@ export default class MintLocation {
                 iconSize: [this.iconSize, this.iconSize]
             })
 
-            console.log(uncertainIcon)
-
             const marker = L.marker(latlng, {
                 icon: uncertainIcon,
                 interactive: false
