@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import L from 'leaflet';
 import MapMixin from './mixins/map';
 import { concentricCircles } from '../../models/map/geometry';
 

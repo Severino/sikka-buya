@@ -4,19 +4,7 @@
       <Button class="clear-filter-btn" @click="clearMintSelection"
         >Auswahl aufheben</Button
       >
-      <multi-select-list
-        id="mints"
-        :items="availableMintsList"
-        :selectedIds="this.selectedMints"
-        @selectionChanged="mintSelectionChanged"
-      />
-      <multi-select-list
-        id="mints"
-        class="unavailable"
-        :items="unavailableMintsList"
-        :selectedIds="this.selectedMints"
-        @selectionChanged="mintSelectionChanged"
-      />
+      <mint-list :items="availableMints" :selectedIds="[]" />
     </Sidebar>
 
     <div class="center-ui center-ui-top">
@@ -55,8 +43,7 @@
         >Auswahl aufheben</Button
       >
 
-      <multi-select-list
-        id="mints"
+      <ruler-list
         :items="availableRulers"
         :selectedIds="selectedRulers"
         @selectionChanged="rulerSelectionChanged"
@@ -85,6 +72,8 @@ import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import { concentricCircles } from '../../models/map/geometry';
 import { coinsToRulerData } from '../../models/rulers';
+import RulerList from '../RulerList.vue';
+import MintList from '../MintList.vue';
 
 export default {
   name: 'PoliticalMap',
@@ -95,6 +84,8 @@ export default {
     Checkbox,
     FilterIcon,
     MultiSelectList,
+    RulerList,
+    MintList,
   },
   data: function () {
     return {
@@ -201,17 +192,28 @@ mint {
       shortName
       id
       color
+      dynasty{
+        id,name
+      }
     }
     mint {
       id
       name
       location
+      uncertain
+      province {
+        id
+        name
+      }
     },
     issuers {
       id
       name
       shortName
       color
+      dynasty{
+        id,name
+      }
     }
     overlords {
       id
@@ -219,6 +221,9 @@ mint {
       shortName
       rank
       color
+      dynasty{
+        id,name
+      }
     }
     excludeFromTypeCatalogue
   }
@@ -281,17 +286,13 @@ mint {
       this.mintLocations.addTo(this.featureGroup);
     },
     updateAvailableRulers() {
-      const rulers = Object.values(this.rulers);
-      this.availableRulers = rulers.map((ruler) => ({
-        id: ruler.id,
-        text: ruler.shortName || ruler.name || 'Unbenannter Herrscher',
-        style: {
-          color: this.getRulerColor(ruler),
-          border: '2px solid ' + this.getRulerColor(ruler),
-          'border-left': '15px solid ' + this.getRulerColor(ruler),
-          marginBottom: '3px',
-        },
-      }));
+      this.availableRulers = Object.values(this.rulers).sort((a, b) => {
+        var nameA = a.shortName?.toUpperCase();
+        var nameB = b.shortName?.toUpperCase();
+        if (nameA < nameB) return -1;
+        else if (nameA > nameB) return 1;
+        else return 0;
+      });
     },
     updateConcentricCircles: function () {
       let rulers = {};

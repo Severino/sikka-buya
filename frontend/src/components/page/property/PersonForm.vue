@@ -2,11 +2,11 @@
   <div class="person-form">
     <PropertyFormWrapper
       @submit="submit"
-      @cancel="cancel"
       property="person"
       :loading="loading"
       :title="$tc('property.person')"
       :error="error"
+      overwriteRoute="PersonOverview"
     >
       <input v-model="person.id" type="hidden" />
 
@@ -137,10 +137,7 @@ export default {
 
       Query.raw(query, variables)
         .then((result) => {
-          this.$router.push({
-            name: 'Property',
-            params: { property: 'person' },
-          });
+          this.$router.push({ name: 'PersonOverview' });
         })
         .catch((err) => {
           this.error = this.$t('error.could_not_update_element');
@@ -148,7 +145,7 @@ export default {
         });
     },
     cancel: function () {
-      this.$router.push({ path: '/person' });
+      this.$router.push({ name: 'PersonOverview' });
     },
   },
   data: function () {

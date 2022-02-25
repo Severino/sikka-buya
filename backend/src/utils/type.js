@@ -59,7 +59,7 @@ class Type {
             year_uncertain = $[yearUncertain],
             mint_uncertain = $[mintUncertain],
             plain_text = $[plainText],
-            search_vectors = to_tsvector('german_tag', plain_text)
+            search_vectors = to_tsvector('german', plain_text)
             WHERE id = $[id] 
         `, data)
 
@@ -313,7 +313,7 @@ class Type {
                         $[mintUncertain],
                         $[yearUncertain],
                         $[plainText],
-                        to_tsvector('german_tag', $[plainText])
+                        to_tsvector('german', $[plainText])
                     ) RETURNING id
                         `, data)
 
@@ -746,6 +746,8 @@ SELECT
         return ` t.*,
     ${Material.query()}
         ${Mint.query()}
+        province.id AS mint_province_id,
+        province.name AS mint_province_name,
         ${Nominal.query()}
 exclude_from_type_catalogue,
     exclude_from_map_app,
@@ -762,6 +764,8 @@ exclude_from_type_catalogue,
         ON t.material = ma.id
         LEFT JOIN mint mi 
         ON t.mint = mi.id
+        LEFT JOIN province
+        ON mi.province = province.id 
         LEFT JOIN nominal n 
         ON t.nominal = n.id
         LEFT JOIN person p
@@ -789,7 +793,12 @@ exclude_from_type_catalogue,
                 prefix: "nominal_",
                 target: "nominal",
                 keys: ["id", "name"]
-            }
+            },
+            {
+                prefix: "mint_province_",
+                target: "mint.province",
+                keys: ["id", "name"]
+            },
         ]
 
         config.forEach(conf => delete type[conf.target])

@@ -1,43 +1,8 @@
 <template>
   <div class="multi-select-list">
     <ul>
-      <li
-        v-for="(item, index) of items"
-        :key="item.id"
-        @click="selected(item)"
-        class="select-list-item"
-        :class="{ selected: isSelected(item) }"
-        :style="getItemStyle(index)"
-      >
-        <div class="checkbox">
-          <label @click.stop="checkboxSelect(item)">
-            <div class="box" :class="{ active: isSelected(item) }"></div>
-          </label>
-        </div>
-        <span>
-          {{ getItemText(index) }}
-        </span>
-      </li>
+      <slot />
     </ul>
-    <!-- <ul>
-      <li
-        v-for="mint of unavailableMints"
-        :key="`mint-unavail-list-item-${mint.id}`"
-        @click="mintSelected(mint)"
-        class="inactive"
-        :class="{ selected: mint.selected }"
-      >
-        <input
-          v-if="selectedMints.length > 0"
-          type="checkbox"
-          :checked="mint.selected"
-          @input.stop="mintAdded($event, mint)"
-          @click.stop
-        />
-
-        {{ mint.name }}
-      </li>
-    </ul> -->
   </div>
 </template>
 
@@ -47,18 +12,6 @@ import Button from './layout/buttons/Button.vue';
 export default {
   components: { Button, Label },
   name: 'MultiSelectList',
-  props: {
-    selectedIds: {
-      type: Array,
-      default: function () {
-        return [];
-      },
-    },
-    items: {
-      type: Array,
-      required: true,
-    },
-  },
   methods: {
     checkboxSelect(item) {
       const selection = this.selectedIds;
@@ -86,7 +39,6 @@ export default {
       }
     },
     selectionChanged(selection) {
-      console.log('SELECTION', selection);
       this.$emit('selectionChanged', selection);
     },
     isSelected(item) {
@@ -115,29 +67,6 @@ export default {
     },
   },
 };
-
-// mintAdded(event, mint) {
-//   mint.selected = event.target.checked;
-//   if (mint.selected) this.addActiveMint(mint);
-//   else this.removeActiveMint(mint);
-
-//   this.update();
-// },
-// addActiveMint(mint) {
-//   this.selectedMints.push(mint);
-//   mint.selected = true;
-// },
-// removeActiveMint(mint) {
-//   const selectedMintPosition = this.selectedMints.findIndex(
-//     (selectedMint) => selectedMint.id == mint.id
-//   );
-//   if (selectedMintPosition != -1) {
-//     mint.selected = false;
-//     this.selectedMints.splice(selectedMintPosition, 1);
-//     return true;
-//   }
-//   return false;
-// },
 </script>
 
 <style lang="scss">
@@ -162,60 +91,6 @@ export default {
 
   .nonInteractive {
     pointer-events: none;
-  }
-
-  ul {
-    margin-left: -15px;
-  }
-
-  .checkbox {
-    display: flex;
-
-    .box {
-      position: relative;
-      &::after,
-      &::before {
-        content: '';
-        display: block;
-        position: absolute;
-        width: 100%;
-        border-bottom: 2px solid currentColor;
-        top: calc(50% - 1px);
-        transform-origin: center center;
-        transition: transform 0.3s;
-      }
-      &::after {
-        transform: scale(0) rotate(45deg);
-      }
-
-      &::before {
-        transform: scale(0) rotate(-45deg);
-      }
-
-      &.active {
-        &::after {
-          transform: scale(1) rotate(45deg);
-        }
-
-        &::before {
-          transform: scale(1) rotate(-45deg);
-        }
-      }
-    }
-
-    $size: 12px;
-    label {
-      display: flex;
-      align-items: center;
-
-      padding: 5px;
-      .box {
-        width: $size;
-        height: $size;
-        border: 1px solid currentColor;
-        border-radius: 3px;
-      }
-    }
   }
 }
 </style>
