@@ -16,6 +16,7 @@
 
 <script>
 require('leaflet-semicircle');
+require('../../plugins/leaflet-svg-icon');
 
 import MapView from '../map/MapView.vue';
 

@@ -37,7 +37,7 @@
           :key="`slide-${idx}`"
           :name="slide.name"
           :class="{ active: idx === currentSlide }"
-          @click.native="setMapTo(slide.options)"
+          @click.native="setSlide(idx)"
         />
       </div>
     </div>
@@ -240,6 +240,10 @@ export default {
       if (this.currentSlide >= 0 && this.currentSlide < this.slides.length) {
         this.setMapTo(this.slides[this.currentSlide].options);
       } else console.warn('Slide index is out of range.');
+    },
+    setSlide(index) {
+      this.currentSlide = index;
+      this.updateSlide();
     },
   },
 };
