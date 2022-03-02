@@ -79,7 +79,7 @@ import DominionMap from "@/components/map/DominionMap"
 import PlaygroundPage from "@/components/map/Playground"
 
 
-import TemplatePage from "@/components/page/_TemplatePage"
+import TemplatePage from "@/components/page/TemplatePage"
 
 Vue.use(VueRouter)
 
