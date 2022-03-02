@@ -18,7 +18,7 @@ export default {
                 this.selectionChanged(selection);
             } else {
                 selection.splice(idx, 1);
-                this.selectedIds(selection);
+                this.selectionChanged(selection);
             }
         },
         group() {

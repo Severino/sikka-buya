@@ -1,7 +1,8 @@
 {
   "name": "backend",
-  "version": "0.3.8",
+  "version": "0.3.10",
   "description": "Backend for the coin collection.",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "pm2": "pm2 start node -- index.js",
