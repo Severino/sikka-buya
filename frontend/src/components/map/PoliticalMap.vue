@@ -4,7 +4,11 @@
       <Button class="clear-filter-btn" @click="clearMintSelection"
         >Auswahl aufheben</Button
       >
-      <mint-list :items="availableMints" :selectedIds="[]" />
+      <mint-list
+        :items="mintsList"
+        :selectedIds="selectedMints"
+        @selectionChanged="mintSelectionChanged"
+      />
     </Sidebar>
 
     <div class="center-ui center-ui-top">
@@ -111,21 +115,16 @@ export default {
     filtersActive: function () {
       return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
     },
-    availableMintsList() {
-      return this.availableMints.map((mint) => {
-        return {
-          id: mint.id,
-          text: mint.name,
-        };
-      });
-    },
-    unavailableMintsList() {
-      return this.unavailableMints.map((mint) => {
-        return {
-          id: mint.id,
-          text: mint.name,
-        };
-      });
+    mintsList() {
+      function addAvailability(mint, available) {
+        mint.available = available;
+        return mint;
+      }
+
+      return [
+        ...this.availableMints.map((mint) => addAvailability(mint, true)),
+        ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
+      ];
     },
     mintMarkerOptions() {
       return {
@@ -177,6 +176,10 @@ mint {
   name
   location
   uncertain
+  province {
+    id
+    name
+  }
 }
   coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
     types{

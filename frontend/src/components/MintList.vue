@@ -15,6 +15,7 @@
           :selected="isSelected(item)"
           @checkboxSelected="checkboxSelected(item)"
           @click.native="selectionChanged([item.id])"
+          :class="{ available: item.available }"
           :style="{ color: item.color, borderColor: item.color }"
         >
           <span>{{ item.name }}</span>
@@ -62,5 +63,12 @@ export default {
 <style lang="scss" scoped>
 h4 {
   color: #333;
+}
+
+.select-list-item {
+  opacity: 0.5;
+}
+.available {
+  opacity: 1;
 }
 </style>
