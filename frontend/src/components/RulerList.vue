@@ -2,6 +2,24 @@
   <div class="ruler-list">
     <h3>Ruler List</h3>
     <multi-select-list>
+      <div
+        class="selected-but-unavailable"
+        v-if="selectedUnavailable.length > 0"
+      >
+        <MultiSelectListItem
+          v-for="item of selectedUnavailable"
+          :key="'ruler-' + item.id"
+          :selected="isSelected(item)"
+          @checkboxSelected="checkboxSelected(item)"
+          @click.native="selectionChanged([item.id])"
+          :style="{ color: item.color, borderColor: item.color }"
+        >
+          <span>{{ item.shortName }}</span>
+          <span v-if="getDynasty(item)" class="subtitle">{{
+            getDynasty(item)
+          }}</span>
+        </MultiSelectListItem>
+      </div>
       <MultiSelectListItem
         v-for="item of items"
         :key="'ruler-' + item.id"
@@ -24,6 +42,9 @@ import MultiSelectList from './MultiSelectList.vue';
 import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
 export default {
+  props: {
+    selectedUnavailable: Array,
+  },
   components: {
     MultiSelectList,
     MultiSelectListItem,
@@ -54,5 +75,10 @@ export default {
   font-size: 0.7rem;
   color: $gray;
   opacity: 0.5;
+}
+
+.selected-but-unavailable {
+  opacity: 0.5;
+  margin-bottom: $padding;
 }
 </style>
