@@ -48,6 +48,7 @@
       >
 
       <ruler-list
+        :selectedUnavailable="selectedUnavailableRulers"
         :items="availableRulers"
         :selectedIds="selectedRulers"
         @selectionChanged="rulerSelectionChanged"
@@ -60,6 +61,7 @@
 import Sidebar from './Sidebar.vue';
 import Timeline from './control/Timeline.vue';
 import Checkbox from '../forms/Checkbox.vue';
+import Sort from '../../utils/Sorter';
 
 import map from './mixins/map';
 import timeline from './mixins/timeline';
@@ -95,13 +97,14 @@ export default {
     return {
       types: [],
       mints: [],
+      persons: {},
       rulers: [],
+      selectedUnavailableRulers: [],
       selectedRulers: [],
       selectedMints: [],
       rulerListStyles: [],
       availableMints: [],
       unavailableMints: [],
-      availableRulers: [],
       mintLocation: null,
       settings: {
         visible: false,
@@ -171,6 +174,17 @@ export default {
         } else {
           Query.raw(
             `{
+person {
+  id
+  name
+  shortName
+  color
+  dynasty {
+    id
+    name
+  }
+}
+              
 mint {
   id
   name
@@ -234,16 +248,19 @@ mint {
 }`
           )
             .then((result) => {
-              let data = result.data.data.coinType.types;
-              let mints = result.data.data.mint.filter(
-                (mint) => mint.location != null
-              );
+              let data = result.data.data;
+              let types = data.coinType.types;
+              let mints = data.mint.filter((mint) => mint.location != null);
               this.mints = {};
               mints.forEach((mint) => {
                 this.mints[mint.id] = mint;
               });
 
-              data.forEach((type) => {
+              data.person.forEach(
+                (person) => (this.persons[person.id] = person)
+              );
+
+              types.forEach((type) => {
                 if (type?.mint.location) {
                   try {
                     type.mint.location = JSON.parse(type.mint.location);
@@ -256,11 +273,11 @@ mint {
                 }
               });
 
-              data = data.filter(
+              types = types.filter(
                 (d) => (d.mint?.location && d.mint.location.coordinates) != null
               );
 
-              resolve(data);
+              resolve(types);
             })
             .catch(reject);
         }
@@ -289,13 +306,22 @@ mint {
       this.mintLocations.addTo(this.featureGroup);
     },
     updateAvailableRulers() {
-      this.availableRulers = Object.values(this.rulers).sort((a, b) => {
-        var nameA = a.shortName?.toUpperCase();
-        var nameB = b.shortName?.toUpperCase();
-        if (nameA < nameB) return -1;
-        else if (nameA > nameB) return 1;
-        else return 0;
+      let selectedRulers = this.selectedRulers.slice();
+
+      this.availableRulers = Object.values(this.rulers).sort(
+        Sort.stringsByProperty
+      );
+
+      /**
+       * If a ruler is selected but not in the timeline anymore:
+       */
+      this.selectedUnavailableRulers = [];
+      selectedRulers.forEach((selectedRuler) => {
+        if (!this.rulers[selectedRuler]) {
+          this.selectedUnavailableRulers.push(this.persons[selectedRuler]);
+        }
       });
+      this.selectedUnavailableRulers.sort(Sort.stringsByProperty);
     },
     updateConcentricCircles: function () {
       let rulers = {};
