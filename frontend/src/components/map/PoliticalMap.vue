@@ -99,6 +99,7 @@ export default {
       mints: [],
       persons: {},
       rulers: [],
+      availableRulers: [],
       selectedUnavailableRulers: [],
       selectedRulers: [],
       selectedMints: [],
@@ -377,7 +378,11 @@ mint {
 
         {
           pointToLayer: function (feature, latlng) {
-            const data = coinsToRulerData(feature.coins, that.selectedRulers);
+            const { data, selected } = coinsToRulerData(
+              feature.coins,
+              that.selectedRulers
+            );
+
             const featureGroup = concentricCircles(latlng, data, {
               openPopup: function ({ data, groupData }) {
                 return rulerPopup(groupData, data?.data);
@@ -396,13 +401,12 @@ mint {
                 .createMarker(mintFeature, latlng)
                 .addTo(featureGroup);
             }
+
+            featureGroup.selected = selected;
             featureGroup.on('mouseover', () => featureGroup.bringToFront());
-
             featureGroup.on('click', () => featureGroup.bringToFront());
-
             return featureGroup;
           },
-
           coordsToLatLng: function (coords) {
             return new that.L.LatLng(coords[0], coords[1], coords[2]);
           },
@@ -413,6 +417,13 @@ mint {
       );
 
       this.concentricCircles.addTo(this.featureGroup);
+
+      /**
+       * Bring selected layer to the front.
+       */
+      for (let layer of Object.values(this.concentricCircles._layers)) {
+        if (layer.selected) layer.bringToFront();
+      }
     },
     clearMintSelection() {
       this.mintSelectionChanged([]);
