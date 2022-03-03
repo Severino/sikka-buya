@@ -28,7 +28,7 @@
         @click.native="selectionChanged([item.id])"
         :style="{ color: item.color, borderColor: item.color }"
       >
-        <span>{{ item.shortName }}</span>
+        <span>{{ item.shortName || item.name }}</span>
         <span v-if="getDynasty(item)" class="subtitle">{{
           getDynasty(item)
         }}</span>

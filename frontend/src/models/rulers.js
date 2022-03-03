@@ -8,22 +8,27 @@ export function rulersFromCoin(coin) {
 }
 
 export function dataFromRulers(rulers, selected = []) {
-    let value = rulers
+    let data = rulers
+    let sel = false
     if (Array.isArray(rulers)) {
-        value = []
+        data = []
         rulers.forEach(ruler => {
-            const subdata = dataFromRulers(ruler, selected)
-            value.push(subdata)
+            const { data: subdata, selected: anyIsSelected } = dataFromRulers(ruler, selected)
+            if (anyIsSelected) sel = true
+            data.push(subdata)
         })
     } else {
         const ruler = rulers
 
-        let fillColor = ruler.color || "#ff00ff"
+        sel = true
         if (selected.length > 0) {
-            fillColor = selected.indexOf(ruler.id) == -1 ? "#dddddd" : fillColor
+            sel = selected.indexOf(ruler.id) !== -1
         }
 
-        value = {
+        let fillColor = !sel ? "#dddddd" : ruler.color || "#ff00ff"
+
+
+        data = {
             data: ruler,
             fillColor,
             color: "#fff",
@@ -32,21 +37,20 @@ export function dataFromRulers(rulers, selected = []) {
         }
     }
 
-    return value
+    return { data, selected: sel }
 }
 
 export function coinsToRulerData(coins, selected = []) {
     let data = []
+    let sel = false
     coins.forEach(coin => {
+        let { data: rulerData, selected: sel2 } = dataFromRulers(rulersFromCoin(coin), selected)
+        sel = sel2
         data.push({
             groupData: coin,
-            data: dataFromRulers(rulersFromCoin(coin), selected)
+            data: rulerData
         })
     })
 
-    return data
-}
-
-export function hasSelectedRuler(coins, selected) {
-    console.log(selected)
+    return { data, selected: sel }
 }
