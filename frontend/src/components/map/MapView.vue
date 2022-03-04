@@ -72,9 +72,6 @@ export default {
       smoothSensitivity: 1, // zoom speed. default is 1
     });
 
-    // Set the position and zoom level of the map
-    map.setView([30.82752724017578, 51.34690253697896], 6.4);
-
     window.map = map;
 
     if (this.height) {

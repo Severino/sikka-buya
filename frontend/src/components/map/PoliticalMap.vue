@@ -107,6 +107,8 @@ export default {
       availableMints: [],
       unavailableMints: [],
       mintLocation: null,
+      location: [30.82752724017578, 51.34690253697896],
+      zoom: 6.4,
       settings: {
         visible: false,
         minRadius: { value: 10, min: 0, max: 50 },
@@ -277,6 +279,34 @@ mint {
               types = types.filter(
                 (d) => (d.mint?.location && d.mint.location.coordinates) != null
               );
+
+              console.log(this.location);
+              let location = localStorage.getItem('map-location');
+              console.log(location);
+              if (location) {
+                this.location = JSON.parse(location);
+              }
+
+              let zoom = localStorage.getItem('map-zoom');
+
+              if (zoom) {
+                this.zoom = zoom;
+              }
+
+              this.map.setView(this.location, this.zoom, { animate: false });
+
+              this.$nextTick(() => {
+                this.map.on('moveend', function (args) {
+                  const { target: map } = args;
+
+                  const { lat, lng } = map.getCenter();
+                  localStorage.setItem(
+                    'map-location',
+                    JSON.stringify([lat, lng])
+                  );
+                  localStorage.setItem('map-zoom', map.getZoom());
+                });
+              });
 
               resolve(types);
             })

@@ -1,6 +1,5 @@
 
 export default function (name, variables = []) {
-    console.error(variables)
     return {
         data() {
             return {
@@ -16,11 +15,11 @@ export default function (name, variables = []) {
                     if (data_str != null) {
                         try {
                             data = JSON.parse(data_str)
+                            console.log(this.localstore_name, data_str)
                         } catch (e) {
                             console.error("Could not parse stored data: ", e)
                         }
                     }
-
 
                     this.localstore_variables.forEach(key => {
                         if (Object.prototype.hasOwnProperty.call(this.$data, key)) {
@@ -35,10 +34,8 @@ export default function (name, variables = []) {
                 const data = {}
                 this.localstore_variables.forEach(key => {
                     try {
-                        if (Object.prototype.hasOwnProperty.call(this.$data, key)) {
-                            const data_str = JSON.stringify(this.$data[key])
+                        if (Object.prototype.hasOwnProperty.call(this.$data, key) && this.$data[key] != null) {
                             data[key] = this.$data[key]
-
                         }
                     } catch (e) {
                         console.error(`Could not stringify key '${key}' of localstore ${this.name}.`, e)
