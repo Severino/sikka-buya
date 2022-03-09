@@ -1,7 +1,12 @@
 
 
 function printName(person, clickedRuler) {
-    const active = person.id === clickedRuler.id
+    let active = false
+    if (clickedRuler.group) {
+        let inGroup = clickedRuler.items.find(clickedRuler => person.id === clickedRuler.id)
+        active = inGroup !== undefined
+    } else
+        active = person.id === clickedRuler.id
     let name = person.shortName || person.name || "Unbenannter Herrscher";
     return (active) ? `<span class="active">${name}</span>` : `<span>${name}</span>`;
 }
@@ -31,6 +36,15 @@ export function rulerPopup(coin, clickedRuler) {
         overlordsText = '-';
     }
     let issuersText = buildRulerList(coin.issuers, clickedRuler);
+
+    let heirText = ""
+    if (coin.heir) {
+        heirText = `
+        <h3>Thronfolger</h3>
+        ${buildRulerList(coin.heir, clickedRuler)}
+        `
+    }
+
     return `
         <header>
           <span class="subtitle">${coin.mint.name}</span>
@@ -47,5 +61,6 @@ export function rulerPopup(coin, clickedRuler) {
         ${overlordsText}
          <h3>Kalif</h3>
         ${caliphText}
+        ${heirText}
       `;
 }

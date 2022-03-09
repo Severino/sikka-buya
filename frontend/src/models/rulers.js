@@ -1,9 +1,23 @@
-export function rulersFromCoin(coin) {
+import { DEBUG_COLOR, INACTIVE_COLOR } from '../utils/Color';
+
+export function rulersFromCoin(coin, patterns) {
     let rulers = [];
     if (coin.issuers && coin.issuers.length > 0) rulers.push(coin.issuers);
     if (coin.overlords && coin.overlords.length > 0)
         rulers = [...rulers, ...coin.overlords];
-    if (coin.caliph) rulers.push(coin.caliph);
+    if (coin.caliph) {
+        if (!coin.heir) {
+            rulers.push(coin.caliph)
+        } else {
+            rulers.push({
+                group: true,
+                items: [coin.caliph, coin.heir],
+                styles: {
+                    fillPattern: patterns[coin.caliph.id][coin.heir.id]
+                }
+            })
+        }
+    }
     return rulers;
 }
 
@@ -25,26 +39,28 @@ export function dataFromRulers(rulers, selected = []) {
             sel = selected.indexOf(ruler.id) !== -1
         }
 
-        let fillColor = !sel ? "#dddddd" : ruler.color || "#ff00ff"
+        let fillColor = !sel ? INACTIVE_COLOR : ruler.color || DEBUG_COLOR
 
 
-        data = {
-            data: ruler,
+        data = Object.assign({
             fillColor,
             color: "#fff",
             stroke: true,
             weight: 1
-        }
+        }, ruler.styles, {
+            data: ruler,
+        })
     }
 
     return { data, selected: sel }
 }
 
-export function coinsToRulerData(coins, selected = []) {
+export function coinsToRulerData(coins, selected = [], patterns = {}) {
     let data = []
     let sel = false
     coins.forEach(coin => {
-        let { data: rulerData, selected: sel2 } = dataFromRulers(rulersFromCoin(coin), selected)
+        const rulers = rulersFromCoin(coin, patterns)
+        let { data: rulerData, selected: sel2 } = dataFromRulers(rulers, selected)
         sel = sel2
         data.push({
             groupData: coin,

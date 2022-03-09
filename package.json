@@ -22,6 +22,7 @@
     "dotenv": "^10.0.0",
     "graphql": "^15.5.1",
     "graphql-2-json-schema": "^0.7.0",
+    "leaflet.pattern": "^0.1.0",
     "pg-promise": "^10.11.0"
   },
   "devDependencies": {

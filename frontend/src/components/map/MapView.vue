@@ -8,6 +8,8 @@
 
 <script>
 var L = require('leaflet');
+require('leaflet.pattern');
+
 import('/node_modules/leaflet/dist/leaflet.css');
 
 import LeafletSmoothZoom from '../../vendor/leafletsmoothzoom';
@@ -23,6 +25,11 @@ export default {
       map: null,
       ready: false,
     };
+  },
+  computed: {
+    L() {
+      return L;
+    },
   },
   mounted: function () {
     const minBoundingPoint = L.latLng(10, 10);
