@@ -1067,13 +1067,6 @@ graphql-2-json-schema@^0.7.0:
   dependencies:
     lodash "^4.17.20"
 
-graphql-tag@^2.12.6:
-  version "2.12.6"
-  resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.12.6.tgz#d441a569c1d2537ef10ca3d1633b48725329b5f1"
-  integrity sha512-FdSNcu2QQcWnM2VNvSCCDCVS5PpPqpzgFT8+GXzqJuoDd0CBncxCY278u4mhRO7tMgo2JjgJA5aZ+nWSQ/Z+xg==
-  dependencies:
-    tslib "^2.1.0"
-
 graphql@^15.5.1:
   version "15.5.1"
   resolved "https://registry.npmjs.org/graphql/-/graphql-15.5.1.tgz"
@@ -1541,6 +1534,18 @@ lazy-ass@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
   integrity sha1-eZllXoZGwX8In90YfRUNMyTVRRM=
+
+leaflet.pattern@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/leaflet.pattern/-/leaflet.pattern-0.1.0.tgz#c127ac80915b7aa3f450f97fe08c06e7215eb8a7"
+  integrity sha512-E4sxvvK0XHi1EhE1yUTG1bzafXZoXUPqWPjHz5fSpv/pOcT4CtS0qR1lhFSRtSUYios8OwlZmUGB9n91zQEgcw==
+  dependencies:
+    leaflet "~0.7.1"
+
+leaflet@~0.7.1:
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-0.7.7.tgz#1e352ba54e63d076451fa363c900890cb2cf75ee"
+  integrity sha1-HjUrpU5j0HZFH6NjyQCJDLLPde4=
 
 liftup@~3.0.1:
   version "3.0.1"
@@ -2526,11 +2531,6 @@ tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
-
-tslib@^2.1.0:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
-  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
 
 tunnel-agent@^0.6.0:
   version "0.6.0"

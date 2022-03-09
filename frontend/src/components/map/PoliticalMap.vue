@@ -107,6 +107,7 @@ export default {
       availableMints: [],
       unavailableMints: [],
       mintLocation: null,
+      patterns: {},
       location: [30.82752724017578, 51.34690253697896],
       zoom: 6.4,
       settings: {
@@ -245,6 +246,16 @@ mint {
         id,name
       }
     }
+    otherPersons {
+    id
+    shortName
+    name
+    color
+    role {
+      id
+      name
+    }
+  }
     excludeFromTypeCatalogue
   }
   }
@@ -280,9 +291,7 @@ mint {
                 (d) => (d.mint?.location && d.mint.location.coordinates) != null
               );
 
-              console.log(this.location);
               let location = localStorage.getItem('map-location');
-              console.log(location);
               if (location) {
                 this.location = JSON.parse(location);
               }
@@ -358,9 +367,46 @@ mint {
       let rulers = {};
       let mints = {};
 
+      for (let caliphKey of Object.keys(this.patterns)) {
+        for (let heirKey of Object.keys(this.patterns[caliphKey])) {
+          this.patterns[caliphKey][heirKey].removeFrom(this.map);
+          delete this.patterns[caliphKey][heirKey];
+        }
+        delete this.patterns[caliphKey];
+      }
+      this.patterns = {};
+
       this.types.forEach((type) => {
         if (type.mint?.id) mints[type.mint.id] = type.mint;
-        if (type.caliph) rulers[type.caliph.id] = type.caliph;
+        if (type.caliph) {
+          rulers[type.caliph.id] = type.caliph;
+
+          /**
+           * There should be only one heir.
+           * So we only look for the first heir we find.
+           */
+          if (type.otherPersons) {
+            const heir = type.otherPersons.find(
+              (person) => person.role.name === 'heir'
+            );
+            if (heir != undefined) {
+              rulers[heir.id] = heir;
+              type.heir = heir;
+              const stripes = new this.L.StripePattern({
+                color: type.caliph.color,
+                spaceColor: heir.color,
+                spaceOpacity: 1,
+                weight: 6,
+                angle: -45,
+              });
+              stripes.addTo(this.map);
+
+              if (!this.patterns[type.caliph.id])
+                this.patterns[type.caliph.id] = {};
+              this.patterns[type.caliph.id][heir.id] = stripes;
+            }
+          }
+        }
         type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
         type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
       });
@@ -410,7 +456,8 @@ mint {
           pointToLayer: function (feature, latlng) {
             const { data, selected } = coinsToRulerData(
               feature.coins,
-              that.selectedRulers
+              that.selectedRulers,
+              that.patterns
             );
 
             const featureGroup = concentricCircles(latlng, data, {
@@ -464,15 +511,6 @@ mint {
     getRulerColor(ruler) {
       // return '#333333';
       return ruler.color || '#ff00ff';
-    },
-    getContrastColor(ruler) {
-      const contrastColor = SikkaColor.getContrastColor(
-        this.getRulerColor(ruler),
-        '#ffffff',
-        '#000000'
-      );
-
-      return contrastColor;
     },
     updateAvailableMints() {
       let avalMints = {};
