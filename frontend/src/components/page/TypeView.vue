@@ -1,8 +1,12 @@
 <template>
   <div class="type-view">
-    <header>
-      <h1>{{ type.projectId }}</h1>
-    </header>
+    <h1 class="gm2 gd2">{{ type.projectId }}</h1>
+
+    <div v-if="type.donativ" class="gt4 gd2 gc">Geschenkmünze</div>
+    <div v-else class="blank gt4 gd2"></div>
+
+    <div v-if="type.procedure != 'pressed'" class="gt4 gd2 gc">Gegossen</div>
+    <div v-else class="blank gt4 gd2"></div>
 
     <router-link
       v-if="$store.state.user"
@@ -15,20 +19,27 @@
     </router-link>
 
     <div class="property gm2 gd2">
+      <catalog-property :label="mapText('mint')">
+        {{ type.mint.name }}
+        <template v-if="type.mintUncertain">?</template>
+      </catalog-property>
+    </div>
+
+    <div class="property gm2 gd2">
       <catalog-property :label="mapText('year')">
         {{ printTypeProperty('year') }}
-        <!-- <template v-if="type.yearUncertain">?</template> -->
+        <template v-if="type.yearUncertain">?</template>
       </catalog-property>
     </div>
     <div class="property gm2 gd2">
-      <catalog-property :label="mapText('mint')">
+      <catalog-property label="Prägeort wie auf Münze">
         {{ printTypeProperty('mintAsOnCoin') }}
         <template v-if="type.mintUncertain">?</template>
       </catalog-property>
     </div>
     <div
       class="property gm2 gt4 gd4"
-      v-for="(val, idx) of ['nominal', 'material', 'donativ', 'procedure']"
+      v-for="(val, idx) of ['material', 'nominal']"
       v-bind:key="`property-${val}-${idx}`"
     >
       <catalog-property :label="mapText(val)">
@@ -36,53 +47,37 @@
       >
     </div>
 
-    <h2>{{ $tc('property.person', 2) }}</h2>
     <div class="person-container gm1 gt1 gd1">
       <person-view
         :overlords="type.overlords"
         :issuers="type.issuers"
         :caliph="type.caliph"
-        :warden="warden"
-        :cutter="cutter"
         :heir="heir"
       />
+    </div>
 
-      <!-- <PersonView> -->
-      <!-- <catalog-property
-        v-for="(personObj, idx) of persons"
-        v-bind:key="`person-${idx}`"
-        :label="
-          mapText(
-            personObj.name,
-            Array.isArray(personObj.value) ? personObj.value.length : 1
-          )
-        "
+    <div class="person-container gm1 gt1 gd1">
+      <catalog-property v-if="cutter.length > 0" label="Stempelschneider">
+        <person-list :value="cutter" />
+      </catalog-property>
+
+      <catalog-property
+        v-if="warden.length > 0"
+        :label="dynamicHeading('Münzwardein', 'Münzwardeien', warden)"
       >
-        <template v-if="Array.isArray(personObj.value)">
-          <ul>
-            <li
-              v-for="(person, pIdx) in personObj.value"
-              :key="`person-${personObj.name}-${pIdx}`"
-            >
-              {{ person }}
-            </li>
-          </ul>
-        </template>
-        <template v-else>{{ personObj.value }}</template>
-      </catalog-property> -->
+        <person-list :value="warden" />
+      </catalog-property>
     </div>
 
     <div
       v-for="(sideObj, sideIdx) in [
-        { prop: 'avers', label: 'frontside', prefix: 'Av. ' },
-        { prop: 'reverse', label: 'backside', prefix: 'Rev. ' },
+        { prop: 'avers', label: 'frontside', prefix: 'Avers-' },
+        { prop: 'reverse', label: 'backside', prefix: 'Revers-' },
       ]"
       :key="`coin-sides-${sideIdx}`"
       class="coin-side avers gm1 gt2 gd2"
     >
-      <h2>{{ $t(`property.${sideObj.label}`) }}</h2>
-
-      <catalog-property class="property">
+      <catalog-property class="property coin-side-field">
         <catalog-property
           v-for="(val, idx) of getFilledFields(sideObj.prop)"
           :key="`property-${val}-${idx}`"
@@ -109,8 +104,6 @@
     >
       -
     </catalog-property>
-
-    <h2>Sonstiges</h2>
 
     <div v-if="!type.literature" class="error">
       Literatur &amp; Anmerkungen konnte nicht geladen werden
@@ -139,11 +132,7 @@
       </div>
     </catalog-property>
 
-    <catalog-property
-      v-if="type.treadwellId"
-      :label="$tc('property.treadwell_id')"
-      class="gm2"
-    >
+    <catalog-property :label="$tc('property.treadwell_id')" class="gm2">
       {{ type.treadwellId ? type.treadwellId : '-' }}
     </catalog-property>
   </div>
@@ -151,6 +140,7 @@
 
 <script>
 import Person from '../../utils/Person';
+import Text from '../../utils/Text';
 
 import CatalogItem from '../catalog/CatalogItem.vue';
 import LabeledField from '../display/LabeledField.vue';
@@ -166,6 +156,7 @@ import Web from '../../utils/Web';
 import EditIcon from 'vue-material-design-icons/Pen.vue';
 import Button from '../layout/buttons/Button.vue';
 import PersonView from '../Person/PersonView.vue';
+import PersonList from '../Person/PersonList.vue';
 
 export default {
   name: 'TypeView',
@@ -185,8 +176,12 @@ export default {
     Tag,
     Button,
     PersonView,
+    PersonList,
   },
   methods: {
+    dynamicHeading() {
+      return Text.pluralizer(...arguments);
+    },
     getUndefinedString() {
       return 'Nicht Erfasst';
     },
@@ -237,11 +232,23 @@ export default {
       let fieldTextIdx = fields.indexOf('fieldText');
       if (fieldTextIdx != -1) fields.splice(fieldTextIdx, 1);
 
+      if (val === 'fieldText') return `${sideObj.prefix}Feld`;
+      if (val === 'misc') return `${sideObj.prefix}Randbeschriftung`;
+
       if (fields.length == 1 && val == 'innerInscript') {
-        return sideObj.prefix + ' Umschrift';
+        return sideObj.prefix + 'Umschrift';
       } else {
-        return sideObj.prefix + this.$tc(`property.${this.camelToSnake(val)}`);
+        switch (val) {
+          case 'innerInscript':
+            return `Innere-${sideObj.prefix}-Umschrift`;
+          case 'intermediateInscript':
+            return `Mittlere-${sideObj.prefix}-Umschrift`;
+          case 'outerInscript':
+            return `Äußere-${sideObj.prefix}-Umschrift`;
+        }
       }
+
+      return 'UNBEKANNT';
     },
     getFilledFields(str) {
       let result = [];
@@ -301,7 +308,7 @@ export default {
       return Person.getOtherPersonsByRoleName(this.type, 'cutter');
     },
     heir: function () {
-      return Person.getOtherPersonsByRoleName(this.type, 'heir');
+      return Person.getOtherPersonsByRoleName(this.type, 'heir')[0];
     },
     // persons: function () {
     //   let alwaysShow = ['issuers', 'overlords', 'caliph'];
@@ -339,17 +346,28 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.type-view .coin-side .property-label {
+  text-align: center;
+  margin: 0 auto;
+}
+</style>
+
 <style lang="scss" scoped>
 $columns: 4;
 .type-view {
   display: grid;
   gap: $padding;
   grid-template-columns: repeat($columns, 1fr);
-  margin-bottom: 50vh;
 }
 
-header,
-h2 {
+h1 {
+  margin: 0;
+  align-self: center;
+  padding: $padding * 2 0;
+}
+
+header {
   grid-column: 1 / -1;
 }
 
@@ -371,6 +389,13 @@ h2 {
 
 .gt4 {
   grid-column: span 1;
+}
+
+.gc {
+  justify-content: center;
+  align-self: center;
+  color: $primary-color;
+  text-align: center;
 }
 
 .coin-side {
