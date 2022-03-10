@@ -115,7 +115,7 @@ export default {
   position: absolute;
   color: rgb(41, 41, 41);
   bottom: 0;
-  height: 90%;
+  height: 50%;
   width: 10px;
 
   .lable {
@@ -123,7 +123,7 @@ export default {
     display: block;
     font-weight: bold;
     font-size: 0.6rem;
-    transform: rotate(90deg) translate(-50%, 50%);
+    transform: rotate(90deg) translate(-100%, 40%);
     transform-origin: left bottom;
   }
 
