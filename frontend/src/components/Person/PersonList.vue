@@ -23,5 +23,9 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+ul {
+  padding-inline-start: 0;
+  list-style-type: none;
+}
 </style>
