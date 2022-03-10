@@ -48,7 +48,7 @@
     </button> -->
 
     <div class="timeline-container">
-      <button type="button" @click.stop.prevent="down">
+      <button type="button" @click.stop.prevent="down" @focus="focusTimeline">
         <MenuLeft />
       </button>
       <!-- <input
@@ -69,8 +69,9 @@
         @input.stop="change"
         :labeledValue="10"
         :subdivisions="2"
+        ref="timelineSlider"
       />
-      <button type="button" @click.stop.prevent="up">
+      <button type="button" @click.stop.prevent="up" @focus="focusTimeline">
         <MenuRight />
       </button>
     </div>
@@ -245,6 +246,11 @@ export default {
       this.currentSlide = index;
       this.updateSlide();
     },
+    focusTimeline() {
+      const htmlSlider =
+        this.$refs.timelineSlider.$el.querySelector('input[type=range]');
+      htmlSlider.focus();
+    },
   },
 };
 </script>
@@ -314,7 +320,8 @@ export default {
     width: 50%;
     border: none;
     font-weight: bold;
-    background-color: rgba($color: #ffffff, $alpha: 0.3);
+    background-color: rgba($color: #ffffff, $alpha: 0.6);
+    border-bottom: 1px solid currentColor;
 
     &:focus {
       background-color: rgba($color: #ffffff, $alpha: 0.8);

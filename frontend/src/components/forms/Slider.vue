@@ -134,6 +134,10 @@ $caretWidth: 5px;
     width: 1px;
   }
 
+  input[type='range']::-moz-range-thumb {
+    border: none;
+  }
+
   input[type='range']:focus {
     outline: none;
   }
