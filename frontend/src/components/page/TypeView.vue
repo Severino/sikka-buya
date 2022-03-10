@@ -150,6 +150,8 @@
 </template>
 
 <script>
+import Person from '../../utils/Person';
+
 import CatalogItem from '../catalog/CatalogItem.vue';
 import LabeledField from '../display/LabeledField.vue';
 import CaseHelper from '../../utils/CaseHelper';
@@ -293,19 +295,13 @@ export default {
   },
   computed: {
     warden: function () {
-      return this.type?.otherPersons.filter((person) => {
-        return person?.role?.name === 'warden';
-      });
+      return Person.getOtherPersonsByRoleName(this.type, 'warden');
     },
     cutter: function () {
-      return this.type?.otherPersons.filter((person) => {
-        return person?.role?.name === 'cutter';
-      });
+      return Person.getOtherPersonsByRoleName(this.type, 'cutter');
     },
     heir: function () {
-      return this.type?.otherPersons.filter((person) => {
-        return person?.role?.name === 'heir';
-      });
+      return Person.getOtherPersonsByRoleName(this.type, 'heir');
     },
     // persons: function () {
     //   let alwaysShow = ['issuers', 'overlords', 'caliph'];

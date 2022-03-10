@@ -127,7 +127,6 @@
                 </labeled-property>
               </div>
               <hr />-->
-
               <type-view v-if="person.activeType" :type="person.activeType" />
             </div>
             <!-- <Button
@@ -403,9 +402,13 @@ export default {
       obj.active = !obj.active;
     },
     selectType(person, type) {
-      person.activeType = this.types[person.id].find(
-        (element) => element.projectId == type
-      );
+      if (person.activeType && person.activeType.projectId == type) {
+        person.activeType = null;
+      } else {
+        person.activeType = this.types[person.id].find(
+          (element) => element.projectId == type
+        );
+      }
     },
     isPersonTypeActive(person, type) {
       return person.activeType && person.activeType.id == type.id;
