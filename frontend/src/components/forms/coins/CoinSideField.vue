@@ -34,17 +34,17 @@ import SimpleFormattedField from '../SimpleFormattedField.vue';
 export default {
   components: { LabeledInputContainer, Heading, SimpleFormattedField },
   name: 'CoinSideField',
-  data: function() {
+  data: function () {
     return {};
   },
   props: {
     title: {
-      type: String
+      type: String,
     },
     prefix: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   methods: {
     setFieldContent({
@@ -52,7 +52,7 @@ export default {
       innerInscript = '',
       intermediateInscript = '',
       outerInscript = '',
-      misc = ''
+      misc = '',
     } = {}) {
       function centerWhenEmpty(text) {
         return text || "<div style='text-align: center;'><br></div>";
@@ -72,10 +72,10 @@ export default {
         innerInscript: this.$refs.innerInscriptField.getContent(),
         intermediateInscript: this.$refs.intermediateInscriptField.getContent(),
         outerInscript: this.$refs.outerInscriptField.getContent(),
-        misc: this.$refs.miscField.getContent()
+        misc: this.$refs.miscField.getContent(),
       };
-    }
-  }
+    },
+  },
 };
 </script>
 
