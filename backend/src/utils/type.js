@@ -439,7 +439,6 @@ class Type {
             GROUP BY type_coin_marks.type) AS cm
             ON cm.type = type.id
          */
-        console.log(filters)
 
         const { join: complex_join, where: complex_where } = this.complexFilters(filters)
 
