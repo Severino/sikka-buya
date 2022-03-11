@@ -1,6 +1,7 @@
 $sans-serif: 'Arimo';
+$arabic: 'Amiri';
 $font: $sans-serif,
-'Times New Roman',
+$arabic,
 sans-serif;
 
 $small-padding: 5px;
@@ -27,7 +28,7 @@ $red: #da4133;
 $red-dark: darken($red, 10%);
 
 $large-font: 1.2rem;
-$regular-font: 0.9rem;
+$regular-font: 1rem;
 $small-font: 0.8rem;
 $xtra-small-font: 0.6rem;
 

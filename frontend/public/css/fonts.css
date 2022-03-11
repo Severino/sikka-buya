@@ -1,15 +1,30 @@
+
 @font-face {
-    font-family: "Signika";
+    font-family: "Amiri";
     font-style: normal;
     font-weight: normal;
-    src: url("../fonts/Signika/static/Signika-Regular.ttf") format("truetype");
+    src: url("../fonts/Amiri/Amiri-Regular.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: "Signika";
+    font-family: "Amiri";
     font-weight: bold;
     font-style: normal;
-    src: url("../fonts/Signika/static/Signika-Bold.ttf") format("truetype");
+    src: url("../fonts/Amiri/Amiri-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Amiri";
+    font-weight: normal;
+    font-style: italic;
+    src: url("../fonts/Amiri/Amiri-Italic.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Amiri";
+    font-style: bold;
+    font-weight: italic;
+    src: url("../fonts/Amiri/Amiri-BoldItalic.ttf") format("truetype");
 }
 
 @font-face {
