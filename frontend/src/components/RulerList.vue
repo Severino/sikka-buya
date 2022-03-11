@@ -13,7 +13,7 @@
           @click.native="selectionChanged([item.id])"
           :style="{ color: item.color, borderColor: item.color }"
         >
-          <span>{{ item.shortName }}</span>
+          <span>{{ getRulerName(item) }}</span>
           <span v-if="getDynasty(item)" class="subtitle">{{
             getDynasty(item)
           }}</span>
@@ -27,7 +27,7 @@
         @click.native="selectionChanged([item.id])"
         :style="{ color: item.color, borderColor: item.color }"
       >
-        <span>{{ item.shortName || item.name }}</span>
+        <span>{{ getRulerName(item) }}</span>
         <span v-if="getDynasty(item)" class="subtitle">{{
           getDynasty(item)
         }}</span>
@@ -40,6 +40,7 @@
 import MultiSelectList from './MultiSelectList.vue';
 import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
+import Person from '../utils/Person';
 export default {
   props: {
     selectedUnavailable: Array,
@@ -54,6 +55,9 @@ export default {
       if (item?.dynasty?.name && item?.dynasty?.id != 1) {
         return item?.dynasty?.name;
       } else return null;
+    },
+    getRulerName(ruler) {
+      return Person.getName(ruler);
     },
   },
 };
