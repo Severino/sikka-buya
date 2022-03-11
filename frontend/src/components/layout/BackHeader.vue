@@ -19,11 +19,6 @@ export default {
       required: true,
     },
   },
-  methods: {
-    debug: function() {
-      console.log('CLICKED');
-    },
-  },
 };
 </script>
 

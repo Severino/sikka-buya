@@ -137,8 +137,6 @@ export default {
           `;
 
           let results = await Query.gql(query);
-          console.log(results);
-
           const properties = results?.data?.data?.coinType;
           const pageInfo = properties?.pageInfo;
           const _types = properties?.types;
@@ -186,8 +184,6 @@ export default {
           this.tableHead.getBoundingClientRect().width /
           this.tableHead.offsetWidth;
         this.tableHead.style.top = `${value / scaleX}px`;
-
-        console.log(this.$refs.table.style.transform);
       });
     },
     typeByMintAndYear(mint, year) {

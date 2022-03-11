@@ -6,7 +6,6 @@ class SQLUtils {
     static removeNullProperty(obj, prop, name = "id") {
         if (obj[prop] && obj[prop][name] && obj[prop][name] == null) {
             delete obj[prop]
-            console.log(`REMOVE ${prop} / ${name}`)
         }
     }
 
