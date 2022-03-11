@@ -35,11 +35,12 @@ export default {
 <style lang="scss" scoped>
 .side-bar {
   box-sizing: border-box;
-  background-color: rgba($color: $white, $alpha: 0.5);
+  background-color: rgba($color: $white, $alpha: 0.8);
 
   top: 0px;
   height: 100%;
   backdrop-filter: blur(3px);
+  -moz-backdrop-filter: blur(3px);
 
   display: flex;
   flex-direction: column;
