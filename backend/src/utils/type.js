@@ -404,79 +404,6 @@ class Type {
         return result
     }
 
-    // static async getTypesReducedList(_, { filters = {}, pagination = {} } = {}) {
-
-    //     pagination = new PageInfo(pagination)
-
-    //     let filter = this.buildWhereFilter(this.objectToConditions(filters))
-    //     throw new Error("STOP");
-
-    //     // let pageInfo = null
-    //     // let pagination = ""
-    //     // if (page != null && count != null) {
-
-    //     //     let { total } = await Database.one(`
-    //     //     SELECT COUNT(id) AS total FROM type t
-    //     //     LEFT JOIN type_completed tc ON t.id = tc.type
-    //     //     LEFT JOIN type_reviewed tr ON t.id = tr.type
-    //     //     ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
-    //     // `, args.filter)
-
-    //     //     page = (Math.floor(total / count) < page) ? Math.floor(total / count) : page
-    //     //     pagination = ` LIMIT ${count} OFFSET ${page * count} `
-
-    //     //     pageInfo = new PageInfo({
-    //     //         count,
-    //     //         page,
-    //     //         total
-    //     //     })
-    //     // }
-
-
-    //     const test_query = `
-    //     SELECT 
-    //         COUNT(*) as total     
-    //     FROM type t
-    //     ${this.joins}
-    //     , websearch_to_tsquery($[text]) as keywords
-    //     ${whereClause}
-    //     ; `
-    //     const { total } = await Database.one(test_query, Object.assign(filters, { text }))
-    //     pagination.updateTotal(total)
-
-    //     let typeList = await Database.manyOrNone(`SELECT
-    //     id, project_id, treadwell_id,
-    //         CASE 
-    //         WHEN tc.type IS NULL THEN false
-    //         ELSE true
-    //     END AS completed,
-    //         CASE 
-    //         WHEN tr.type IS NULL THEN false
-    //         ELSE true
-    //     END AS reviewed
-    //     FROM type t
-    //     LEFT JOIN type_completed tc ON t.id = tc.type
-    //     LEFT JOIN type_reviewed tr ON t.id = tr.type
-    //     ${(filter != "") ? `WHERE ${filter.join(" AND ")}` : ""}
-    //     ORDER BY unaccent(project_id) COLLATE "C"
-    //     ${pagination}
-    //     ; `, args.filter)
-
-
-    //     const map = {
-    //         project_id: "projectId",
-    //         treadwell_id: "treadwellId"
-    //     }
-
-    //     typeList = typeList.map(type => {
-    //         for (let [key, val] of Object.entries(map)) {
-    //             type[val] = type[key]
-    //         }
-    //         return type
-    //     })
-
-    //     return { pageInfo, types: typeList }
-    // }
 
     static buildWhereFilter(conditions) {
         if (!conditions || conditions.length == 0) return ""
@@ -491,7 +418,7 @@ class Type {
         const where = []
         for (let [key, val] of Object.entries(filterObj)) {
             let db_key = camelCaseToSnakeCase(key)
-            if (val == null || val == "") continue
+            if (val == null || val === "") continue
             where.push(pgp.as.format("$1:name=$2", [db_key, val]))
         }
         return where
@@ -512,6 +439,7 @@ class Type {
             GROUP BY type_coin_marks.type) AS cm
             ON cm.type = type.id
          */
+        console.log(filters)
 
         const { join: complex_join, where: complex_where } = this.complexFilters(filters)
 
@@ -519,7 +447,6 @@ class Type {
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
         const pageInfo = new PageInfo(pagination)
-
 
 
 
