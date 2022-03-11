@@ -1,6 +1,5 @@
 <template>
   <div class="ruler-list">
-    <h3>Ruler List</h3>
     <multi-select-list>
       <div
         class="selected-but-unavailable"

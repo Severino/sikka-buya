@@ -1,9 +1,9 @@
 <template>
   <div class="islam-political-map ui">
     <Sidebar title="Prägeorte">
-      <Button class="clear-filter-btn" @click="clearMintSelection"
+      <!-- <Button class="clear-filter-btn" @click="clearMintSelection"
         >Auswahl aufheben</Button
-      >
+      > -->
       <mint-list
         :items="mintsList"
         :selectedIds="selectedMints"
@@ -43,10 +43,9 @@
     </div>
 
     <Sidebar title="Herrscher" side="right">
-      <Button class="clear-filter-btn" @click="clearRulerSelection"
+      <!-- <Button class="clear-filter-btn" @click="clearRulerSelection"
         >Auswahl aufheben</Button
-      >
-
+      > -->
       <ruler-list
         :selectedUnavailable="selectedUnavailableRulers"
         :items="availableRulers"
@@ -80,6 +79,7 @@ import { concentricCircles } from '../../models/map/geometry';
 import { coinsToRulerData } from '../../models/rulers';
 import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
+import ScrollView from '../layout/ScrollView.vue';
 
 export default {
   name: 'PoliticalMap',
@@ -92,6 +92,7 @@ export default {
     MultiSelectList,
     RulerList,
     MintList,
+    ScrollView,
   },
   data: function () {
     return {

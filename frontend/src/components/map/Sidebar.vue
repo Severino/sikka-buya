@@ -3,14 +3,16 @@
     <header>
       <h3>{{ title }}</h3>
     </header>
-    <div class="body">
+    <scroll-view class="body">
       <slot />
-    </div>
+    </scroll-view>
   </div>
 </template>
 
 <script>
+import ScrollView from '../layout/ScrollView.vue';
 export default {
+  components: { ScrollView },
   props: {
     title: String,
     side: {
@@ -34,25 +36,31 @@ export default {
 .side-bar {
   box-sizing: border-box;
   background-color: rgba($color: $white, $alpha: 0.5);
-  padding: 20px;
+
   top: 0px;
   height: 100%;
-  overflow-y: auto;
   backdrop-filter: blur(3px);
 
-  // min-width: 200px;
-  // width: 20vw;
-  // max-width: 400px;
+  display: flex;
+  flex-direction: column;
+
+  > * {
+    padding: $padding/2 $padding;
+  }
+
+  .body {
+    flex: 1;
+  }
 }
 
 header {
   border-bottom: 1px solid $black;
-  margin-top: -20px;
-  margin-left: -20px;
-  margin-right: -20px;
-  margin-bottom: 20px;
-  padding: 0 20px;
-  padding-top: 10px;
+  // margin-top: -20px;
+  // margin-left: -20px;
+  // margin-right: -20px;
+  // margin-bottom: 20px;
+  // padding: 0 20px;
+  // padding-top: 10px;
   h3 {
     // color: $white;
     margin-top: 10px;

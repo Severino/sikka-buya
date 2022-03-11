@@ -1,6 +1,5 @@
 <template>
   <div class="mint-list">
-    <h3>Mint List</h3>
     <multi-select-list>
       <div
         class="group"
