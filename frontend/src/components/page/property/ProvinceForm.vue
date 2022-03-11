@@ -37,7 +37,7 @@ export default {
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
-          console.log(err);
+          console.error(err);
         })
         .finally(() => {
           this.$data.loading = false;

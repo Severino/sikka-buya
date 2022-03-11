@@ -26,7 +26,6 @@ export default {
   },
   methods: {
     input(args) {
-      console.log(args.currentTarget.value);
       this.value = parseInt(args.currentTarget.value);
     },
   },

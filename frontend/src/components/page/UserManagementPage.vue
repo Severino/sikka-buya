@@ -82,7 +82,7 @@ export default {
           this.refreshUserList();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           this.inviteError = err;
         });
     },

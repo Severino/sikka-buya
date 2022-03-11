@@ -117,7 +117,6 @@ export default {
         .catch((err) => (this.error = err));
     },
     pageChanged(pageInfo) {
-      console.log(pageInfo);
       this.pageInfo = pageInfo;
       this.search();
     },
