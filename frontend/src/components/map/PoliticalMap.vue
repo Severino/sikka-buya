@@ -396,8 +396,9 @@ mint {
               const stripes = new this.L.StripePattern({
                 color: type.caliph.color,
                 spaceColor: heir.color,
+                opacity: 1,
                 spaceOpacity: 1,
-                weight: 6,
+                weight: 7,
                 angle: -45,
               });
               stripes.addTo(this.map);
