@@ -155,7 +155,7 @@
                       {{ type.donativ ? 'Geschenkmünze' : 'Umlaufmünze' }}
                     </labeled-property>
                     <labeled-property label="Herstellungsart">
-                      {{ type.procedure == 'pressed' ? 'Geprägt' : 'Gegossen' }}
+                      {{ type.procedure == 'pressed' ? 'geprägt' : 'gegossen' }}
                     </labeled-property>
                   </div>
                   <labeled-property label="Avers">

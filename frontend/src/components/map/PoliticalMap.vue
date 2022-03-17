@@ -109,8 +109,8 @@ export default {
       unavailableMints: [],
       mintLocation: null,
       patterns: {},
-      location: [30.82752724017578, 51.34690253697896],
-      zoom: 6.4,
+      location: [29.70507136092254, 51.17151184658878],
+      zoom: 6,
       settings: {
         visible: false,
         minRadius: { value: 10, min: 0, max: 50 },

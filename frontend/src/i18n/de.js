@@ -70,7 +70,7 @@ const property = {
     inner_inscript:
         "innere Umschrift",
     literature_and_remarks:
-        "Literatur & Anmerkungen",
+        "Literatur und Anmerkungen",
     material:
         "Material | Materialien",
     mint_year:
@@ -112,7 +112,7 @@ const property = {
             "Rückseite"
     },
     specialities_and_variants:
-        "Besonderheiten/Varianten",
+        "Besonderheiten / Varianten",
     title:
         "Titel",
     type_id:
