@@ -325,6 +325,10 @@ input:read-only {
   background-color: whitesmoke;
 }
 
+.col-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
 // section {
 //   position: fixed;
 //   top: 0;
