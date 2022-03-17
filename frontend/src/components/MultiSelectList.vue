@@ -7,10 +7,9 @@
 </template>
 
 <script>
-import Label from './display/Label.vue';
 import Button from './layout/buttons/Button.vue';
 export default {
-  components: { Button, Label },
+  components: { Button },
   name: 'MultiSelectList',
   methods: {
     checkboxSelect(item) {
