@@ -24,6 +24,9 @@
       :key="'sub-' + sub"
       :style="offsetLeftCss(sub)"
     ></div>
+    <div class="overlay">
+      <slot />
+    </div>
   </slider>
 </template>
 
@@ -135,5 +138,13 @@ export default {
     border-left: 1px solid currentColor;
     height: 60%;
   }
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>
