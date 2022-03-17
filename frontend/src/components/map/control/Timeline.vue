@@ -70,22 +70,22 @@
         :labeledValue="10"
         :subdivisions="2"
         ref="timelineSlider"
-      />
+      >
+        <div class="input-wrapper">
+          <input
+            type="text"
+            :value="value"
+            style="text-align: center"
+            @input="input"
+          />
+          <Info :alwaysShow="!valid" type="warning" class="info">
+            Der eingegebene Wert befindet sich außerhalb der Zeitleiste
+          </Info>
+        </div>
+      </timeline-slider>
       <button type="button" @click.stop.prevent="up" @focus="focusTimeline">
         <MenuRight />
       </button>
-    </div>
-
-    <div class="input-wrapper">
-      <input
-        type="text"
-        :value="value"
-        style="text-align: center"
-        @input="input"
-      />
-      <Info :alwaysShow="!valid" type="warning" class="info">
-        Der eingegebene Wert befindet sich außerhalb der Zeitleiste
-      </Info>
     </div>
   </div>
 </template>
@@ -302,22 +302,30 @@ export default {
 
 .input-wrapper {
   position: absolute;
-  left: 50%;
-  top: 5%;
-  transform: translateX(-25%);
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
   z-index: 1;
+  pointer-events: none;
 
   .info {
-    width: 100%;
+    width: calc(100% - #{$small-padding * 2});
+    margin: 0 $small-padding;
     position: absolute;
     left: 0;
-    top: -$padding/2;
-    transform: translateY(-100%);
+    bottom: $small-padding;
+    border-radius: 3px;
+    padding: $small-padding;
   }
   input {
+    display: block;
     padding: 5px;
-    min-width: 0;
-    width: 50%;
+    min-width: 100px;
+    width: 10%;
+    max-width: 100%;
+    margin: auto;
+    pointer-events: all;
     border: none;
     font-weight: bold;
     background-color: rgba($color: #ffffff, $alpha: 0.6);
