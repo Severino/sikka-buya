@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" ref="app">
     <modal :active="loginActive" @close="closeLoginForm">
       <login-form @login="closeLoginForm" />
       {{ getCount }}
@@ -35,6 +35,15 @@ export default {
     this.popupHandler.cleanup();
   },
   mounted: function () {
+    /**
+     * Disables the default zoom behaviour of the browser.
+     */
+    this.$refs.app.addEventListener('wheel', (event) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+      }
+    });
+
     const lang = window.localStorage.getItem('language', this.$i18n.locale);
     if (lang) {
       this.languageChanged(lang);
