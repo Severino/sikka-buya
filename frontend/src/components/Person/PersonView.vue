@@ -15,7 +15,7 @@
       <person-list :value="overlords" />
     </catalog-property>
 
-    <div class="caliph-group">
+    <div class="caliph-group" :class="{ 'col-2': hasPerson(heir) }">
       <catalog-property label="Kalif">
         <person-list :value="caliph" />
       </catalog-property>
@@ -78,7 +78,6 @@ export default {
 .caliph-group {
   display: grid;
   gap: $padding;
-  grid-template-columns: 1fr 1fr;
   background-color: $white;
 }
 </style>
