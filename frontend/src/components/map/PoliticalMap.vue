@@ -447,9 +447,14 @@ mint {
         mintsFeatures[mint.id].coins.push(obj);
       });
 
-      let that = this;
-
       this.L.geoJSON(Object.values(this.mints));
+
+      const selectedRulers = this.selectedRulers.slice();
+      const patterns = this.patterns;
+      const radius = this.settings.maxRadius.value;
+      const mintMarkerOptions = this.mintMarkerOptions;
+      const L = this.L;
+      console.log(mintMarkerOptions);
 
       this.concentricCircles = this.L.geoJSON(
         Object.values(mintsFeatures),
@@ -458,8 +463,8 @@ mint {
           pointToLayer: function (feature, latlng) {
             const { data, selected } = coinsToRulerData(
               feature.coins,
-              that.selectedRulers,
-              that.patterns
+              selectedRulers,
+              patterns
             );
 
             const featureGroup = concentricCircles(latlng, data, {
@@ -467,7 +472,7 @@ mint {
                 return rulerPopup(groupData, data?.data);
               },
               innerRadius: 7,
-              radius: that.settings.maxRadius.value,
+              radius,
             });
 
             if (feature?.coins?.length > 0) {
@@ -475,7 +480,7 @@ mint {
                 mint: feature.coins[0].mint,
               };
 
-              const mintLocations = new MintLocation(that.mintMarkerOptions);
+              const mintLocations = new MintLocation(mintMarkerOptions);
               mintLocations
                 .createMarker(mintFeature, latlng)
                 .addTo(featureGroup);
@@ -487,7 +492,7 @@ mint {
             return featureGroup;
           },
           coordsToLatLng: function (coords) {
-            return new that.L.LatLng(coords[0], coords[1], coords[2]);
+            return new L.LatLng(coords[0], coords[1], coords[2]);
           },
           style: {
             fillOpacity: 1,
