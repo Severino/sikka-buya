@@ -2,10 +2,14 @@
   <div class="type-view">
     <h1 class="gm2 gd2">{{ type.projectId }}</h1>
 
-    <div v-if="type.donativ" class="gt4 gd2 gc">Geschenkmünze</div>
+    <div v-if="type.donativ" class="box gt4 gd2">
+      <div>Geschenkmünze</div>
+    </div>
     <div v-else class="blank gt4 gd2"></div>
 
-    <div v-if="type.procedure != 'pressed'" class="gt4 gd2 gc">Gegossen</div>
+    <div v-if="type.procedure != 'pressed'" class="box gt4 gd2">
+      <div>gegossen</div>
+    </div>
     <div v-else class="blank gt4 gd2"></div>
 
     <router-link
@@ -106,7 +110,7 @@
     </catalog-property>
 
     <div v-if="!type.literature" class="error">
-      Literatur &amp; Anmerkungen konnte nicht geladen werden
+      Literatur und Anmerkungen konnte nicht geladen werden
     </div>
     <catalog-property
       v-else-if="htmlHasContent(type.literature)"
@@ -240,11 +244,11 @@ export default {
       } else {
         switch (val) {
           case 'innerInscript':
-            return `Innere-${sideObj.prefix}-Umschrift`;
+            return `Innere ${sideObj.prefix}Umschrift`;
           case 'intermediateInscript':
-            return `Mittlere-${sideObj.prefix}-Umschrift`;
+            return `Mittlere ${sideObj.prefix}Umschrift`;
           case 'outerInscript':
-            return `Äußere-${sideObj.prefix}-Umschrift`;
+            return `Äußere ${sideObj.prefix}Umschrift`;
         }
       }
 
@@ -356,6 +360,7 @@ export default {
 <style lang="scss" scoped>
 $columns: 4;
 .type-view {
+  margin-top: 2 * $padding;
   display: grid;
   gap: $padding;
   grid-template-columns: repeat($columns, 1fr);
@@ -364,7 +369,14 @@ $columns: 4;
 h1 {
   margin: 0;
   align-self: center;
-  padding: $padding * 2 0;
+  padding: 0 0 $padding * 2 0;
+}
+
+.box {
+  display: flex;
+  background-color: $white;
+  align-items: center;
+  justify-content: center;
 }
 
 header {

@@ -12,9 +12,8 @@
           @checkboxSelected="checkboxSelected(item)"
           @click.native="selectionChanged([item.id])"
           :style="{ color: item.color, borderColor: item.color }"
-        >
-          <span>{{ getRulerName(item) }}</span>
-          <span v-if="getDynasty(item)" class="subtitle">{{
+          >{{ getRulerName(item) }}
+          <span v-if="getDynasty(item)" class="dynasty">{{
             getDynasty(item)
           }}</span>
         </MultiSelectListItem>
@@ -27,10 +26,12 @@
         @click.native="selectionChanged([item.id])"
         :style="{ color: item.color, borderColor: item.color }"
       >
-        <span>{{ getRulerName(item) }}</span>
-        <span v-if="getDynasty(item)" class="subtitle">{{
-          getDynasty(item)
-        }}</span>
+        <span
+          >{{ getRulerName(item) }}
+          <span v-if="getDynasty(item)" class="dynasty">{{
+            getDynasty(item)
+          }}</span></span
+        >
       </MultiSelectListItem>
     </multi-select-list>
   </div>
@@ -69,15 +70,16 @@ export default {
   border: 2px solid white;
   border-left: 15px solid white;
   margin-bottom: 3px;
+  align-items: center;
 }
 </style>
 
 <style lang="scss" scoped>
-.subtitle {
-  grid-column-start: 2;
+.dynasty {
   font-size: 0.7rem;
   color: $gray;
   opacity: 0.5;
+  font-weight: bold;
 }
 
 .selected-but-unavailable {
