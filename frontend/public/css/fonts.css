@@ -5,27 +5,27 @@
     font-weight: normal;
     src: url("../fonts/Amiri/Amiri-Regular.ttf") format("truetype");
 }
-
+ 
 @font-face {
     font-family: "Amiri";
-    font-weight: bold;
     font-style: normal;
+    font-weight: bold;
     src: url("../fonts/Amiri/Amiri-Bold.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Amiri";
-    font-weight: normal;
     font-style: italic;
+    font-weight: normal;
     src: url("../fonts/Amiri/Amiri-Italic.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Amiri";
-    font-style: bold;
-    font-weight: italic;
+    font-style: italic;
+    font-weight: bold ;
     src: url("../fonts/Amiri/Amiri-BoldItalic.ttf") format("truetype");
-}
+} 
 
 @font-face {
     font-family: "Arimo";
@@ -36,8 +36,8 @@
 
 @font-face {
     font-family: "Arimo";
-    font-weight: bold;
     font-style: normal;
+    font-weight: bold;
     src: url("../fonts/Arimo/static/Arimo-Bold.ttf") format("truetype");
 }
 
@@ -51,8 +51,8 @@
 
 @font-face {
     font-family: "Times New Roman";
-    font-weight: bold;
     font-style: normal;
+    font-weight: bold;
     src: url("../fonts/TimesNewRoman/timesbd.ttf") format("truetype");
     unicode-range: U+0600-06ff;
 }
