@@ -51,7 +51,7 @@ const property = {
         "honorific | honorifics",
     isolated_character:
         "isolated character | isolated characters",
-    intermediate_inscript :
+    intermediate_inscript:
         "intermediate marginal inscription",
     inner_inscript:
         "inner marginal inscription",
@@ -121,9 +121,7 @@ const attribute = {
     longitude:
         "longitude",
     latitude:
-        "latitude",
-    test:
-        "type",
+        "latitude"
 }
 
 

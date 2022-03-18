@@ -38,7 +38,6 @@
     <div class="property gm2 gd2">
       <catalog-property label="Prägeort wie auf Münze">
         {{ printTypeProperty('mintAsOnCoin') }}
-        <template v-if="type.mintUncertain">?</template>
       </catalog-property>
     </div>
     <div
@@ -314,38 +313,6 @@ export default {
     heir: function () {
       return Person.getOtherPersonsByRoleName(this.type, 'heir')[0];
     },
-    // persons: function () {
-    //   let alwaysShow = ['issuers', 'overlords', 'caliph'];
-    //   let persons = [];
-    //   alwaysShow.forEach(type =>{
-    //   })
-    //   let onlyShowIfPresent = ['heir', 'warden', 'cutter'];
-    // alwaysShow.forEach((t) => {
-    //   if (this.type[t]) {
-    //     if (Array.isArray(this.type[t])) {
-    //       if (this.type[t].length == 1) {
-    //         filteredPersons.push({
-    //           name: t,
-    //           value: this.type[t][0].name,
-    //         });
-    //       } else if (this.type[t].length > 1) {
-    //         filteredPersons.push({
-    //           name: t,
-    //           value: this.type[t].map((item) => item.name),
-    //         });
-    //       }
-    //     } else {
-    //       filteredPersons.push({
-    //         name: t,
-    //         value: this.type[t].name,
-    //       });
-    //     }
-    //   }else{
-    //   }
-    // });
-    // console.log(filteredPersons);
-    //   return persons;
-    // },
   },
 };
 </script>

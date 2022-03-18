@@ -9,7 +9,7 @@
 export default {
   name: 'LoadingSpinner',
   props: {
-    size: Number,
+    size: { required: true, type: Number },
   },
 };
 </script>
