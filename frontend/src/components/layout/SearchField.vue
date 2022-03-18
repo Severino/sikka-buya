@@ -70,7 +70,7 @@ export default {
           this.timeout = null;
         }
 
-        this.search().finally(() => {
+        this.search(value).finally(() => {
           // Only change it back, when no input has occured in the meantime!
           if (this.i == this.pendingI) {
             this.pending = false;
@@ -83,16 +83,16 @@ export default {
       }
     },
     async buttonSearch() {
-      await this.search();
+      await this.search(this.value);
       this.pending = false;
     },
-    async search() {
-      return this.asyncSearch(this.value);
+    async search(value) {
+      return this.asyncSearch(value);
     },
     handleHotkey(event) {
       if (event.target == this.$refs.searchField) {
         if (event.key == 'Enter') {
-          this.search();
+          this.search(this.value);
         }
       }
     },
