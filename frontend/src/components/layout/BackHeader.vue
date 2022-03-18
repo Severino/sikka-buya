@@ -1,8 +1,6 @@
 <template>
   <div class="back-header">
-    <router-link @click="debug" :to="to"
-      ><ArrowLeft />{{ $t('navigation.back') }}</router-link
-    >
+    <router-link :to="to"><ArrowLeft />{{ $t('navigation.back') }}</router-link>
   </div>
 </template>
 

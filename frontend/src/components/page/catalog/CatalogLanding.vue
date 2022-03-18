@@ -1,6 +1,8 @@
 <template>
   <div class="catalog-landing">
-    <Column class="container" :class="{ empty: empty }">
+    <type-overview />
+
+    <!-- <Column class="container" :class="{ empty: empty }">
       <div class="search">
         <Column>
           <h2>Typensuche</h2>
@@ -29,7 +31,7 @@
           </list-item-cell>
         </list-item>
       </List>
-    </Column>
+    </Column> -->
   </div>
 </template>
 
@@ -41,8 +43,17 @@ import ListItemCell from '../../layout/list/ListItemCell.vue';
 import ListItem from '../../layout/ListItem.vue';
 import Row from '../../layout/Row.vue';
 import Column from '../../layout/tabs/Column.vue';
+import TypeOverview from '../TypeOverview.vue';
 export default {
-  components: { Column, Row, List, ListItem, ListItemCell, SearchField },
+  components: {
+    Column,
+    Row,
+    List,
+    ListItem,
+    ListItemCell,
+    SearchField,
+    TypeOverview,
+  },
   name: 'CatalogLanding',
   data: function () {
     return {

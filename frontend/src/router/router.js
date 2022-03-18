@@ -217,7 +217,8 @@ const routes = [
 
             path: "type",
             name: "TypeOverview",
-            component: TypeOverview
+            component: TypeOverview,
+            props: { adminView: true }
           },
           {
             path: "coin_mark",

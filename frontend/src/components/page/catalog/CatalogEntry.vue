@@ -1,20 +1,26 @@
 <template>
   <div class="catalog-entry">
-    <type-view :type="type" />
+    <type-view v-if="loaded" :type="type" />
+    <div class="center-frame">
+      <loading-spinner :size="100" />
+    </div>
   </div>
 </template>
 
 <script>
 import Query from '../../../database/query';
+import LoadingSpinner from '../../misc/LoadingSpinner.vue';
 import TypeView from '../TypeView.vue';
 
 export default {
   components: {
     TypeView,
+    LoadingSpinner,
   },
   name: 'CatalogEntry',
   data: function () {
     return {
+      loaded: false,
       type: {
         id: null,
         projectId: '',
@@ -153,8 +159,23 @@ export default {
     )
       .then((result) => {
         Object.assign(this.$data.type, result.data.data.getCoinType);
+        this.loaded = true;
       })
       .catch(console.error);
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.center-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
