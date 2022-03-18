@@ -24,6 +24,7 @@ export function rulersFromCoin(coin, patterns) {
 export function dataFromRulers(rulers, selected = []) {
     let data = rulers
     let sel = false
+
     if (Array.isArray(rulers)) {
         data = []
         rulers.forEach(ruler => {
@@ -35,12 +36,21 @@ export function dataFromRulers(rulers, selected = []) {
         const ruler = rulers
 
         sel = true
-        if (selected.length > 0) {
-            sel = selected.indexOf(ruler.id) !== -1
+        if (ruler.group) {
+            for (let ruler of Object.values(ruler.items)) {
+                if (selected.length > 0) {
+                    sel = selected.indexOf(ruler.id) !== -1
+                    if (sel) break
+                }
+            }
+        } else {
+            if (selected.length > 0) {
+                sel = selected.indexOf(ruler.id) !== -1
+            }
         }
 
-        let fillColor = !sel ? INACTIVE_COLOR : ruler.color || DEBUG_COLOR
 
+        let fillColor = !sel ? INACTIVE_COLOR : ruler.color || DEBUG_COLOR
 
         data = Object.assign({
             fillColor,
@@ -50,6 +60,11 @@ export function dataFromRulers(rulers, selected = []) {
         }, ruler.styles, {
             data: ruler,
         })
+
+        if (!sel && data?.fillPattern) {
+            console.log(sel)
+            data.fillPattern = null
+        }
     }
 
     return { data, selected: sel }
