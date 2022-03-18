@@ -80,6 +80,7 @@ export default {
       )
         .then((result) => {
           this.person = result.data.data.getPerson;
+          if (this.person.color === null) this.person.color = '#ffffff';
           if (this.person.role == null) this.person.role = ' ';
         })
         .catch((err) => {
