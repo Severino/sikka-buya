@@ -21,7 +21,6 @@ const path = require('path');
 
 
 function execute(command) {
-    console.log(command)
     return new Promise((resolve, reject) => {
         exec(command).then(({ stdout, stderr }) => {
             if (stdout) console.log(`${stdout}`);
@@ -37,30 +36,32 @@ function zeroPad(val) {
 
 function constructFileName(prefix, ext) {
     let date = new Date()
-    const name = `${prefix}${date.getUTCFullYear()}${zeroPad(date.getUTCMonth() + 1)}${zeroPad(date.getUTCDate())}T${zeroPad(date.getUTCHours())}${zeroPad(date.getUTCMinutes())}${zeroPad(date.getUTCSeconds())}${ext}`
+    const name = `${prefix}_${date.getUTCFullYear()}${zeroPad(date.getUTCMonth() + 1)}${zeroPad(date.getUTCDate())}T${zeroPad(date.getUTCHours())}${zeroPad(date.getUTCMinutes())}${zeroPad(date.getUTCSeconds())}.${ext}`
     return path.join(os.homedir(), name)
+}
+
+function dump(name, ext, options) {
+    const fileName = constructFileName(name, ext)
+    const command = `pg_dump --username ${process.env.DB_USER} --no-password ${options} --file ${fileName} ${process.env.DB_NAME}`
+    console.log(command)
+    execute(command).then(() => {
+        console.log(`Successfully exported ${name} to: ${fileName}`)
+        process.exit()
+    }).catch(err => {
+        console.error(`Command encountered errors.`)
+        process.exit()
+    })
 }
 
 const modes = {
     "schema": function () {
-        const fileName = constructFileName("schema_", ".sql")
-        execute(`pg_dump --username ${process.env.DB_USER} --no-password --no-owner --schema-only  --file ${fileName} ${process.env.DB_NAME} `).then(() => {
-            console.log(`Successfully exported schema to: ${fileName}`)
-            process.exit()
-        }).catch(err => {
-            console.error(`Command encountered errors.`)
-            process.exit()
-        })
+        dump("schema", "sql", "--no-owner --schema-only")
     },
     "data": function () {
-        const fileName = constructFileName("data_", ".dump")
-        execute(`pg_dump --username ${process.env.DB_USER} --no-password --format=custom  --file ${fileName}  ${process.env.DB_NAME} `).then(() => {
-            console.log(`Successfully exported data to: ${fileName}`)
-            process.exit()
-        }).catch(err => {
-            console.error(`Command encountered errors.`)
-            process.exit()
-        })
+        dump("data", "dump", "--format=custom --data-only")
+    },
+    "default": function () {
+        dump("database", "dump", "--format=custom")
     }
 }
 
@@ -70,7 +71,8 @@ const mapping = {
     "--data": modes["data"],
     "-d": modes["data"]
 }
-let file = null
+
+
 let args = process.argv.slice(2)
 args = args.filter((mode) => {
     const exists = Object.keys(mapping).indexOf(mode) !== -1
@@ -78,10 +80,10 @@ args = args.filter((mode) => {
     return exists
 })
 
-if (args.length > 0) {
+if (args.length === 0) {
+    modes["default"]()
+} else {
     if (args.length > 1) console.warn(`Only one mode is supported! ${args[0]} will be used.Others are ignored!`)
     mapping[args[0]]()
-} else {
-    console.error(`Provide a valid mode, supported modes are: ${Object.keys(mapping).join(", ")} `)
 }
 
