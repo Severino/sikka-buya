@@ -1,7 +1,7 @@
 <template>
   <div class="catalog-entry">
-    <type-view v-if="loaded" :type="type" />
-    <div class="center-frame">
+    <type-view v-if="!loading" :type="type" />
+    <div class="center-frame" v-else>
       <loading-spinner :size="100" />
     </div>
   </div>
@@ -20,7 +20,7 @@ export default {
   name: 'CatalogEntry',
   data: function () {
     return {
-      loaded: false,
+      loading: true,
       type: {
         id: null,
         projectId: '',
@@ -159,7 +159,7 @@ export default {
     )
       .then((result) => {
         Object.assign(this.$data.type, result.data.data.getCoinType);
-        this.loaded = true;
+        this.loading = false;
       })
       .catch(console.error);
   },

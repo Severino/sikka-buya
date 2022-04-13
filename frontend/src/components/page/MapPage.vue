@@ -41,6 +41,10 @@ export default {
 .leaflet-popup {
   font-family: $font;
 
+  .body {
+    position: relative;
+  }
+
   header {
     background-color: gray;
     margin-left: -20px;
@@ -94,8 +98,8 @@ export default {
 
   .catalog-link {
     position: absolute;
-    right: 20px;
-    top: 52px;
+    right: 0px;
+    top: 0px;
     color: $primary-color;
     padding: 3px 5px;
     font-weight: bold;
