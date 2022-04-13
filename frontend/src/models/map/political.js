@@ -49,18 +49,20 @@ export function rulerPopup(coin, clickedRuler) {
         <header>
           <span class="subtitle">${coin.mint.name}</span>
         </header>
-        <h2>${coin.projectId}</h2>
-        ${!coin.excludeFromTypeCatalogue
+        <div class="body">
+            <h2>${coin.projectId}</h2>
+            ${!coin.excludeFromTypeCatalogue
             ? `<a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>`
             : ''
         }
-        
-        <h3>Münzherren</h3>
-        ${issuersText}
-        <h3>Oberherren</h3>
-        ${overlordsText}
-         <h3>Kalif</h3>
-        ${caliphText}
-        ${heirText}
+            
+            <h3>Münzherren</h3>
+            ${issuersText}
+            <h3>Oberherren</h3>
+            ${overlordsText}
+            <h3>Kalif</h3>
+            ${caliphText}
+            ${heirText}
+        </div>
       `;
 }
