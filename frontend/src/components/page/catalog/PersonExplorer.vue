@@ -99,79 +99,6 @@
 
               <type-view v-if="person.activeType" :type="person.activeType" />
             </div>
-            <!-- <Button
-                v-for="timeObject of mintObject.children"
-                :key="
-                  'mint-' +
-                  person.id +
-                  '-' +
-                  mintObject.value.name +
-                  '-' +
-                  timeObject.value
-                "
-              >
-                {{ timeObject.value }}</Button
-              > -->
-
-            <!-- <div class="flex">
-                  <Button
-                    v-for="type of timeObject.children"
-                    :key="
-                      'mint-' +
-                      person.id +
-                      '-' +
-                      mintObject.value.name +
-                      '-' +
-                      timeObject.value +
-                      '-' +
-                      type.id
-                    "
-                    >{{ type.projectId }}</Button
-                  >
-                 </div> -->
-
-            <!-- <collapsible
-                  v-for="type of timeObject.children"
-                  :key="
-                    'mint-' +
-                    person.id +
-                    '-' +
-                    mintObject.value.name +
-                    '-' +
-                    timeObject.value +
-                    '-' +
-                    type.id
-                  "
-                >
-                  <template slot="header">
-                    {{ type.projectId }}
-                  </template>
-
-                  <div class="grid">
-                    <labeled-property label="Material">
-                      {{ type.material.name }}
-                    </labeled-property>
-                    <labeled-property label="Donativ">
-                      {{ type.donativ ? 'Geschenkmünze' : 'Umlaufmünze' }}
-                    </labeled-property>
-                    <labeled-property label="Herstellungsart">
-                      {{ type.procedure == 'pressed' ? 'geprägt' : 'gegossen' }}
-                    </labeled-property>
-                  </div>
-                  <labeled-property label="Avers">
-                    <div v-html="type.avers.fieldText" />
-                    <b>Umschriften</b>
-                    <ol>
-                      <li
-                        v-for="(inscript, idx) of getInscripts(type.avers)"
-                        :key="idx"
-                        v-html="inscript"
-                      />
-                    </ol>
-                  </labeled-property>
-                </collapsible> 
-              </collapsible>
-            </collapsible>-->
           </div>
         </collapsible>
       </div>
@@ -278,7 +205,9 @@ export default {
         {
           id
           projectId
+          treadwellId
           mint {id name}
+          mintAsOnCoin
           yearOfMint
           material {name}
           nominal {name}

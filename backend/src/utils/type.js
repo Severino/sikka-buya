@@ -651,7 +651,7 @@ SELECT
                     UNION
                     SELECT id AS type from type WHERE caliph = $1
     )
-SELECT 
+        SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
