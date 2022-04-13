@@ -13,8 +13,8 @@
     "install": "cd backend && yarn install && cd ../frontend && yarn install",
     "test": "cd test && grunt test",
     "deploy:backend": "cd backend && pm2 delete all && npm run pm2",
-    "deploy:frontent": "cd frontend && ./deploy.sh",
-    "backup:db": "pg_dump -U rukn -Fc --no-password -f ~/export.dump  coins"
+    "deploy:frontend": "cd frontend && ./deploy.sh",
+    "deploy": "npm run deploy:backend && npm run deploy:frontend"
   },
   "dependencies": {
     "axios": "^0.21.1",

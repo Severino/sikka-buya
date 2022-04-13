@@ -1,113 +1,102 @@
 # Buyiden Project - Backend
 
-This is the backend application of the Buyiden Project. It habdles the Interaction with the database and therefore provides a graphql endpoint.
+It's a [nodejs](https://nodejs.org/) based application which uses runs an [expressjs](https://expressjs.com/) webserver. The backend manages the connected [PostgeSQL](https://www.postgresql.org/) database. [GraphQL](https://graphql.org/) serves as the interface between the frontend and the backend.
 
 
-## Setup
+# Setup
 
-### Install PostgreSQL and PostGIS
+## Requirements
 
-#### Linux (CentOS 8)
+- nodejs (16)
+- postgresql (12/13)
 
-This installtion guide is taken from [this blogpost](https://people.planetpostgresql.org/devrim/index.php?/archives/107-Installing-PostGIS-3.1-and-PostgreSQL-13-on-CentOS-8.html) that was linked in the original PostGIS Documetnation. 
+## Defining environment variables
 
-Install from repo:
-```
-dnf -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-```
-
-Disable installed module:
-```
-dnf -qy module disable postgresql
-```
-
-Install EPEL repo RPM:
-```
-dnf -y install epel-release
-```
-
-Enable PowerTools (?):
-```
-dnf -y config-manager --set-enabled PowerTools
-```
-
-Install PostGIS:
-```
-dnf -y install postgis31_13
-```
-
-Then loginto postgresql by using: 
-
-```
-psql
-```
-
-and enable the extension by applying:
-```
-CREATE EXTENSION postgis;
-```
-
-
-#### Windows
-
-Postgres can be downloaded and installed here:
-[https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/). After executing the installation, PostGIS can be installed using the *Application Stack Builder*.
-
-The database can be managed using the pre-installed User-Interface of *pgAdmin*.
-
-### Run Init Script
-
-```
-npm run init
-``` 
-
-### Defining environment variables
-
-We provide a *.env.example* file that may serves as a template for your .env file, otherwise you can delete it. The .env file is responsible for your environment specific setup, like specifying the port, database address and location and their respective credentials. Your env file should look like the following
+We provide a *.env.example* file that may serves as a template for your .env file, otherwise you can delete it. The .env file is responsible for your environment specific setup, like specifying the port, database address and location and their respective credentials. Your .env file should look like the following
 
 ```ini
-PORT=4000
+EXPRESS_PORT=4000
 DB_USER=user
 DB_HOST=localhost
 DB_NAME=your_database
 DB_PASSWORD=password
 DB_PORT=5432
+JWT_SECRET=ENTER_YOUR_SECRET
+MAX_SEARCH=20
 ```
 
-## Hosting
+## Create .pgpass file
 
-### Running on the Server
+The *.pgpass* file (*pgpass.conf* on windows) contains the database information which you also set in the .env file.
+It's highly recommended to use a pgpass file to run the provided scripts!
+
+To simple setup the pgpass for your system you can run the script located at `./scripts/generate_pgpass.js`
+
+```bash
+node ./scripts/generate_pgpass.js  
+```
+
+## Run Initialization
+
+ This command will install the node modules and it will run a script that creates the database and the database structure. 
+
+ **This script will only work with the pgpass setup correctly.**
+
+
+```bash
+npm run init
+#Is equivalent of running:
+yarn install
+node scripts/setup.js
+``` 
+
+
+## Run the Backend 
+
+The backend can simply be run by invoking the index.js.
+
+```bash
+node index.js
+# alternatively there is the command:
+npm run serve
+```
 
 There are various methods to keep a process running in the background when leaving the terminal. Do whatever you feel comfortable with.
-In this case we are using PM2, a process managing program built on node.
+This example shows how to keep the server running with the process management tool PM2.
 
-Install: 
+### Install 
 ```
 npm i pm2 -g
 ```
 
-Run:
+### Run
 ```
 pm2 start node index.js --log log.txt
 ```
 
-Inspect:
+### Remove All
+
+The fastest and most simple way to shotdown your backend process is:
+
+```
+pm2 delete all
+```
+
+However, you should be certain that there are no other PM2 processes running.
+You can check all running processes with:
 ```
 pm2 ls
 ```
 
-Stop:
+### Checking the running instance
+
+To reatach the running instance you can run:
+
 ```
-pm2 stop <id>
+pm2 monit
 ```
 
-Remove:
-```
-pm2 delete <id>
-```
-
-
-### Running alongside Apache
+## Running alongside Apache
 
 To run the backend application in an apache environment, we need to use the apache server as a proxy.
 
@@ -136,17 +125,16 @@ After changes made to the apache config, make sure to restart the apache service
 The endpoint is found at *<your_server>:<port>/graphql
 
 
-# Database
+# Database Management
 
-To save the database on the current testserver (IKMK/severin) run the following command:
+To create a backup of the data inside the database, you can simply run:
 
-```cmd
-cd /usr/pgsql-13/bin
-./pg_dump -h 127.0.0.1 -U postgres  buya_data > ~/export.sql
+```bash
+npm run db:backup
 ```
 
-To import it back into a test database or to restore a backup, run
+If you change the schema of the database, then you may want to update your `./backend/schame.sql` file. This file can be exported using:
 
-```cmd
-psql.exe -U postgres -h 127.0.0.1 coins < export.sql
+```bash
+npm run db:backup:schema
 ```

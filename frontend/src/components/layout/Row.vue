@@ -1,32 +1,44 @@
 <template>
-    <div class="flex row">
-        <slot></slot>
-    </div>
+  <div class="flex row">
+    <slot></slot>
+  </div>
 </template>
 
 
 <script>
-
 export default {
-  name: "LayoutRow"
+  name: 'LayoutRow',
 };
 </script>
 
+<style lang="scss">
+.row.reverse {
+  flex-direction: row-reverse;
+}
+
+.row.align-end {
+  justify-items: flex-end;
+}
+
+.row.space-between {
+  justify-content: space-between;
+}
+</style>
+
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-    @import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
-    .row{
-        display: flex;
-        align-items: center;
-    
-        >* {
-            flex:1;
-            &:not(:last-child){
-                margin-right: $padding*2;
-            }
-        }
+.row {
+  display: flex;
+  align-items: center;
+
+  > * {
+    flex: 1;
+    &:not(:last-child) {
+      margin-right: $padding * 2;
     }
-
+  }
+}
 </style> 
 

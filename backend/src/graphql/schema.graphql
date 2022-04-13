@@ -305,6 +305,7 @@ type Query {
   ): [Person]!
   searchPersonsWithoutRole(text: String!): [Person]!
 
+  databaseExists: Boolean
   users: [User]
   login(data: UserInput): AuthResponse
   auth(token: String): User

@@ -44,6 +44,14 @@ a {
   padding: $padding;
   margin-top: $padding;
 
+  background-color: $white;
+  margin-left: -40px;
+  padding-left: 40px;
+  padding-right: 20px;
+  border-top-right-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+  box-shadow: $shadow;
+
   text-decoration: none;
 
   .material-design-icon {

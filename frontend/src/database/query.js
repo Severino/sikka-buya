@@ -56,10 +56,6 @@ export default class Query {
                     resolve(result)
                 } else {
                     let errors = AxiosHelper.getErrors(result)
-                    if (errors[0] === "401") {
-                        store.commit("showLoginForm")
-                    }
-
                     reject(errors)
                 }
             }).catch((e) => {

@@ -46,7 +46,6 @@
     "graphql": "^15.5.1",
     "graphql-2-json-schema": "^0.7.0",
     "graphql-tag": "^2.12.6",
-    "vue-styleguidist": "^4.44.19",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {

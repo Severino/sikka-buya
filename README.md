@@ -1,112 +1,23 @@
-# sikka-buya
+# SIKKA-BŪYA
 
 A digital application for displaying and exploring islamic coinage.
 
-# Buyiden Project - Backend
+## Project Structure
 
-This is the backend application of the Buyiden Project. It habdles the Interaction with the database and therefore provides a graphql endpoint.
+The project has three main parts:
 
-## Setup
+1. [Frontend](./frontend/README.md)
+1. [Backend](./backend/README.md)
+1. [Testing](./test/README.md)
 
-- Install PostgresQL
-- Install PostGIS
+## Frontend
 
-#### Windows
+The frontend contains the [Vue.js](https://vuejs.org/) project that handles the client-side application. It contains a [Leaflet](https://leafletjs.com/) based map application to visualize data. A catalog to display the coins, as known from other scientific documents. And a content-management layer for the editors to create and edit the catalog entries and their corresponding attributes (e.g. mint, material, persons, ...).
 
-Postgres can be downloaded and installed here:
-[https://www.postgresql.org/download/windows/](https://www.postgresql.org/download/windows/). After executing the installation, PostGIS can be installed using the _Application Stack Builder_.
+## Backend
 
-The database can be managed using the pre-installed User-Interface of _pgAdmin_.
+It's a [nodejs](https://nodejs.org/) based application which uses runs an [expressjs](https://expressjs.com/) webserver. The backend manages the connected [PostgeSQL](https://www.postgresql.org/) database. [GraphQL](https://graphql.org/) serves as the interface between the frontend and the backend.
 
-### Run Init Script
+## Testing
 
-```
-npm run init
-```
-
-### Defining environment variables
-
-We provide a _.env.example_ file that may serves as a template for your .env file, otherwise you can delete it. The .env file is responsible for your environment specific setup, like specifying the port, database address and location and their respective credentials. Your env file should look like the following
-
-```ini
-PORT=4000
-DB_USER=user
-DB_HOST=localhost
-DB_NAME=your_database
-DB_PASSWORD=password
-DB_PORT=5432
-```
-
-## Hosting
-
-### Running on the Server
-
-There are various methods to keep a process running in the background when leaving the terminal. Do whatever you feel comfortable with.
-In this case we are using PM2, a process managing program built on node.
-
-Install:
-
-```
-npm i pm2 -g
-```
-
-Run:
-
-```
-pm2 start node index.js --log log.txt
-```
-
-Inspect:
-
-```
-pm2 ls
-```
-
-Stop:
-
-```
-pm2 stop <id>
-```
-
-Remove:
-
-```
-pm2 delete <id>
-```
-
-### Running alongside Apache
-
-To run the backend application in an apache environment, we need to use the apache server as a proxy.
-
-```
-    ProxyPass /graphql http://localhost:4000/
-    LoadModule proxy_module modules/mod_proxy.so
-```
-
-## Endpoints
-
-The endpoint is found at \*<your_server>:<port>/graphql
-
-# Database
-
-To save the database on the current testserver (IKMK/severin) run the following command:
-
-```cmd
-cd /usr/pgsql-13/bin
-./pg_dump -h 127.0.0.1 -U postgres  buya_data > ~/export.sql
-```
-
-To import it back into a test database or to restore a backup, run
-
-```cmd
-psql.exe -U postgres -h 127.0.0.1 coins < export.sql
-```
-
-# Client
-
-Vue must know where to send the backend server resides. Therefore the .env.production
-must be set correctly!
-
-```ini
-VUE_APP_DATABASE_URL=https://sikkabuya.philosophie.uni-tuebingen.de
-```
+A [mocha](https://mochajs.org/)/[chai](https://www.chaijs.com/) based testing framework to provide security and stability to the project. However, it only covers rudimentary tests and (at the time of writing) mainly focuses on the GraphQL interface.

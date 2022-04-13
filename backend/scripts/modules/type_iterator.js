@@ -2,9 +2,9 @@ const cliProgress = require('cli-progress')
 const _colors = require("colors")
 const fs = require("fs")
 const path = require("path")
-const { Database, pgp } = require("../src/utils/database")
+const { Database, pgp } = require("../../src/utils/database")
 
-class IterateTypesScript {
+class TypeIterator {
     constructor(name, {
         logDir = "logs",
         logFileName = null,
@@ -126,4 +126,4 @@ class IterateTypesScript {
 }
 
 
-module.exports = IterateTypesScript
+module.exports = TypeIterator

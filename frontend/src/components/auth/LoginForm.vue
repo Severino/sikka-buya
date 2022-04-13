@@ -10,14 +10,20 @@
     </form>
     <ErrorMessage v-if="loginError">{{ loginError }}</ErrorMessage>
 
-    <async-button
-      ref="loginBtn"
-      @click="login"
-      class="colored"
-      :pending="buttonDisabled"
-    >
-      Anmelden
-    </async-button>
+    <segmented-row>
+      <template v-slot:right>
+        <div>
+          <async-button
+            ref="loginBtn"
+            @click="login"
+            class="colored"
+            :pending="buttonDisabled"
+          >
+            Anmelden
+          </async-button>
+        </div>
+      </template>
+    </segmented-row>
   </Box>
 </template>
 
@@ -28,9 +34,10 @@ import UserForm from '../auth/UserForm';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
 import ErrorMessage from '../ErrorMessage.vue';
 import Async from '../../utils/Async';
+import SegmentedRow from '../layout/SegmentedRow.vue';
 
 export default {
-  components: { Box, UserForm, AsyncButton, ErrorMessage },
+  components: { Box, UserForm, AsyncButton, ErrorMessage, SegmentedRow },
   name: 'LoginForm',
   data: function () {
     return {
@@ -91,17 +98,18 @@ export default {
 </script>
 
 <style lang="scss">
-.login-form {
-  .button {
-    justify-content: center;
-  }
-}
+// .login-form {
+//   .button {
+//     justify-content: center;
+//     margin-left: auto;
+//   }
+// }
 </style>
 
 <style lang="scss" scoped>
-// form {
-//   width: 100%;
-//   display: flex;
-//   flex-direction: column;
-// }
+.buttons {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
 </style>

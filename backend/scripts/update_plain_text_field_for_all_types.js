@@ -1,19 +1,17 @@
 /**
  * Can be run without problem, when you want to update the plain text fields
  * of all types. This may be necessary if a bug with the type plain text field
- * was corrected or additional changes were made to the function:
- *
- * Type.createPlainTextField
+ * was corrected or additional changes were made to the function: Type.createPlainTextField.
  *
  */
 
-const IterateTypesScript = require("./IterateTypesScript")
+const TypeIterator = require("./modules/type_iterator")
 const Type = require('../src/utils/type');
 const { Database } = require("../src/utils/database")
 
 
 
-new IterateTypesScript("Update Plain Text Fields on Types", {
+new TypeIterator("Update Plain Text Fields on Types", {
     logFileName: "update_plain_text_fields_on_types"
 })
     .on('start', async () => {

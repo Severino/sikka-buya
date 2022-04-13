@@ -1,0 +1,19 @@
+{
+  "name": "sikkabuya-docs",
+  "version": "0.0.1",
+  "description": "A numismatic catalog and map application for islamic and in particular Buyid coinage.",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "dev": "vuepress dev src",
+    "build": "vuepress build src",
+    "start": "nodemon --ext md,vue --watch .vuepress --watch . --exec vuepress dev"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.9.7"
+  },
+  "resolutions": {
+    "watchpack": "1.6.1"
+  }
+}
