@@ -1,4 +1,4 @@
-const SQLUtils = require("./src/utils/sql")
+const SQLUtils = require("../utils/sql")
 
 class Overlord {
 

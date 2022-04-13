@@ -61,11 +61,16 @@ export default class Auth {
         const token = this.loadToken()
         let status = true
         if (token) {
-            let response = await Query.raw(`{
+            try {
+                let response = await Query.raw(`{
                 auth(token:"${token}"){id}
             }`)
 
-            return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
+                return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
+
+            } catch (e) {
+                status = false
+            }
         } else {
             status = false
         }

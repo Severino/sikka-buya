@@ -100,6 +100,11 @@ async function start({
                 environment: () => {
                     return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
                 },
+                databaseExists: async function () {
+                    return new Promise(resolve => {
+                        Database.connect().then(() => resolve(true)).catch(() => resolve(false))
+                    })
+                },
                 ruledMint: async function (_, { year } = {}) {
                     if (!year) throw new Error("Year is a required parameter")
 

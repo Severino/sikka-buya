@@ -8,14 +8,18 @@
     "pm2": "pm2 start node -- index.js",
     "serve": "node index.js",
     "dev": "nodemon index.js --ext js,graphql",
-    "init": "npm i && npm run setup",
-    "setup": "node ./scripts/setup.js"
+    "init": "yarn install && npm run setup",
+    "setup": "node ./scripts/setup.js",
+    "db:backup": "npm run db:export:data",
+    "db:export:data": "node ./scripts/database_backup.js --data",
+    "db:export:schema": "node ./scripts/database_backup.js --schema"
   },
   "author": "Severin Opel",
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
+    "chalk": "^4.x.x",
     "cli-progress": "^3.9.1",
     "colors": "^1.4.0",
     "commander": "^8.1.0",

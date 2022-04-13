@@ -160,6 +160,30 @@ export default {
 
     await this.initTimeline(starTime);
     this.updateTimeline();
+
+    let location = localStorage.getItem('map-location');
+    if (location) {
+      this.location = JSON.parse(location);
+    }
+
+    let zoom = localStorage.getItem('map-zoom');
+
+    if (zoom) {
+      console.log(zoom);
+      this.zoom = zoom;
+    }
+
+    this.map.setView(this.location, this.zoom, { animate: false });
+
+    this.$nextTick(() => {
+      this.map.on('moveend', function (args) {
+        const { target: map } = args;
+
+        const { lat, lng } = map.getCenter();
+        localStorage.setItem('map-location', JSON.stringify([lat, lng]));
+        localStorage.setItem('map-zoom', map.getZoom());
+      });
+    });
   },
   unmounted: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();
@@ -291,32 +315,6 @@ mint {
               types = types.filter(
                 (d) => (d.mint?.location && d.mint.location.coordinates) != null
               );
-
-              let location = localStorage.getItem('map-location');
-              if (location) {
-                this.location = JSON.parse(location);
-              }
-
-              let zoom = localStorage.getItem('map-zoom');
-
-              if (zoom) {
-                this.zoom = zoom;
-              }
-
-              this.map.setView(this.location, this.zoom, { animate: false });
-
-              this.$nextTick(() => {
-                this.map.on('moveend', function (args) {
-                  const { target: map } = args;
-
-                  const { lat, lng } = map.getCenter();
-                  localStorage.setItem(
-                    'map-location',
-                    JSON.stringify([lat, lng])
-                  );
-                  localStorage.setItem('map-zoom', map.getZoom());
-                });
-              });
 
               resolve(types);
             })

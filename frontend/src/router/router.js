@@ -379,26 +379,27 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  let redirect = false
 
   if (to.fullPath == "/") next({ name: "Home" })
+  else {
+    if (to.matched.some(record => record.meta.auth)) {
 
-
-  if (to.matched.some(record => record.meta.auth)) {
-
-    let auth = await Auth.check()
-    if (auth) {
-      next()
-    } else {
-      router.push({ name: "Login" })
-    }
-  } else {
-
-    let redirect = false
-    if (to.name == "Login") {
       let auth = await Auth.check()
       if (auth) {
-        redirect = true
-        router.push({ name: "Editor" })
+        next()
+      } else {
+        router.push({ name: "Login" })
+      }
+    } else {
+      if (to.name == "Login") {
+
+        let auth = await Auth.check()
+
+        if (auth) {
+          redirect = true
+          router.push({ name: "Editor" })
+        }
       }
     }
 

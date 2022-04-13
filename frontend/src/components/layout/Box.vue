@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <header>{{ title }}</header>
+    <header v-if="title">{{ title }}</header>
     <div class="body">
       <slot />
     </div>
@@ -19,18 +19,27 @@ export default {
 <style lang="scss" scoped>
 $side-pad: $padding * 4;
 
+$top-bottom-spacing: $side-pad/2;
+
 header {
-  padding: $side-pad/2 $side-pad $side-pad/2;
+  // padding: $side-pad/3 $side-pad $side-pad/3;
+
+  padding-left: $side-pad;
+  padding-right: $side-pad;
+
+  margin-bottom: $side-pad/2;
   //   border-bottom: 1px solid $header-color;
   font-weight: bold;
-  //   text-transform: uppercase;
+  text-transform: uppercase;
   font-kerning: auto;
+  letter-spacing: 0.1em;
   font-size: $small-font;
-  color: $light-gray;
+
+  color: $gray;
 }
 
 .body {
-  padding: 0 $side-pad $side-pad $side-pad;
+  padding: 0 $side-pad $side-pad/2 $side-pad;
 
   width: 512px;
   > *:not(:last-child) {
@@ -45,5 +54,9 @@ header {
   border-radius: 15px;
   box-shadow: $shadow;
   overflow: hidden;
+
+  > *:first-child {
+    padding-top: $top-bottom-spacing;
+  }
 }
 </style>

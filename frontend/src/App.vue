@@ -1,6 +1,6 @@
 <template>
   <div id="app" ref="app">
-    <modal :active="loginActive" @close="closeLoginForm">
+    <modal :active="$store.state.showLoginForm" @close="closeLoginForm">
       <login-form @login="closeLoginForm" />
       {{ getCount }}
     </modal>
@@ -25,8 +25,13 @@ export default {
     };
   },
   created: async function () {
-    let user = await Auth.init();
-    this.$store.commit('login', user);
+    try {
+      let user = await Auth.init();
+      this.$store.commit('login', user);
+    } catch (e) {
+      //Fail silently
+      console.log('Not authenticated');
+    }
 
     this.popupHandler = new PopupHandler(this);
     this.popupHandler.init(document.body);
@@ -64,14 +69,8 @@ export default {
       this.$store.commit('closeLoginForm');
       this.$store.commit('increment');
     },
-    plusOne: function () {
-      this.$store.commit('increment');
-    },
   },
   computed: {
-    loginActive() {
-      return this.$store.state.showLoginForm;
-    },
     getCount() {
       return this.$store.state.test;
     },
@@ -316,10 +315,13 @@ a {
 }
 
 .error {
-  font-size: 0.8rem;
-  padding: 20px;
-  background-color: rgb(255, 92, 92);
-  border: 1px solid rgb(192, 68, 68);
+  // font-size: 0.8rem;
+  // padding: 20px;
+  // background-color: ;
+  // border: 1px solid rgb(192, 68, 68);
+
+  font-weight: bold;
+  color: $red;
 }
 
 .material-design-icon {
@@ -338,19 +340,7 @@ input:read-only {
   grid-template-columns: 1fr 1fr;
 }
 
-// section {
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// }
-// .box {
-//   max-width: 100%;
-//   background-color: $white;
-//   @include box-padding($big-padding);
-// }
+.center {
+  align-self: center;
+}
 </style>

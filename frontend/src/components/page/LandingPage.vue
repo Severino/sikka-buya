@@ -7,14 +7,14 @@
         Numismatik.
       </p>
       <router-link :to="{ name: 'Login' }">
-        <div style="display: inline-block" class="button">
+        <Button class="center">
           <row>
             <span style="margin-right: 10px; white-space: nowrap">{{
               $utils.capitalize($t('system.login'))
             }}</span
             ><LoginVariant />
           </row>
-        </div>
+        </Button>
       </router-link>
     </div>
   </section>
@@ -22,6 +22,7 @@
 
 <script>
 import LoginVariant from 'vue-material-design-icons/LoginVariant';
+import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 
 export default {
@@ -29,6 +30,7 @@ export default {
   components: {
     LoginVariant,
     Row,
+    Button,
   },
 };
 </script>
