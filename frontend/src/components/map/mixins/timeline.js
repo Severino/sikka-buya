@@ -15,7 +15,6 @@ export default {
 
             this.timeBuffer.update(val, () => {
                 this.raw_timeline.value = val;
-                this.selectedMints = [];
                 /** 
                  * To allow proper editing, but also preventing the timeline
                  * to go above min and above max, we clamp the values for the 
