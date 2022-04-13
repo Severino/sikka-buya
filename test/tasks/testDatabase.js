@@ -45,19 +45,19 @@ async function setupDatabase() {
     let db = pgp(dbconf, {})
 
     console.log(`Create database schema ...`)
-    const migrationPath = joinPath(__dirname, "..", "..", "backend", "migrations")
+    const migrationPath = joinPath(__dirname, "..", "..", "backend")
 
     let dbSchemaFile = new QueryFile(joinPath(migrationPath, "schema.sql"), { minify: true, compress: true })
     await db.any(dbSchemaFile)
 
-    let fileDirents = fs.readdirSync(migrationPath, { withFileTypes: true })
-    for (let dir of fileDirents) {
-        if (dir.isFile() && extname(dir.name) == ".sql" && dir.name != "schema.sql") {
-            const migrationFile = joinPath(migrationPath, dir.name)
-            let migrationsFile = new QueryFile(migrationFile, { minify: true, compress: true })
-            await db.any(migrationsFile).catch((e) => console.log("COULD NOT APPLY:" + migrationFile, e.message))
-        }
-    }
+    // let fileDirents = fs.readdirSync(migrationPath, { withFileTypes: true })
+    // for (let dir of fileDirents) {
+    //     if (dir.isFile() && extname(dir.name) == ".sql" && dir.name != "schema.sql") {
+    //         const migrationFile = joinPath(migrationPath, dir.name)
+    //         let migrationsFile = new QueryFile(migrationFile, { minify: true, compress: true })
+    //         await db.any(migrationsFile).catch((e) => console.log("COULD NOT APPLY:" + migrationFile, e.message))
+    //     }
+    // }
 
     return db;
 }
