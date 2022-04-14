@@ -387,6 +387,37 @@ async function start({
                     result.lastModified = stats.mtime
                     result.items = json
                     return JSON.stringify(result)
+                },
+                typeCountOfMints: async function (_, args) {
+                    console.log(args)
+
+                    const ids = args.ids
+                    if (ids.length > process.env.MAX_SEARCH) throw new Error(`Too many ids requested.`)
+
+                    const mintArray = []
+
+                    for (let id of ids) {
+                        const result = await Database.manyOrNone(`
+                        SELECT year_of_mint, COUNT(*) 
+                        FROM type 
+                        WHERE mint=$[mint] 
+                        AND year_of_mint~ '^[0-9]+$'
+                        AND exclude_from_map_app!=True 
+                        GROUP BY year_of_mint 
+                        ORDER BY year_of_mint;`,
+                            { mint: id })
+
+                        console.log(result)
+
+                        mintArray.push({
+                            id,
+                            data: result.map(({ year_of_mint, count }) => {
+                                return { x: year_of_mint, y: count }
+                            })
+                        })
+                    }
+
+                    return mintArray
                 }
             }, Mutation: {
                 changePersonExplorerOrder: async function (_, args) {
