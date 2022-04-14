@@ -82,6 +82,10 @@
             Der eingegebene Wert befindet sich außerhalb der Zeitleiste
           </Info>
         </div>
+
+        <template #background>
+          <slot name="background" />
+        </template>
       </timeline-slider>
       <button type="button" @click.stop.prevent="up" @focus="focusTimeline">
         <MenuRight />

@@ -286,6 +286,7 @@ type Query {
   getTypesByRuler(id: ID!): [CoinType]
   modGetTypes(pagination: Pagination, filters: ModTypeFilter, evalFilters:EvalFilter): ModCoinTypePagination
 
+  typeCountOfMints(ids:[ID]): [LabeledPointArray]
 
   timespan: Range
   getAnalytics: Analytics
@@ -319,6 +320,17 @@ type Query {
     text: String
     pagination: Pagination
   ): PaginationTypeTextSearch
+}
+
+type LabeledPointArray {
+  id: String
+  name: String
+  data: [Point]
+}
+
+type Point {
+    x: Int,
+    y: Int
 }
 
 type PaginationTypeTextSearch {

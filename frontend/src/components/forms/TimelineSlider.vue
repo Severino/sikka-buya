@@ -7,6 +7,9 @@
     :step="step"
     class="timeline-slider"
   >
+    <div class="background">
+      <slot name="background" />
+    </div>
     <div
       class="long-dash"
       v-for="lable of lables"
@@ -24,6 +27,7 @@
       :key="'sub-' + sub"
       :style="offsetLeftCss(sub)"
     ></div>
+
     <div class="overlay">
       <slot />
     </div>
