@@ -72,3 +72,17 @@ yarn install
 
 _Note: If you need to add dependencies make sure to use: `yarn add <your_dependency>`_
 
+### Setup Super User
+
+Visit the setup page to setup the super user:
+
+```bash
+https://yourwebsite/setup
+# For example: 
+# https://localhost:8080/setup
+# https://sikka-buya.de/setup
+```
+
+When you see this message, you need to make sure the backend server is running and if so, you need to setup the database first by running the setup scripts (as described above):
+
+![Database is not connected. Setup the backend first! And make sure that the express server is running](./images/database_not_setup.jpg)

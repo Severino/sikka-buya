@@ -8,7 +8,7 @@
         @input="inputChanged"
       />
     </form>
-    <ErrorMessage v-if="loginError">{{ loginError }}</ErrorMessage>
+    <ErrorMessage v-if="loginError" :error="loginError" />
 
     <segmented-row>
       <template v-slot:right>

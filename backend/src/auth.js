@@ -18,7 +18,7 @@ class Auth {
     }
 
     static validatePassword(str) {
-        let rule = new RegExValidationRule(/^([\x21-\x7E]){6,}$/gi, "Ungültiges Password: Passwörter dürfen nur Buchstaben, Zeichen und gängige Sonderzeichen enthalten.")
+        let rule = new RegExValidationRule(/^([\x21-\x7E]){6,}$/gi, "Ungültiges Password: Passwort muss mindestens 6 Zeichen lang sein und darf nur Buchstaben, Zeichen und gängige Sonderzeichen enthalten.")
         return rule.validate(str)
     }
 
