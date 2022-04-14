@@ -15,24 +15,26 @@
     <section>
       <h2>Registered Users</h2>
       <div class="error" v-if="listError">{{ listError }}</div>
-      <ul>
-        <li v-for="user in users" :key="`user-id-${user.id}`">
+      <div class="user-list">
+        <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
           <span class="name">{{ user.email }}</span>
-          <div class="permissions"></div>
-          <input :value="getInvitePath(user.email)" @click="copy" readonly />
-        </li>
-      </ul>
+          <div class="permissions">{{ user.super ? 'SUPER' : 'User' }}</div>
+          <copy-field :value="getInvitePath(user.email)" />
+        </div>
+      </div>
     </section>
   </div>
 </template>
 
 <script>
 import Query from '../../database/query';
+import CopyField from '../forms/CopyField.vue';
 import BackHeader from '../layout/BackHeader.vue';
 export default {
   name: 'UserManagement',
   components: {
     BackHeader,
+    CopyField,
   },
   data: function () {
     return {
@@ -46,11 +48,6 @@ export default {
     this.refreshUserList();
   },
   methods: {
-    copy: function ($event) {
-      let target = $event.currentTarget;
-      target.select();
-      document.execCommand('copy');
-    },
     getInvitePath: function (email) {
       return window.location.origin + '/invite/' + email;
     },
@@ -59,6 +56,7 @@ export default {
             users{
                 email
                 id
+                super
             }
         }`);
 
@@ -94,5 +92,12 @@ export default {
 form > * {
   display: block;
   margin-top: $padding;
+}
+
+.user {
+  display: grid;
+  grid-template-columns: 3fr 1fr 5fr;
+  align-items: center;
+  margin: $padding 0;
 }
 </style>

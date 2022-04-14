@@ -23,10 +23,13 @@
             @submit="submit"
           />
         </form>
-        <p v-if="response">{{ response }}</p>
-        <row>
-          <Button @click="submit">Submit</Button>
-        </row>
+        <p v-if="response" class="error">{{ response }}</p>
+
+        <segmented-row>
+          <template v-slot:right>
+            <Button @click="submit">Submit</Button>
+          </template>
+        </segmented-row>
       </div>
     </Box>
   </section>
@@ -38,8 +41,9 @@ import UserForm from '../auth/UserForm';
 import Box from '../layout/Box.vue';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
+import SegmentedRow from '../layout/SegmentedRow.vue';
 export default {
-  components: { UserForm, Box, Button, Row },
+  components: { UserForm, Box, Button, Row, SegmentedRow },
   data: function () {
     return {
       email: '',
@@ -110,5 +114,9 @@ section {
   width: 720px;
   background-color: $white;
   @include box-padding($big-padding);
+}
+
+form {
+  margin-bottom: $padding;
 }
 </style>

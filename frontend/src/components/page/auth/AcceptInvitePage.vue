@@ -12,10 +12,10 @@
           name="new-password"
           id="password"
         />
+        <error-message :error="error" />
         <button type="button" :disabled="disabled" @click.prevent="submit">
           {{ $t('system.register') }}
         </button>
-        <p v-if="error">{{ error }}</p>
       </form>
     </Box>
   </section>
@@ -23,10 +23,11 @@
 
 <script>
 import Query from '../../../database/query';
+import ErrorMessage from '../../ErrorMessage.vue';
 import Box from '../../layout/Box.vue';
 export default {
   name: 'AcceptInvitePage',
-  components: { Box },
+  components: { Box, ErrorMessage },
   data: function () {
     return {
       password: '',
@@ -95,10 +96,16 @@ section {
 }
 
 form {
-  width: 230px;
-  display: flex;
+  //   width: 230px;
+  //   display: flex;
   flex-direction: column;
+
+  input {
+    width: 100%;
+  }
+
   > * {
+    display: block;
     margin-top: $padding;
   }
 }

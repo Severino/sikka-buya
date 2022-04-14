@@ -39,9 +39,12 @@ header {
 }
 
 .body {
-  padding: 0 $side-pad $side-pad/2 $side-pad;
+  // padding: 0 $side-pad $side-pad/2 $side-pad;
 
-  width: 512px;
+  :first-child {
+    margin-top: 0;
+  }
+
   > *:not(:last-child) {
     margin-bottom: $padding * 2;
   }
@@ -54,9 +57,13 @@ header {
   border-radius: 15px;
   box-shadow: $shadow;
   overflow: hidden;
+  margin: 0 $side-pad;
 
-  > *:first-child {
-    padding-top: $top-bottom-spacing;
-  }
+  width: 512px;
+  max-width: 100%;
+
+  // > *:first-child {
+  //   padding-top: $top-bottom-spacing;
+  // }
 }
 </style>

@@ -323,7 +323,7 @@ async function start({
                     if (!auth) {
                         throw new Error('You are not authenticated!')
                     } else {
-                        return await Database.manyOrNone("SELECT id, email FROM app_user")
+                        return await Database.manyOrNone("SELECT id, email, super FROM app_user")
                     }
                 },
                 getComments: async function (_, args, context) {
