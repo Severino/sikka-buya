@@ -11,7 +11,7 @@
       </div>
     </header>
     <div v-if="error" class="info error">
-      <AlertCircle />
+      <AlertCircleIcon />
       <p>
         {{ error }}
       </p>
@@ -21,7 +21,7 @@
       v-if="!items || (items && items.length == 0 && !loading && error == '')"
       class="info"
     >
-      <Information />
+      <InformationIcon />
       <p>
         {{ $t('warning.list_is_empty') }}
       </p>
@@ -32,7 +32,7 @@
       "
       class="info"
     >
-      <Information />
+      <InformationIcon />
       <p>
         {{ $t('warning.filtered_list_is_empty') }}
       </p>
@@ -43,14 +43,14 @@
 </template>
 
 <script>
-import AlertCircle from 'vue-material-design-icons/AlertCircle';
+import AlertCircleIcon from 'vue-material-design-icons/AlertCircle';
+import InformationIcon from 'vue-material-design-icons/Information';
 
-import Information from 'vue-material-design-icons/Information';
 import ListItem from './ListItem.vue';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
 
 export default {
-  components: { ListItem, Information, AlertCircle, LoadingSpinner },
+  components: { ListItem, InformationIcon, AlertCircleIcon, LoadingSpinner },
   props: {
     properties: {
       type: Array,
@@ -126,16 +126,6 @@ header {
   border: 1px solid #cccccc;
   border-bottom: none;
   font-weight: bold;
-  // padding-right: 44px;
-
-  // :first-child {
-  //   display: flex;
-  //   align-items: center;
-  //   justify-content: center;
-  //   padding: $padding/3 $padding;
-  //   min-width: 16px;
-  //   margin-right: $padding * 2;
-  // }
 
   > * {
     flex: 1;

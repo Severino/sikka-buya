@@ -1019,7 +1019,7 @@ export default {
   font-size: 0.75rem;
   background-color: $red;
   color: $white;
-  border: 1px solid $red-dark;
+  border: 1px solid $dark-red;
 
   &:first-of-type {
     border-top-left-radius: 3px;

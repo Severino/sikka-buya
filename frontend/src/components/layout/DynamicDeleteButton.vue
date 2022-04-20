@@ -1,18 +1,47 @@
 <template>
   <div
-    id="delete"
-    :class="active ? 'active' : 'inactive'"
-    @click.stop.prevent="requestRemove"
+    class="dynamic-delete-button"
+    :class="{ highlighted, active, removing }"
+    @click.stop.prevent.capture
+    @mouseover.stop
+    @mouseenter.stop="highlight"
+    @mouseleave.stop="cancel"
+    @mousecancel.stop="cancel"
+    @mousedown.stop="activate"
+    @mouseup.stop="executeOrCancel"
+    @mousemove="updateTrashPosition"
+    @touchcancel="cancel"
+    @touchend="executeOrCancel"
+    @touchmove="updateTrashPosition"
+    @touchstart="activate"
   >
-    <Delete class="icon" />
-    <span id="text">{{ $t('general.delete_submit') }}</span>
+    <div class="track" ref="track">
+      <DeleteEmpty
+        v-if="removingPossible && !removing"
+        class="icon empty-bin-icon"
+      />
+      <Delete v-else class="icon bin-icon" />
+
+      <span class="text">LÖSCHEN</span>
+
+      <div class="trash-track">
+        <div
+          class="trash"
+          ref="trash"
+          :class="{ hidden: !removingPossible }"
+        ></div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import Delete from 'vue-material-design-icons/Delete';
+import DeleteEmpty from 'vue-material-design-icons/DeleteEmpty';
+
 export default {
   components: {
+    DeleteEmpty,
     Delete,
   },
   props: {
@@ -24,25 +53,78 @@ export default {
   data: function () {
     return {
       active: false,
+      highlighted: false,
+      removing: false,
+      activationTimeout: null,
+      removingPossible: false,
     };
   },
   methods: {
     requestRemove: function () {
-      if (!this.active) {
-        this.open();
-      } else {
-        this.$emit('click');
+      if (this.active) {
+        this.$emit('delete');
         this.active = false;
+        this.reset();
       }
     },
-    open: function () {
-      if (!this.removeTimeout) {
-        this.active = true;
-        this.removeTimeout = setTimeout(() => {
-          this.active = false;
-          this.removeTimeout = null;
-        }, this.time);
+    executeOrCancel() {
+      if (this.removing) {
+        this.requestRemove();
+      } else {
+        this.cancel();
       }
+    },
+    updateTrashPosition(event) {
+      if (this.active) {
+        const track = this.$refs.track;
+        const trackRect = track.getBoundingClientRect();
+        const trash = this.$refs.trash;
+        const offset = 20;
+
+        const position = event.touches ? event.touches[0] : event;
+
+        trash.style.right = `${
+          trackRect.width - (position.pageX - trackRect.left + offset + 5)
+        }px`;
+
+        if (this.removingPossible)
+          this.removing = position.pageX - trackRect.left < offset * 2;
+      }
+    },
+    resetTrashPosition() {
+      this.$refs.trash.style.right = '10px';
+    },
+    highlight() {
+      this.highlighted = true;
+    },
+    activate(event) {
+      event.stopPropagation();
+      event.preventDefault();
+
+      this.active = true;
+
+      if (this.activationTimeout) {
+        this.removingPossible = false;
+        clearTimeout(this.activationTimeout);
+      }
+
+      this.activationTimeout = setTimeout(
+        () => (this.removingPossible = true),
+        200
+      );
+
+      this.$emit('open');
+    },
+    reset() {
+      this.active = false;
+      this.highlighted = false;
+      this.removing = false;
+      this.removingPossible = false;
+      this.resetTrashPosition();
+    },
+    cancel() {
+      this.reset();
+      this.$emit('cancel');
     },
   },
 };
@@ -51,45 +133,120 @@ export default {
 <style lang="scss" scoped>
 @import '@/scss/_import.scss';
 
-#delete {
-  // background-color: gray;
-  align-self: stretch;
+$size: 40px;
+$trash-size: 10px;
 
-  display: flex;
-  align-items: center;
+svg {
+  fill: currentColor;
+}
+
+.dynamic-delete-button {
+  position: relative;
+  width: $size;
+  height: $size;
+  cursor: pointer;
+}
+
+.text {
+  position: absolute;
+  opacity: 0;
+  top: 50%;
+  left: calc(50% + 10px);
+  transform: translate(-50%, -50%);
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: all $transition-time;
+}
+
+.track {
+  position: absolute;
+  right: 0;
+  top: 50%;
+
+  overflow: hidden;
+  transform: translate(0, -50%);
+
+  width: $size;
+  height: $size;
+  border-radius: $size/2;
+  box-shadow: $shadow;
+
+  transition: all $transition-time;
+}
+
+.icon {
+  position: absolute;
+  top: 7px;
+  left: 8px;
+}
+
+.highlighted {
   color: $red;
 
-  align-self: stretch;
-  box-sizing: border-box;
-  font-family: $sans-serif;
-  font-size: $small-font;
-  text-transform: uppercase;
-  font-weight: bold;
-  letter-spacing: 1px;
-  transition: background-color $long-transition-time;
+  .track {
+    background-color: white;
+  }
+}
 
-  .icon {
-    padding: 10px;
+.trash-track {
+  opacity: 1;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  right: ($size/2);
+  left: ($size/2);
+  height: $trash-size;
+  border-radius: $trash-size/2;
+}
+
+.trash {
+  position: absolute;
+  right: 0;
+  width: $trash-size;
+  height: $trash-size;
+  border-radius: $trash-size/2;
+  background-color: $red;
+  transform: scale(1);
+  opacity: 1;
+
+  transition: right 0.1s, transform $transition-time,
+    background-color $transition-time, opacity $transition-time;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.active {
+  .track {
+    width: 150px;
+    background-color: white;
   }
 
-  #text {
-    text-align: center;
-    width: 0px;
-    opacity: 0;
-    transition: all $long-transition-time;
-    flex: 1;
+  .text {
+    opacity: 1;
+    color: currentColor;
+  }
+}
+
+.removing {
+  .track {
+    background-color: $red;
+    color: white;
   }
 
-  &.active {
-    // background-color: $red;
-    // color: $white;
-    padding-left: $padding;
-    padding-right: $padding;
-
-    #text {
-      opacity: 1;
-      width: 130px;
-    }
+  .text {
+    color: white;
   }
+
+  .trash {
+    background-color: transparent;
+    transform: scale(0);
+  }
+}
+
+.empty-bin-icon {
+  transform: scaleX(-1);
 }
 </style>

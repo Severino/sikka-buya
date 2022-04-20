@@ -20,7 +20,7 @@
 
     <List
       @remove="remove"
-      :error="error"
+      :error="listError"
       :loading="loading"
       :items="items"
       :filteredItems="items"
@@ -29,6 +29,7 @@
         v-for="item of items"
         v-bind:key="item.key"
         :id="item.id"
+        :disable="deleteButtonActive"
         :to="{
           path: `${item.id}`,
           append: true,
@@ -36,7 +37,11 @@
       >
         <div class="color-indicator" :style="getStyleOf(item)"></div>
         <ListItemCell>{{ item.name }}</ListItemCell>
-        <DynamicDeleteButton @click="remove(item.id)" />
+        <DynamicDeleteButton
+          @delete="deleteButtonRemove(item.id)"
+          @open="deleteButtonEnable()"
+          @cancel="deleteButtonDisable()"
+        />
       </ListItem>
     </List>
   </div>
@@ -53,8 +58,8 @@ import ListItemIdField from '../layout/list/ListItemIdField.vue';
 
 import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListItem from '../layout/ListItem.vue';
-import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 import { camelCase } from 'change-case';
+import DeleteButtonMixin from '../mixins/deletebutton';
 
 export default {
   name: 'PersonOverviewPage',
@@ -66,8 +71,8 @@ export default {
     ListItemIdField,
     ListItem,
     ListItemCell,
-    DynamicDeleteButton,
   },
+  mixins: [DeleteButtonMixin],
   created: function () {
     this.list();
   },
@@ -94,10 +99,10 @@ export default {
     return {
       loading: true,
       items: [],
-      error_id: 0,
-      error: '',
+      listError: '',
       textFilter: '',
       searchId: 0,
+      clickable: true,
     };
   },
 
@@ -116,7 +121,7 @@ export default {
           this.$data.items = obj.data.data.person;
         })
         .catch(() => {
-          this.error = this.$t('error.loading_list');
+          this.listError = this.$t('error.loading_list');
         })
         .finally(() => {
           this.$data.loading = false;
@@ -139,7 +144,7 @@ export default {
         })
         .catch((e) => {
           console.err('Could not search', e);
-          this.error = this.$t('error.loading_list');
+          this.listError = this.$t('error.loading_list');
         })
         .finally(() => {
           this.$data.loading = false;
@@ -167,16 +172,7 @@ export default {
         });
     },
     displayError(err) {
-      this.error_id++;
-      let current_id = this.error_id;
-      this.error = err;
-
-      // Delete the error message if its the same message after X seconds.
-      setTimeout(() => {
-        if ((this.error_id = current_id)) {
-          this.error = '';
-        }
-      }, 3000);
+      this.$store.commit('printError', err);
     },
     getStyleOf(item) {
       return `background-color: ${item.color};`;

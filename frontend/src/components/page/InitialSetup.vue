@@ -23,7 +23,8 @@
             @submit="submit"
           />
         </form>
-        <p v-if="response" class="error">{{ response }}</p>
+        <p v-if="response" class="success">{{ response }}</p>
+        <p v-if="response" class="error">{{ error }}</p>
 
         <segmented-row>
           <template v-slot:right>
@@ -49,11 +50,11 @@ export default {
       email: '',
       password: '',
       response: '',
+      error: '',
       databaseExists: false,
     };
   },
   mounted: function () {
-    console.log('mounted');
     Query.raw(
       `
       {
@@ -62,7 +63,6 @@ export default {
       `
     )
       .then((result) => {
-        console.log(result.data.data.databaseExists);
         this.databaseExists = result.data.data.databaseExists;
       })
       .catch(console.error);
@@ -88,10 +88,12 @@ export default {
      `
       )
         .then(() => {
+          this.error = '';
           this.response = 'Succesfully created superuser!';
         })
         .catch((err) => {
-          this.response = `Could not create superuser: ${err}.`;
+          this.response = '';
+          this.error = `Could not create superuser: ${err}.`;
         });
     },
   },
@@ -112,8 +114,6 @@ section {
 .box {
   max-width: 100%;
   width: 720px;
-  background-color: $white;
-  @include box-padding($big-padding);
 }
 
 form {

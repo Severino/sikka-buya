@@ -4,12 +4,11 @@
     <h1>User Management</h1>
     <section>
       <form submit.stop.prevent="">
-        <h2>Add User</h2>
+        <h2>Add New User</h2>
 
         <span>Email</span>
         <input type="email" v-model="inviteEmail" />
         <input type="submit" value="Invite" @click.prevent="inviteUser" />
-        <p v-if="inviteError">{{ inviteError }}</p>
       </form>
     </section>
     <section>
@@ -20,6 +19,7 @@
           <span class="name">{{ user.email }}</span>
           <div class="permissions">{{ user.super ? 'SUPER' : 'User' }}</div>
           <copy-field :value="getInvitePath(user.email)" />
+          <dynamic-delete-button @delete="deleteUser(user.id)" />
         </div>
       </div>
     </section>
@@ -28,18 +28,21 @@
 
 <script>
 import Query from '../../database/query';
+import ErrorMessage from '../ErrorMessage.vue';
 import CopyField from '../forms/CopyField.vue';
 import BackHeader from '../layout/BackHeader.vue';
+import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 export default {
   name: 'UserManagement',
   components: {
     BackHeader,
     CopyField,
+    ErrorMessage,
+    DynamicDeleteButton,
   },
   data: function () {
     return {
       listError: '',
-      inviteError: '',
       inviteEmail: '',
       users: [Object],
     };
@@ -50,6 +53,10 @@ export default {
   methods: {
     getInvitePath: function (email) {
       return window.location.origin + '/invite/' + email;
+    },
+    deleteUser: async function (id) {
+      await Query.raw(`mutation{deleteUser(id:${id})}`);
+      this.refreshUserList();
     },
     refreshUserList: async function () {
       let result = await Query.raw(`{
@@ -76,12 +83,11 @@ export default {
       )
         .then((result) => {
           this.inviteEmail = '';
-          this.inviteError = '';
           this.refreshUserList();
         })
         .catch((err) => {
           console.error(err);
-          this.inviteError = err;
+          this.$store.commit('printError', err);
         });
     },
   },
@@ -89,6 +95,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+form {
+  @include box;
+}
 form > * {
   display: block;
   margin-top: $padding;
@@ -96,7 +105,8 @@ form > * {
 
 .user {
   display: grid;
-  grid-template-columns: 3fr 1fr 5fr;
+  grid-template-columns: 3fr 1fr 5fr 40px;
+  gap: $padding;
   align-items: center;
   margin: $padding 0;
 }

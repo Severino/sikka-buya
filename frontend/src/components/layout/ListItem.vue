@@ -1,9 +1,6 @@
 <template>
   <div class="list-item" @click="click">
-    <router-link v-if="to" :to="to">
-      <div class="list-item-row"><slot></slot></div>
-    </router-link>
-    <div v-else class="list-item-row">
+    <div class="list-item-row" :class="{ ['disable-input']: disable }">
       <slot></slot>
     </div>
   </div>
@@ -14,27 +11,27 @@ export default {
   name: 'ListItem',
   props: {
     to: Object,
+    disable: Boolean,
   },
   methods: {
     click: function () {
-      this.$emit('click');
+      if (!this.disable) {
+        if (this.to) {
+          this.$router.push(this.to);
+        } else this.$emit('click');
+      }
     },
   },
 };
 </script>
 
-<style lang="scss">
-.list-item-row .icon {
-  margin: -$padding;
-}
-</style>
+
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 @import '@/scss/_import.scss';
 
 .list-item:not(:last-of-type) {
-  background-color: red;
   .list-item-row {
     border-bottom-width: 0;
   }

@@ -86,3 +86,9 @@ https://yourwebsite/setup
 When you see this message, you need to make sure the backend server is running and if so, you need to setup the database first by running the setup scripts (as described above):
 
 ![Database is not connected. Setup the backend first! And make sure that the express server is running](./images/database_not_setup.jpg)
+
+If everything is working fine, you'll see the following window to setup your super user:
+
+![Superuser login form](./images/super_user_setup.jpg) 
+
+Then you can access the admin area with your account:

@@ -24,8 +24,7 @@ $primary-color: #48ac48;
 $yellow: #e4b20d;
 $green: #18f2b2;
 $red: #da4133;
-
-$red-dark: darken($red, 10%);
+$dark-red: darken($red, 10%);
 
 $large-font: 1.2rem;
 $regular-font: 1rem;
@@ -33,6 +32,7 @@ $small-font: 0.8rem;
 $xtra-small-font: 0.6rem;
 
 $border-color: rgb(204, 204, 204);
+$small-border-radius: 3px;
 $border-radius: 5px;
 $border-width: 1px;
 $border: $border-width solid $border-color;
@@ -41,5 +41,15 @@ $transition-time: 0.3s;
 $long-transition-time: 0.6s;
 
 $shadow-offset: 1px 2px;
-$shadow: $shadow-offset 5px rgba(0, 0, 0, 0.02);
+$shadow: $shadow-offset 5px rgba(0, 0, 0, 0.03);
 $strong-shadow: $shadow-offset 5px rgba(66, 66, 66, 0.2);
+
+@mixin box {
+  background-color: $white;
+  border-radius: 15px;
+  box-shadow: $shadow;
+  overflow: hidden;
+  
+  background-color: $white;
+  @include box-padding($big-padding);
+} 

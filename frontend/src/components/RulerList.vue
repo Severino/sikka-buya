@@ -66,7 +66,6 @@ export default {
 
 <style lang="scss">
 .ruler-list li.select-list-item {
-  background-color: red;
   border: 2px solid white;
   border-left: 15px solid white;
   margin-bottom: 3px;

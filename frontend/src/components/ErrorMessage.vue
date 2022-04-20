@@ -1,5 +1,5 @@
 <template>
-  <div class="error-message">
+  <div class="error-message" v-if="error">
     <AlertCircle v-if="icon" class="icon" />
     <p
       v-for="(error, idx) in errorMessages"

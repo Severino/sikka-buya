@@ -80,6 +80,8 @@ import PlaygroundPage from "@/components/map/Playground"
 
 
 import TemplatePage from "@/components/page/TemplatePage"
+import { superUserIsSet } from '../utils/Setup.js'
+import store from '../store.js'
 
 Vue.use(VueRouter)
 
@@ -380,6 +382,17 @@ const router = new VueRouter({
 
 router.beforeEach(async (to, from, next) => {
   let redirect = false
+
+  /**
+   * As the 'store errors' are shown in the `App.vue`
+   * on a global level, we must manually reset them on 
+   * navigation.
+   */
+  store.commit("resetErrors");
+
+  if (to.name == "InitialSetup" && await superUserIsSet()) {
+    next({ name: "Home" })
+  }
 
   if (to.fullPath == "/") next({ name: "Home" })
   else {

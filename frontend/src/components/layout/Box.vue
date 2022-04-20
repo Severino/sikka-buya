@@ -1,6 +1,8 @@
 <template>
   <div class="box">
-    <header v-if="title">{{ title }}</header>
+    <header v-if="title">
+      <h3>{{ title }}</h3>
+    </header>
     <div class="body">
       <slot />
     </div>
@@ -22,20 +24,9 @@ $side-pad: $padding * 4;
 $top-bottom-spacing: $side-pad/2;
 
 header {
-  // padding: $side-pad/3 $side-pad $side-pad/3;
-
-  padding-left: $side-pad;
-  padding-right: $side-pad;
-
-  margin-bottom: $side-pad/2;
-  //   border-bottom: 1px solid $header-color;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-kerning: auto;
-  letter-spacing: 0.1em;
-  font-size: $small-font;
-
-  color: $gray;
+  > * {
+    margin-top: 0;
+  }
 }
 
 .body {
@@ -51,19 +42,11 @@ header {
 }
 
 .box {
-  align-items: stretch;
   max-width: 100%;
-  background-color: $white;
-  border-radius: 15px;
-  box-shadow: $shadow;
-  overflow: hidden;
+  @include box;
   margin: 0 $side-pad;
 
   width: 512px;
   max-width: 100%;
-
-  // > *:first-child {
-  //   padding-top: $top-bottom-spacing;
-  // }
 }
 </style>
