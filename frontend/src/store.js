@@ -12,7 +12,8 @@ const store = new Vuex.Store({
     language: "de",
     showLoginForm: false,
     showConfirmation: true,
-    version
+    version,
+    errors: []
   },
   mutations: {
     login(state, user) {
@@ -33,10 +34,25 @@ const store = new Vuex.Store({
       if (state.availableLanguages.indexOf(lang) != -1)
         state = lang
       else console.error(`Requested language is not supported: ${lang}.`)
+    },
+    printError(state, error) {
+      if (!Array.isArray(error)) error = [error]
+      state.errors.push(...error)
+
+      setTimeout(() => state.errors.shift(0, error.length), 5000)
+    },
+    resetErrors(state) {
+      state.errors = []
     }
   }, getters: {
     loggedIn: state => {
       return !!state.user
+    },
+    hasErrors(state) {
+      return state.errors.length > 0
+    },
+    errors(state) {
+      return state.errors
     }
   }
 })

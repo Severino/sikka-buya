@@ -49,7 +49,7 @@ class Auth {
                     success: true,
                     message: "Successfully authenticated.",
                     token: this.sign({
-                        isSuper: user.super,
+                        superUser: user.super,
                         id: user.id,
                         email: user.email
                     }),
@@ -96,8 +96,12 @@ class Auth {
         }
     }
 
+    static getTokenFromContext(context) {
+        return (context && context.headers) ? context.headers.auth : null
+    }
+
     static verifyContext(context) {
-        let token = (context && context.headers) ? context.headers.auth : null
+        let token = this.getTokenFromContext(context)
 
         if (!token) throw new Error("401")
         else return this.verify(token)
@@ -108,6 +112,17 @@ class Auth {
         if (!auth) {
             throw new Error('You are not authenticated!')
         }
+    }
+
+    static requireSuperUser(context) {
+        const token = this.verifyContext(context)
+
+        if (token) {
+            if (token.super === true) {
+                return true
+            }
+        }
+        throw new Error(`Only a super user can do this!`)
     }
 }
 

@@ -306,6 +306,7 @@ type Query {
   ): [Person]!
   searchPersonsWithoutRole(text: String!): [Person]!
 
+  isSuperUserSet:Boolean
   databaseExists: Boolean
   users: [User]
   login(data: UserInput): AuthResponse
@@ -402,6 +403,8 @@ type Mutation {
   updateCoinType(id: ID, data: CoinTypeInput): Void
 
   # TODO: missing Tests ---------------------------------------------
+
+  deleteUser(id:ID):Void
 
   addProvince(data: NameInput): Void
   updateProvince(data: NameInput): Void

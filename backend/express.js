@@ -100,6 +100,10 @@ async function start({
                 environment: () => {
                     return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
                 },
+                isSuperUserSet: async function () {
+                    const result = await Database.one(`SELECT COUNT(*) FROM app_user WHERE super=true`)
+                    return result.count > 0
+                },
                 databaseExists: async function () {
                     return new Promise(resolve => {
                         Database.connect().then(() => resolve(true)).catch(() => resolve(false))
@@ -523,8 +527,11 @@ async function start({
                         throw new Error("Superuser was already initialized!")
                     }
                 },
+                deleteUser: async function (_, args, context, info) {
+                    Auth.requireSuperUser(context)
+                    return Database.none("DELETE FROM app_user WHERE id=$[id]", args)
+                },
                 addCoinType: async function (_, args, context, info) {
-
                     if (!Auth.verifyContext(context)) {
                         throw new Error('You are not authenticated!')
                     }

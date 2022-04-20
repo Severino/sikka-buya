@@ -275,7 +275,6 @@ export default {
   @include input();
   font-size: 1.3em;
   min-height: 1em;
-  // background-color: red;
 
   span {
     display: block;

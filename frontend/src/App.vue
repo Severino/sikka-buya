@@ -4,7 +4,18 @@
       <login-form @login="closeLoginForm" />
       {{ getCount }}
     </modal>
+
     <router-view></router-view>
+
+    <div class="error-popup error" :class="{ show: $store.getters.hasErrors }">
+      <div
+        class="error-message"
+        v-for="(error, idx) of $store.getters.errors"
+        :key="`error-${idx}`"
+      >
+        {{ error }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -338,5 +349,38 @@ a {
 
 .center {
   align-self: center;
+}
+
+.error-popup.show {
+  bottom: $padding;
+  transform: translateX(-50%) translateY(0);
+}
+
+.error-popup {
+  position: fixed;
+  width: 720px;
+  bottom: 0;
+
+  background-color: $red;
+  color: $white;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  padding: $padding;
+  border-radius: $small-border-radius;
+
+  transition: all $transition-time;
+
+  > * {
+    margin-top: $big-padding;
+    margin-bottom: $big-padding;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 </style>
