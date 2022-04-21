@@ -48,6 +48,10 @@ export function rulerPopup(coin, clickedRuler) {
     return `
         <header>
           <span class="subtitle">${coin.mint.name}</span>
+            <div class="tooltip-container">
+                <div class="div-icon-button div-icon circle-div-icon">?</div>
+                <div class="tooltip">Verortung der Münzstätte ist nicht sicher.</div>
+            </div>
         </header>
         <div class="body">
             <h2>${coin.projectId}</h2>
