@@ -139,7 +139,7 @@ export default {
     },
     mintMarkerOptions() {
       return {
-        radius: 8,
+        radius: 5,
         stroke: false,
         fillColor: 'white',
         fillOpacity: 1,

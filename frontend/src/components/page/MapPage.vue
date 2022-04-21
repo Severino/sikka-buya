@@ -71,6 +71,7 @@ export default {
 <style lang="scss">
 .leaflet-popup {
   font-family: $font;
+  min-width: 250px;
 
   .body {
     position: relative;
@@ -78,12 +79,16 @@ export default {
 
   header {
     background-color: gray;
+    display: flex;
+    justify-content: space-between;
+
     margin-left: -20px;
     margin-top: -20px;
     margin-right: -20px;
     margin-bottom: 10px;
     padding: 10px 20px;
-    min-width: 200px;
+    padding-right: 50px;
+    // min-width: 200px;
 
     &:last-of-type {
       margin-bottom: 0;

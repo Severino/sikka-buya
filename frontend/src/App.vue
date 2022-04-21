@@ -319,6 +319,47 @@ a {
   }
 }
 
+.tooltip-container {
+  position: relative;
+}
+
+.div-icon-button {
+  cursor: pointer;
+  position: relative;
+  &:hover {
+    background-color: $dark-white;
+  }
+}
+
+.div-icon-button + .tooltip {
+  opacity: 0;
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  min-width: 150px;
+  transform: translate(-50%, -100%);
+  padding: $small-padding;
+  border-radius: $small-border-radius;
+  background-color: white;
+  transition: all $transition-time;
+}
+
+.div-icon-button:hover + .tooltip {
+  opacity: 1;
+}
+
+.div-icon {
+  background-color: $white;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: bold;
+  border-radius: 10px;
+}
+
 .button-list {
   > * {
     margin-bottom: $padding;
