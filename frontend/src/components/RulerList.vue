@@ -65,9 +65,23 @@ export default {
 </script>
 
 <style lang="scss">
+.ruler-list li {
+  border: none;
+  border-radius: 0;
+  padding-left: 5px;
+  padding-bottom: 1px;
+  padding-top: 1px;
+  padding-right: 1px;
+
+  &:hover {
+    padding-bottom: 0;
+    padding-top: 0;
+    padding-right: 0;
+  }
+}
+
 .ruler-list li.select-list-item {
-  border: 2px solid white;
-  border-left: 15px solid white;
+  border-left: 10px solid white;
   margin-bottom: 3px;
   align-items: center;
 }

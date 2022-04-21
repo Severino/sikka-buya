@@ -1,5 +1,5 @@
 <template>
-  <div class="islam-political-map ui">
+  <div class="political-map ui">
     <Sidebar title="Prägeorte">
       <!-- <Button class="clear-filter-btn" @click="clearMintSelection"
         >Auswahl aufheben</Button
@@ -643,7 +643,7 @@ mint {
 </script>
 
 <style lang="scss">
-.islam-political-map {
+.political-map {
   .side-bar {
     grid-row: 1 / span 3;
   }
@@ -657,9 +657,9 @@ mint {
         color: black;
       }
 
-      &.selected {
-        background-color: currentColor;
-      }
+      // &.selected {
+      //   background-color: currentColor;
+      // }
 
       span {
         align-self: center;
