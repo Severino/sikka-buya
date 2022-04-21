@@ -25,7 +25,13 @@
       </button>
     </div>
     <div class="map">
-      <map-view ref="map" height="500px" tabindex="0" />
+      <map-view
+        ref="map"
+        height="500px"
+        :location="[29.99300228455108, 50.96557617187501]"
+        :zoom="5"
+        tabindex="0"
+      />
       <div class="legend">
         <ul>
           <li><b>STRG + Linksklick:</b> Punkt setzen</li>
@@ -54,10 +60,6 @@ export default {
   props: {
     type: String,
     radius: Number,
-    circleZoomFactor: {
-      type: Number,
-      default: 100,
-    },
     coordinates: {
       type: Array,
     },

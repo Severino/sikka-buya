@@ -411,8 +411,6 @@ async function start({
                         ORDER BY year_of_mint;`,
                             { mint: id })
 
-                        console.log(result)
-
                         mintArray.push({
                             id,
                             data: result.map(({ year_of_mint, count }) => {
