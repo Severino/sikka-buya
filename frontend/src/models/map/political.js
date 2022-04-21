@@ -60,9 +60,9 @@ export function rulerPopup(coin, clickedRuler) {
             : ''
         }
             
-            <h3>Münzherren</h3>
+            <h3>Münzherr(en)</h3>
             ${issuersText}
-            <h3>Oberherren</h3>
+            <h3>Oberherr(en)</h3>
             ${overlordsText}
             <h3>Kalif</h3>
             ${caliphText}

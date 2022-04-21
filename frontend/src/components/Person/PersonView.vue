@@ -1,17 +1,13 @@
 <template>
   <div class="person-view">
-    <catalog-property
-      :label="dynamicHeading('Münzherr', 'Münzherren', issuers)"
-    >
+    <catalog-property label="Münzherr(en)">
       <div class="issuer-grid">
         <div v-for="issuer in issuers" :key="`issuer-${issuer.id}`">
           {{ issuer.name }}
         </div>
       </div>
     </catalog-property>
-    <catalog-property
-      :label="dynamicHeading('Oberherr', 'Oberherren', overlords)"
-    >
+    <catalog-property label="Oberherr(en)">
       <person-list :value="overlords" />
     </catalog-property>
 
