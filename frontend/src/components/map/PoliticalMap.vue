@@ -114,8 +114,6 @@ export default {
       mintLocation: null,
       patterns: {},
       mintTimelineData: [],
-      location: [29.70507136092254, 51.17151184658878],
-      zoom: 6,
       settings: {
         visible: false,
         minRadius: { value: 10, min: 0, max: 50 },
@@ -165,30 +163,6 @@ export default {
 
     await this.initTimeline(starTime);
     this.updateTimeline();
-
-    let location = localStorage.getItem('map-location');
-    if (location) {
-      this.location = JSON.parse(location);
-    }
-
-    let zoom = localStorage.getItem('map-zoom');
-
-    if (zoom) {
-      console.log(zoom);
-      this.zoom = zoom;
-    }
-
-    this.map.setView(this.location, this.zoom, { animate: false });
-
-    this.$nextTick(() => {
-      this.map.on('moveend', function (args) {
-        const { target: map } = args;
-
-        const { lat, lng } = map.getCenter();
-        localStorage.setItem('map-location', JSON.stringify([lat, lng]));
-        localStorage.setItem('map-zoom', map.getZoom());
-      });
-    });
   },
   unmounted: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();

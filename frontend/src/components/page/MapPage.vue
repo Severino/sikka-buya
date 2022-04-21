@@ -8,7 +8,14 @@
         >Dominion</router-link
       >
     </div> -->
-    <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
+    <map-view
+      class="mapview"
+      :location="location"
+      :zoom="zoom"
+      ref="map"
+      @mapReady="mapChanged"
+    >
+    </map-view>
 
     <router-view :map="map" />
   </div>
@@ -27,7 +34,31 @@ export default {
     return {
       map: null,
       types: [],
+      location: [29.70507136092254, 51.17151184658878],
+      zoom: 6,
     };
+  },
+  mounted() {
+    let location = localStorage.getItem('map-location');
+    if (location) {
+      this.location = JSON.parse(location);
+    }
+
+    let zoom = localStorage.getItem('map-zoom');
+
+    if (zoom) {
+      this.zoom = parseInt(zoom);
+    }
+
+    this.$nextTick(() => {
+      this.map.on('moveend', function (args) {
+        const { target: map } = args;
+
+        const { lat, lng } = map.getCenter();
+        localStorage.setItem('map-location', JSON.stringify([lat, lng]));
+        localStorage.setItem('map-zoom', map.getZoom());
+      });
+    });
   },
   methods: {
     mapChanged: function (map) {

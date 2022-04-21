@@ -19,6 +19,14 @@ export default {
   name: 'MapView',
   props: {
     height: String,
+    location: {
+      type: Array,
+      required: true,
+    },
+    zoom: {
+      type: Number,
+      required: true,
+    },
   },
   data: function () {
     return {
@@ -72,6 +80,8 @@ export default {
     });
     // Initialize the map
     var map = L.map('map_' + this._uid, {
+      center: this.location,
+      zoom: this.zoom,
       maxBounds: mapBoundaries,
       zoomControl: false,
       scrollWheelZoom: false, // disable original zoom function
