@@ -1,6 +1,6 @@
 <template>
   <div class="side-bar" :class="getSideClass">
-    <header>
+    <header class="title">
       <h3>{{ title }}</h3>
     </header>
     <scroll-view class="body">
@@ -45,26 +45,12 @@ export default {
   display: flex;
   flex-direction: column;
 
-  > * {
-    padding: $padding/2 $padding;
-  }
+  // > * {
+  //   padding: $padding/2 $padding;
+  // }
 
   .body {
     flex: 1;
-  }
-}
-
-header {
-  border-bottom: 1px solid $black;
-  // margin-top: -20px;
-  // margin-left: -20px;
-  // margin-right: -20px;
-  // margin-bottom: 20px;
-  // padding: 0 20px;
-  // padding-top: 10px;
-  h3 {
-    // color: $white;
-    margin-top: 10px;
   }
 }
 </style>

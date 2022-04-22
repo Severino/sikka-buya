@@ -646,6 +646,23 @@ mint {
 .political-map {
   .side-bar {
     grid-row: 1 / span 3;
+
+    .title {
+      color: $gray;
+      // text-transform: uppercase;
+      // background-color: $light-gray;
+      padding: $padding;
+      margin: $padding 0;
+
+      h3 {
+        font-size: 1em;
+        margin-bottom: 0;
+      }
+    }
+
+    .collapsible-content {
+      background-color: rgba($color: #000000, $alpha: 0.05);
+    }
   }
 
   .side-bar-right {

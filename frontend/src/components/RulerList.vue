@@ -1,7 +1,7 @@
 <template>
   <div class="ruler-list">
     <multi-select-list>
-      <div
+      <ul
         class="selected-but-unavailable"
         v-if="selectedUnavailable.length > 0"
       >
@@ -17,22 +17,24 @@
             getDynasty(item)
           }}</span>
         </MultiSelectListItem>
-      </div>
-      <MultiSelectListItem
-        v-for="item of items"
-        :key="'ruler-' + item.id"
-        :selected="isSelected(item)"
-        @checkboxSelected="checkboxSelected(item)"
-        @click.native="selectionChanged([item.id])"
-        :style="{ color: item.color, borderColor: item.color }"
-      >
-        <span
-          >{{ getRulerName(item) }}
-          <span v-if="getDynasty(item)" class="dynasty">{{
-            getDynasty(item)
-          }}</span></span
+      </ul>
+      <ul>
+        <MultiSelectListItem
+          v-for="item of items"
+          :key="'ruler-' + item.id"
+          :selected="isSelected(item)"
+          @checkboxSelected="checkboxSelected(item)"
+          @click.native="selectionChanged([item.id])"
+          :style="{ color: item.color, borderColor: item.color }"
         >
-      </MultiSelectListItem>
+          <span
+            >{{ getRulerName(item) }}
+            <span v-if="getDynasty(item)" class="dynasty">{{
+              getDynasty(item)
+            }}</span></span
+          >
+        </MultiSelectListItem>
+      </ul>
     </multi-select-list>
   </div>
 </template>
@@ -69,15 +71,6 @@ export default {
   border: none;
   border-radius: 0;
   padding-left: 5px;
-  padding-bottom: 1px;
-  padding-top: 1px;
-  padding-right: 1px;
-
-  &:hover {
-    padding-bottom: 0;
-    padding-top: 0;
-    padding-right: 0;
-  }
 }
 
 .ruler-list li.select-list-item {
