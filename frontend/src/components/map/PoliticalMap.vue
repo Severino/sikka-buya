@@ -631,8 +631,6 @@ mint {
                 }
                 if (last == null) ctx.moveTo(x(point.x), y(0));
 
-                console.log(point.y);
-
                 ctx.lineTo(x(point.x), y(point.y));
                 last = point.x;
               });
@@ -659,6 +657,7 @@ mint {
       // background-color: $light-gray;
       padding: $padding;
       margin: $padding 0;
+      border-bottom: $border;
 
       h3 {
         font-size: 1em;

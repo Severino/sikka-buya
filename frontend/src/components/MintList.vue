@@ -8,6 +8,12 @@
       >
         <template #header>
           <h4 v-if="group.name != '_'">{{ group.name }}</h4>
+          <div
+            v-if="selectionCountInGroup(group) != 0"
+            class="selection-indicator div-icon circle-div-icon"
+          >
+            {{ selectionCountInGroup(group) }}
+          </div>
         </template>
         <ul>
           <MultiSelectListItem
@@ -87,5 +93,11 @@ h4 {
 }
 .available {
   opacity: 1;
+}
+
+.selection-indicator {
+  color: $white;
+  background-color: $primary-color;
+  transform: scale(0.75);
 }
 </style>

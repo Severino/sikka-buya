@@ -29,6 +29,14 @@ export default {
                 name,
                 items
             }
+        },
+        selectedItemsInGroup(group) {
+            return group.items.filter(element => {
+                return this.isSelected(element)
+            });
+        },
+        selectionCountInGroup(group) {
+            return this.selectedItemsInGroup(group).length
         }
-    }
+    },
 }

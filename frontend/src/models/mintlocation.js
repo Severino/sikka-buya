@@ -48,8 +48,6 @@ export default class MintLocation {
                 interactive: false
             })
 
-            console.log(uncertainIcon)
-
             uncertainIcon.setStyle({
                 stroke: false,
                 color: "#666666",
