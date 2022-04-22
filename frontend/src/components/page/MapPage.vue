@@ -182,23 +182,24 @@ export default {
     margin: 0;
     padding: 0;
     list-style-type: none;
+    overflow: hidden;
   }
 
   li {
-    margin-bottom: 10px;
+    margin: $padding;
     border-radius: 10px;
     cursor: pointer;
     box-sizing: border-box;
-    border: 1px solid transparent;
+    // border: 1px solid transparent;
     user-select: none;
 
     &.inactive {
       opacity: 0.5;
     }
 
-    &:hover {
-      border: 1px solid $gray;
-    }
+    // &:hover {
+    //   border: 1px solid $gray;
+    // }
   }
 }
 
