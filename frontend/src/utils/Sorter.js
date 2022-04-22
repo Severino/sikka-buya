@@ -1,11 +1,17 @@
 export default class Sort {
 
-    static stringsByProperty(a, b) {
-        var nameA = a.shortName?.toUpperCase();
-        var nameB = b.shortName?.toUpperCase();
-        if (nameA < nameB) return -1;
-        else if (nameA > nameB) return 1;
-        else return 0;
+    static stringPropAlphabetically(property, asc = true) {
+        return function (a, b) {
+            var nameA = a[property]?.toUpperCase();
+            var nameB = b[property]?.toUpperCase();
+
+            let sort = 0
+            if (nameA < nameB) sort = -1;
+            else if (nameA > nameB) sort = 1;
+            // Flip if not asc.
+            if (!asc) sort *= -1
+            return sort
+        }
     }
 
 }

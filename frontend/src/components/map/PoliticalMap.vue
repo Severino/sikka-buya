@@ -73,7 +73,7 @@ import localstore from '../mixins/localstore';
 import Query from '../../database/query';
 
 import MintLocation from '../../models/mintlocation';
-import SikkaColor from '../../utils/Color';
+import Sorter from '../../utils/Sorter';
 import MultiSelectList from '../MultiSelectList.vue';
 import { rulerPopup } from '../../models/map/political';
 
@@ -133,8 +133,12 @@ export default {
       }
 
       return [
-        ...this.availableMints.map((mint) => addAvailability(mint, true)),
-        ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
+        ...this.availableMints
+          .map((mint) => addAvailability(mint, true))
+          .sort(Sorter.stringPropAlphabetically('name')),
+        ...this.unavailableMints
+          .map((mint) => addAvailability(mint, false))
+          .sort(Sorter.stringPropAlphabetically('name')),
       ];
     },
     mintMarkerOptions() {
@@ -327,7 +331,7 @@ mint {
       let selectedRulers = this.selectedRulers.slice();
 
       this.availableRulers = Object.values(this.rulers).sort(
-        Sort.stringsByProperty
+        Sort.stringPropAlphabetically('shortName')
       );
 
       /**
@@ -339,7 +343,9 @@ mint {
           this.selectedUnavailableRulers.push(this.persons[selectedRuler]);
         }
       });
-      this.selectedUnavailableRulers.sort(Sort.stringsByProperty);
+      this.selectedUnavailableRulers.sort(
+        Sort.stringPropAlphabetically('shortName')
+      );
     },
     updateConcentricCircles: function () {
       let rulers = {};
