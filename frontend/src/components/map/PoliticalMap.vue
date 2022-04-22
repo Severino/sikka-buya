@@ -666,6 +666,10 @@ mint {
       }
     }
 
+    .collapsible-header {
+      margin-right: $padding;
+    }
+
     .collapsible-content {
       background-color: rgba($color: #000000, $alpha: 0.05);
     }

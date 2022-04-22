@@ -1,6 +1,6 @@
 <template>
   <div class="collapsible">
-    <header @click="toggleCollapse">
+    <header class="collapsible-header" @click="toggleCollapse">
       <slot name="header" />
 
       <div class="icon">
