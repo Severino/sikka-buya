@@ -46,8 +46,6 @@ export function concentricCircles(latlng, data, {
 
     const concentricCircles = []
     data.forEach((slice, i) => {
-
-
         const angleWidth = 360 / data.length
         const subStartAngle = startAngle + angleWidth * i
         const stopAngle = subStartAngle + angleWidth
@@ -109,9 +107,6 @@ export function concentricCircle(latlng, {
             circles.push(graphics)
         }
     }
-
-
-
 
     return L.featureGroup(circles)
 

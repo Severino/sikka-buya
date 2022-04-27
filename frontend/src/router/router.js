@@ -75,7 +75,7 @@ import Auth from "../utils/Auth.js"
 
 import MapPage from "@/components/page/MapPage.vue"
 import PoliticalMap from "@/components/map/PoliticalMap"
-import DominionMap from "@/components/map/DominionMap"
+import MaterialMap from "@/components/map/MaterialMap"
 import PlaygroundPage from "@/components/map/Playground"
 
 
@@ -162,9 +162,9 @@ const routes = [
             meta: { smallNav: true },
           },
           {
-            path: "dominion",
-            name: "DominionMap",
-            component: DominionMap,
+            path: "material",
+            name: "MaterialMap",
+            component: MaterialMap,
             meta: { smallNav: true },
           },
           {
