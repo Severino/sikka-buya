@@ -69,10 +69,10 @@ import Sort from '../../utils/Sorter';
 import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
+import mintLocations from './mixins/mintLocations';
 
 import Query from '../../database/query';
 
-import MintLocation from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
 import MultiSelectList from '../MultiSelectList.vue';
 import { rulerPopup } from '../../models/map/political';
@@ -84,6 +84,7 @@ import { coinsToRulerData } from '../../models/rulers';
 import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
+import MintLocation from '../../models/mintlocation';
 
 export default {
   name: 'PoliticalMap',
@@ -111,7 +112,6 @@ export default {
       rulerListStyles: [],
       availableMints: [],
       unavailableMints: [],
-      mintLocation: null,
       patterns: {},
       mintTimelineData: [],
       settings: {
@@ -121,7 +121,12 @@ export default {
       },
     };
   },
-  mixins: [map, timeline, localstore('political-map-settings', ['settings'])],
+  mixins: [
+    map,
+    timeline,
+    localstore('political-map-settings', ['settings']),
+    mintLocations,
+  ],
   computed: {
     filtersActive: function () {
       return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
@@ -162,9 +167,6 @@ export default {
   mounted: async function () {
     const starTime =
       parseInt(localStorage.getItem('political-timeline')) || 433;
-
-    this.mintLocation = new MintLocation(this.mintMarkerOptions);
-
     await this.initTimeline(starTime);
     this.updateTimeline();
   },
@@ -196,17 +198,8 @@ person {
     name
   }
 }
-              
-mint {
-  id
-  name
-  location
-  uncertain
-  province {
-    id
-    name
-  }
-}
+  ${this.mintGraphQL}    
+
   coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
     types{
     id
@@ -272,11 +265,8 @@ mint {
             .then((result) => {
               let data = result.data.data;
               let types = data.coinType.types;
-              let mints = data.mint.filter((mint) => mint.location != null);
-              this.mints = {};
-              mints.forEach((mint) => {
-                this.mints[mint.id] = mint;
-              });
+
+              this.applyQuery(result);
 
               data.person.forEach(
                 (person) => (this.persons[person.id] = person)
@@ -320,12 +310,6 @@ mint {
       this.updateAvailableMints();
       this.updateAvailableRulers();
       this.$emit('timeline-updated', this.value);
-    },
-    updateMintLocationMarker() {
-      if (this.mintLocations) this.mintLocations.clearLayers();
-      let features = this.mintLocation.mapToGeoJsonFeature(this.mints);
-      this.mintLocations = this.mintLocation.createGeometryLayer(features);
-      this.mintLocations.addTo(this.featureGroup);
     },
     updateAvailableRulers() {
       let selectedRulers = this.selectedRulers.slice();

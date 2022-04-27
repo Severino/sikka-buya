@@ -1,27 +1,23 @@
 <template>
   <div class="map-page">
-    <!-- <div id="map-select">
-      <router-link :to="{ name: 'PoliticalMap' }" class="button"
-        >Politics</router-link
+    <map-nav />
+    <div class="map-view-container">
+      <map-view
+        class="mapview"
+        :location="location"
+        :zoom="zoom"
+        ref="map"
+        @mapReady="mapChanged"
       >
-      <router-link :to="{ name: 'DominionMap' }" class="button"
-        >Dominion</router-link
-      >
-    </div> -->
-    <map-view
-      class="mapview"
-      :location="location"
-      :zoom="zoom"
-      ref="map"
-      @mapReady="mapChanged"
-    >
-    </map-view>
+      </map-view>
 
-    <router-view :map="map" />
+      <router-view :map="map" />
+    </div>
   </div>
 </template>
 
 <script>
+import MapNav from '../map/MapNav.vue';
 require('leaflet-semicircle');
 require('../../plugins/leaflet-svg-icon');
 
@@ -29,7 +25,7 @@ import MapView from '../map/MapView.vue';
 
 export default {
   name: 'MapPage',
-  components: { MapView },
+  components: { MapView, MapNav },
   data: function () {
     return {
       map: null,
@@ -69,6 +65,11 @@ export default {
 </script>
 
 <style lang="scss">
+.map-view-container {
+  position: relative;
+  flex: 1;
+}
+
 .leaflet-popup {
   font-family: $font;
   min-width: 250px;
@@ -146,6 +147,8 @@ export default {
 
 .map-page {
   position: relative;
+  display: flex;
+  flex-direction: column;
   flex: 1;
 }
 

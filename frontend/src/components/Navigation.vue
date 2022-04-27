@@ -133,6 +133,11 @@ header {
       height: 30px;
     }
 
+    .content-wrapper {
+      width: auto;
+      justify-content: space-between;
+    }
+
     .content-wrapper > * {
       padding: 5px 0;
     }

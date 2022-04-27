@@ -3,17 +3,27 @@ var L = require('leaflet');
 export default class MintLocation {
     constructor(circleOptions = {}) {
         this.circleOptions = circleOptions
-
-
         this.iconSize = this.circleOptions.radius * 3 / 2
     }
 
 
     mapToGeoJsonFeature(mints) {
         return Object.values(mints).map(mint => {
-            let feature = JSON.parse(mint.location);
-            feature.mint = mint;
-            return feature;
+
+            let location = mint.location
+            if (typeof mint.location == "string") {
+                try {
+                    location = JSON.parse(mint.location);
+                } catch (e) {
+                    location = { type: null, coordinates: null }
+                }
+            }
+
+            return {
+                type: location.type,
+                coordinates: location.coordinates,
+                mint: mint
+            };
         });
     }
 
@@ -28,8 +38,6 @@ export default class MintLocation {
                 return new L.LatLng(coords[0], coords[1], coords[2]);
             }
         });
-
-
 
         return layer
     }

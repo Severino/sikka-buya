@@ -44,6 +44,9 @@ export default {
                 this.map.doubleClickZoom.disable();
                 this.featureGroup.addTo(this.map)
             }
+        },
+        clearLayers: function () {
+            this.featureGroup.clearLayers()
         }
     }
 }
