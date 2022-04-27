@@ -70,6 +70,7 @@ import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import { concentricCircles } from '../../models/map/geometry';
+import Mint from '../../models/map/mint';
 
 export default {
   name: 'MaterialMap',
@@ -185,6 +186,7 @@ export default {
             6: '#9c9c9c',
             7: '#a0d2eb',
             9: '#e68143',
+            10: '#d57b61',
           };
 
           types.forEach((type) => {
@@ -265,6 +267,12 @@ export default {
             {
               innerRadius: 7,
               radius: 12,
+              openPopup: (data) => {
+                console.log(data);
+                return `
+                ${Mint.popupMintHeader(feature.mint)}
+                <p>${data.data.name}</p>`;
+              },
             }
           );
 
