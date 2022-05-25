@@ -1,37 +1,6 @@
 <template>
   <div class="catalog-landing">
     <type-overview />
-
-    <!-- <Column class="container" :class="{ empty: empty }">
-      <div class="search">
-        <Column>
-          <h2>Typensuche</h2>
-          <router-link class="link" :to="{ name: 'CatalogFullSearch' }"
-            >Zur Volltext Suche</router-link
-          >
-          <search-field
-            :value="searchText"
-            @input="input"
-            :asyncSearch="search"
-          />
-        </Column>
-      </div>
-
-      <List v-if="searchText" :properties="columns" :items="types">
-        <list-item
-          v-for="type of types"
-          :key="'type-search-result-' + type.id"
-          :to="{ name: 'CatalogEntry', params: { id: type.id } }"
-        >
-          <list-item-cell
-            v-for="column of columns"
-            :key="'type-search-result-' + type.id + '-' + column"
-          >
-            {{ type[column] }}
-          </list-item-cell>
-        </list-item>
-      </List>
-    </Column> -->
   </div>
 </template>
 

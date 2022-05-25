@@ -18,6 +18,7 @@
             @click="login"
             class="colored"
             :pending="buttonDisabled"
+            id="submit-button"
           >
             Anmelden
           </async-button>

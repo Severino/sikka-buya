@@ -35,7 +35,7 @@
           append: true,
         }"
       >
-        <div class="color-indicator" :style="getStyleOf(item)"></div>
+        <list-color-indicator :item="item" />
         <ListItemCell>{{ item.name }}</ListItemCell>
         <DynamicDeleteButton
           @delete="deleteButtonRemove(item.id)"
@@ -60,6 +60,7 @@ import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListItem from '../layout/ListItem.vue';
 import { camelCase } from 'change-case';
 import DeleteButtonMixin from '../mixins/deletebutton';
+import ListColorIndicator from '../list/ListColorIndicator.vue';
 
 export default {
   name: 'PersonOverviewPage',
@@ -71,6 +72,7 @@ export default {
     ListItemIdField,
     ListItem,
     ListItemCell,
+    ListColorIndicator,
   },
   mixins: [DeleteButtonMixin],
   created: function () {
@@ -174,9 +176,6 @@ export default {
     displayError(err) {
       this.$store.commit('printError', err);
     },
-    getStyleOf(item) {
-      return `background-color: ${item.color};`;
-    },
   },
 };
 </script>
@@ -250,15 +249,5 @@ header {
   // position: absolute;
   right: 0;
   top: 0;
-}
-
-.color-indicator {
-  $size: 12px;
-  width: $size;
-  height: $size;
-  border: $border;
-  box-sizing: border-box;
-  border-radius: $size/2;
-  margin-right: 20px;
 }
 </style>

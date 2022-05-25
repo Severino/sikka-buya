@@ -54,15 +54,14 @@ export function dataFromRulers(rulers, selected = []) {
 
         data = Object.assign({
             fillColor,
-            color: "#fff",
             stroke: true,
-            weight: 1
+            color: "#999",
+            weight: 0.75
         }, ruler.styles, {
             data: ruler,
         })
 
         if (!sel && data?.fillPattern) {
-            console.log(sel)
             data.fillPattern = null
         }
     }

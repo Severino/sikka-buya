@@ -1,8 +1,8 @@
 const chai = require('chai')
 const expect = chai.expect
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
 const { KOHL, WESTERWELLE, MERKEL, DUERER, KARL, CHIRAC, CHARLES_DE_GAULLE, MACRON, HOLLANDE, SARKOZY, UDERZO, GOSCINNY, LOUIS, ARIELLE, SEBASTIAN, PLANKTON, FISCH, WAL, MICHELANGELO, BERNINI, POSEIDON, ELIZABETH_II, GAUCK } = require('../mockdata/persons')
+const { User1 } = require('../mockdata/users')
 const gql = String.raw
 
 chai.config.truncateThreshold = 0
@@ -201,7 +201,7 @@ describe(`Type Queries`, function () {
   })
 
   it("Add", async function () {
-    let promise = graphql(`mutation{addCoinType(data: ${ATLANTIS_INPUT})}`, {}, TestUser.users[0].token)
+    let promise = graphql(`mutation{addCoinType(data: ${ATLANTIS_INPUT})}`, {}, User1.token)
     await expect(promise).to.be.fulfilled
   })
 
@@ -225,7 +225,7 @@ describe(`Type Queries`, function () {
   })
 
   it("Update", async function () {
-    let promise = graphql(`mutation{updateCoinType(id:3,data:${ATLANTIS_INPUT_UPDATED})}`, {}, TestUser.users[0].token)
+    let promise = graphql(`mutation{updateCoinType(id:3,data:${ATLANTIS_INPUT_UPDATED})}`, {}, User1.token)
     await expect(promise).to.be.fulfilled
   })
 

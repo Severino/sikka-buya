@@ -10,7 +10,7 @@
     <div v-if="items.length == 0 && !loading && error == ''" class="info">
       <Information />
       <p>
-        {{ $t("warning.list_is_empty") }}
+        {{ $t('warning.list_is_empty') }}
       </p>
     </div>
     <div
@@ -19,7 +19,7 @@
     >
       <Information />
       <p>
-        {{ $t("warning.filtered_list_is_empty") }}
+        {{ $t('warning.filtered_list_is_empty') }}
       </p>
     </div>
 
@@ -55,10 +55,9 @@
 </template>
 
 <script>
-import Information from "vue-material-design-icons/Information";
-import ListItem from "./ListItem.vue";
-import LoadingSpinner from "../misc/LoadingSpinner.vue";
-var deburr = require("lodash.deburr");
+import Information from 'vue-material-design-icons/Information';
+import ListItem from './ListItem.vue';
+import LoadingSpinner from '../misc/LoadingSpinner.vue';
 
 export default {
   components: { ListItem, Information, LoadingSpinner },
@@ -81,26 +80,26 @@ export default {
     },
     error: {
       type: String,
-      default: "",
+      default: '',
     },
     filter: {
       type: String,
-      default: "",
+      default: '',
     },
     noRemove: Boolean,
   },
   methods: {
     listItemClicked: function (id) {
-      this.$emit("select", id);
+      this.$emit('select', id);
     },
     listItemRemoved: function (id) {
-      this.$emit("remove", id);
+      this.$emit('remove', id);
     },
   },
   computed: {
     filteredItems: function () {
       return this.items.filter((item) => {
-        let str = !item[this.property] ? "" : item[this.property];
+        let str = !item[this.property] ? '' : item[this.property];
         return deburr(str.toLowerCase()).match(
           deburr(this.filter.toLowerCase())
         );
@@ -111,7 +110,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .list {
   margin: $padding 0;

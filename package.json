@@ -11,30 +11,36 @@
     "frontend": "cd frontend && yarn run serve",
     "backend": "cd backend && yarn run dev",
     "install": "cd backend && yarn install && cd ../frontend && yarn install",
-    "test": "cd test && grunt test",
+    "test": "cd test & grunt test",
+    "test:backend": "cd test & node testing-backend.js",
+    "test:cypress": "concurrently -k -n \"BACKEND,CYPRESS,VUE\"  -c \"magenta,cyan,blue\" \"npm run test:backend \" \"npm run test:cypress-app\" \"npm run frontend\" ",
+    "test:cypress:backend": "cd test && grunt backend",
+    "test:cypress-app": "wait-on http://localhost:4000 && wait-on http://localhost:8080 && cd test && cypress open",
     "deploy:backend": "cd backend && pm2 delete all && npm run pm2",
     "deploy:frontend": "cd frontend && ./deploy.sh",
     "deploy": "npm run deploy:backend && npm run deploy:frontend"
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "cypress": "^8.4.0",
     "dotenv": "^10.0.0",
     "graphql": "^15.5.1",
     "graphql-2-json-schema": "^0.7.0",
     "leaflet.pattern": "^0.1.0",
-    "pg-promise": "^10.11.0",
+    "pg-promise": "10.11.1",
     "simplebar-vue": "^1.6.8"
   },
   "devDependencies": {
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chai-graphql": "^4.0.0",
+    "concurrently": "^7.1.0",
+    "cypress": "^9.6.1",
     "grunt": "^1.4.1",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-keepalive": "^1.0.0",
-    "grunt-mocha": "^1.2.0",
+    "grunt-mocha": "^1.1.0",
     "grunt-mocha-test": "^0.13.3",
-    "mocha": "^9.0.3"
+    "mocha": "^9.0.3",
+    "wait-on": "^6.0.1"
   }
 }

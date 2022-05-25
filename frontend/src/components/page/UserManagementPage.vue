@@ -16,7 +16,7 @@
       <div class="error" v-if="listError">{{ listError }}</div>
       <div class="user-list">
         <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
-          <span class="name">{{ user.email }}</span>
+          <span class="email">{{ user.email }}</span>
           <div class="permissions">{{ user.super ? 'SUPER' : 'User' }}</div>
           <copy-field :value="getInvitePath(user.email)" />
           <dynamic-delete-button @delete="deleteUser(user.id)" />

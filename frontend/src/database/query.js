@@ -2,7 +2,6 @@
 import axios from "axios"
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
-import store from "../store";
 import { graphqlEndpoint } from './host';
 import { print } from 'graphql/language/printer';
 
@@ -39,6 +38,7 @@ export default class Query {
     }
 
     static async raw(query, variables = {}) {
+        console.log(query)
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')
@@ -79,30 +79,11 @@ export default class Query {
         }
         properties = properties.slice(0, -2)
 
-        let query
-        if (!data.id) {
-            query = `
-            mutation {
-              add${this.capitalizedName}(
-                  data:{
-                  ${properties}
-                  }
-              )
-            }
-          `;
-        } else {
-            query = `
-            mutation {
-              update${this.capitalizedName}(
-                  data:{
-                  ${properties}
-                  }
-              )
-            }
-          `;
-        }
-
-        return this.raw(query)
+        const queryName = (data.id) ? "update" : "add"
+        return this.raw(`mutation {
+            ${queryName}${this.capitalizedName}(${properties})
+          }
+        `)
     }
 
     delete(id) {

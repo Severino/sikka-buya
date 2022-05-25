@@ -437,8 +437,14 @@ person {
               openPopup: function ({ data, groupData }) {
                 return rulerPopup(groupData, data?.data);
               },
-              innerRadius: 7,
+              innerRadius: mintMarkerOptions.radius,
               radius,
+              borderStyle: {
+                stroke: true,
+                weight: 2,
+                color: '#fff',
+                fill: false,
+              },
             });
 
             if (feature?.coins?.length > 0) {

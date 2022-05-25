@@ -36,7 +36,6 @@ import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
 import CatalogFullSearch from "@/components/page/catalog/CatalogFullSearch.vue"
 
 import PersonExplorer from "@/components/page/catalog/PersonExplorer.vue"
-import PersonExplorer2 from "@/components/page/catalog/PersonExplorer2.vue"
 
 /**
  * Editor Page
@@ -53,6 +52,9 @@ import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import Overview from "@/components/page/Overview.vue"
 import PersonOverview from "@/components/page/PersonOverview"
+import MaterialOverview from "@/components/page/MaterialOverview"
+
+
 
 import TypeOverview from "@/components/page/TypeOverview.vue"
 
@@ -122,10 +124,6 @@ const routes = [
         path: "/persons/",
         name: "OverlordAccordeon",
         component: PersonExplorer
-      }, {
-        path: "/persons2/",
-        name: "OverlordAccordeon2",
-        component: PersonExplorer2
       },
       {
         path: '/catalog/',
@@ -233,9 +231,15 @@ const routes = [
             component: PersonOverview
           },
           {
+            path: "test",
+            name: "MaterialOverview",
+            component: MaterialOverview
+          },
+          {
             path: ":property",
             name: "Property",
-            component: Overview
+            component: Overview,
+            props: true
           }, {
             path: 'type/create',
             name: 'TypeCreationPage',

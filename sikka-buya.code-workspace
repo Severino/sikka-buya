@@ -13,7 +13,7 @@
     },
     "javascript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
-    "prettier.singleQuote": true
+    "prettier.singleQuote": true,
   },
   "tasks": {
     "version": "2.0.0",

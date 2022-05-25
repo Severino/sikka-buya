@@ -6,20 +6,12 @@ const chaiPromise = require('chai-as-promised')
 chai.use(chaiPromise)
 
 const { graphql } = require('../helpers/graphql');
-const TestUser = require('../helpers/test-user');
 const path = require('path');
+const { SuperUser, User1 } = require('../mockdata/users');
 
 
 
 describe(`Setup test environment`, async function () {
-  let user;
-  before(function () {
-    user = new TestUser("tom.testa@example.com", "secure_password")
-    TestUser.setSuperUser(user)
-
-    user = { email: "tom.testa@example.com", password: "secure_password" }
-  })
-
 
   it(`Test if application is running properly`, async function () {
     let result = await graphql(`{
@@ -32,7 +24,7 @@ describe(`Setup test environment`, async function () {
   it(`Setup the application with super user`, async function () {
 
     let result = await graphql(`mutation {
-                setup(data: {email: "${user.email}", password: "${user.password}"}) {
+                setup(email: "${SuperUser.email}", password: "${SuperUser.password}") {
                   user {
                     id
                     email
@@ -54,7 +46,7 @@ describe(`Setup test environment`, async function () {
       message: null,
       user: {
         id: "1",
-        email: user.email,
+        email: SuperUser.email,
         super: true
       }
     })
@@ -62,11 +54,9 @@ describe(`Setup test environment`, async function () {
 
   it(`Additional setup results in an error`, async function () {
 
-    const user = new TestUser("susan.sugar@example.com", "super_secure_password")
-    TestUser.addUser(user)
-
+    const user = User1
     let promise = graphql(`mutation {
-                setup(data: {email: "${user.email}", password: "${user.password}"}) {
+                setup(email: "${user.email}", password: "${user.password}") {
                   user {
                     id
                     email
@@ -77,8 +67,6 @@ describe(`Setup test environment`, async function () {
                   message
                 }
               }`)
-
-
 
     await expect(promise).to.be.rejectedWith(['Superuser was already initialized!'])
 

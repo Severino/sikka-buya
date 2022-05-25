@@ -1,3 +1,5 @@
+import Mint from './map/mint';
+
 var L = require('leaflet');
 
 export default class MintLocation {
@@ -44,7 +46,8 @@ export default class MintLocation {
 
     createMarker(feature, latlng) {
         const mint = feature.mint
-        let circle = L.circleMarker(latlng, this.circleOptions).bindPopup(`<header><span class="subtitle">${mint.name}</span><div class="tooltip-container"><div class="div-icon-button div-icon circle-div-icon">?</div><div class="tooltip">Verortung der Münzstätte ist nicht sicher.</div></div></header>`);
+
+        let circle = L.circleMarker(latlng, this.circleOptions).bindPopup(Mint.popupMintHeader(mint));
 
         if (!mint.uncertain) return circle
         else {

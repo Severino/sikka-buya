@@ -59,16 +59,11 @@ export default {
       let query;
       if (this.value.id && this.value.id >= 0) {
         query = `mutation{
-        updateCoinMark(data:{
-          id: ${this.value.id}
-          name: "${this.value.name}"
-        })
+        updateCoinMark(id: ${this.value.id}, name: "${this.value.name}" })
         }`;
       } else {
         query = `mutation{
-        addCoinMark(data:{
-          name: "${this.value.name}"
-        })
+        addCoinMark(name: "${this.value.name}")
         }`;
       }
 

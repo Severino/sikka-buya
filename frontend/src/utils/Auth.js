@@ -85,10 +85,10 @@ export default class Auth {
 
     static async queryLogin(email, password) {
         return Query.raw(`{
-            login(data: {
+            login(
               email: "${email}",
               password: "${password}"
-            }){
+            ){
                 success
                 message
                 token
@@ -104,6 +104,7 @@ export default class Auth {
     static async login(email, password) {
 
         let result = await this.queryLogin(email, password)
+        console.log(result)
         let response = { success: false, message: "Interner Fehler, melden Sie das Problem dem Admin. ", user: null }
 
         if (result && result.data && result.data.data && result.data.data.login) {

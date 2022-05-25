@@ -82,13 +82,17 @@ export default {
     background-color: gray;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
-    margin-left: -20px;
-    margin-top: -20px;
-    margin-right: -20px;
+    // margin-left: calc(#{$padding * -2} - 2px);
+    // margin-top: calc(#{$padding * -2} - 2px);
+    // margin-right: calc(#{$padding * -2} - 2px);
     margin-bottom: 10px;
-    padding: 10px 20px;
+    padding: $padding $padding * 2;
     padding-right: 50px;
+
+    border-top-right-radius: $border-radius;
+    border-top-left-radius: $border-radius;
     // min-width: 200px;
 
     &:last-of-type {
@@ -101,14 +105,18 @@ export default {
   }
 
   .leaflet-popup-content-wrapper {
-    border-radius: 3px;
+    padding: 0;
+    border-radius: $border-radius;
   }
 
+  .leaflet-popup-content {
+    margin: 0;
+  }
   a.leaflet-popup-close-button {
     color: white;
     opacity: 1;
     font-size: 1.5em !important;
-    margin: 2px 10px;
+    padding: 9px !important;
   }
 
   h2,
@@ -135,8 +143,8 @@ export default {
 
   .catalog-link {
     position: absolute;
-    right: 0px;
-    top: 0px;
+    right: $padding * 2;
+    top: 46px;
     color: $primary-color;
     padding: 3px 5px;
     font-weight: bold;
@@ -148,6 +156,7 @@ export default {
 .map-page {
   position: relative;
   display: flex;
+  overflow: hidden;
   flex-direction: column;
   flex: 1;
 }
