@@ -4,10 +4,10 @@ $font: $sans-serif,
 $arabic,
 sans-serif;
 
-$small-padding: 5px;
-$padding: 10px;
-$big-padding: 30px;
-$big-box-padding: 30px 50px;
+$small-padding: 0.3em;
+$padding: 0.5em;
+$big-padding: 0.8em;
+$big-box-padding: $big-padding $big-padding * 1.2;
 
 $white: #fefefe;
 $dark-white: #f1f1f1;

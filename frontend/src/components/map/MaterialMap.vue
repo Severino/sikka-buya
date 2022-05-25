@@ -37,8 +37,11 @@
         :to="timeline.to"
         :value="raw_timeline.value"
         :valid="timelineValid"
+        :allowToggle="true"
+        :timelineActive="timelineActive"
         @input="timelineChanged"
         @change="timelineChanged"
+        @toggle="timelineToggled"
       >
         <template #background>
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
@@ -71,6 +74,7 @@ import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import { concentricCircles } from '../../models/map/geometry';
 import Mint from '../../models/map/mint';
+import { White } from '../../utils/Color';
 
 export default {
   name: 'MaterialMap',
@@ -92,6 +96,7 @@ export default {
       mintData: {},
       mintLocation: null,
       mintTimelineData: [],
+      timelineActive: true,
       settings: {
         visible: false,
         minRadius: { value: 10, min: 0, max: 50 },
@@ -152,16 +157,67 @@ export default {
       this.types = await this.fetchTypes();
       this.update();
     },
+    timelineToggled: async function () {
+      this.timelineActive = !this.timelineActive;
+      this.fetchTypes();
+      this.update();
+    },
     async fetchTypes() {
-      this.mintData = {};
-      let fetching = true;
-
       await this.fetchMints();
 
       try {
-        while (fetching) {
-          const result = await Query.raw(
-            `{
+        if (this.timelineActive) {
+          await this.fetchMaterialForYear();
+        } else {
+          await this.fetchMaterial();
+        }
+        this.update();
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async fetchMaterial() {
+      this.mintData = {};
+      const result = await Query.raw(`{mintMaterials {
+  mint {
+    id
+    name
+  },
+  materials {
+    id,
+    name,
+    color
+  }
+}}`);
+      this.mintData = result.data.data.mintMaterials.reduce(
+        (prev, { mint, materials }) => {
+          if (mint.id) {
+            if (prev[mint.id] != null)
+              console.error('Mint id was already set.');
+            else {
+              prev[mint.id] = {};
+              materials.forEach((mat) => {
+                if (!mat.id) {
+                  console.log(`Material has no id: `, mat);
+                } else {
+                  prev[mint.id][mat.id] = this.getMaterialOptions(mat);
+                }
+              });
+            }
+          } else console.error('Mint had no id: ', mint);
+          return prev;
+        },
+        {}
+      );
+    },
+
+    async fetchMaterialForYear() {
+      this.mintData = {};
+      const types = {};
+      let fetching = true;
+      while (fetching) {
+        const result = await Query.raw(
+          `{
       coinType (filters: {yearOfMint:"${this.raw_timeline.value}"}) {
         pageInfo{
             page
@@ -173,57 +229,48 @@ export default {
             id
             projectId
             mint {id, name}
-            material {id name}
+            material {id name color}
           }
         }
       }`
-          );
+        );
 
-          const { types, pageInfo } = result.data.data.coinType;
+        const { types, pageInfo } = result.data.data.coinType;
 
-          const colorMap = {
-            5: '#ebb31a',
-            6: '#9c9c9c',
-            7: '#a0d2eb',
-            9: '#e68143',
-            10: '#d57b61',
-          };
-
-          types.forEach((type) => {
-            const mintId = type?.mint?.id;
-            const materialId = type?.material?.id;
-
-            const fillColor = colorMap[type?.material?.id];
-            if (!fillColor) console.error('COLOR NOT FOUND: ', type);
-            if (materialId && mintId) {
-              const options = {
-                id: type?.material?.id,
-                name: type?.material?.name,
-                count: 1,
-                fillColor,
-                fillOpacity: 1,
-                color: 'white',
-                weight: 1,
-              };
-
-              if (!this.mintData[mintId]) {
-                this.mintData[mintId] = {};
-                this.mintData[mintId][materialId] = options;
-              } else {
-                if (!this.mintData[mintId][materialId]) {
-                  this.mintData[mintId][materialId] = options;
-                } else this.mintData[mintId][materialId].count++;
-              }
-            }
-          });
-
-          if (pageInfo.count * (pageInfo.page + 1) >= pageInfo.total) {
-            fetching = false;
-          }
+        if (pageInfo.count * (pageInfo.page + 1) >= pageInfo.total) {
+          fetching = false;
         }
-      } catch (e) {
-        console.error(e);
+
+        types.forEach((type) => {
+          const mintId = type?.mint?.id;
+          const materialId = type?.material?.id;
+          if (materialId && mintId) {
+            if (!this.mintData[mintId]) {
+              this.mintData[mintId] = {};
+              this.mintData[mintId][materialId] = this.getMaterialOptions(
+                type?.material
+              );
+            } else {
+              if (!this.mintData[mintId][materialId]) {
+                this.mintData[mintId][materialId] = this.getMaterialOptions(
+                  type?.material
+                );
+              } else this.mintData[mintId][materialId].count++;
+            }
+          }
+        });
       }
+    },
+    getMaterialOptions(material) {
+      return {
+        id: material?.id,
+        name: material?.name,
+        count: 1,
+        fillColor: material?.color || '#222',
+        fillOpacity: 1,
+        color: 'white',
+        weight: 1,
+      };
     },
     resetFilters: function () {
       this.clearMintSelection({ preventUpdate: true });
@@ -257,24 +304,34 @@ export default {
       const that = this;
       this.materialLayer = this.L.geoJSON(materialFeatures, {
         pointToLayer: function (feature, latlng) {
-          const featureGroup = concentricCircles(
-            latlng,
-            feature.data.materials.map((materials) => {
-              return {
-                data: [materials],
-              };
-            }),
-            {
-              innerRadius: 7,
-              radius: 12,
-              openPopup: (data) => {
-                console.log(data);
-                return `
-                ${Mint.popupMintHeader(feature.mint)}
-                <p>${data.data.name}</p>`;
+          let data = feature.data.materials.map((materials) => {
+            return {
+              data: [materials],
+            };
+          });
+
+          let sorted = data.sort((a, b) => {
+            return a.data[0].name.localeCompare(b.data[0].name);
+          });
+
+          const featureGroup = concentricCircles(latlng, sorted, {
+            innerRadius: 5,
+            radius: 15,
+            styles: [
+              {
+                stroke: true,
+                color: White,
+                weight: 1.5,
               },
-            }
-          );
+            ],
+            openPopup: (data) => {
+              return `
+                ${Mint.popupMintHeader(feature.mint)}
+                <div class="popup-body">
+                ${data.data.name}
+                </div>`;
+            },
+          });
 
           const mintLocations = new MintLocation(that.mintMarkerOptions);
           const mintMarker = mintLocations.createMarker(feature, latlng);

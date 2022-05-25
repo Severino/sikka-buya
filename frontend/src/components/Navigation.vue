@@ -31,7 +31,9 @@
           <router-link :to="{ name: 'Editor' }">
             <AccountCircle />
           </router-link>
-          <div @click="logout">{{ $t('system.logout') }}</div>
+          <div id="nav-logout-button" @click="logout">
+            {{ $t('system.logout') }}
+          </div>
         </div>
         <div class="nav-toggle" @click="toggleMenu()">
           <Close v-if="active" />

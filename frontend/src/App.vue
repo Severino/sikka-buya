@@ -158,7 +158,7 @@ h1 {
   display: block;
   color: $gray;
   font-size: $regular-font;
-  font-weight: bold;
+  // font-weight: bold;
 }
 
 .hero {
@@ -216,9 +216,24 @@ button[type='submit'] {
 
 .button,
 button {
-  display: block;
+  display: flex;
+  align-items: center;
   @include input;
   @include interactive();
+
+  > .material-design-icon {
+    width: 1.3em;
+    margin-right: $padding;
+  }
+
+  &.rounded {
+    border-radius: 0.5em;
+  }
+
+  &.small-button {
+    font-size: $small-font;
+    padding: 0 $small-padding * 2;
+  }
 }
 
 .button.ghost-btn {
@@ -350,8 +365,8 @@ a {
 
 .div-icon {
   background-color: $white;
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   display: flex;
   align-items: center;
   justify-content: center;

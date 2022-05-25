@@ -1,29 +1,11 @@
+const { Database, setupDatabase } = require('./src/utils/database.js')
+
 const fs = require('fs').promises
 
 async function start({
-    dbUser,
-    dbPassword,
-    dbName,
-    dbHost,
-    dbPort,
     expressPort,
-    jwtSecret,
-    testEnvironment
+    routes = []
 } = {}) {
-
-    process.env.DB_USER = dbUser
-    process.env.DB_PASSWORD = dbPassword
-    process.env.DB_NAME = dbName
-    process.env.DB_HOST = dbHost
-    process.env.DB_PORT = dbPort
-    process.env.JWT_SECRET = jwtSecret
-    process.env.TEST_ENVIRONMENT = testEnvironment || false
-
-    /**
-     * Database Packages
-     */
-    const { pgp, Database } = require("./src/utils/database.js")
-
 
 
     /**
@@ -48,6 +30,8 @@ async function start({
     const Resolver = require("./src/resolver.js")
     const MintResolver = require("./src/resolver/mintresolver.js");
     const PersonResolver = require("./src/resolver/personresolver.js");
+    const MaterialResolver = require("./src/resolver/materialresolver.js");
+
 
     /**
      * Custom Utility Packages
@@ -77,8 +61,8 @@ async function start({
          */
         const resolverClasses = [
             new Resolver("coinMark", { tableName: "coin_marks" }),
-            new Resolver("material"),
-            new MintResolver("mint"),
+            new MaterialResolver(),
+            new MintResolver(),
             new Resolver("title"),
             new PersonResolver(),
             new Resolver("honorific"),
@@ -101,12 +85,21 @@ async function start({
                     return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
                 },
                 isSuperUserSet: async function () {
-                    const result = await Database.one(`SELECT COUNT(*) FROM app_user WHERE super=true`)
-                    return result.count > 0
+                    let result
+                    try {
+                        result = await Database.one(`SELECT COUNT(*) FROM app_user WHERE super=true`)
+                        return result.count > 0
+                    } catch (e) {
+                        return false
+                    }
                 },
                 databaseExists: async function () {
                     return new Promise(resolve => {
-                        Database.connect().then(() => resolve(true)).catch(() => resolve(false))
+                        Database.connect().then((result) => {
+                            result.done()
+                            resolve(true)
+                        }
+                        ).catch(() => resolve(false))
                     })
                 },
                 ruledMint: async function (_, { year } = {}) {
@@ -281,6 +274,35 @@ async function start({
                 searchType: async function () {
                     return Type.searchType(...arguments)
                 },
+                mintMaterials: async function () {
+                    let result = await Database.manyOrNone(`SELECT mint.id, mint.name, 
+                    json_agg(DISTINCT mat.material) AS materials
+                    FROM type
+                    LEFT JOIN mint ON mint.id = type.mint
+                    JOIN (
+                      SELECT DISTINCT ON (id, "id", "name", "color")
+                        id, json_build_object('material_id', "id", 'material_name', "name", 'material_color', "color")::jsonb AS material
+                      FROM material
+						LEFT JOIN material_color mc ON mc.material = id 
+                    ) AS mat ON mat.id = type.material
+                    GROUP BY type.mint, mint.id, mint.name
+                    ORDER BY mint.name;
+                    `)
+
+                    return result.map(result => {
+                        return {
+                            mint: { id: result.id, name: result.name },
+                            materials: result.materials.map(mat => {
+                                return {
+                                    id: mat.material_id,
+                                    name: mat.material_name,
+                                    color: mat.material_color
+                                }
+                            })
+                        }
+                    })
+
+                },
                 /**
                * Same as getCoinTypes, but also allow to filter for evaluation filters.
                */
@@ -378,6 +400,10 @@ async function start({
                         return result[attr]
                     } else return ""
                 },
+                getMaterialColor: async function (_, args) {
+                    const result = await Database.oneOrNone(`SELECT color FROM material_color WHERE material=$[id]`, args)
+                    return (result?.color) ? result.color : null
+                },
                 getPersonExplorerOrder: async function () {
                     return Database.manyOrNone(`SELECT position as order, person FROM person_explorer_custom_sorting`)
                 },
@@ -393,8 +419,6 @@ async function start({
                     return JSON.stringify(result)
                 },
                 typeCountOfMints: async function (_, args) {
-                    console.log(args)
-
                     const ids = args.ids
                     if (ids.length > process.env.MAX_SEARCH) throw new Error(`Too many ids requested.`)
 
@@ -455,6 +479,9 @@ async function start({
                         await Database.none(query + " ON CONFLICT (id) DO UPDATE SET $[attr:name]=$[value]", { attr, value })
                     }
                 },
+                async updateMaterialColor(_, args) {
+                    return Database.none(`INSERT INTO material_color (material, color) VALUES ($[id], $[color]) ON CONFLICT (material) DO UPDATE SET color=$[color]`, args)
+                },
                 addComment: async function (_, args) {
                     let { text,
                         user,
@@ -493,7 +520,7 @@ async function start({
                         const {
                             email,
                             password
-                        } = args.data
+                        } = args
 
                         let emailValidator = Auth.validateEmail(email)
                         if (!emailValidator.ok) throw new Error(emailValidator.error)
@@ -620,16 +647,21 @@ async function start({
             graphiql: true
         }))
 
+        for (let route of routes) {
+            const method = route.method || "all"
+            app[method](route.route, route.handler)
+        }
+
         app.use("/", (req, res, next) => {
             res.send("Welcome")
         })
 
 
-        app.listen(expressPort, () => {
-            console.log(`Express GraphQL Server Is Running On http://localhost:${expressPort}/graphql`)
-            resolve()
-        })
 
+        const instance = app.listen(expressPort, () => {
+            console.log(`Express GraphQL Server Is Running On http://localhost:${expressPort}/graphql`)
+            resolve({ app, instance })
+        })
     })
 }
 

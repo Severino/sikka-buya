@@ -7,11 +7,6 @@ type AuthResponse {
   user: User
 }
 
-input UserInput {
-  email: String!
-  password: String!
-}
-
 type User {
   id: ID
   email: String
@@ -23,9 +18,10 @@ type Name {
   name: String
 }
 
-input NameInput {
+type Material {
   id: ID
   name: String
+  color: String
 }
 
 input MintInput {
@@ -71,7 +67,7 @@ type CoinType {
   treadwellId: String
   mint: Mint
   mintAsOnCoin: String
-  material: Name
+  material: Material
   nominal: Name
   yearOfMint: String
   donativ: Boolean
@@ -94,6 +90,10 @@ type CoinType {
   mintUncertain: Boolean
 }
 
+type MintMaterials {
+    mint: Mint
+    materials: [Material]
+}
 
 type ModCoinType {
   id: ID
@@ -224,47 +224,47 @@ type Query {
   # Tested in 004_coin_mark
   coinMark: [CoinMark]
   searchCoinMark(text: String): [CoinMark]!
-  getCoinMark(id: Int!): CoinMark
+  getCoinMark(id: ID!): CoinMark
 
   # Tested in 005_nominal
   nominal: [Name]!
   searchNominal(text: String): [Name]!
-  getNominal(id: Int!): Name
+  getNominal(id: ID!): Name
 
   # Tested in 006_material
-  material(language: String): [Name]!
-  searchMaterial(text: String): [Name]!
-  getMaterial(id: Int!): Name
+  material: [Material]!
+  searchMaterial(text: String): [Material]!
+  getMaterial(id: ID!): Material
 
   # Tested in 007_mint
   mint: [Mint]!
   searchMint(text: String): [Mint]!
-  getMint(id: Int!): Mint
+  getMint(id: ID!): Mint
 
   # Tested in 008_role
   role: [Name]
   searchRole(text: String): [Name]!
-  getRole(id: Int!): Name
+  getRole(id: ID!): Name
 
   # Tested in 009_dynasty
   dynasty: [Name]!
   searchDynasty(text: String): [Name]!
-  getDynasty(id: Int!): Name
+  getDynasty(id: ID!): Name
 
   # Tested in 010_title
   title: [Name]!
   searchTitle(text: String): [Name]!
-  getTitle(id: Int!): Name
+  getTitle(id: ID!): Name
 
   # Tested in 011_honorifics
   honorific: [Name]!
   searchHonorific(text: String): [Name]!
-  getHonorific(id: Int!): Name
+  getHonorific(id: ID!): Name
 
   # Tested in 012_person
   person(role: ID, dynasty: ID): [Person]!
   searchPerson(text: String): [Person]!
-  getPerson(id: Int!): Person
+  getPerson(id: ID!): Person
 
   # Tested in 030_coin_type
   coinType(pagination: Pagination, filters: TypeFilter): CoinTypePagination
@@ -278,6 +278,10 @@ type Query {
   getCoinType(id: ID!): CoinType
 
   # TODO: missing Tests ---------------------------------------------
+
+  mintMaterials: [MintMaterials]
+  getMaterialColor(id:ID!):String
+
 
   province: [Name]
   searchProvince(text: String): [Name]
@@ -309,7 +313,7 @@ type Query {
   isSuperUserSet:Boolean
   databaseExists: Boolean
   users: [User]
-  login(data: UserInput): AuthResponse
+  login(email:String!, password:String!): AuthResponse
   auth(token: String): User
 
   getLang(id: ID!, table: String!, lang: String!, attr: String!): String
@@ -322,6 +326,8 @@ type Query {
     pagination: Pagination
   ): PaginationTypeTextSearch
 }
+
+
 
 type LabeledPointArray {
   id: String
@@ -346,56 +352,56 @@ type TypeTextSearch {
 
 type Mutation {
   # Tested in 002_setup
-  setup(data: UserInput): AuthResponse
+  setup(email: String!, password: String!): AuthResponse
 
   # Tested in 003_user
   inviteUser(email: String): Boolean
   acceptInvite(email: String, password: String): Void
 
   # Tested in 004_coin_mark
-  addCoinMark(data: NameInput): Void
-  updateCoinMark(data: NameInput): Void
-  deleteCoinMark(id: Int): Void
+  addCoinMark(name:String!): Void
+  updateCoinMark(id: ID!, name: String!): Void
+  deleteCoinMark(id: ID): Void
 
   # Tested in 005_nominal
-  addNominal(data: NameInput): Void
-  updateNominal(data: NameInput): Void
-  deleteNominal(id: Int): Void
+  addNominal(name:String!): Void
+  updateNominal(id: ID!, name:String!): Void
+  deleteNominal(id: ID): Void
 
   # Tested in 006_material
-  addMaterial(data: NameInput): Void
-  updateMaterial(data: NameInput): Void
-  deleteMaterial(id: Int): Void
+  addMaterial(name:String!, color: String): ID
+  updateMaterial(id: ID!, name: String!, color: String): Void
+  deleteMaterial(id: ID): Void
 
   # Tested in 007_mint
   addMint(data: MintInput): ID
-  updateMint(data: MintInput): ID
-  deleteMint(id: Int): Void
+  updateMint(data: MintInput): Void
+  deleteMint(id: ID): Void
 
   # Tested in 008_role
-  addRole(data: NameInput): Void
-  updateRole(data: NameInput): Void
-  deleteRole(id: Int): Void
+  addRole(name:String!): Void
+  updateRole(id: ID!, name: String!): Void
+  deleteRole(id: ID): Void
 
   # Tested in 009_dynasty
-  addDynasty(data: NameInput): Void
-  updateDynasty(data: NameInput): Void
-  deleteDynasty(id: Int): Void
+  addDynasty(name:String!): Void
+  updateDynasty(id: ID!, name: String!): Void
+  deleteDynasty(id: ID): Void
 
   # Tested in 010_title
-  addTitle(data: NameInput): Void
-  updateTitle(data: NameInput): Void
-  deleteTitle(id: Int): Void
+  addTitle(name:String!): Void
+  updateTitle(id: ID!, name: String!): Void
+  deleteTitle(id: ID): Void
 
   # Tested in 011_honorifics
-  addHonorific(data: NameInput): Void
-  updateHonorific(data: NameInput): Void
-  deleteHonorific(id: Int): Void
+  addHonorific(name:String!): Void
+  updateHonorific(id: ID!, name: String!): Void
+  deleteHonorific(id: ID): Void
 
   # Tested in 012_person
   addPerson(data: PersonInput): Void
   updatePerson(data: PersonInput): Void
-  deletePerson(id: Int): Void
+  deletePerson(id: ID): Void
 
   # Tested in 030_coin_type
   addCoinType(data: CoinTypeInput): Void
@@ -404,11 +410,12 @@ type Mutation {
 
   # TODO: missing Tests ---------------------------------------------
 
-  deleteUser(id:ID):Void
 
-  addProvince(data: NameInput): Void
-  updateProvince(data: NameInput): Void
-  deleteProvince(id: Int): Void
+  deleteUser(id: ID):Void
+
+  addProvince(name:String!): Void
+  updateProvince(id: ID!, name: String!) : Void
+  deleteProvince(id: ID): Void
 
   updateNote(text: String, property: String, propertyId: ID): Void
   updateLang(
@@ -424,6 +431,10 @@ type Mutation {
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
 
   changePersonExplorerOrder(person: ID!, position: Int!): Void
+
+  
+  updateMaterialColor(id:ID!, color:String!):Void
+  deleteMaterialColor(id:ID):Void
 }
 
 input Pagination {

@@ -39,19 +39,15 @@ class Resolver {
     }
 
     async add(_, args, tableName) {
-        const obj = args.data
-        return this.request(`INSERT INTO ${tableName} (${Object.keys(obj).join(",")}) VALUES (${Object.keys(obj).map((name) => `$[${name}]`)})`, obj)
+        return this.request(`INSERT INTO ${tableName} (${Object.keys(args).join(",")}) VALUES (${Object.keys(args).map((name) => `$[${name}]`)})`, args)
     }
 
     async update(_, args) {
-        const object = args.data
-        const id = object.id
-
+        const id = args.id
         if (!id || id <= 0) throw new Error("error.invalid_id")
-
-        delete object.id
-        const query = `UPDATE ${this.tableName} SET ${Object.keys(object).map((val, idx) => `${val}=$${idx + 2}`)} WHERE id=$1`
-        return this.request(query, [id, ...Object.values(object)])
+        delete args.id
+        const query = `UPDATE ${this.tableName} SET ${Object.keys(args).map((val, idx) => `${val}=$${idx + 2}`)} WHERE id=$1`
+        return this.request(query, [id, ...Object.values(args)])
     }
 
     async delete(_, args) {
@@ -63,7 +59,6 @@ class Resolver {
     }
 
     async list(_, { language } = {}) {
-        let joinQuery = ""
         if (language && language.length < 4 && language != "de") {
             let langTable = `${this.tableName}_${language}`
             return Database.manyOrNone(`

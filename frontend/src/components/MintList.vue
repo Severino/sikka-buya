@@ -38,6 +38,7 @@ import MultiSelectList from './MultiSelectList.vue';
 import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
 import Collapsible from './layout/Collapsible.vue';
+import Sort from '../utils/Sorter';
 
 export default {
   components: { MultiSelectList, MultiSelectListItem, Collapsible },
@@ -59,9 +60,8 @@ export default {
       });
 
       const groupArray = Object.values(groups);
-      groupArray.sort((a, b) => {
-        return a.name.localeCompare(b.name);
-      });
+
+      groupArray.sort(Sort.stringPropAlphabetically('name'));
 
       return groupArray;
     },

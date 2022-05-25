@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
+const { User1 } = require('../mockdata/users')
 
 
 const startData = {
@@ -112,12 +112,12 @@ describe(`Honorific Queries`, function () {
     })
 
     it("Unauthorized Add Rejected", async function () {
-        let promise = graphql(`mutation{addHonorific(data:{name:"test"})}`)
+        let promise = graphql(`mutation{addHonorific(name:"test")}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Add", async function () {
-        let promise = graphql(`mutation{addHonorific(data:{name:"test"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{addHonorific(name:"test")}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -173,13 +173,13 @@ describe(`Honorific Queries`, function () {
 
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateHonorific(data:{id:10, name: "changed"})}`)
+        let promise = graphql(`mutation{updateHonorific(id:10, name: "changed")}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateHonorific(data:{id:10, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateHonorific(id:10, name: "changed")}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -239,7 +239,7 @@ describe(`Honorific Queries`, function () {
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteHonorific(id:10)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteHonorific(id:10)}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 

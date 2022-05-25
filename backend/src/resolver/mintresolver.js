@@ -4,6 +4,10 @@ const SQLUtils = require('../utils/sql.js')
 
 class MintResolver extends Resolver {
 
+    constructor() {
+        super("mint")
+    }
+
     async add(_, args) {
         const data = args.data
         this.fixGeoJSON(data)

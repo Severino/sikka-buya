@@ -2,15 +2,15 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.9 (Ubuntu 12.9-0ubuntu0.20.04.1)
--- Dumped by pg_dump version 12.9 (Ubuntu 12.9-0ubuntu0.20.04.1)
+-- Dumped from database version 13.1
+-- Dumped by pg_dump version 13.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
+-- SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -243,6 +243,16 @@ CREATE TABLE public.issuer_titles (
 CREATE TABLE public.material (
     id integer NOT NULL,
     name character varying
+);
+
+
+--
+-- Name: material_color; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.material_color (
+    material integer,
+    color character(7)
 );
 
 
@@ -902,6 +912,14 @@ ALTER TABLE ONLY public.issuer
 
 
 --
+-- Name: material_color material_color_material_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.material_color
+    ADD CONSTRAINT material_color_material_key UNIQUE (material);
+
+
+--
 -- Name: material material_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1146,6 +1164,14 @@ ALTER TABLE ONLY public.issuer_titles
 
 ALTER TABLE ONLY public.issuer_titles
     ADD CONSTRAINT it_title_fk FOREIGN KEY (title) REFERENCES public.title(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: material_color material_color_material_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.material_color
+    ADD CONSTRAINT material_color_material_fkey FOREIGN KEY (material) REFERENCES public.material(id) ON DELETE CASCADE;
 
 
 --

@@ -1,4 +1,7 @@
 /// <reference types="cypress" />
+
+const axios = require('axios')
+
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -16,7 +19,25 @@
  * @type {Cypress.PluginConfig}
  */
 // eslint-disable-next-line no-unused-vars
+
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
+
+  on('task', {
+    async ResetDatabase() {
+      axios.post("http://localhost:4000/test-database", {
+        method: "ResetDatabase"
+      })
+
+      return true
+    },
+    async MountMinimalDatabase() {
+      await axios.post("http://localhost:4000/test-database", {
+        method: "MountMinimalDatabase"
+      })
+
+      return true
+    }
+  })
 }

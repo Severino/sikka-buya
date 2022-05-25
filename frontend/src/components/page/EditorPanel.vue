@@ -67,11 +67,9 @@ export default {
       ];
 
       let propertyMap = {
-        person: () => {
-          return {
-            name: 'PersonOverview',
-          };
-        },
+        person: 'PersonOverview',
+        material: 'MaterialOverview',
+        coin_mark: 'CoinMarkOverview',
       };
 
       props = props.sort((a, b) =>
@@ -79,10 +77,11 @@ export default {
       );
 
       props = props.map((name) => {
+        console.log(name, propertyMap[name]);
         if (propertyMap[name]) {
           return {
             name,
-            to: propertyMap[name](),
+            to: { name: propertyMap[name] },
           };
         } else {
           return {

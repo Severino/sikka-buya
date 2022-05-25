@@ -671,6 +671,7 @@ SELECT
     static get rows() {
         return ` t.*,
     ${Material.query()}
+    ${Material.colorQuery()},
         ${Mint.query()}
         province.id AS mint_province_id,
         province.name AS mint_province_name,
@@ -686,8 +687,8 @@ exclude_from_type_catalogue,
 
     static get joins() {
         return `
-        LEFT JOIN material ma 
-        ON t.material = ma.id
+        ${Material.joins()}
+        ${Material.colorJoin()}
         LEFT JOIN mint mi 
         ON t.mint = mi.id
         LEFT JOIN province
@@ -708,7 +709,7 @@ exclude_from_type_catalogue,
             {
                 prefix: "material_",
                 target: "material",
-                keys: ["id", "name"]
+                keys: ["id", "name", "color"]
             },
             {
                 prefix: "mint_",

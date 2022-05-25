@@ -2,7 +2,7 @@
   <div :class="`overview ${this.property}-page`">
     <BackHeader :to="{ name: 'Editor' }" />
     <header>
-      <h1>{{ $tc(`property.${propertyName}`) }}</h1>
+      <h1>{{ $tc(`property.${fixedPropertyName}`) }}</h1>
       <div
         id="create-button"
         class="button"
@@ -35,6 +35,7 @@
           append: true,
         }"
       >
+        <slot name="list-item-before" :item="item" />
         <ListItemCell>{{ item.name }}</ListItemCell>
         <DynamicDeleteButton
           @delete="deleteButtonRemove(item.id)"
@@ -78,23 +79,20 @@ export default {
   },
   props: {
     query: String,
-    overridePropertyName: String,
-    overrideProperty: String,
     createPage: String,
+    parameters: { type: Array, default: () => [] },
+    propertyName: String,
+    property: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
-    propertyName: function () {
-      return this.overridePropertyName
-        ? this.overridePropertyName
-        : this.property;
+    fixedPropertyName: function () {
+      return this.propertyName ? this.propertyName : this.property;
     },
     queryName: function () {
       return this.query ? this.query : camelCase(this.property);
-    },
-    property: function () {
-      return this.overrideProperty
-        ? this.overrideProperty
-        : this.$route.params.property.toLowerCase();
     },
   },
   data: function () {
@@ -106,11 +104,10 @@ export default {
       listError: '',
     };
   },
-
   methods: {
     async list() {
       new Query(this.queryName)
-        .list(['id', 'name'])
+        .list(['id', 'name', ...this.parameters])
         .then((obj) => {
           this.$data.items = obj.data.data[this.queryName];
         })
@@ -129,7 +126,7 @@ export default {
         `{
             ${queryCommand}
             (text: "${this.textFilter}"){
-              id, name
+              ${['id', 'name', ...this.parameters].join(',')}
             }
           }`
       )

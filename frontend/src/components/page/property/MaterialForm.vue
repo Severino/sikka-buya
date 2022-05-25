@@ -16,6 +16,12 @@
         autofocus
         required
       />
+
+      <ColorInput
+        v-if="material.id >= 0"
+        :value="material.color"
+        @input="input"
+      />
     </PropertyFormWrapper>
   </div>
 </template>
@@ -23,20 +29,24 @@
 <script>
 import Query from '../../../database/query.js';
 import PropertyFormWrapper from '../PropertyFormWrapper.vue';
+import ColorInput from '../../forms/ColorInput.vue';
 
 export default {
-  components: { PropertyFormWrapper },
+  components: { PropertyFormWrapper, ColorInput },
   name: 'MaterialForm',
   created: function () {
     let id = this.$route.params.id;
     if (id != null) {
       Query.raw(
         `{
-        getMaterial(id: ${id}){id name}
+        getMaterial(id: ${id}){id name }
+        getMaterialColor(id: ${id})
       }`
       )
         .then((result) => {
-          this.material = result.data.data.getMaterial;
+          this.material = Object.assign({}, result.data.data.getMaterial, {
+            color: result.data.data.getMaterialColor,
+          });
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -50,14 +60,31 @@ export default {
     }
   },
   methods: {
+    input(color) {
+      this.material.color = color;
+    },
     submit: function () {
-      Query.raw(
-        `
+      let query;
+      if (this.material.id && this.material.id >= 0) {
+        query = `
       mutation{
-        updateMaterial(data: {id: ${this.material.id}, name: "${this.material.name}" })
+        updateMaterial(id: ${this.material.id}, name: "${this.material.name}")
+        ${
+          this.material.color
+            ? `updateMaterialColor(id: ${this.material.id}, color: "${this.material.color}")`
+            : ''
+        }
       }
-      `
-      )
+      `;
+      } else {
+        query = `
+      mutation{
+        addMaterial( name: "${this.material.name}")
+      }
+      `;
+      }
+
+      Query.raw(query)
         .then(() => {
           this.$router.push({
             name: 'Property',
@@ -76,7 +103,7 @@ export default {
     return {
       error: '',
       loading: true,
-      material: { id: -1, name: '' },
+      material: { id: -1, name: '', color: null },
     };
   },
 };

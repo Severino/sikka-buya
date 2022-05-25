@@ -111,7 +111,6 @@ class TypeIterator {
     }
 
     logError(e) {
-        console.log(e.red)
         throw new Error(e)
     }
 

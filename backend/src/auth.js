@@ -36,10 +36,10 @@ class Auth {
   * @returns {{success:boolean, message:string, token:string, user:object}} Returns an authentication object, that is send and stored at the client. 
   */
     static async login(_, args) {
-        const { email, password } = args.data
+        const { email, password } = args
         /* 
         We don't want to break out of the function, when we found no user, to
-        not provide a potential attacker, that the user does (not) exist!  
+        not provide a potential attacker, with the information that the user does (not) exist!  
         */
         try {
             let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)

@@ -19,7 +19,7 @@ export default {
         },
         deleteButtonRemove(id) {
             this.remove(id);
-            this.enable();
+            this.deleteButtonEnable();
         }
     }
 }

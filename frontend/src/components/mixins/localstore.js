@@ -15,7 +15,6 @@ export default function (name, variables = []) {
                     if (data_str != null) {
                         try {
                             data = JSON.parse(data_str)
-                            console.log(this.localstore_name, data_str)
                         } catch (e) {
                             console.error("Could not parse stored data: ", e)
                         }

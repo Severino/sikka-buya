@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
+const { User1 } = require('../mockdata/users')
 
 const startData = {
     "data": {
@@ -86,23 +86,23 @@ describe(`Material Queries`, function () {
     })
 
     it("Unauthorized Add Rejected", async function () {
-        let promise = graphql(`mutation{addMaterial(data:{name:"test"})}`)
+        let promise = graphql(`mutation{addMaterial(name:"test")}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Add", async function () {
-        let promise = graphql(`mutation{addMaterial(data:{name:"test"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{addMaterial(name:"test")}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateMaterial(data:{id:5, name: "changed"})}`)
+        let promise = graphql(`mutation{updateMaterial(id:5, name: "changed")}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateMaterial(data:{id:5, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateMaterial(id:5, name: "changed")}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -112,7 +112,7 @@ describe(`Material Queries`, function () {
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteMaterial(id:5)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteMaterial(id:5)}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 

@@ -28,7 +28,7 @@
 
         <segmented-row>
           <template v-slot:right>
-            <Button @click="submit">Submit</Button>
+            <Button id="submit-button" @click="submit">Submit</Button>
           </template>
         </segmented-row>
       </div>
@@ -40,11 +40,12 @@
 import Query from '../../database/query';
 import UserForm from '../auth/UserForm';
 import Box from '../layout/Box.vue';
+import AsyncButton from '../layout/buttons/AsyncButton.vue';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import SegmentedRow from '../layout/SegmentedRow.vue';
 export default {
-  components: { UserForm, Box, Button, Row, SegmentedRow },
+  components: { UserForm, Box, Button, Row, SegmentedRow, AsyncButton },
   data: function () {
     return {
       email: '',
@@ -76,10 +77,10 @@ export default {
       Query.raw(
         `
         mutation{
-          setup(data:{
-            email: "${this.email}"
+          setup(
+            email: "${this.email}",
             password:"${this.password}"
-          }){
+          ){
             success
             message
             token
@@ -92,6 +93,7 @@ export default {
           this.response = 'Succesfully created superuser!';
         })
         .catch((err) => {
+          console.error(err);
           this.response = '';
           this.error = `Could not create superuser: ${err}.`;
         });

@@ -1,11 +1,19 @@
 <template>
-  <div class="timeline" ref="element">
+  <div class="timeline" :class="{ hide: !this.timelineActive }" ref="element">
     <div class="tool-box-drawer">
       <header>
-        <div class="left-controls">
+        <div class="left">
           <div class="button icon-button" @click="togglePlay">
             <PlayIcon v-if="!playing" />
             <PauseIcon v-else />
+          </div>
+
+          <div
+            class="button icon-button"
+            @click="() => (toolboxOpen = !toolboxOpen)"
+          >
+            <PlusIcon v-if="!toolboxOpen" />
+            <MinusIcon v-else />
           </div>
         </div>
 
@@ -21,12 +29,23 @@
           </div>
         </div>
 
-        <div
-          class="button icon-button"
-          @click="() => (toolboxOpen = !toolboxOpen)"
-        >
-          <PlusIcon v-if="!toolboxOpen" />
-          <MinusIcon v-else />
+        <div class="right">
+          <div v-if="allowToggle">
+            <div
+              class="button small-button rounded"
+              @click="toggleTimeline"
+              v-if="timelineActive"
+            >
+              <TimerOff />Zeitleiste deaktivieren
+            </div>
+            <div
+              class="button small-button rounded"
+              @click="toggleTimeline"
+              v-else
+            >
+              <Timer />Zeitleiste aktivieren
+            </div>
+          </div>
         </div>
       </header>
 
@@ -111,6 +130,9 @@ import CameraOutlineIcon from 'vue-material-design-icons/CameraOutline.vue';
 import NextIcon from 'vue-material-design-icons/SkipNextCircleOutline.vue';
 import PrevIcon from 'vue-material-design-icons/SkipPreviousCircleOutline.vue';
 
+import TimerOff from 'vue-material-design-icons/TimerOff.vue';
+import Timer from 'vue-material-design-icons/Timer';
+
 import TimelineSlider from '../../forms/TimelineSlider.vue';
 import NewSlide from './Slides/NewSlide.vue';
 import Slide from './Slides/Slide.vue';
@@ -130,6 +152,8 @@ export default {
     CameraOutlineIcon,
     NextIcon,
     PrevIcon,
+    TimerOff,
+    Timer,
   },
   props: {
     map: Object,
@@ -137,6 +161,14 @@ export default {
     to: Number,
     value: Number,
     valid: Boolean,
+    timelineActive: {
+      default: true,
+      type: Boolean,
+    },
+    allowToggle: {
+      default: false,
+      type: Boolean,
+    },
   },
   data() {
     return {
@@ -246,6 +278,9 @@ export default {
         this.setMapTo(this.slides[this.currentSlide].options);
       } else console.warn('Slide index is out of range.');
     },
+    toggleTimeline() {
+      this.$emit('toggle', this.timelineActive);
+    },
     setSlide(index) {
       this.currentSlide = index;
       this.updateSlide();
@@ -261,6 +296,13 @@ export default {
 
 <style lang="scss">
 .timeline {
+  transition: $transition-time transform;
+  transform: translateY(0);
+
+  &.hide {
+    transform: translateY(calc(100% + #{$padding} + 5px));
+  }
+
   .slider {
     border: 0;
   }
@@ -375,7 +417,8 @@ export default {
   }
 
   header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     justify-content: space-between;
     position: absolute;
     width: 100%;
@@ -390,6 +433,13 @@ export default {
 
     &:last-child {
       margin-left: auto;
+    }
+
+    .center {
+      justify-self: center;
+    }
+    .right {
+      justify-self: flex-end;
     }
   }
 }

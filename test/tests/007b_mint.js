@@ -2,7 +2,7 @@
 
 const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
+const { User1 } = require('../mockdata/users')
 
 
 const ATLANTIS = {
@@ -132,7 +132,7 @@ describe(`Mint Queries`, function () {
     })
 
     it("Add", async function () {
-        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
 
     })
@@ -151,13 +151,17 @@ describe(`Mint Queries`, function () {
 
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateMint(data:
-            ${UPDATE_DATA_BODY})}`)
+        const query = `mutation{
+            updateMint(data:
+                ${UPDATE_DATA_BODY}
+            )
+        }`
+        let promise = graphql(query)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateMint(data: ${UPDATE_DATA_BODY})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateMint(data: ${UPDATE_DATA_BODY})}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -182,7 +186,7 @@ describe(`Mint Queries`, function () {
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteMint(id:4)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteMint(id:4)}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 

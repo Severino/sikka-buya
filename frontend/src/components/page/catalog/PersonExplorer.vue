@@ -112,11 +112,11 @@ import LabeledProperty from '../../display/LabeledProperty.vue';
 import Button from '../../layout/buttons/Button.vue';
 import Collapsible from '../../layout/Collapsible.vue';
 import TypePage from '../TypePage.vue';
-var deburr = require('lodash.deburr');
 
 import ArrowUp from 'vue-material-design-icons/ArrowUpBold.vue';
 import ArrowDown from 'vue-material-design-icons/ArrowDownBold.vue';
 import TypeView from '../TypeView.vue';
+import Sort from '../../../utils/Sorter';
 
 export default {
   components: {
@@ -274,13 +274,9 @@ export default {
       }
     },
     objectToSortedArray(obj) {
-      let arr = Object.values(obj).sort((a, b) =>
-        deburr(a.value.name.toLowerCase()) < deburr(b.value.name.toLowerCase())
-          ? -1
-          : 1
-      );
-
-      // console.log(arr.map((o) => deburr(o.value.name.toLowerCase())));
+      let arr = Object.values(obj).sort((a, b) => {
+        return Sort.stringPropAlphabetically('name')(a.value, b.value);
+      });
       return arr;
     },
     toggleActive(obj) {
@@ -303,11 +299,7 @@ export default {
         }
       }
 
-      return selected.sort((a, b) =>
-        deburr(a.projectId.toLowerCase()) < deburr(a.projectId.toLowerCase())
-          ? -1
-          : 1
-      );
+      return selected.sort(Sort.stringPropAlphabetically('projectId'));
     },
     getActiveObjects(arr) {
       return Object.values(arr).filter((obj) => obj.active);

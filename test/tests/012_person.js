@@ -1,6 +1,5 @@
 const { expect, config } = require('chai')
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
 const { UDERZO,
     DUERER,
     MERKEL,
@@ -26,6 +25,7 @@ const { UDERZO,
     WAL,
     TURNER,
     CHURCHILL } = require('../mockdata/persons')
+const { User1 } = require('../mockdata/users')
 
 
 // config.truncateThreshold = 0
@@ -327,7 +327,7 @@ describe(`Person Queries`, function () {
     it("Add", async function () {
         let promise = graphql(`mutation {
             addPerson(data:{name:"Claude Monet", shortName: "Monet", role: 2, dynasty:2})
-          }`, {}, TestUser.users[0].token)
+          }`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -337,7 +337,7 @@ describe(`Person Queries`, function () {
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed", role: 1, dynasty: 1, color:"#00ff00"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updatePerson(data:{id:26, name: "changed", role: 1, dynasty: 1, color:"#00ff00"})}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -349,7 +349,7 @@ describe(`Person Queries`, function () {
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deletePerson(id:26)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deletePerson(id:26)}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 

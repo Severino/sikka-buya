@@ -18,8 +18,6 @@ function createRadials(latlng, {
 
         const subRadius = innerRadius + donutWidth * (j + 1)
         const innerSubRadius = innerRadius + donutWidth * j
-
-
         const sliceOptions = Object.assign({}, {
             radius: subRadius,
             innerRadius: innerSubRadius,
@@ -41,7 +39,8 @@ export function concentricCircles(latlng, data, {
     radius = 100,
     innerRadius = 0,
     startAngle = 0,
-    openPopup = null
+    openPopup = null,
+    borderStyle = {}
 } = {}) {
 
     const concentricCircles = []
@@ -68,6 +67,25 @@ export function concentricCircles(latlng, data, {
         }
     })
 
+    data.forEach((slice, i) => {
+        const angleWidth = 360 / data.length
+        const subStartAngle = startAngle + angleWidth * i
+        const stopAngle = subStartAngle + angleWidth
+
+        console.log(slice)
+        const graphics = L.semiCircleMarker(latlng, Object.assign({},
+            {
+                radius,
+                startAngle: subStartAngle,
+                stopAngle, fillColor: "#ddd",
+                weight: 1, color: "#fff",
+                stroke: "true"
+            }
+            , borderStyle))
+
+        concentricCircles.push(graphics)
+    })
+
 
 
     return L.featureGroup(concentricCircles)
@@ -90,7 +108,6 @@ export function concentricCircle(latlng, {
 
     if (!Array.isArray(data))
         data = [data]
-
 
     for (let i = data.length - 1; i >= 0; i--) {
         let item = data[i]
