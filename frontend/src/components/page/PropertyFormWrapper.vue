@@ -1,5 +1,5 @@
 <template>
-  <div class="material-page">
+  <div class="property-page">
     <h1>{{ title }}</h1>
     <LoadingSpinner class="loading-spinner" :size="50" v-if="loading" />
     <form v-if="!loading" @submit.prevent>
@@ -8,10 +8,15 @@
         {{ error }}
       </div>
       <Row class="button-bar">
-        <button type="button" @click.prevent.stop="cancel">
+        <button id="cancel-button" type="button" @click.prevent.stop="cancel">
           {{ $t('form.cancel') }}
         </button>
-        <button id="submit-btn" type="submit" @click="submit">
+        <button
+          id="submit-button"
+          type="submit"
+          @click="submit"
+          :disabled="disabled"
+        >
           {{ $t('form.submit') }}
         </button>
       </Row>
@@ -30,6 +35,10 @@ export default {
     property: {
       type: String,
       required: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
     overwriteRoute: String,
     loading: Boolean,

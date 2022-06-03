@@ -134,26 +134,8 @@ describe('User Management', function () {
   })
 
   it("Can delete user", function () {
-    const deleteButton = cy.get(".user:nth-child(3) .dynamic-delete-button")
-
-    deleteButton.then(el => {
-      const rect = el[0].getBoundingClientRect()
-
-      console.log(deleteButton, rect)
-      const clickPosition = {
-        x: rect.x + rect.width / 2,
-        y: rect.y + rect.height / 2
-      }
-      deleteButton
-        .trigger("mousedown", { which: 1, pageX: clickPosition.x, pageX: clickPosition.y })
-        .wait(500)
-        .trigger("mousemove", { which: 1, pageX: clickPosition.x + 140, pageX: clickPosition.y })
-        .wait(200)
-        .trigger("mouseup")
-
-      cy.get(".user:nth-child(3) .dynamic-delete-button").should("not.exist")
-    })
-
+    cy.triggerDeleteButton(".user:nth-child(3) .dynamic-delete-button")
+    cy.get(".user:nth-child(3) .dynamic-delete-button").should("not.exist")
   })
 
 })

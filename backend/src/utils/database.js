@@ -20,5 +20,22 @@ const Database = pgp({
     port: process.env.DB_PORT
 })
 
+const QueryFileMap = {}
 
-module.exports = { Database, pgp }
+function getQueryFile(key) {
+    return QueryFileMap[key] || null
+}
+
+function addQueryFile(key, queryFile) {
+    QueryFileMap[key] = queryFile
+}
+
+
+
+module.exports = {
+    Database,
+    pgp,
+    QueryFile: pgp.QueryFile,
+    getQueryFile,
+    addQueryFile
+}

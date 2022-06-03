@@ -285,7 +285,7 @@ type Query {
 
   province: [Name]
   searchProvince(text: String): [Name]
-  getProvince(id: ID!): [Name]
+  getProvince(id: ID!): Name
 
   getTypesByRuler(id: ID!): [CoinType]
   modGetTypes(pagination: Pagination, filters: ModTypeFilter, evalFilters:EvalFilter): ModCoinTypePagination
@@ -304,8 +304,8 @@ type Query {
   getNote(property: String, propertyId: ID): String
 
   searchPersonsWithRole(
-    text: String!
-    include: [String]
+    text: String!,
+    include: [String],
     exclude: [String]
   ): [Person]!
   searchPersonsWithoutRole(text: String!): [Person]!

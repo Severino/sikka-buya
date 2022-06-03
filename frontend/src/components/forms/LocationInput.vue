@@ -12,7 +12,7 @@
         <label for="input">{{ type.toUpperCase() }}</label>
         <input
           ref="input"
-          id="input"
+          class="location-input-field"
           type="text"
           :value="coordinateString"
           @input="resetInputText()"
@@ -437,7 +437,9 @@ export default {
     polygonString: function () {
       if (this.coordinates == null) return '';
       return this.coordinates.reduce((acc, value) => {
-        return `${acc} [${value[0].toFixed(2)}, ${value[1].toFixed(2)}]`;
+        return `${acc === '' ? '' : acc + ' '}[${value[0].toFixed(
+          2
+        )}, ${value[1].toFixed(2)}]`;
       }, '');
     },
     pointString: function () {

@@ -1,5 +1,5 @@
 const Auth = require("./auth.js")
-const { Database } = require("./utils/database.js")
+const { Database, pgp } = require("./utils/database.js")
 
 class Resolver {
 

@@ -1,19 +1,21 @@
 <template>
-  <section class="center-box">
-    <login-form @login="toEditorPage" />
-  </section>
+  <div class="login-page">
+    <section class="center-box">
+      <login-form @login="toEditorPage" />
+    </section>
+  </div>
 </template>
 
 
 <script>
-import LoginForm from "../../auth/LoginForm.vue";
+import LoginForm from '../../auth/LoginForm.vue';
 
 export default {
   components: { LoginForm },
-  name: "LoginPage",
+  name: 'LoginPage',
   methods: {
     toEditorPage: function () {
-      this.$router.push({ name: "Editor" });
+      this.$router.push({ name: 'Editor' });
     },
   },
 };

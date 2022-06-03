@@ -101,6 +101,7 @@
         <ListItem
           v-for="item of items"
           v-bind:key="item.key"
+          :id="`list-item-type-${item.id}`"
           :to="{
             name: path,
             params: { id: item.id },
@@ -111,11 +112,13 @@
             {{ item.projectId }}
           </ListItemCell>
           <CompletedToggle
+            class="done-button"
             v-if="isEditor"
             :value="item.completed"
             @input="changeCompleteState($event, item)"
           />
           <CompletedToggle
+            class="reviewed-button"
             v-if="isEditor"
             :value="item.reviewed"
             @input="changeReviewedState($event, item)"

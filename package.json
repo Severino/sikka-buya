@@ -35,6 +35,7 @@
     "chai-graphql": "^4.0.0",
     "concurrently": "^7.1.0",
     "cypress": "^9.6.1",
+    "cypress-localstorage-commands": "^1.7.0",
     "grunt": "^1.4.1",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-keepalive": "^1.0.0",

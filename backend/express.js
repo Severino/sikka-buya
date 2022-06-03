@@ -1,4 +1,4 @@
-const { Database, setupDatabase } = require('./src/utils/database.js')
+const { pgp, Database, setupDatabase } = require('./src/utils/database.js')
 
 const fs = require('fs').promises
 

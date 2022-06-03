@@ -117,6 +117,8 @@ export default {
 input,
 button {
   font-size: $small-font;
+  border-radius: 0;
+  justify-content: center;
 }
 
 .pagination-control {

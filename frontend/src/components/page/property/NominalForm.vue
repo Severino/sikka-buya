@@ -7,11 +7,13 @@
       :loading="loading"
       :title="$tc('property.nominal')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="nominal.id" type="hidden" />
+      <input id="nominal-id" v-model="nominal.id" type="hidden" />
       <input
         type="text"
         v-model="nominal.name"
+        id="nominal-name"
         :placeholder="$tc('attribute.name')"
         autofocus
         required
@@ -34,6 +36,7 @@ export default {
         .get(id, ['id', 'name'])
         .then((result) => {
           this.nominal = result.data.data.getNominal;
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -43,6 +46,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -70,6 +74,7 @@ export default {
       error: '',
       loading: true,
       nominal: { id: -1, name: '' },
+      disabled: true,
     };
   },
 };

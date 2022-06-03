@@ -14,17 +14,18 @@
     <div v-if="!loading" class="loading-area">
       <Row>
         <LabeledInputContainer :label="$tc('property.type_id')">
-          <input v-model="coin.projectId" required />
+          <input id="type-id" v-model="coin.projectId" required />
         </LabeledInputContainer>
 
         <LabeledInputContainer :label="$tc('property.treadwell_id')">
-          <input v-model="coin.treadwellId" />
+          <input id="type-treadwell-id" v-model="coin.treadwellId" />
         </LabeledInputContainer>
       </Row>
 
       <Row>
         <LabeledInputContainer :label="$tc('property.mint')">
           <DataSelectField
+            id="type-mint-field"
             table="Mint"
             attribute="name"
             v-model="coin.mint"
@@ -33,11 +34,14 @@
         </LabeledInputContainer>
 
         <LabeledInputContainer :label="$t('property.mint_as_on_coin')">
-          <RemovableInputField v-model="coin.mintAsOnCoin" />
+          <RemovableInputField
+            id="type-as-on-coin-field"
+            v-model="coin.mintAsOnCoin"
+          />
         </LabeledInputContainer>
 
         <Checkbox
-          id="mint_uncertain"
+          id="type-mint-uncertain"
           v-model="coin.mintUncertain"
           :label="$tc('property.mint_uncertain')"
         />
@@ -45,6 +49,7 @@
       <Row>
         <LabeledInputContainer :label="$tc('property.material')">
           <DataSelectField
+            id="type-material-data-field"
             v-model="coin.material"
             table="Material"
             attribute="name"
@@ -52,6 +57,7 @@
         </LabeledInputContainer>
         <LabeledInputContainer :label="$tc('property.nominal')">
           <DataSelectField
+            id="type-nominal-data-field"
             v-model="coin.nominal"
             table="Nominal"
             attribute="name"
@@ -61,13 +67,14 @@
       <Row>
         <LabeledInputContainer :label="$t('property.mint_year')">
           <RestrictedInputField
+            id="type-year-of-type-field"
             v-model="coin.yearOfMint"
             pattern="^-?[0-9x]{0,3}$"
           />
         </LabeledInputContainer>
 
         <Checkbox
-          id="year_uncertain"
+          id="type-year-uncertain"
           v-model="coin.yearUncertain"
           :label="$tc('property.year_uncertain')"
         />
@@ -75,14 +82,14 @@
 
       <Row>
         <Checkbox
-          id="donativ"
+          id="type-donativ"
           v-model="coin.donativ"
           :label="$tc('property.donativ')"
         />
 
         <LabeledInputContainer :label="$tc('property.procedure')">
           <ButtonGroup
-            id="production"
+            id="type-procedure"
             :labels="productionLabels"
             :options="productionOptions"
             v-model="coin.procedure"
@@ -90,7 +97,11 @@
         </LabeledInputContainer>
       </Row>
 
-      <List v-on:add="addIssuer" :title="$t('property.issuer')">
+      <List
+        v-on:add="addIssuer"
+        :title="$t('property.issuer')"
+        id="type-issuers-list"
+      >
         <div v-if="coin.issuers.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
@@ -116,6 +127,7 @@
         </ListItem>
       </List>
       <List
+        id="type-overlord-list"
         v-on:add="addOverlord"
         :description="$t('info.overlords')"
         :title="$tc('property.overlord', 2)"
@@ -147,6 +159,7 @@
 
       <LabeledInputContainer :label="$tc('role.caliph')">
         <DataSelectField
+          id="type-caliph-field"
           v-model="coin.caliph"
           attribute="name"
           table="person"
@@ -156,6 +169,7 @@
         />
       </LabeledInputContainer>
       <List
+        id="type-other-person-list"
         :title="$t('property.additional_persons')"
         class="needs-spacing"
         v-on:add="addOtherPerson"
@@ -189,6 +203,7 @@
       <hr />
       <Section title="Voderseite">
         <CoinSideField
+          id="type-avers"
           :title="$t('property.sides.front')"
           ref="aversField"
           prefix="Av.-"
@@ -198,6 +213,7 @@
       <hr />
       <Section title="Rückseite">
         <CoinSideField
+          id="type-avers"
           :title="$t('property.sides.back')"
           ref="reverseField"
           prefix="Rev.-"
@@ -207,11 +223,11 @@
       <hr />
 
       <LabeledInputContainer :label="$t('property.specialities_and_variants')">
-        <SimpleFormattedField ref="specialsField" />
+        <SimpleFormattedField ref="specialsField" id="type-specials" />
       </LabeledInputContainer>
 
       <Checkbox
-        id="cursive"
+        id="type-cursive"
         :label="$t('property.cursive_script') + ' (?)'"
         v-model="coin.cursiveScript"
       />
@@ -220,6 +236,7 @@
         :title="$t('property.coin_mark')"
         @add="addCoinMark"
         class="coin-mark-list"
+        id="type-coin-mark-list"
       >
         <div v-if="coin.coinMarks.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
@@ -246,6 +263,7 @@
         :title="$tc('property.piece', 2)"
         @add="addPiece"
         class="pieces-list"
+        id="type-pieces-list"
       >
         <div v-if="coin.pieces.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
@@ -268,12 +286,18 @@
       </List>
 
       <LabeledInputContainer :label="$t('property.literature_and_remarks')">
-        <SimpleFormattedField ref="literatureField" />
+        <SimpleFormattedField
+          id="type-literature-field"
+          ref="literatureField"
+        />
         <!-- <textarea v-model="coin.literature"></textarea> -->
       </LabeledInputContainer>
 
       <LabeledInputContainer :label="$t('property.internal_notes')">
-        <SimpleFormattedField ref="internalNotesField" />
+        <SimpleFormattedField
+          id="type-internal-notes-field"
+          ref="internalNotesField"
+        />
         <!-- <textarea v-model="coin.literature"></textarea> -->
       </LabeledInputContainer>
 

@@ -1,7 +1,7 @@
-const { join: joinPath } = require("path")
+const { join: joinPath } = require("path");
 const start = require('../../backend/express');
-const { Database } = require('../../backend/src/utils/database');
-const { readFile, readdir } = require('fs').promises;
+const { Database, QueryFile, QueryFileMap, getQueryFile, addQueryFile } = require('../../backend/src/utils/database');
+const { readdir } = require('fs').promises;
 
 
 const SuperDatabase = Database.$config.pgp({
@@ -15,7 +15,7 @@ const SuperDatabase = Database.$config.pgp({
 
 let resetLock = false
 
-async function await() {
+async function createTestDatabaseIfNecesarry() {
     const { count } = await SuperDatabase.one("SELECT count(*) FROM pg_database WHERE datname=$1", Database.$cn.database)
     if (count == 0) {
         await createTestDatabase()
@@ -71,7 +71,6 @@ async function applyDummyData() {
         await applySchemaFile(Database, absFilePath)
     }
     console.log(`Dummy data applied!`)
-    // Database.done()
 }
 
 async function applySchemaFile(db, file) {
@@ -86,9 +85,15 @@ async function applySchemaFile(db, file) {
    * For the meantime, I think it's fine to just read the file manually. (SO)
    * 
    */
-    const query = await readFile(file, { encoding: "utf-8" })
-    // let dbSchemaFile = new QueryFile(joinPath(migrationPath, "schema.sql"), { minify: true, compress: true })
-    return await db.any(query)
+
+    let dbSchemaFile = getQueryFile(file)
+    if (!dbSchemaFile) {
+        dbSchemaFile = new QueryFile(file, { minify: true, compress: true, debug: true })
+        addQueryFile(file, dbSchemaFile)
+    }
+
+    await db.none(dbSchemaFile)
+    return true
 }
 
 async function setupTestDatabase() {

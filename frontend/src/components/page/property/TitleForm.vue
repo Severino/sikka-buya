@@ -7,10 +7,12 @@
       :loading="loading"
       :title="$tc('property.title')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="title.id" type="hidden" />
+      <input id="title-id" v-model="title.id" type="hidden" />
       <input
         type="text"
+        id="title-name"
         v-model="title.name"
         :placeholder="$tc('attribute.name')"
         autofocus
@@ -34,6 +36,7 @@ export default {
         .get(id, ['id', 'name'])
         .then((result) => {
           this.title = result.data.data.getTitle;
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -43,6 +46,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -70,6 +74,7 @@ export default {
       error: '',
       loading: true,
       title: { id: -1, name: '' },
+      disabled: true,
     };
   },
 };

@@ -231,7 +231,7 @@ const routes = [
             component: PersonOverview
           },
           {
-            path: "test",
+            path: "material",
             name: "MaterialOverview",
             component: MaterialOverview
           },
@@ -406,7 +406,14 @@ router.beforeEach(async (to, from, next) => {
       if (auth) {
         next()
       } else {
-        router.push({ name: "Login" })
+        const error = "Bitte loggen Sie sich ein!"
+        router.push({
+          name: "Login", params: {
+            error
+          }
+        })
+
+        store.commit("printError", error)
       }
     } else {
       if (to.name == "Login") {

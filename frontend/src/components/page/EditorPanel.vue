@@ -24,17 +24,16 @@
     </div>
 
     <h3>{{ $t('general.manage_properties') }}</h3>
-    <div class="button-list">
-      <router-link
+
+    <list :items="properties">
+      <list-item
         v-for="(property, idx) of properties"
         :key="'prop-' + idx"
-        class="button icon-button"
         :to="property.to"
-        draggable="false"
       >
         <span>{{ $tc('property.' + property.name) }}</span>
-      </router-link>
-    </div>
+      </list-item>
+    </list>
     <h3>Hilfsprogramme</h3>
     <router-link class="button icon-button" :to="{ name: 'FixDiff' }"
       >Vergleiche letzte Bereinigung</router-link
@@ -45,11 +44,15 @@
 <script>
 import PlusBox from 'vue-material-design-icons/PlusBox';
 import Auth from '../../utils/Auth';
+import List from '../layout/List.vue';
+import ListItem from '../layout/ListItem.vue';
 
 export default {
   name: 'EditorPanel',
   components: {
     PlusBox,
+    List,
+    ListItem,
   },
   computed: {
     properties: function () {
@@ -129,10 +132,5 @@ h3 {
   position: absolute;
   top: 0;
   transform: translate(20px, -50%);
-}
-
-a:not(:last-child) {
-  margin-bottom: 0;
-  border-bottom: none;
 }
 </style>

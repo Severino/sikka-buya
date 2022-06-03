@@ -131,6 +131,7 @@ export default {
           }`
       )
         .then((obj) => {
+          console.log(obj);
           this.$data.items = obj.data.data[queryCommand];
         })
         .catch((e) => {

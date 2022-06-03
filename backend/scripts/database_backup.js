@@ -42,7 +42,7 @@ function constructFileName(prefix, ext) {
 
 function dump(name, ext, options) {
     const fileName = constructFileName(name, ext)
-    const command = `pg_dump --username ${process.env.DB_USER} --no-password ${options} --file ${fileName} ${process.env.DB_NAME}`
+    const command = `pg_dump --username ${process.env.DB_USER} --no-password ${options} --file ${fileName} ${process.env.DB_NAME} --exclude-table-data app_user`
     execute(command).then(() => {
         console.log(`Successfully exported ${name} to: ${fileName}`)
         process.exit()

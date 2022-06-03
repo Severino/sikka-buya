@@ -1,15 +1,15 @@
 <template>
-  <div class="checkbox">
+  <div class="checkbox" :id="id">
     <input
       type="checkbox"
       :name="id"
-      :id="id"
+      :id="'checkbox-' + id"
       :checked="value"
       @input="input"
     />
 
     <span class="label">{{ label }}</span>
-    <label :for="id" v-if="label">
+    <label :for="'checkbox-' + id" v-if="label">
       <div class="check">
         <CheckboxMarked v-if="value" />
         <CheckboxBlankOutline v-else />

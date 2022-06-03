@@ -10,7 +10,7 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
+-- SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -141,7 +141,7 @@ CREATE TABLE public.dynasty (
 
 CREATE SEQUENCE public.dynasty_id_seq
     AS integer
-    START WITH 1
+    START WITH 10
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -920,6 +920,8 @@ INSERT INTO public.material VALUES (2, 'Silber');
 -- Data for Name: material_color; Type: TABLE DATA; Schema: public; Owner: -
 --
 
+INSERT INTO public.material_color VALUES (1, '#FFD700');
+INSERT INTO public.material_color VALUES (2, '#C0C0C0');
 
 
 --
@@ -989,10 +991,9 @@ INSERT INTO public.person VALUES (3, 'al-Muṭīʿ li-᾽llāh, Abu ᾽l-Qāsim 
 -- Data for Name: person_color; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.person_color VALUES (1, '#000000');
-INSERT INTO public.person_color VALUES (2, '#000000');
-INSERT INTO public.person_color VALUES (3, '#000000');
-
+INSERT INTO public.person_color VALUES (1, '#ff00ff');
+INSERT INTO public.person_color VALUES (2, '#00ffff');
+INSERT INTO public.person_color VALUES (3, '#ffff00');
 
 --
 -- Data for Name: person_explorer_custom_sorting; Type: TABLE DATA; Schema: public; Owner: -
@@ -1022,7 +1023,8 @@ INSERT INTO public.piece VALUES (6, 'https://www.zeno.ru/showphoto.php?photo=403
 --
 
 INSERT INTO public.province VALUES (1, 'Fārs');
-
+INSERT INTO public.province VALUES (3, 'ʿUmān');
+INSERT INTO public.province VALUES (10, 'Ḫūzistān');
 
 --
 -- Data for Name: spatial_ref_sys; Type: TABLE DATA; Schema: public; Owner: -
@@ -1187,7 +1189,7 @@ SELECT pg_catalog.setval('public.piece_id_seq', 6, true);
 -- Name: province_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.province_id_seq', 1, true);
+SELECT pg_catalog.setval('public.province_id_seq', 10, true);
 
 
 --

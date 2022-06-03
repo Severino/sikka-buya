@@ -1,5 +1,6 @@
 <template>
   <div class="data-select" :class="{ invalid }">
+    <input type="hidden" class="data-select-id" :value="idValue" />
     <input
       class="name-field"
       @input="input"
@@ -60,7 +61,6 @@ export default {
   components: { Alert, Check, Close },
   data: function () {
     return {
-      id: null,
       listVisible: false,
       hideTimeout: null,
       searchResults: [],
@@ -112,13 +112,16 @@ export default {
     invalid: function () {
       return this.value.id == null;
     },
+    idValue() {
+      return this.value.id || '';
+    },
   },
   methods: {
     setValue: function (event) {
       const target = event.target;
       const value = this.value;
       this.listVisible = false;
-      value.id = target.getAttribute('data-id', this.id);
+      value.id = target.getAttribute('data-id');
       value[this.attribute] = target.textContent;
       this.$emit('input', value);
       this.$emit('select', value);

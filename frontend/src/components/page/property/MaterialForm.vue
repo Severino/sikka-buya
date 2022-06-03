@@ -2,15 +2,17 @@
   <div class="material-form">
     <PropertyFormWrapper
       @submit="submit"
-      @cancel="cancel"
+      overwriteRoute="MaterialOverview"
       :loading="loading"
       property="material"
       :title="$tc('property.material')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="material.id" type="hidden" />
+      <input id="material-id" v-model="material.id" type="hidden" />
       <input
         type="text"
+        id="material-name"
         v-model="material.name"
         :placeholder="$tc('attribute.name')"
         autofocus
@@ -19,6 +21,7 @@
 
       <ColorInput
         v-if="material.id >= 0"
+        id="material-color"
         :value="material.color"
         @input="input"
       />
@@ -47,6 +50,7 @@ export default {
           this.material = Object.assign({}, result.data.data.getMaterial, {
             color: result.data.data.getMaterialColor,
           });
+          if (this.material.id) this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -56,6 +60,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -86,17 +91,11 @@ export default {
 
       Query.raw(query)
         .then(() => {
-          this.$router.push({
-            name: 'Property',
-            params: { property: 'material' },
-          });
+          this.$router.push({ name: 'MaterialOverview' });
         })
         .catch((err) => {
           this.error = err.join('\n');
         });
-    },
-    cancel: function () {
-      this.$router.push({ path: '/material' });
     },
   },
   data: function () {
@@ -104,6 +103,7 @@ export default {
       error: '',
       loading: true,
       material: { id: -1, name: '', color: null },
+      disabled: true,
     };
   },
 };

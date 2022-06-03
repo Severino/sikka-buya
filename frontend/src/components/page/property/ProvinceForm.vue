@@ -7,9 +7,11 @@
       property="province"
       :title="$tc('property.province')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="province.id" type="hidden" />
+      <input id="province-id" v-model="province.id" type="hidden" />
       <input
+        id="province-name"
         type="text"
         v-model="province.name"
         :placeholder="$tc('attribute.name')"
@@ -33,7 +35,8 @@ export default {
       new Query('province')
         .get(id, ['id', 'name'])
         .then((result) => {
-          this.province = result.data.data.getDynasty;
+          this.province = result.data.data.getProvince;
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -43,6 +46,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -70,6 +74,7 @@ export default {
       error: '',
       loading: true,
       province: { id: -1, name: '' },
+      disabled: true,
     };
   },
 };

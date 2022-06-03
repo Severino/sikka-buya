@@ -1,6 +1,20 @@
 <template>
-  <div class="list-item" @click="click">
-    <div class="list-item-row" :class="{ ['disable-input']: disable }">
+  <div class="list-item">
+    <router-link
+      v-if="to"
+      :to="to"
+      class="list-item-row"
+      :class="{ ['disable-input']: disable }"
+      @click.prevent="click"
+    >
+      <slot></slot>
+    </router-link>
+    <div
+      v-else
+      class="list-item-row"
+      :class="{ ['disable-input']: disable }"
+      @click.prevent="click"
+    >
       <slot></slot>
     </div>
   </div>
@@ -38,8 +52,8 @@ export default {
 }
 
 .list-item-row {
-  @include interactive();
   @include input();
+  @include interactive();
   padding: $padding;
 
   position: relative;

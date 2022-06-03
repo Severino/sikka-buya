@@ -1,8 +1,7 @@
 <template>
   <overview property="material" :parameters="['color']">
-    <template #list-item-before="item">
-      <pre>{{ item }}</pre>
-      <list-color-indicator :item="item" />
+    <template #list-item-before="prop">
+      <list-color-indicator :item="prop.item" />
     </template>
   </overview>
 </template>

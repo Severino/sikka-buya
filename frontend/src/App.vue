@@ -221,6 +221,8 @@ button {
   @include input;
   @include interactive();
 
+  border-radius: 3px;
+
   > .material-design-icon {
     width: 1.3em;
     margin-right: $padding;
@@ -233,6 +235,18 @@ button {
   &.small-button {
     font-size: $small-font;
     padding: 0 $small-padding * 2;
+  }
+
+  &[disabled] {
+    color: $light-gray;
+
+    background-color: $gray;
+    cursor: not-allowed;
+    &:hover,
+    &:active {
+      color: $light-gray;
+      background-color: $gray;
+    }
   }
 }
 
@@ -271,6 +285,7 @@ li {
 
 .label,
 label {
+  color: $gray;
   font-weight: bold;
   font-size: $regular-font;
   display: block;

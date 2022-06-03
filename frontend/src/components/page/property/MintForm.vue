@@ -7,10 +7,13 @@
       property="mint"
       :title="$tc('property.mint')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="mint.id" type="hidden" />
+      <input id="mint-id" v-model="mint.id" type="hidden" />
+      <label for="mint-name">Name</label>
       <input
         type="text"
+        id="mint-name"
         v-model="mint.name"
         :placeholder="$tc('attribute.name')"
         autofocus
@@ -22,12 +25,13 @@
           table="Province"
           attribute="name"
           v-model="mint.province"
+          id="mint-province"
         />
       </labeled-input-container>
 
       <label for="location">Location</label>
       <location-input
-        id="location"
+        id="mint-location"
         type="point"
         :coordinates="mint.location.coordinates"
         @update="updateLocation"
@@ -35,7 +39,7 @@
 
       <div id="uncertain-row">
         <Checkbox
-          id="location_uncertain"
+          id="mint-location-uncertain"
           v-model="mint.uncertain"
           :label="$t('property.uncertain_location') + '(?)'"
         />
@@ -44,6 +48,7 @@
       <div v-if="mint.uncertain">
         <label for="location">Geschätzte Verortung</label>
         <location-input
+          id="mint-uncertain-location-input"
           type="polygon"
           :coordinates="mint.uncertainArea.coordinates"
           @update="updateUncertainArea"
@@ -52,8 +57,7 @@
 
       <labeled-input-container label="Notizen">
         <textarea
-          name=""
-          id=""
+          id="mint-notes"
           cols="30"
           rows="10"
           maxlength="1300"
@@ -102,10 +106,9 @@ export default {
       `
       )
         .then((result) => {
+          this.disabled = false;
           let data = result.data.data.getMint;
-
           this.note = result.data.data.getNote;
-
           let locations = ['location', 'uncertainArea'];
 
           locations.forEach((locationProperty) => {
@@ -147,6 +150,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -241,6 +245,7 @@ export default {
       error: '',
       loading: true,
       radius: 1000,
+      disabled: true,
       note: '',
       mint: {
         id: -1,

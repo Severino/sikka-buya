@@ -41,7 +41,8 @@ class MaterialResolver extends BaseResolver {
 
     createListQuery() {
         return pgp.as.format(`SELECT *, material_color.color AS color FROM material 
-        LEFT JOIN material_color ON material_color.material = material.id`)
+        LEFT JOIN material_color ON material_color.material = material.id
+        `)
     }
 
     async get(_, args) {
@@ -53,8 +54,7 @@ class MaterialResolver extends BaseResolver {
     }
 
     async list(_, { language } = {}) {
-        const query = this.createListQuery()
-        console.log(query)
+        const query = `${this.createListQuery()} ORDER BY material.name`
         return Database.manyOrNone(query)
     }
 }

@@ -36,12 +36,15 @@ const store = new Vuex.Store({
       else console.error(`Requested language is not supported: ${lang}.`)
     },
     printError(state, error) {
+      console.log("PRINT", error)
+
       if (!Array.isArray(error)) error = [error]
       state.errors.push(...error)
 
       setTimeout(() => state.errors.shift(0, error.length), 5000)
     },
     resetErrors(state) {
+      console.log("RESET")
       state.errors = []
     }
   }, getters: {
