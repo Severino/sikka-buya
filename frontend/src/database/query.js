@@ -38,7 +38,7 @@ export default class Query {
     }
 
     static async raw(query, variables = {}) {
-        console.log(query)
+        // console.log(query)
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')

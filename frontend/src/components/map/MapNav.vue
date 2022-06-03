@@ -3,13 +3,17 @@
     <div></div>
     <div class="links">
       <!-- <div class="title">Maps</div> -->
-      <router-link
+
+      <router-link :to="{ name: 'PoliticalMap' }">Political Map</router-link>
+      <router-link :to="{ name: 'MaterialMap' }">Material Map</router-link>
+
+      <!-- <router-link
         v-for="route of mapRoutes"
         :key="route.name"
         :to="{ name: route.name }"
         :class="{ active: isRouteActive(route) }"
         >{{ route.name }}</router-link
-      >
+      > -->
     </div>
   </div>
 </template>
@@ -18,6 +22,7 @@
 export default {
   methods: {
     isRouteActive(route) {
+      console.log(route);
       return this.$route.matched.some(({ name }) => name === route.name);
     },
   },
