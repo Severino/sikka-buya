@@ -72,7 +72,6 @@ export function concentricCircles(latlng, data, {
         const subStartAngle = startAngle + angleWidth * i
         const stopAngle = subStartAngle + angleWidth
 
-        console.log(slice)
         const graphics = L.semiCircleMarker(latlng, Object.assign({},
             {
                 radius,

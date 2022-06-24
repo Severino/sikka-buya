@@ -21,7 +21,7 @@ import ChevronDown from 'vue-material-design-icons/ChevronDown';
 import AlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline';
 
 export default {
-  name: 'ListFilterContainer',
+  name: 'Collapsible',
   components: {
     ChevronUp,
     ChevronDown,

@@ -3,7 +3,6 @@
     <BackHeader :to="{ name: 'Editor' }" />
     <header>
       <h1>Typ</h1>
-
       <div
         v-if="isEditor"
         id="create-button"
@@ -123,6 +122,7 @@
             :value="item.reviewed"
             @input="changeReviewedState($event, item)"
           />
+          <DynamicDeleteButton @delete="remove(item.id)" />
         </ListItem>
       </List>
     </pagination>
@@ -216,7 +216,7 @@ export default {
   },
   computed: {
     isEditor() {
-      return this.adminView && this.$store.getters.loggedIn;
+      return this.adminView;
     },
     path() {
       return this.isEditor ? 'EditType' : 'CatalogEntry';
@@ -334,7 +334,6 @@ export default {
     },
     updateTypeList: async function () {
       if (this.loading) return;
-
       this.loading = true;
       Query.raw(
         `
@@ -452,7 +451,7 @@ export default {
     remove(id) {
       Query.raw(
         `mutation{
-  removeCoinType(id: ${id})
+  deleteCoinType(id: ${id})
 }`
       )
         .then(() => {
@@ -460,11 +459,7 @@ export default {
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((answer) => {
-          console.dir(
-            answer.response.data.errors.map((item) => item.message).join('\n')
-          );
-          // this.error =
-          // console.error(err);
+          console.error(answer);
         });
     },
     filterChanged(name, val) {

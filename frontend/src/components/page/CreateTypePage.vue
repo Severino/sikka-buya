@@ -12,9 +12,10 @@
     <Heading>{{ $tc('general.type') }}</Heading>
     <LoadingSpinner v-if="loading" />
     <div v-if="!loading" class="loading-area">
+      <input id="type-id" type="hidden" name="" :value="coin.id" />
       <Row>
         <LabeledInputContainer :label="$tc('property.type_id')">
-          <input id="type-id" v-model="coin.projectId" required />
+          <input id="type-project-id" v-model="coin.projectId" required />
         </LabeledInputContainer>
 
         <LabeledInputContainer :label="$tc('property.treadwell_id')">
@@ -213,7 +214,7 @@
       <hr />
       <Section title="Rückseite">
         <CoinSideField
-          id="type-avers"
+          id="type-reverse"
           :title="$t('property.sides.back')"
           ref="reverseField"
           prefix="Rev.-"
@@ -276,6 +277,7 @@
         >
           <input
             type="text"
+            class="pieces-input"
             v-model="coin.pieces[idx].value"
             @input="pieceChanged(piece)"
           />
@@ -331,10 +333,19 @@
           Apply {{ debug }}
         </button>
         <button type="button" @click="exportJSON" v-if="debug">Export</button>
-        <button type="button" @click.stop.prevent="cancel">
+        <button
+          type="button"
+          id="type-main-cancel-button"
+          @click.stop.prevent="cancel"
+        >
           {{ $t('form.cancel') }}
         </button>
-        <button @click.stop.prevent="submitForm" type="submit">
+        <button
+          @click.stop.prevent="submitForm"
+          id="type-main-submit-button"
+          type="submit"
+          :disabled="submitDisabled"
+        >
           {{ $t('form.submit') }}
         </button>
       </Row>
@@ -391,6 +402,9 @@ export default {
     BackHeader,
   },
   computed: {
+    submitDisabled() {
+      return !(this.loaded && !this.submitted);
+    },
     productionLabels: function () {
       return [
         this.$t('property.procedures.pressed'),
@@ -508,6 +522,8 @@ export default {
 
             Object.assign(this.$data.coin, type);
             this.initFormattedFields();
+
+            this.loaded = true;
           }
         })
         .catch((error) => {
@@ -524,12 +540,14 @@ export default {
         .finally((this.loading = false));
     } else {
       this.loading = false;
+      this.loaded = true;
     }
   },
 
   data: function () {
     return {
       debug: false,
+      loaded: false,
       coin: {
         id: null,
         projectId: '',
@@ -1012,6 +1030,22 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.types-page {
+  #type-pieces-list {
+    .list-container button {
+      padding: 0 10px;
+    }
+    .slot {
+      display: flex;
+      input {
+        flex: 1;
+      }
+    }
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 @import '@/scss/_import.scss';
 
@@ -1113,18 +1147,6 @@ label {
 
   .titled-person-select {
     flex: 1;
-  }
-}
-
-.pieces-list {
-  .list-container button {
-    padding: 0 10px;
-  }
-  .slot {
-    display: flex;
-    input {
-      flex: 1;
-    }
   }
 }
 

@@ -4,7 +4,7 @@
       <DataSelectField
         table="Person"
         attribute="name"
-        id="name"
+        class="name"
         :placeholder="$tc('attribute.name')"
         :value="person"
         @input="personChanged"
@@ -14,6 +14,7 @@
         :title="$tc('property.title')"
         @add="addTitle"
         :length="titlesLength"
+        class="titled-person-title-list"
       >
         <ListItem
           class="list-item"
@@ -25,7 +26,7 @@
           <DataSelectField
             table="Title"
             attribute="name"
-            id="title"
+            class="title"
             :value="title"
             :error="title.error"
             @input="titleChanged($event, title_index)"
@@ -37,6 +38,7 @@
         :title="$tc('property.honorific')"
         @add="addHonorific"
         :length="honorificsLength"
+        class="titled-person-honorific-list"
       >
         <ListItem
           class="list-item"
@@ -48,7 +50,7 @@
           <DataSelectField
             table="honorific"
             attribute="name"
-            id="name-of-honor"
+            class="honorific"
             :value="honorific"
             @input="honorificChanged($event, honorific_index)"
           />
@@ -78,59 +80,59 @@ export default {
     value: {
       type: Object,
       required: true,
-      validator: function(prop) {
+      validator: function (prop) {
         return prop.titles != undefined && prop.honorifics != undefined;
       },
     },
   },
-  created: function() {
+  created: function () {
     this.titles.forEach((element) => {
       element.key = this.buildKey('title');
     });
   },
-  data: function() {
+  data: function () {
     return {
       listKey: 0,
     };
   },
   computed: {
-    person: function() {
+    person: function () {
       return this.value
         ? { id: this.value.id, name: this.value.name }
         : { id: null, name: '' };
     },
-    titles: function() {
+    titles: function () {
       return this.value && this.value.titles ? this.value.titles : [];
     },
-    honorifics: function() {
+    honorifics: function () {
       return this.value && this.value.honorifics ? this.value.honorifics : [];
     },
-    titlesLength: function() {
+    titlesLength: function () {
       return this.titles.length;
     },
-    honorificsLength: function() {
+    honorificsLength: function () {
       return this.honorifics.length;
     },
   },
   methods: {
-    buildKey: function(name) {
+    buildKey: function (name) {
       const key = `${this.$vnode.key}_${name}_${this.listKey++}`;
       return key;
     },
-    personChanged: function(person) {
+    personChanged: function (person) {
       this.changed({ person });
     },
-    addTitle: function() {
+    addTitle: function () {
       const titles = this.titles;
       titles.push({ key: this.buildKey('title'), id: null, name: '' });
       this.changed({ titles });
     },
-    removeTitle: function(title_index) {
+    removeTitle: function (title_index) {
       const titles = this.titles;
       titles.splice(title_index, 1);
       this.changed({ titles });
     },
-    addHonorific: function() {
+    addHonorific: function () {
       const honorifics = this.honorifics;
       honorifics.push({ key: this.buildKey('honorific'), id: null, name: '' });
       this.changed({ honorifics });
@@ -140,17 +142,17 @@ export default {
       honorifics.splice(honorific_index, 1);
       this.changed({ honorifics });
     },
-    honorificChanged: function(honorific, index) {
+    honorificChanged: function (honorific, index) {
       const honorifics = this.honorifics;
       honorifics.splice(index, 1, honorific);
       this.changed({ honorifics });
     },
-    titleChanged: function(title, index) {
+    titleChanged: function (title, index) {
       const titles = this.titles;
       titles.splice(index, 1, title);
       this.changed({ titles });
     },
-    changed: function({
+    changed: function ({
       key = this.value.key,
       person = this.person,
       titles = this.titles,
@@ -216,13 +218,13 @@ export default {
     margin-bottom: $padding;
   }
 }
-#name {
+.name {
   grid-row: 1;
   grid-column: span 2;
 }
 
-#title,
-#name-of-honor {
+.title,
+.honorific {
   flex: 1;
 }
 </style>

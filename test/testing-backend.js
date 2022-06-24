@@ -57,6 +57,9 @@ async function main() {
                     case "MountMinimalDatabase":
                         await resetTestDatabase(joinPath(__dirname, "mockdata", "minimal-filled-database.sql"))
                         break;
+                    case "MountMinimalDatabaseWithCreatedType":
+                        await resetTestDatabase(joinPath(__dirname, "mockdata", "minimal-filled-database-with-created-type.sql"))
+                        break
                     default:
                         status = 400
                         message = `Unknown method ${method}`

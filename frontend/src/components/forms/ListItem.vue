@@ -5,6 +5,7 @@
     </div>
     <button
       type="button"
+      class="remove-button"
       :class="removing ? 'removing' : ''"
       @click="triggerRemove"
     >
@@ -60,7 +61,6 @@ export default {
 
 .list-item > :first-child {
   flex: 1;
-  // margin-right: 10px;
 }
 
 button {

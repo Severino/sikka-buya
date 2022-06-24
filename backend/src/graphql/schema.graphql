@@ -405,8 +405,8 @@ type Mutation {
 
   # Tested in 030_coin_type
   addCoinType(data: CoinTypeInput): Void
-  removeCoinType(id: ID): Void
   updateCoinType(id: ID, data: CoinTypeInput): Void
+  deleteCoinType(id: ID): Void
 
   # TODO: missing Tests ---------------------------------------------
 

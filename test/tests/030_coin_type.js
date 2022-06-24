@@ -240,8 +240,30 @@ describe(`Type Queries`, function () {
     expect(result.data.data.getCoinType).to.deep.equal(ATLANTIS_TYPE_UPDATED)
   })
 
+  it("Unauthorized Delete Rejected", async function () {
+    let promise = graphql(`mutation {
+      deleteCoinType(id: 3)
+    }`)
+    await expect(promise).to.be.rejectedWith(["401"])
+  })
 
+  it("Delete Type", async function () {
+    let promise = graphql(`mutation {
+      deleteCoinType(id: 3)
+    }`, {}, User1.token)
 
+    expect(promise).to.be.fulfilled
+  })
+
+  it("Was deleted succesfully", async function () {
+    const result = graphql(` { 
+      getCoinType(id: 3){
+        projectId
+      }
+    }`)
+
+    expect(result).to.be.rejected
+  })
 })
 
 

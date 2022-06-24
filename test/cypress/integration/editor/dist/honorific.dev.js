@@ -15,7 +15,7 @@ function _default() {
     cy.location("pathname").should(function (pathname) {
       expect(pathname).to.eq("/editor/honorific");
     });
-    cy.get(".list-item").contains("... ad-Daula");
+    cy.get(".list-item").contains("… ad-Daula'");
     cy.get(".list-item").contains("… al-Mulūk");
   });
   it("Honorific list is showing", function () {
@@ -24,7 +24,7 @@ function _default() {
   });
   it("List item is visible", function () {
     cy.visit('/editor/honorific');
-    cy.get(".list-item").contains("... ad-Daula").should("be.visible");
+    cy.get(".list-item").contains("… ad-Daula'").should("be.visible");
   });
   it("Can filter", function () {
     cy.visit('/editor/honorific');
@@ -49,7 +49,7 @@ function _default() {
         expect(pathname).to.eq("/editor/honorific");
       });
       cy.get(".list-item").contains("… al-Mulūk");
-      cy.get(".list-item").contains("... ad-Daula");
+      cy.get(".list-item").contains("… ad-Daula'");
       cy.get(".list-item").children().should("have.length", 2);
     });
     it("Can create new honorific", function () {
@@ -60,7 +60,7 @@ function _default() {
         expect(pathname).to.eq("/editor/honorific");
       });
       cy.get(".list-item").contains("… al-Mulūk");
-      cy.get(".list-item").contains("... ad-Daula");
+      cy.get(".list-item").contains("… ad-Daula'");
       cy.get(".list-item").contains("… fi ’d-Dunyā wa-’d-Dīn");
       cy.get(".list-item").children().should("have.length", 3);
     });
@@ -88,7 +88,7 @@ function _default() {
       cy.get("#honorific-name").clear().type("xxxxxxxx");
       cy.get("#cancel-button").click();
       cy.get(".list-item").contains("… al-Mulūk");
-      cy.get(".list-item").contains("... ad-Daula");
+      cy.get(".list-item").contains("… ad-Daula'");
       cy.get(".list-item").contains("… fi ’d-Dunyā wa-’d-Dīn");
       cy.get(".list-item").children().should("have.length", 3);
     });
@@ -97,7 +97,7 @@ function _default() {
       cy.get("#honorific-name").clear().type("… Dīn Allāh");
       cy.get("#submit-button").click();
       cy.get(".list-item").contains("… al-Mulūk");
-      cy.get(".list-item").contains("... ad-Daula");
+      cy.get(".list-item").contains("… ad-Daula'");
       cy.get(".list-item").contains("… Dīn Allāh");
       cy.get(".list").children().should("have.length", 3);
     });
@@ -111,7 +111,7 @@ function _default() {
         }).get();
         console.log(arr);
         return arr;
-      }).should('deep.eq', ["... ad-Daula", "… al-Mulūk", "… Dīn Allāh"]);
+      }).should('deep.eq', ["… ad-Daula'", "… al-Mulūk", "… Dīn Allāh"]);
     });
   });
   describe("Delete Honorific", function () {
@@ -119,13 +119,13 @@ function _default() {
       cy.visit("/editor/honorific");
       cy.triggerDeleteButton(".list-item:nth-child(3) .dynamic-delete-button");
       cy.get(".list-item").contains("… al-Mulūk");
-      cy.get(".list-item").contains("... ad-Daula");
+      cy.get(".list-item").contains("… ad-Daula'");
       cy.get(".list-item").contains("… Dīn Allāh").should("not.exist");
     });
     it("Still Deleted On Reload", function () {
       cy.visit("/editor/honorific");
       cy.get(".list-item").contains("… al-Mulūk");
-      cy.get(".list-item").contains("... ad-Daula");
+      cy.get(".list-item").contains("… ad-Daula'");
       cy.get(".list-item").contains("… Dīn Allāh").should("not.exist");
     });
   });

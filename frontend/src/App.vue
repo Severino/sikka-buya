@@ -223,7 +223,7 @@ button {
 
   border-radius: 3px;
 
-  > .material-design-icon {
+  > .material-design-icon:not(:last-child) {
     width: 1.3em;
     margin-right: $padding;
   }
@@ -380,8 +380,8 @@ a {
 
 .div-icon {
   background-color: $white;
-  width: 15px;
-  height: 15px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;

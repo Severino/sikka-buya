@@ -34,6 +34,7 @@
       @paste="pasted($event)"
       contenteditable
     ></div>
+    <dynamic-delete-button @delete="setContent()" />
   </div>
 </template>
 
@@ -50,6 +51,7 @@ import FormatItalic from 'vue-material-design-icons/FormatItalic';
 import TextLeftToRight from 'vue-material-design-icons/FormatTextdirectionLToR.vue';
 import TextRightToLeft from 'vue-material-design-icons/FormatTextdirectionRToL.vue';
 import TextFormatClear from 'vue-material-design-icons/FormatClear.vue';
+import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 
 export default {
   components: {
@@ -62,6 +64,7 @@ export default {
     TextLeftToRight,
     TextRightToLeft,
     TextFormatClear,
+    DynamicDeleteButton,
   },
   name: 'SimpleFormattedField',
   data: function () {
@@ -202,7 +205,19 @@ export default {
 </script>
 
 <style lang="scss">
+.simple-formatted-field {
+  position: relative;
+  .dynamic-delete-button {
+    position: absolute;
+    bottom: 3px;
+    right: 2px;
+  }
+}
+
 .formatted-text-area {
+
+  
+
   [dir='ltr'],
   [dir='rtl'] {
     border: 1px solid gray;
@@ -243,6 +258,7 @@ export default {
       right: 0;
     }
   }
+
 }
 </style>
 
@@ -279,5 +295,8 @@ export default {
   span {
     display: block;
   }
+
+  
+  padding-right: 50px;
 }
 </style>

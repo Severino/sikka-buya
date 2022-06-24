@@ -14,7 +14,7 @@
     "javascript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
     "prettier.singleQuote": true,
-    "compile-hero.disable-compile-files-on-did-save-code": false,
+    "compile-hero.disable-compile-files-on-did-save-code": true,
   },
   "tasks": {
     "version": "2.0.0",

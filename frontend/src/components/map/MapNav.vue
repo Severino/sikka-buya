@@ -4,8 +4,13 @@
     <div class="links">
       <!-- <div class="title">Maps</div> -->
 
-      <router-link :to="{ name: 'PoliticalMap' }">Political Map</router-link>
-      <router-link :to="{ name: 'MaterialMap' }">Material Map</router-link>
+      <router-link
+        v-for="route of routes"
+        :to="{ name: route.routeName }"
+        :key="route.routeName"
+        >{{ route.displayName }}</router-link
+      >
+      <!-- <router-link :class="{active: isRouteActive}" :to="{ name: 'MaterialMap' }">Material Map</router-link> -->
 
       <!-- <router-link
         v-for="route of mapRoutes"
@@ -20,11 +25,13 @@
 
 <script>
 export default {
-  methods: {
-    isRouteActive(route) {
-      console.log(route);
-      return this.$route.matched.some(({ name }) => name === route.name);
-    },
+  data() {
+    return {
+      routes: [
+        { routeName: 'PoliticalMap', displayName: 'Politische Karte' },
+        { routeName: 'MaterialMap', displayName: 'Material Karte' },
+      ],
+    };
   },
   computed: {
     mapRoutes() {
@@ -47,8 +54,8 @@ export default {
 }
 
 .map-nav {
-  display: grid;
-  grid-template-columns: 1fr 5fr 1fr;
+  margin: auto;
+
   > * {
     display: flex;
   }
@@ -57,11 +64,11 @@ export default {
     display: block;
     padding: $padding 2 * $padding;
     padding-bottom: calc(#{$padding} - #{$bottom-border-width});
-    margin-right: $padding;
+    margin-right: 0 $padding;
     box-sizing: border-box;
     border-bottom: $bottom-border-width solid transparent;
 
-    &.active {
+    &.router-link-exact-active {
       color: $primary-color;
       font-size: bold;
       border-color: $primary-color;

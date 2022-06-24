@@ -5,7 +5,13 @@
         <label v-if="title" class="title"
           >{{ title }} {{ length !== null ? `(${length})` : '' }}</label
         >
-        <button type="button" @click.stop.prevent="addEntry">+</button>
+        <button
+          class="list-add-button-besides"
+          type="button"
+          @click.stop.prevent="addEntry"
+        >
+          <span> +</span>
+        </button>
       </Row>
     </div>
 
@@ -13,7 +19,13 @@
     <div class="list-container">
       <slot />
     </div>
-    <button type="button" @click.stop.prevent="addEntry">+</button>
+    <button
+      class="list-add-button-below"
+      type="button"
+      @click.stop.prevent="addEntry"
+    >
+      <span>+</span>
+    </button>
   </div>
 </template>
 

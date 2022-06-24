@@ -21,6 +21,13 @@ class Type {
     }
 
 
+
+    static async deleteType(id) {
+        if (!id) throw new Error("Id is required.")
+        return Database.none(`DELETE FROM type * WHERE id=$[id]`, { id })
+    }
+
+
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
         data.id = id

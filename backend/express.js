@@ -309,6 +309,8 @@ async function start({
                 modGetTypes: async function (_, args, context) {
                     Auth.requireAuthContext(context)
 
+                    console.log(args)
+
                     args.additionalRows = [`CASE WHEN tc.type is null
                     then False
                     else True 
@@ -562,6 +564,13 @@ async function start({
                     }
 
                     return Type.addType(_, args, context, info)
+                },
+                deleteCoinType: async function (_, args, context, info) {
+                    if (!Auth.verifyContext(context)) {
+                        throw new Error('You are not authenticated!')
+                    }
+
+                    return Type.deleteType(args.id)
                 },
                 inviteUser: async function (_, { email } = {}, context) {
                     if (!Auth.verifyContext(context)) {

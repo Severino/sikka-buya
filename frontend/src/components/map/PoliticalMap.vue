@@ -1,9 +1,6 @@
 <template>
   <div class="political-map ui">
     <Sidebar title="Prägeorte">
-      <!-- <Button class="clear-filter-btn" @click="clearMintSelection"
-        >Auswahl aufheben</Button
-      > -->
       <mint-list
         :items="mintsList"
         :selectedIds="selectedMints"
@@ -12,6 +9,15 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
+      <div class="toolbar top-right-toobar">
+        <Button
+          v-if="filtersActive"
+          class="clear-filter-btn"
+          @click="resetFilters()"
+          >Filter aufheben</Button
+        >
+      </div>
+
       <div class="settings">
         <SettingsIcon class="settings-icon" @click="toggleSettings" />
         <div class="settings-window" v-if="settings.visible">
@@ -441,7 +447,7 @@ person {
               radius,
               borderStyle: {
                 stroke: true,
-                weight: 2,
+                weight: 1.5,
                 color: '#fff',
                 fill: false,
               },
@@ -729,6 +735,10 @@ person {
   color: gray;
 }
 
+.top-right-toobar {
+  margin: $padding;
+}
+
 #timeline-canvas {
   position: absolute;
   width: 100%;
@@ -737,8 +747,9 @@ person {
 
 .clear-filter-btn {
   margin-bottom: 15px;
-  background-color: $primary-color;
-  color: $white;
+
+  @include buttonColor($white, $primary-color);
+
   font-weight: bold;
   text-align: center;
   border-radius: $border-radius;

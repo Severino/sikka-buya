@@ -6,7 +6,7 @@
 @mixin focus() {
   &:focus {
     outline: none;
-    border-color: rgb(143, 143, 143);
+    // border-color: rgb(143, 143, 143);
   }
 }
 
@@ -33,6 +33,21 @@
   }
 
   @include focus();
+}
+
+@mixin buttonColor ($foregroundColor, $backgroundColor) {
+  color: $foregroundColor;
+  background-color: $backgroundColor;
+
+  &:hover {
+    color: lighten($foregroundColor, 5%);
+    background-color: lighten($backgroundColor, 5%);
+  }
+
+  &:active {
+    color: darken($foregroundColor, 5%);
+    background-color: darken($backgroundColor, 5%);
+  }
 }
 
 @mixin disabled_input {

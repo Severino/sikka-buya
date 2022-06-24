@@ -2,25 +2,28 @@
   <div class="coin-side-field">
     <Heading v-if="title">{{ title }}</Heading>
     <LabeledInputContainer :label="prefix + $tc('property.field_text')">
-      <SimpleFormattedField ref="fieldTextField" />
+      <SimpleFormattedField class="field-text" ref="fieldTextField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.inner_inscript')">
-      <SimpleFormattedField ref="innerInscriptField" />
+      <SimpleFormattedField class="inner-inscript" ref="innerInscriptField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer
       :label="prefix + $t('property.intermediate_inscript')"
     >
-      <SimpleFormattedField ref="intermediateInscriptField" />
+      <SimpleFormattedField
+        class="intermediate-inscript"
+        ref="intermediateInscriptField"
+      />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.outer_inscript')">
-      <SimpleFormattedField ref="outerInscriptField" />
+      <SimpleFormattedField class="outer-inscript" ref="outerInscriptField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.misc')">
-      <SimpleFormattedField ref="miscField" />
+      <SimpleFormattedField class="misc" ref="miscField" />
     </LabeledInputContainer>
   </div>
 </template>
@@ -78,6 +81,14 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+.coin-side-field {
+  > * {
+    margin-bottom: $padding;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 label {
