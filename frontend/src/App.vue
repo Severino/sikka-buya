@@ -149,9 +149,19 @@ input[type='color'] {
   align-items: center;
 }
 
+@include allHeadings {
+  font-family: 'Carlito';
+}
+
 h1 {
   font-weight: bold;
   font-size: 3rem;
+}
+
+h2 {
+  font-size: 1.64rem;
+  font-weight: bold;
+  margin-block-end: 1rem;
 }
 
 h6 {
@@ -463,5 +473,12 @@ a {
   // font-weight: bold;
   font-style: italic;
   color: $light-gray;
+}
+
+.note {
+  display: block;
+  font-size: $small-font;
+  color: $primary-color;
+  font-style: italic;
 }
 </style>

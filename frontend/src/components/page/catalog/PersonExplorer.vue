@@ -8,9 +8,10 @@
         >Reihenfolge bearbeiten</Button
       >
     </header>
+    <search-field v-model="searchText" />
     <div class="list">
       <collapsible
-        v-for="person of persons"
+        v-for="person of filteredPersons"
         :class="{ highlight: person.id == 8 }"
         :key="person.id"
         @open="getTypesByPerson(person)"
@@ -127,6 +128,18 @@
           <span class="hint" v-else>Wähle einen Prägeort</span>
         </div>
       </collapsible>
+      <Button
+        class="filter-button"
+        @click="resetFilters"
+        :multiline="true"
+        v-if="filteredPersonsInactive.length > 0"
+      >
+        <span>
+          Es wurden {{ filteredPersonsInactive.length }} Personen von der Suche
+          ausgeschlossen.
+        </span>
+        <span class="note">Klicken um alle Elemente anzuzeigen.</span>
+      </Button>
     </div>
   </div>
 </template>
@@ -147,6 +160,9 @@ import MultiButton from '../../layout/buttons/MultiButton.vue';
 
 import ExternalLinkIcon from 'vue-material-design-icons/OpenInNew.vue';
 
+import SearchField from '../../layout/SearchField.vue';
+import SearchUtils from '../../../utils/SearchUtils';
+
 export default {
   components: {
     ArrowUp,
@@ -159,9 +175,11 @@ export default {
     LoadingSpinner,
     MultiButton,
     ExternalLinkIcon,
+    SearchField,
   },
   data: function () {
     return {
+      searchText: '',
       persons: [],
       map: {},
       types: {},
@@ -173,6 +191,9 @@ export default {
     this.updateRulers();
   },
   methods: {
+    resetFilters() {
+      this.searchText = '';
+    },
     updateRulers() {
       Query.raw(
         `{
@@ -376,11 +397,31 @@ export default {
       return inscripts;
     },
   },
+  computed: {
+    filteredPersons() {
+      console.log(
+        SearchUtils.filter(this.searchText, this.persons, 'name').map(
+          (p) => p.name
+        )
+      );
+      return SearchUtils.filter(this.searchText, this.persons, 'name');
+    },
+    filteredPersonsInactive() {
+      const filteredIds = this.filteredPersons.map((p) => p.id);
+      console.log(filteredIds);
+      return this.persons.filter((p) => {
+        return !filteredIds.includes(p.id);
+      });
+    },
+  },
 };
 </script>
 
 <style lang="scss">
 .person-explorer {
+  .search {
+    margin-bottom: 2 * $padding;
+  }
   .collapsible {
     // border: 1px solid $gray;
     // border-radius: $border-radius;
@@ -502,5 +543,11 @@ header {
     color: $white;
     background-color: darken($primary-color, 10%);
   }
+}
+
+.filter-button {
+  width: 100%;
+  min-height: 40px;
+  justify-content: center;
 }
 </style>

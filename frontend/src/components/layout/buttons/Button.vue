@@ -1,5 +1,5 @@
 <template>
-  <div class="button" :class="{ colored }" @click.stop="clicked">
+  <div class="button" :class="{ colored, multiline }" @click.stop="clicked">
     <!-- 
       @slot Default slot to render the button contents.
      -->
@@ -24,6 +24,10 @@ export default {
      * Displays the button in the accent color.
      */
     colored: Boolean,
+    /**
+     * Displays multiple elements below each other.
+     */
+    multiline: Boolean,
   },
   methods: {
     /**
@@ -56,6 +60,10 @@ export default {
   align-items: center;
   text-align: center;
   box-sizing: border-box;
+
+  &.multiline {
+    flex-direction: column;
+  }
 
   .material-design-icon:not(:last-child) {
     margin-right: $padding;

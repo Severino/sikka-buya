@@ -1,7 +1,7 @@
 <template>
   <div class="box">
     <header v-if="title">
-      <h3>{{ title }}</h3>
+      <h2>{{ title }}</h2>
     </header>
     <div class="body">
       <slot />

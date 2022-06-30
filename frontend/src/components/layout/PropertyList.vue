@@ -58,6 +58,7 @@
 import Information from 'vue-material-design-icons/Information';
 import ListItem from './ListItem.vue';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
+import SearchUtils from '../../utils/SearchUtils';
 
 export default {
   components: { ListItem, Information, LoadingSpinner },
@@ -98,12 +99,7 @@ export default {
   },
   computed: {
     filteredItems: function () {
-      return this.items.filter((item) => {
-        let str = !item[this.property] ? '' : item[this.property];
-        return deburr(str.toLowerCase()).match(
-          deburr(this.filter.toLowerCase())
-        );
-      });
+      return SearchUtils.filter(this.filter, this.items, this.property);
     },
   },
 };

@@ -43,7 +43,7 @@ export default {
   props: {
     value: { type: String, required: true },
     asyncSearch: {
-      required: true,
+      // required: true,
       type: Function,
     },
     mode: {
@@ -100,7 +100,7 @@ export default {
 
   computed: {
     active: function () {
-      return this.value != '';
+      return this.value && this.value != '';
     },
     isInputSearch: function () {
       return this.mode == 'input';
@@ -114,6 +114,11 @@ export default {
 .search {
   display: flex;
   position: relative;
+  border-radius: $border-radius;
+
+  .material-design-icon {
+    color: $gray;
+  }
 
   &.active {
     input {
@@ -132,6 +137,7 @@ export default {
     box-sizing: border-box;
     flex: 1;
     transition: all 0.3s;
+    border-radius: $border-radius;
   }
 
   .spinner {
