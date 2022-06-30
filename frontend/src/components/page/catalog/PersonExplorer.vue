@@ -1,13 +1,13 @@
 <template>
   <div class="person-explorer">
-    <header v-if="$store.state.user != null">
+    <editor-toolbar>
       <Button
         v-if="$store.state.user != null"
         @click="toggleEditMode()"
         :class="{ active: editmode }"
         >Reihenfolge bearbeiten</Button
       >
-    </header>
+    </editor-toolbar>
     <search-field v-model="searchText" />
     <div class="list">
       <collapsible
@@ -162,6 +162,7 @@ import ExternalLinkIcon from 'vue-material-design-icons/OpenInNew.vue';
 
 import SearchField from '../../layout/SearchField.vue';
 import SearchUtils from '../../../utils/SearchUtils';
+import EditorToolbar from '../editor/EditorToolbar.vue';
 
 export default {
   components: {
@@ -176,6 +177,7 @@ export default {
     MultiButton,
     ExternalLinkIcon,
     SearchField,
+    EditorToolbar,
   },
   data: function () {
     return {
@@ -465,23 +467,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  background-color: $light-gray;
-  padding: $padding;
-  margin-bottom: $padding;
-  border-radius: $border-radius;
-
-  &:before {
-    content: 'Editor Toolbar';
-    color: whitesmoke;
-    margin-right: auto;
-    font-weight: bold;
-  }
-}
-
 .mint-area {
   > h6 {
     margin-block-start: 0;
