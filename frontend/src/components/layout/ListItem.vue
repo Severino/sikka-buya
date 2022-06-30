@@ -45,6 +45,10 @@ export default {
 <style lang="scss" scoped>
 @import '@/scss/_import.scss';
 
+a {
+  @include resetLinkStyle();
+}
+
 .list-item:not(:last-of-type) {
   .list-item-row {
     border-bottom-width: 0;

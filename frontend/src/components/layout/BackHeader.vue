@@ -36,6 +36,8 @@ h1 {
 }
 
 a {
+  @include resetLinkStyle();
+
   display: flex;
   align-items: center;
   color: black;

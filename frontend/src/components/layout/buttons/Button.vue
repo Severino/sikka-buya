@@ -40,6 +40,15 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.button {
+  a {
+    @include resetLinkStyle();
+    color: currentColor;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .button {
   display: inline-flex;

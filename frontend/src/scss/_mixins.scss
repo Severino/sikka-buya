@@ -76,3 +76,14 @@
     @content;
   }
 }
+
+@mixin linkStyle {
+  font-weight: bold;
+  color: $primary-color;
+  text-decoration: none;
+}
+
+@mixin resetLinkStyle {
+  font-weight: normal;
+  color: currentColor;
+}

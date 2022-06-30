@@ -1,7 +1,6 @@
 <template>
-  <div class="content-wrapper">
-    <header>
-      <h1>Personen Überblick</h1>
+  <div class="person-explorer">
+    <header v-if="$store.state.user != null">
       <Button
         v-if="$store.state.user != null"
         @click="toggleEditMode()"
@@ -9,99 +8,125 @@
         >Reihenfolge bearbeiten</Button
       >
     </header>
-    <div class="person-explorer">
-      <div class="list">
-        <collapsible
-          v-for="person of persons"
-          :class="{ highlight: person.id == 8 }"
-          :key="person.id"
-          @open="getTypesByPerson(person)"
-        >
-          <template slot="header">
-            <div class="edit-toolbar" v-if="editmode">
-              <input
-                type="number"
-                name=""
-                id=""
-                style="width: 75px"
-                @click.stop
-                :value="orderMap[person.id]"
-                @change="orderChanged($event, person.id)"
-              />
-            </div>
-            {{ person.name }} ({{ person.id }} | {{ person.dynasty.name }})
-          </template>
-          <div v-if="map[person.id]">
-            <p
-              v-if="
-                !map[person.id] || Object.values(map[person.id]).length == 0
-              "
-              class="error"
-            >
-              Keine Typen mit dieser Person vorhanden
-            </p>
-            <div class="flex">
-              <Button
-                v-for="mintObject of objectToSortedArray(map[person.id])"
-                :key="'mint-' + person.id + '-' + mintObject.value.name"
-                class="year-grid"
-                :class="{ active: mintObject.active }"
-                @click="toggleActive(mintObject)"
-              >
-                {{ mintObject.value.name }}
-              </Button>
-            </div>
-            <hr />
-            <div>
-              <div
-                class="flex"
-                v-for="mintObject of getActiveObjects(map[person.id])"
-                :key="
-                  'mint-' + person.id + '-' + mintObject.value.name + '-active'
-                "
-              >
-                <b>{{ mintObject.value.name }}:</b>
-                <Button
-                  v-for="timeObject of mintObject.children"
-                  :key="
-                    'mint-' +
-                    person.id +
-                    '-' +
-                    mintObject.value.name +
-                    '-' +
-                    timeObject.value
-                  "
-                  :class="{ active: timeObject.active }"
-                  @click="toggleActive(timeObject)"
-                >
-                  {{ timeObject.value }}</Button
-                >
-                <div class="grid"></div>
-              </div>
-              <hr />
-              <div>
-                <labeled-property
-                  v-if="availableTypes(map[person.id]).length > 0"
-                  label="Typen"
-                >
-                  <div class="flex">
-                    <Button
-                      v-for="type of availableTypes(map[person.id])"
-                      :key="'selectedType-' + type.id"
-                      @click="selectType(person, type.projectId)"
-                    >
-                      {{ type.projectId }}
-                    </Button>
-                  </div>
-                </labeled-property>
-              </div>
-              <hr />
-
-              <type-view v-if="person.activeType" :type="person.activeType" />
-            </div>
+    <div class="list">
+      <collapsible
+        v-for="person of persons"
+        :class="{ highlight: person.id == 8 }"
+        :key="person.id"
+        @open="getTypesByPerson(person)"
+      >
+        <loading-spinner v-if="person.loading" />
+        <template slot="header">
+          <div class="edit-toolbar" v-if="editmode">
+            <input
+              type="number"
+              name=""
+              id=""
+              style="width: 75px"
+              @click.stop
+              :value="orderMap[person.id]"
+              @change="orderChanged($event, person.id)"
+            />
           </div>
-        </collapsible>
-      </div>
+          {{ person.name }}
+        </template>
+        <div
+          class="mint-area area"
+          v-if="
+            map[person.id] && objectToSortedArray(map[person.id]).length > 0
+          "
+        >
+          <h6>Prägeort</h6>
+          <p
+            v-if="!map[person.id] || Object.values(map[person.id]).length == 0"
+            class="error"
+          >
+            Keine Typen mit dieser Person vorhanden
+          </p>
+          <div class="flex">
+            <Button
+              v-for="mintObject of objectToSortedArray(map[person.id])"
+              :key="'mint-' + person.id + '-' + mintObject.value.name"
+              class="year-grid"
+              :class="{ active: mintObject.active }"
+              @click="toggleActive(mintObject)"
+            >
+              {{ mintObject.value.name }}
+            </Button>
+          </div>
+          <div
+            class="year-area area"
+            v-if="getActiveObjects(map[person.id]).length > 0"
+          >
+            <h6>Prägejahr</h6>
+            <div
+              class="flex"
+              v-for="mintObject of getActiveObjects(map[person.id])"
+              :key="
+                'mint-' + person.id + '-' + mintObject.value.name + '-active'
+              "
+            >
+              <b>{{ mintObject.value.name }}:</b>
+              <Button
+                v-for="timeObject of mintObject.children"
+                :key="
+                  'mint-' +
+                  person.id +
+                  '-' +
+                  mintObject.value.name +
+                  '-' +
+                  timeObject.value
+                "
+                :class="{ active: timeObject.active }"
+                @click="toggleActive(timeObject)"
+              >
+                {{ timeObject.value }}</Button
+              >
+              <div class="grid"></div>
+            </div>
+            <div
+              class="type-area area"
+              v-if="availableTypes(map[person.id]).length > 0"
+            >
+              <h6>Typ</h6>
+
+              <div class="flex">
+                <MultiButton
+                  v-for="type of availableTypes(map[person.id])"
+                  :key="'selectedType-' + type.id"
+                >
+                  <Button
+                    @click="selectType(person, type)"
+                    :class="{
+                      active: isActive(person, type),
+                    }"
+                  >
+                    {{ type.projectId }}
+                  </Button>
+                  <Button
+                    :class="{
+                      active: isActive(person, type),
+                    }"
+                  >
+                    <router-link
+                      :to="{ name: 'CatalogEntry', params: { id: type.id } }"
+                      target="_blank"
+                      ><ExternalLinkIcon :size="16"
+                    /></router-link>
+                  </Button>
+                </MultiButton>
+              </div>
+              <span v-if="!person.activeType" class="hint"
+                >Wähle einen Typ</span
+              >
+            </div>
+            <span class="hint" v-else>Wähle ein Prägejahr</span>
+
+            <type-view v-if="person.activeType" :type="person.activeType" />
+          </div>
+          <span class="hint" v-else>Wähle einen Prägeort</span>
+        </div>
+      </collapsible>
     </div>
   </div>
 </template>
@@ -117,6 +142,10 @@ import ArrowUp from 'vue-material-design-icons/ArrowUpBold.vue';
 import ArrowDown from 'vue-material-design-icons/ArrowDownBold.vue';
 import TypeView from '../TypeView.vue';
 import Sort from '../../../utils/Sorter';
+import LoadingSpinner from '../../misc/LoadingSpinner.vue';
+import MultiButton from '../../layout/buttons/MultiButton.vue';
+
+import ExternalLinkIcon from 'vue-material-design-icons/OpenInNew.vue';
 
 export default {
   components: {
@@ -127,6 +156,9 @@ export default {
     TypePage,
     Button,
     TypeView,
+    LoadingSpinner,
+    MultiButton,
+    ExternalLinkIcon,
   },
   data: function () {
     return {
@@ -176,7 +208,10 @@ export default {
             else if (aPos > bPos) return -1;
             else return 0;
           });
-          persons.forEach((person) => (person.activeType = null));
+          persons.forEach((person) => {
+            person.activeType = null;
+            person.loading = true;
+          });
           this.persons = persons;
         })
         .catch(console.error);
@@ -270,7 +305,12 @@ export default {
 
             this.$set(this.map, person.id, mints);
           })
-          .catch(console.error);
+          .catch(() => {
+            person.error();
+          })
+          .finally(() => {
+            person.loading = false;
+          });
       }
     },
     objectToSortedArray(obj) {
@@ -283,9 +323,16 @@ export default {
       obj.active = !obj.active;
     },
     selectType(person, type) {
-      person.activeType = this.types[person.id].find(
-        (element) => element.projectId == type
-      );
+      if (this.isActive(person, type)) {
+        person.activeType = null;
+      } else {
+        person.activeType = this.types[person.id].find(
+          (element) => element.projectId == type.projectId
+        );
+      }
+    },
+    isActive(person, type) {
+      return person?.activeType?.projectId == type.projectId;
     },
     availableTypes(mintListObject) {
       const selected = [];
@@ -332,11 +379,79 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.person-explorer {
+  .collapsible {
+    // border: 1px solid $gray;
+    // border-radius: $border-radius;
+    margin-bottom: 3px;
+
+    border-radius: $border-radius;
+    background-color: $white;
+  }
+
+  .collapsible-header {
+    color: $black;
+    // font-weight: bold;
+    padding: $padding;
+  }
+
+  .collapsible-content {
+    min-height: 50px;
+    padding: $padding;
+  }
+
+  .button {
+    padding: $padding/2 $padding;
+  }
+
+  .spinner {
+    margin: auto;
+    color: $primary-color;
+  }
+
+  .type-view {
+    background-color: whitesmoke;
+    padding: $padding;
+    border-radius: $border-radius;
+    padding-top: 3 * $padding;
+
+    h1 {
+      padding-bottom: 1rem;
+    }
+  }
+}
+</style>
+
 <style lang="scss" scoped>
-.content-wrapper header {
+header {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  justify-content: space-between;
+  background-color: $light-gray;
+  padding: $padding;
+  margin-bottom: $padding;
+  border-radius: $border-radius;
+
+  &:before {
+    content: 'Editor Toolbar';
+    color: whitesmoke;
+    margin-right: auto;
+    font-weight: bold;
+  }
+}
+
+.mint-area {
+  > h6 {
+    margin-block-start: 0;
+  }
+}
+
+.hint {
+  display: block;
+  margin: $padding auto;
+  margin-top: 3 * $padding;
+  text-align: center;
 }
 
 .edit-toolbar {

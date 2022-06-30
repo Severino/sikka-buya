@@ -1,6 +1,7 @@
 <template>
   <div class="catalog-landing">
-    <type-overview />
+    <h1>Typenkatalog</h1>
+    <person-explorer />
   </div>
 </template>
 
@@ -13,6 +14,7 @@ import ListItem from '../../layout/ListItem.vue';
 import Row from '../../layout/Row.vue';
 import Column from '../../layout/tabs/Column.vue';
 import TypeOverview from '../TypeOverview.vue';
+import PersonExplorer from './PersonExplorer.vue';
 export default {
   components: {
     Column,
@@ -22,6 +24,7 @@ export default {
     ListItemCell,
     SearchField,
     TypeOverview,
+    PersonExplorer,
   },
   name: 'CatalogLanding',
   data: function () {

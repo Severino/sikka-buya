@@ -154,6 +154,14 @@ h1 {
   font-size: 3rem;
 }
 
+h6 {
+  font-size: 1rem;
+  color: $gray;
+
+  margin-block-start: 1.5rem;
+  margin-block-end: 1rem;
+}
+
 .subtitle {
   display: block;
   color: $gray;
@@ -332,11 +340,7 @@ label {
 }
 
 a {
-  text-decoration: none;
-
-  &:visited {
-    color: unset;
-  }
+  @include linkStyle();
 }
 
 .icon-button {
@@ -453,5 +457,11 @@ a {
       margin-bottom: 0;
     }
   }
+}
+
+.hint {
+  // font-weight: bold;
+  font-style: italic;
+  color: $light-gray;
 }
 </style>

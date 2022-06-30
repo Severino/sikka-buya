@@ -200,8 +200,11 @@ ul {
 }
 
 a {
+  color: $black;
+  font-weight: normal;
+
   padding: $padding;
-  text-transform: uppercase;
+  // text-transform: uppercase;
   display: block;
 
   @include media_phone {

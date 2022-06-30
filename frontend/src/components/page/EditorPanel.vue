@@ -105,6 +105,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+a {
+  @include resetLinkStyle();
+}
+
 @import '@/scss/_import.scss';
 header {
   display: flex;
