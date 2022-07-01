@@ -34,6 +34,8 @@ import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
 import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
 import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
 import CatalogFullSearch from "@/components/page/catalog/CatalogFullSearch.vue"
+import CatalogFilterSearch from "@/components/page/catalog/CatalogFilterSearch.vue"
+
 
 import PersonExplorer from "@/components/page/catalog/PersonExplorer.vue"
 
@@ -133,6 +135,10 @@ const routes = [
           path: '',
           name: 'Catalog',
           component: CatalogLanding
+        }, {
+          path: 'filter',
+          name: 'CatalogFilterSearch',
+          component: CatalogFilterSearch
         },
         {
           path: 'full',
@@ -140,7 +146,7 @@ const routes = [
           component: CatalogFullSearch
         },
         {
-          path: '/catalog/:id',
+          path: '/type/:id',
           name: 'CatalogEntry',
           component: CatalogEntry
         }]

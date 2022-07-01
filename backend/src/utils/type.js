@@ -418,6 +418,20 @@ class Type {
         return `WHERE ${conditions.join(" AND ")} `
     }
 
+    static get aliasMap() {
+        return {
+            "material": "ma",
+            "mint": "mi"
+        }
+    }
+
+    static get targetColumn() {
+        return {
+            "material": "id",
+            "mint": "id"
+        }
+    }
+
     static objectToConditions(filterObj) {
         /**
          * TODO // WARNING // ALERT // ERROR: HERE WE HAVE THE DANGER OF SQLINJECTION
@@ -431,10 +445,15 @@ class Type {
 
             const ors = []
             filters.forEach((filter) => {
-                ors.push(pgp.as.format("$1:name=$2", [db_key, filter]))
+
+                let tableName = this.aliasMap[db_key] ? this.aliasMap[db_key] : db_key
+                if (this.targetColumn[db_key]) {
+                    tableName = `${tableName}.${this.targetColumn[db_key]}`
+                }
+                ors.push(pgp.as.format("$1:value=$2", [tableName, filter]))
             })
 
-            const filter = ors.length === 1 ? ors[0] : ors.join(" OR ")
+            const filter = ors.length === 1 ? ors[0] : `(${ors.join(" OR ")})`
             where.push(filter)
         }
         return where
@@ -442,8 +461,6 @@ class Type {
 
     static async getTypes(_, { pagination = { count: 50, total: 0, page: 0 }, filters = {}, additionalJoin = "", additionalRows = [] }, context, info) {
 
-
-        console.trace("GET TY", i++)
         /**
          * 
          * Better innerjoin for coin_marks:
@@ -464,6 +481,7 @@ class Type {
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
         const pageInfo = new PageInfo(pagination)
+
 
 
         const totalQuery = `
@@ -492,7 +510,7 @@ class Type {
         ORDER BY t.project_id ASC
         ${pageInfo.toQuery()}
 ; `
-
+        console.log(query)
 
         const result = await Database.manyOrNone(query)
         let fields = graphqlFields(info)

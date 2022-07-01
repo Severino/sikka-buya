@@ -1,16 +1,23 @@
 <template>
   <div class="catalog-landing">
-    <h1>Typenkatalog</h1>
-    <p>
-      Im dieser primären Ansicht des Typenkatalog sind die Typen nach Personen
-      sortiert. Und bieten so eine politische Herangehensweise bei der Arbeit
-      mit den einzelnen Typen. Um gezielt einzelne Typen unabhängig von der
-      Person zu suchen, Nutzen Sie eine der anderen Suchfunktionen.
-    </p>
+    <header>
+      <h1>Typenkatalog</h1>
+      <p>
+        Im dieser primären Ansicht des Typenkatalog sind die Typen nach Personen
+        sortiert. Und bieten so eine politische Herangehensweise bei der Arbeit
+        mit den einzelnen Typen. Um gezielt einzelne Typen unabhängig von der
+        Person zu suchen, Nutzen Sie eine der anderen Suchfunktionen.
+      </p>
 
-    <router-link :to="{ name: 'CatalogFullSearch' }">Volltextsuche</router-link>
-    <router-link :to="{ name: 'CatalogFullSearch' }">Filtersuche</router-link>
-
+      <div class="nav-grid grid">
+        <big-navigation-button :to="{ name: 'CatalogFullSearch' }">
+          Volltextsuche
+        </big-navigation-button>
+        <big-navigation-button :to="{ name: 'CatalogFilterSearch' }">
+          Filtersuche
+        </big-navigation-button>
+      </div>
+    </header>
     <person-explorer />
   </div>
 </template>
@@ -25,6 +32,7 @@ import Row from '../../layout/Row.vue';
 import Column from '../../layout/tabs/Column.vue';
 import TypeOverview from '../TypeOverview.vue';
 import PersonExplorer from './PersonExplorer.vue';
+import BigNavigationButton from '../../navigation/BigNavigationButton.vue';
 export default {
   components: {
     Column,
@@ -35,8 +43,10 @@ export default {
     SearchField,
     TypeOverview,
     PersonExplorer,
+    BigNavigationButton,
   },
   name: 'CatalogLanding',
+
   data: function () {
     return {
       types: [],
@@ -108,6 +118,10 @@ export default {
 .catalog-landing {
   flex: 1;
   position: relative;
+
+  > header {
+    margin-bottom: $padding;
+  }
 }
 </style>
 
@@ -121,5 +135,11 @@ export default {
   font-weight: bold;
   text-decoration: underline;
   padding: $padding 0;
+}
+
+.grid {
+  display: grid;
+  gap: $padding;
+  grid-template-columns: 1fr 1fr;
 }
 </style>

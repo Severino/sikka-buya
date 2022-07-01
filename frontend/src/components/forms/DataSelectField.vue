@@ -90,6 +90,7 @@ export default {
     attribute: {
       type: String,
       required: true,
+      default: 'name',
     },
     required: {
       type: Boolean,

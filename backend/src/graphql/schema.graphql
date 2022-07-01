@@ -59,8 +59,6 @@ type ModCoinTypePagination {
   types: [ModCoinType]
 }
 
-
-
 type CoinType {
   id: ID
   projectId: String
@@ -91,8 +89,8 @@ type CoinType {
 }
 
 type MintMaterials {
-    mint: Mint
-    materials: [Material]
+  mint: Mint
+  materials: [Material]
 }
 
 type ModCoinType {
@@ -122,7 +120,7 @@ type ModCoinType {
   internalNotes: String
   yearUncertain: Boolean
   mintUncertain: Boolean
-  reviewed:Boolean,
+  reviewed: Boolean
   completed: Boolean
 }
 
@@ -174,7 +172,7 @@ type Mint {
   province: Name
 }
 
-input PersonInput  {
+input PersonInput {
   id: ID
   name: String
   shortName: String
@@ -280,17 +278,20 @@ type Query {
   # TODO: missing Tests ---------------------------------------------
 
   mintMaterials: [MintMaterials]
-  getMaterialColor(id:ID!):String
-
+  getMaterialColor(id: ID!): String
 
   province: [Name]
   searchProvince(text: String): [Name]
   getProvince(id: ID!): Name
 
   getTypesByRuler(id: ID!): [CoinType]
-  modGetTypes(pagination: Pagination, filters: ModTypeFilter, evalFilters:EvalFilter): ModCoinTypePagination
+  modGetTypes(
+    pagination: Pagination
+    filters: ModTypeFilter
+    evalFilters: EvalFilter
+  ): ModCoinTypePagination
 
-  typeCountOfMints(ids:[ID]): [LabeledPointArray]
+  typeCountOfMints(ids: [ID]): [LabeledPointArray]
 
   timespan: Range
   getAnalytics: Analytics
@@ -304,16 +305,16 @@ type Query {
   getNote(property: String, propertyId: ID): String
 
   searchPersonsWithRole(
-    text: String!,
-    include: [String],
+    text: String!
+    include: [String]
     exclude: [String]
   ): [Person]!
   searchPersonsWithoutRole(text: String!): [Person]!
 
-  isSuperUserSet:Boolean
+  isSuperUserSet: Boolean
   databaseExists: Boolean
   users: [User]
-  login(email:String!, password:String!): AuthResponse
+  login(email: String!, password: String!): AuthResponse
   auth(token: String): User
 
   getLang(id: ID!, table: String!, lang: String!, attr: String!): String
@@ -327,8 +328,6 @@ type Query {
   ): PaginationTypeTextSearch
 }
 
-
-
 type LabeledPointArray {
   id: String
   name: String
@@ -336,8 +335,8 @@ type LabeledPointArray {
 }
 
 type Point {
-    x: Int,
-    y: Int
+  x: Int
+  y: Int
 }
 
 type PaginationTypeTextSearch {
@@ -359,17 +358,17 @@ type Mutation {
   acceptInvite(email: String, password: String): Void
 
   # Tested in 004_coin_mark
-  addCoinMark(name:String!): Void
+  addCoinMark(name: String!): Void
   updateCoinMark(id: ID!, name: String!): Void
   deleteCoinMark(id: ID): Void
 
   # Tested in 005_nominal
-  addNominal(name:String!): Void
-  updateNominal(id: ID!, name:String!): Void
+  addNominal(name: String!): Void
+  updateNominal(id: ID!, name: String!): Void
   deleteNominal(id: ID): Void
 
   # Tested in 006_material
-  addMaterial(name:String!, color: String): ID
+  addMaterial(name: String!, color: String): ID
   updateMaterial(id: ID!, name: String!, color: String): Void
   deleteMaterial(id: ID): Void
 
@@ -379,22 +378,22 @@ type Mutation {
   deleteMint(id: ID): Void
 
   # Tested in 008_role
-  addRole(name:String!): Void
+  addRole(name: String!): Void
   updateRole(id: ID!, name: String!): Void
   deleteRole(id: ID): Void
 
   # Tested in 009_dynasty
-  addDynasty(name:String!): Void
+  addDynasty(name: String!): Void
   updateDynasty(id: ID!, name: String!): Void
   deleteDynasty(id: ID): Void
 
   # Tested in 010_title
-  addTitle(name:String!): Void
+  addTitle(name: String!): Void
   updateTitle(id: ID!, name: String!): Void
   deleteTitle(id: ID): Void
 
   # Tested in 011_honorifics
-  addHonorific(name:String!): Void
+  addHonorific(name: String!): Void
   updateHonorific(id: ID!, name: String!): Void
   deleteHonorific(id: ID): Void
 
@@ -410,11 +409,10 @@ type Mutation {
 
   # TODO: missing Tests ---------------------------------------------
 
+  deleteUser(id: ID): Void
 
-  deleteUser(id: ID):Void
-
-  addProvince(name:String!): Void
-  updateProvince(id: ID!, name: String!) : Void
+  addProvince(name: String!): Void
+  updateProvince(id: ID!, name: String!): Void
   deleteProvince(id: ID): Void
 
   updateNote(text: String, property: String, propertyId: ID): Void
@@ -432,9 +430,8 @@ type Mutation {
 
   changePersonExplorerOrder(person: ID!, position: Int!): Void
 
-  
-  updateMaterialColor(id:ID!, color:String!):Void
-  deleteMaterialColor(id:ID):Void
+  updateMaterialColor(id: ID!, color: String!): Void
+  deleteMaterialColor(id: ID): Void
 }
 
 input Pagination {
@@ -465,7 +462,7 @@ input ModTypeFilter {
 }
 
 input TypeFilter {
-  text: String 
+  text: String
   donativ: Boolean
   cursiveScript: Boolean
   excludeFromTypeCatalogue: Boolean
@@ -475,8 +472,8 @@ input TypeFilter {
   mintUncertain: Boolean
   mint: [ID]
   caliph: ID
-  nominal: ID
-  material: ID
+  nominal: [ID]
+  material: [ID]
   coinMark: ID
 }
 
@@ -499,8 +496,7 @@ type Comment {
   text: String
 }
 
-
-interface IPerson{
+interface IPerson {
   id: ID
   name: String
   shortName: String
@@ -537,7 +533,7 @@ type TitledPerson implements IPerson & ITitled {
   honorifics: [Name]!
 }
 
-type Overlord implements IPerson & ITitled{
+type Overlord implements IPerson & ITitled {
   id: ID
   name: String
   shortName: String

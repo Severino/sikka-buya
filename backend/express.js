@@ -143,7 +143,6 @@ async function start({
                 },
 
                 coinType: async function () {
-                    console.log("COIN TYPE")
                     return Type.list(...arguments)
                 },
                 getDominion: async function (_, args) {

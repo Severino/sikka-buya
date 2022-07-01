@@ -18,8 +18,6 @@
   box-sizing: border-box;
   background-color: white;
 
-
-
   transition: background-color 0.2s, color 0.2s;
 
   &:hover:not(.disable-input) {
@@ -35,7 +33,7 @@
   @include focus();
 }
 
-@mixin buttonColor ($foregroundColor, $backgroundColor) {
+@mixin buttonColor($foregroundColor, $backgroundColor) {
   color: $foregroundColor;
   background-color: $backgroundColor;
 
@@ -64,7 +62,6 @@
 }
 
 @mixin media-tablet {
-
   /* Portrait and Landscape */
   @media only screen and (max-width: 1024px) {
     @content;
@@ -89,13 +86,49 @@
 }
 
 @mixin allHeadings {
-
   h1,
   h2,
   h3,
   h4,
   h5,
   h6 {
-    @content
+    @content;
+  }
+}
+
+@mixin font-face(
+  $name,
+  $regular,
+  $italic,
+  $bold,
+  $bold-italic,
+  $format: 'truetype'
+) {
+  @font-face {
+    font-family: $name;
+    font-style: normal;
+    font-weight: normal;
+    src: url($regular) format($format);
+  }
+
+  @font-face {
+    font-family: $name;
+    font-style: normal;
+    font-weight: italic;
+    src: url($italic) format($format);
+  }
+
+  @font-face {
+    font-family: $name;
+    font-style: bold;
+    font-weight: normal;
+    src: url($bold) format($format);
+  }
+
+  @font-face {
+    font-family: $name;
+    font-style: italic;
+    font-weight: bold;
+    src: url($bold-italic) format($format);
   }
 }
