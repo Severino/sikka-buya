@@ -61,6 +61,8 @@ export default {
     padding: 3px;
     border-radius: 0;
     border-color: transparent;
+    flex: 1;
+    justify-content: center;
 
     &.active {
       color: $white;

@@ -8,6 +8,7 @@
         >Reihenfolge bearbeiten</Button
       >
     </editor-toolbar>
+    <router-link>Typensuche</router-link>
     <search-field v-model="searchText" />
     <div class="list">
       <collapsible

@@ -3,7 +3,7 @@
     <Column class="container" :class="{ empty: empty }">
       <div class="search">
         <Column>
-          <h2>Typensuche (Volltext)</h2>
+          <h1>Volltextsuche</h1>
           <p class="emph">
             Beachte: Da dies vorerst als Bearbeiter-Tool gedacht ist, werden
             alle Typen angezeigt ungeachtet davon, ob 'Nicht für Typenkatalog"

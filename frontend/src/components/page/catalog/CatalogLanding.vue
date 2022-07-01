@@ -1,6 +1,16 @@
 <template>
   <div class="catalog-landing">
     <h1>Typenkatalog</h1>
+    <p>
+      Im dieser primären Ansicht des Typenkatalog sind die Typen nach Personen
+      sortiert. Und bieten so eine politische Herangehensweise bei der Arbeit
+      mit den einzelnen Typen. Um gezielt einzelne Typen unabhängig von der
+      Person zu suchen, Nutzen Sie eine der anderen Suchfunktionen.
+    </p>
+
+    <router-link :to="{ name: 'CatalogFullSearch' }">Volltextsuche</router-link>
+    <router-link :to="{ name: 'CatalogFullSearch' }">Filtersuche</router-link>
+
     <person-explorer />
   </div>
 </template>

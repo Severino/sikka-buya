@@ -48,6 +48,50 @@
         </template>
       </timeline>
     </div>
+
+    <Sidebar title="Filter" side="right">
+      <div class="padding-box">
+        <labeled-input-container label="Material">
+          <data-select-field
+            table="material"
+            attribute="name"
+            v-model="filters.material"
+            @select="selectMaterialFilter"
+            :unselectable="true"
+          />
+          <div class="active-list">
+            <button
+              v-for="material of filters.materials"
+              :key="`material-filter-${material.id}`"
+              @click="removeMaterialFilter(material)"
+            >
+              {{ material.name }} x
+            </button>
+          </div>
+        </labeled-input-container>
+        <!--
+        <labeled-input-container label="Material">
+          <data-select-field />
+        </labeled-input-container>
+
+        <labeled-input-container label="Kaliph">
+          <data-select-field />
+        </labeled-input-container> -->
+
+        <labeled-input-container label="Donativ"
+          ><three-way-toggle v-model="filters.donativ"
+        /></labeled-input-container>
+        <labeled-input-container label="Kursive Schrift"
+          ><three-way-toggle v-model="filters.cursive"
+        /></labeled-input-container>
+        <labeled-input-container label="Jahr unsicher"
+          ><three-way-toggle v-model="filters.yearUncertain"
+        /></labeled-input-container>
+        <labeled-input-container label="Prägeort unsicher"
+          ><three-way-toggle v-model="filters.mintUncertain"
+        /></labeled-input-container>
+      </div>
+    </Sidebar>
   </div>
 </template>
 
@@ -69,12 +113,16 @@ import MultiSelectList from '../MultiSelectList.vue';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
-import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import { concentricCircles } from '../../models/map/geometry';
 import Mint from '../../models/map/mint';
 import { White } from '../../utils/Color';
+import DataSelectField from '../forms/DataSelectField.vue';
+import LabeledInputContainer from '../LabeledInputContainer.vue';
+import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
+import MultiButton from '../layout/buttons/MultiButton.vue';
+import Button from '../layout/buttons/Button.vue';
 
 export default {
   name: 'MaterialMap',
@@ -85,9 +133,13 @@ export default {
     Checkbox,
     FilterIcon,
     MultiSelectList,
-    RulerList,
     MintList,
     ScrollView,
+    DataSelectField,
+    LabeledInputContainer,
+    ThreeWayToggle,
+    MultiButton,
+    Button,
   },
   data: function () {
     return {
@@ -97,6 +149,16 @@ export default {
       mintLocation: null,
       mintTimelineData: [],
       timelineActive: true,
+      filters: {
+        material: { id: null, name: '' },
+        materials: [],
+        nominals: [],
+        caliphs: [],
+        donativ: null,
+        cursive: null,
+        yearUncertain: null,
+        mintUncertain: null,
+      },
       settings: {
         visible: false,
         minRadius: { value: 10, min: 0, max: 50 },
@@ -146,6 +208,24 @@ export default {
     this.updateTimeline();
   },
   methods: {
+    selectMaterialFilter(material) {
+      if (!this.hasMaterialFilter(material)) {
+        this.filters.materials.push(material);
+      }
+      this.filters.material = { id: null, name: '' };
+    },
+    removeMaterialFilter(material) {
+      if (this.hasMaterialFilter(material)) {
+        this.filters.materials = this.filters.materials.filter(
+          (mat) => mat.id != material.id
+        );
+      }
+    },
+    hasMaterialFilter(material) {
+      return this.filters.materials
+        .map((material) => material.id)
+        .includes(material.id);
+    },
     toggleSettings() {
       this.settings.visible = !this.settings.visible;
     },
@@ -167,7 +247,7 @@ export default {
 
       try {
         if (this.timelineActive) {
-          await this.fetchMaterialForYear();
+          await this.fetchMaterial();
         } else {
           await this.fetchMaterial();
         }
@@ -176,49 +256,59 @@ export default {
         console.error(e);
       }
     },
-    async fetchMaterial() {
-      this.mintData = {};
-      const result = await Query.raw(`{mintMaterials {
-  mint {
-    id
-    name
-  },
-  materials {
-    id,
-    name,
-    color
-  }
-}}`);
-      this.mintData = result.data.data.mintMaterials.reduce(
-        (prev, { mint, materials }) => {
-          if (mint.id) {
-            if (prev[mint.id] != null)
-              console.error('Mint id was already set.');
-            else {
-              prev[mint.id] = {};
-              materials.forEach((mat) => {
-                if (!mat.id) {
-                  console.log(`Material has no id: `, mat);
-                } else {
-                  prev[mint.id][mat.id] = this.getMaterialOptions(mat);
-                }
-              });
-            }
-          } else console.error('Mint had no id: ', mint);
-          return prev;
-        },
-        {}
-      );
-    },
+    //     async fetchMaterial2() {
+    //       this.mintData = {};
+    //       const result = await Query.raw(`{mintMaterials {
+    //   mint {
+    //     id
+    //     name
+    //   },
+    //   materials {
+    //     id,
+    //     name,
+    //     color
+    //   }
+    // }}`);
+    //       this.mintData = result.data.data.mintMaterials.reduce(
+    //         (prev, { mint, materials }) => {
+    //           if (mint.id) {
+    //             if (prev[mint.id] != null)
+    //               console.error('Mint id was already set.');
+    //             else {
+    //               prev[mint.id] = {};
+    //               materials.forEach((mat) => {
+    //                 if (!mat.id) {
+    //                   console.log(`Material has no id: `, mat);
+    //                 } else {
+    //                   prev[mint.id][mat.id] = this.getMaterialOptions(mat);
+    //                 }
+    //               });
+    //             }
+    //           } else console.error('Mint had no id: ', mint);
+    //           return prev;
+    //         },
+    //         {}
+    //       );
+    //     },
 
-    async fetchMaterialForYear() {
+    async fetchMaterial() {
       this.mintData = {};
       const types = {};
       let fetching = true;
+
+      let pagination = {
+        page: 0,
+        count: 1000,
+      };
+
+      const filters = {
+        material: this.filters.materials.map((mat) => mat.id),
+      };
+
       while (fetching) {
         const result = await Query.raw(
-          `{
-      coinType (filters: {yearOfMint:"${this.raw_timeline.value}"}) {
+          `query ($pagination, $filters: TypeFilter){
+      coinType (pagination: filters: $filters) {
         pageInfo{
             page
             count
@@ -232,12 +322,20 @@ export default {
             material {id name color}
           }
         }
-      }`
+      }`,
+          { filters, pagination }
         );
+
+        pagination.page++;
 
         const { types, pageInfo } = result.data.data.coinType;
 
-        if (pageInfo.count * (pageInfo.page + 1) >= pageInfo.total) {
+        console.log(types);
+
+        if (
+          pageInfo.count * (pageInfo.page + 1) >= pageInfo.total ||
+          types.length == 0
+        ) {
           fetching = false;
         }
 
@@ -349,111 +447,6 @@ export default {
       });
 
       this.materialLayer.addTo(this.featureGroup);
-    },
-
-    rulerSelectionChanged(selected, preventUpdate = false) {
-      this.selectedRulers = selected;
-      if (!preventUpdate) this.update();
-    },
-    mintHasActiveRuler(type) {
-      if (!type.mint) return false;
-      for (let property of ['issuers', 'overlords', 'caliph']) {
-        if (!type[property]) continue;
-        let personArr = !Array.isArray(type[property])
-          ? [type[property]]
-          : type[property];
-
-        for (let i = 0; i < personArr.length; i++) {
-          const personId = personArr[i].id;
-          if (this.selectedRulers.indexOf(personId) != -1) return true;
-        }
-      }
-
-      return false;
-    },
-    drawMintCountOntoTimeline() {
-      const canv = this.$refs.timelineCanvas;
-      let ctx = canv.getContext('2d');
-      let rect = canv.getBoundingClientRect();
-
-      /**
-       * Resizing the canvas will also clear it.
-       */
-      canv.width = rect.width;
-      canv.height = rect.height;
-
-      if (this.selectedMints.length > 0)
-        Query.raw(
-          `{
- typeCountOfMints(ids: [${this.selectedMints.join(',')}]){
-  id, data {
-    x
-    y
-  }
-	
-}
-}`
-        )
-          .then((val) => {
-            this.mintTimelineData = val.data.data.typeCountOfMints;
-
-            const lineWidth = 3;
-            let curveMax = 0;
-            let curveData = {};
-            this.mintTimelineData.forEach((mint) => {
-              mint.data.forEach((point) => {
-                if (!curveData[point.x]) curveData[point.x] = point.y;
-                else curveData[point.x] += point.y;
-
-                if (curveData[point.x] > curveMax)
-                  curveMax = curveData[point.x];
-              });
-            });
-
-            const yStep =
-              (canv.height - lineWidth - 10) / (curveMax > 0 ? curveMax : 20);
-
-            let y = (val) => {
-              return canv.height - val * yStep;
-            };
-
-            let x = (val) => {
-              return (
-                ((val - this.raw_timeline.from) /
-                  (this.raw_timeline.to - this.raw_timeline.from)) *
-                  canv.width -
-                2
-              );
-            };
-
-            ctx.lineWidth = lineWidth;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#bfbfbf';
-            ctx.fillStyle = '#eee';
-            ctx.beginPath();
-
-            let last = null;
-            Object.keys(curveData)
-              .sort((a, b) => a - b)
-              .forEach((x_key) => {
-                const point = { x: x_key, y: curveData[x_key] };
-                if (last && point.x - last > 1) {
-                  ctx.lineTo(x(last), y(0));
-                  last = null;
-                }
-                if (last == null) ctx.moveTo(x(point.x), y(0));
-
-                ctx.lineTo(x(point.x), y(point.y));
-                last = point.x;
-              });
-
-            ctx.lineTo(x(last), y(0));
-            ctx.stroke();
-            ctx.fill();
-            ctx.closePath();
-          })
-          .catch(console.error);
     },
   },
 };
@@ -580,14 +573,14 @@ export default {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: 1fr 5fr;
+  grid-template-columns: 1fr 5fr 1fr;
 
   @media screen and (max-width: 1080px) {
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1fr 3fr 1fr;
   }
 
   @media screen and (max-width: 720px) {
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 2fr 1fr;
   }
 
   grid-template-rows: 1fr 3fr 120px;
@@ -633,6 +626,21 @@ export default {
     grid-row: 3;
     display: flex;
     z-index: 100;
+  }
+}
+
+.active-list {
+  display: flex;
+  flex-wrap: wrap;
+
+  button {
+    margin: $small-padding/2;
+    font-size: $small-font;
+    border-radius: $border-radius;
+    padding: $small-padding/2 $small-padding;
+    background-color: $primary-color;
+    color: white;
+    font-weight: bold;
   }
 }
 </style>

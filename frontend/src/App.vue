@@ -106,6 +106,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+p {
+  line-height: 1.5rem;
+}
+
 button,
 input {
   font-family: $font;
@@ -147,6 +151,10 @@ input[type='color'] {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.padding-box {
+  padding: $padding;
 }
 
 @include allHeadings {

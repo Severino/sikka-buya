@@ -13,7 +13,7 @@
 
     <Button id="clear-btn" @click.stop.prevent="clear()"><Close /></Button>
 
-    <div class="indicator">
+    <div v-if="!unselectable" class="indicator">
       <Alert v-if="invalid" class="alert" />
       <Check v-else class="check" />
     </div>
@@ -101,6 +101,14 @@ export default {
     text: {
       type: String,
       default: null,
+    },
+    /**
+     * Unselectable is used, when you e.g. have multiple selection options and the
+     * field is cleared afterwards and only the selection is tracked.
+     */
+    unselectable: {
+      default: false,
+      type: Boolean,
     },
     query: String,
     queryCommand: String,

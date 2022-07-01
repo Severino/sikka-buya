@@ -465,7 +465,7 @@ input ModTypeFilter {
 }
 
 input TypeFilter {
-  text: String
+  text: String 
   donativ: Boolean
   cursiveScript: Boolean
   excludeFromTypeCatalogue: Boolean
@@ -473,7 +473,7 @@ input TypeFilter {
   yearOfMint: String
   yearUncertain: Boolean
   mintUncertain: Boolean
-  mint: ID
+  mint: [ID]
   caliph: ID
   nominal: ID
   material: ID

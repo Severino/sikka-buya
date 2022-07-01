@@ -143,6 +143,7 @@ async function start({
                 },
 
                 coinType: async function () {
+                    console.log("COIN TYPE")
                     return Type.list(...arguments)
                 },
                 getDominion: async function (_, args) {
@@ -308,8 +309,6 @@ async function start({
                */
                 modGetTypes: async function (_, args, context) {
                     Auth.requireAuthContext(context)
-
-                    console.log(args)
 
                     args.additionalRows = [`CASE WHEN tc.type is null
                     then False

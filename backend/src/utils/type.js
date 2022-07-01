@@ -13,6 +13,7 @@ const graphqlFields = require('graphql-fields')
 const { JSDOM } = require("jsdom");
 const DictDE = require('../dictionaries/dict_de')
 
+let i = 1
 class Type {
 
 
@@ -421,18 +422,28 @@ class Type {
         /**
          * TODO // WARNING // ALERT // ERROR: HERE WE HAVE THE DANGER OF SQLINJECTION
          */
-
         const where = []
-        for (let [key, val] of Object.entries(filterObj)) {
+        for (let [key, filters] of Object.entries(filterObj)) {
             let db_key = camelCaseToSnakeCase(key)
-            if (val == null || val === "") continue
-            where.push(pgp.as.format("$1:name=$2", [db_key, val]))
+            if (filters == null || filters === "") continue
+
+            if (!Array.isArray(filters)) filters = [filters]
+
+            const ors = []
+            filters.forEach((filter) => {
+                ors.push(pgp.as.format("$1:name=$2", [db_key, filter]))
+            })
+
+            const filter = ors.length === 1 ? ors[0] : ors.join(" OR ")
+            where.push(filter)
         }
         return where
     }
 
     static async getTypes(_, { pagination = { count: 50, total: 0, page: 0 }, filters = {}, additionalJoin = "", additionalRows = [] }, context, info) {
 
+
+        console.trace("GET TY", i++)
         /**
          * 
          * Better innerjoin for coin_marks:
@@ -453,7 +464,6 @@ class Type {
         const conditions = this.objectToConditions(filters)
         const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
         const pageInfo = new PageInfo(pagination)
-
 
 
         const totalQuery = `
