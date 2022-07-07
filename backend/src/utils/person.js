@@ -4,18 +4,19 @@ const SQLUtils = require('./sql')
 class Person {
 
     static async searchWithoutRole(_, args) {
-        const searchString = args.text
-        let result = await Database.manyOrNone(`
-SELECT * FROM person WHERE role IS NULL AND unaccent(name) ILIKE $1 ORDER BY name ASC
-LIMIT ${process.env.MAX_SEARCH}
-`, `%${searchString}%`)
+        //         const searchString = args.text
+        //         let result = await Database.manyOrNone(`
+        // SELECT * FROM person WHERE role IS NULL AND unaccent(name) ILIKE $1 ORDER BY name ASC
+        // LIMIT ${process.env.MAX_SEARCH}
+        // `, `%${searchString}%`)
 
-        result.forEach((item, idx) => {
-            result[idx]["role"] = { id: null, name: null }
-        })
+        //         result.forEach((item, idx) => {
+        //             result[idx]["role"] = { id: null, name: null }
+        //         })
 
-        console.log(result)
-        return result
+        //         console.log(result)
+        args.hasRole = false
+        return this.search(_, args)
     }
 
     static async searchCaliph(_, args) {
@@ -45,8 +46,11 @@ LIMIT ${process.env.MAX_SEARCH}
     LEFT JOIN person_role r ON p.role = r.id
     LEFT JOIN dynasty d ON p.dynasty = d.id
     LEFT JOIN person_color c ON c.person = p.id
-    WHERE r 
-    ${args.hasRole ? "IS NOT NULL" : "IS NULL"}`)
+    WHERE `)
+
+        if (args.hasRole != null) {
+            query = `${query} ${args.hasRole ? "r IS NOT NULL" : " r IS NULL"}`
+        }
 
         if (args.text) {
             const search = `%${args.text}%`

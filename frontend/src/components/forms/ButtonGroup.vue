@@ -10,7 +10,7 @@
         :checked="value == option"
         :name="id"
         :id="option"
-        @change="change"
+        @click="change"
       />
       <label :for="option" tabindex="0"
         ><span>{{ labels[idx] }}</span></label
@@ -20,14 +20,13 @@
 </template>
 
 <script>
-import Row from "../layout/Row.vue";
+import Row from '../layout/Row.vue';
 export default {
   components: { Row },
-  name: "ButtonGroup",
+  name: 'ButtonGroup',
   props: {
     value: {
       type: String,
-      required: true,
     },
     id: {
       type: String,
@@ -41,6 +40,10 @@ export default {
       type: Array,
       required: true,
     },
+    unselectable: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {
@@ -53,7 +56,12 @@ export default {
   },
   methods: {
     change: function (event) {
-      this.$emit("input", event.target.id);
+      let value = event.target.id;
+      if (this.unselectable && event.target.id === this.value) {
+        value = null;
+      }
+
+      this.$emit('input', value);
     },
   },
 };
@@ -61,7 +69,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import "@/scss/_import.scss";
+@import '@/scss/_import.scss';
 
 .select {
   height: 37px;
@@ -90,10 +98,7 @@ input {
 }
 
 input:checked + label {
-  background-color: $primary-color;
-
-  color: $white;
-  border-color: transparent;
+  @include buttonColor($white, $primary-color);
 }
 
 label {
@@ -107,15 +112,16 @@ label {
 
   &:first-of-type {
     label {
-      border-top-left-radius: $border-radius/2;
-      border-bottom-left-radius: $border-radius/2;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
     }
   }
 
   &:last-of-type {
     label {
-      border-top-right-radius: $border-radius/2;
-      border-bottom-right-radius: $border-radius/2;
+      border-left-width: 0;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
     }
   }
 }

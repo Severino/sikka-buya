@@ -23,7 +23,7 @@ export default {
   components: { Button, Check, Close, SlashForward },
   props: {
     value: {
-      validator: (val) => val === true || val === false || val === null,
+      validator: (val) => val === true || val === false || val == null,
       defaultValue: null,
       required: true,
     },
@@ -52,8 +52,9 @@ export default {
 <style lang="scss" scoped>
 .three-way-toggle {
   display: inline-flex;
-  border: 1px solid gray;
-  border-radius: $border-radius;
+
+  @include input();
+  padding: 0;
 
   .button {
     color: $gray;
@@ -66,7 +67,7 @@ export default {
 
     &.active {
       color: $white;
-      background-color: $gray;
+      background-color: $light-gray;
 
       &.yes {
         background-color: $green;

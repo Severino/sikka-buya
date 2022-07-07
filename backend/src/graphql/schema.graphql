@@ -284,7 +284,9 @@ type Query {
   searchProvince(text: String): [Name]
   getProvince(id: ID!): Name
 
-  searchCaliph(text:String):[Person] 
+  searchCaliph(text: String): [Person]
+  searchOverlord(text: String): [Person]
+  searchIssuer(text: String): [Person]
 
   getTypesByRuler(id: ID!): [CoinType]
   modGetTypes(
@@ -473,12 +475,12 @@ input TypeFilter {
   yearUncertain: Boolean
   mintUncertain: Boolean
   mint: [ID]
+  ruler: [ID]
   caliph: [ID]
   otherPerson: [ID]
   nominal: [ID]
   material: [ID]
   coinMark: [ID]
-
   title: [ID]
   honorific: [ID]
 }
