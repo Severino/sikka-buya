@@ -27,9 +27,9 @@
           <div class="languages">DE</div>
         </div>
 
-        <div v-if="loggedIn" class="user">
+        <div v-if="loggedIn" class="user" id="user-toolbar">
           <router-link :to="{ name: 'Editor' }">
-            <AccountCircle />
+            <AccountShield :size="18" />
           </router-link>
           <div id="nav-logout-button" @click="logout">
             {{ $t('system.logout') }}
@@ -45,7 +45,7 @@
 </template>
 
 <script>
-import AccountCircle from 'vue-material-design-icons/AccountCircle';
+import AccountShield from 'vue-material-design-icons/ShieldAccount';
 
 import Menu from 'vue-material-design-icons/Menu';
 import Close from 'vue-material-design-icons/Close';
@@ -55,7 +55,7 @@ import Auth from '../utils/Auth';
 export default {
   name: 'Navigation',
   components: {
-    AccountCircle,
+    AccountShield,
     Menu,
     Close,
   },
@@ -110,6 +110,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#nav-logout-button {
+  text-transform: capitalize;
+}
+
 header {
   // position: sticky;
   background-color: $white;
