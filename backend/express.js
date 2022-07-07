@@ -1,4 +1,5 @@
 const { pgp, Database, setupDatabase } = require('./src/utils/database.js')
+const Person = require('./src/utils/person.js')
 
 const fs = require('fs').promises
 
@@ -84,6 +85,7 @@ async function start({
                 environment: () => {
                     return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
                 },
+
                 isSuperUserSet: async function () {
                     let result
                     try {
@@ -141,7 +143,10 @@ async function start({
                 getCoinType: async function () {
                     return Type.getType(...arguments)
                 },
+                searchCaliph: function () {
 
+                    return Person.searchCaliph(...arguments)
+                },
                 coinType: async function () {
                     return Type.list(...arguments)
                 },
@@ -208,66 +213,10 @@ async function start({
 
                     return Array.from(dominions.values())
                 },
-                searchPersonsWithRole: async function (_, args) {
-
-                    const include = args.include
-                    const exclude = args.exclude
-                    const search = `%${args.text}%`
-
-                    let query = pgp.as.format(`
-                    SELECT 
-                    p.*, 
-                    r.id AS role_id, 
-                    r.name AS role_name, 
-                    d.id AS dynasty_id, 
-                    d.name AS dynasty_name ,
-                    c.color AS color
-                    FROM person p
-                    LEFT JOIN person_role r ON p.role = r.id
-                    LEFT JOIN dynasty d ON p.dynasty = d.id
-                    LEFT JOIN person_color c ON c.person = p.id
-                    WHERE r IS NOT NULL 
-                    AND unaccent(p.name) ILIKE $1`, search)
-
-
-                    if (include) {
-                        query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS true", include)}`
-                    } else if (exclude) {
-                        query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", exclude)}`
-                    }
-
-                    result = await Database.manyOrNone(`${query} ORDER BY p.name ASC`)
-
-                    result.forEach((item, idx) => {
-
-                        result[idx].shortName = result[idx].short_name
-
-                        result[idx] = SQLUtils.objectifyBulk(item, [{
-                            prefix: "role_",
-                            target: "role",
-                            keys: ["id", "name"]
-                        }, {
-                            prefix: "dynasty_",
-                            target: "dynasty",
-                            keys: ["id", "name"]
-                        }])
-                    })
-
-                    return result
+                searchPersonsWithRole: function () {
+                    return Person.searchWithRole(...arguments)
                 },
-                searchPersonsWithoutRole: async function (_, args) {
-                    const searchString = args.text
-                    let result = await Database.manyOrNone(`
-            SELECT * FROM person WHERE role IS NULL AND unaccent(name) ILIKE $1 ORDER BY name ASC
-            LIMIT ${process.env.MAX_SEARCH}
-            `, `%${searchString}%`)
-
-                    result.forEach((item, idx) => {
-                        result[idx]["role"] = { id: null, name: null }
-                    })
-
-                    return result
-                },
+                searchPersonsWithoutRole: function () { return Person.searchWithoutRole(...arguments) },
                 getTypesByRuler: async function () {
                     return Type.getTypesByRuler(...arguments)
                 },

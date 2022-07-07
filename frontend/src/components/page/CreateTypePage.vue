@@ -167,6 +167,7 @@
           queryCommand="searchPersonsWithRole"
           :queryParams="['id', { role: ['id', 'name'] }, 'name']"
           :additionalParameters="{ include: ['caliph'] }"
+          :textFunction="textFunction"
         />
       </LabeledInputContainer>
       <List

@@ -305,24 +305,29 @@ export default {
         material: this.filters.materials.map((mat) => mat.id),
       };
 
+      if (this.timelineActive)
+        filters.yearOfMint = this.timeline.value.toString();
+
       while (fetching) {
+        console.log(filters);
+
         const result = await Query.raw(
-          `query ($pagination, $filters: TypeFilter){
-      coinType (pagination: filters: $filters) {
-        pageInfo{
-            page
-            count
-            last
-            total
-          }
-          types {
-            id
-            projectId
-            mint {id, name}
-            material {id name color}
-          }
-        }
-      }`,
+          `query ($pagination:Pagination, $filters: TypeFilter){
+              coinType (pagination: $pagination, filters: $filters) {
+                pageInfo{
+                    page
+                    count
+                    last
+                    total
+                  }
+                  types {
+                    id
+                    projectId
+                    mint {id, name}
+                    material {id name color}
+                  }
+                }
+            }`,
           { filters, pagination }
         );
 

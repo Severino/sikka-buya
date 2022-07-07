@@ -284,6 +284,8 @@ type Query {
   searchProvince(text: String): [Name]
   getProvince(id: ID!): Name
 
+  searchCaliph(text:String):[Person] 
+
   getTypesByRuler(id: ID!): [CoinType]
   modGetTypes(
     pagination: Pagination
@@ -471,10 +473,14 @@ input TypeFilter {
   yearUncertain: Boolean
   mintUncertain: Boolean
   mint: [ID]
-  caliph: ID
+  caliph: [ID]
+  otherPerson: [ID]
   nominal: [ID]
   material: [ID]
-  coinMark: ID
+  coinMark: [ID]
+
+  title: [ID]
+  honorific: [ID]
 }
 
 type PageInfo {

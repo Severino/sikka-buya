@@ -9,6 +9,11 @@
         :table="ms.value"
         v-model="filters[ms.value]"
         :active="getActiveFilters(ms.value)"
+        :attribute="ms.attribute"
+        :queryParams="ms.queryParams"
+        :queryCommand="ms.queryCommand"
+        :text="ms.text"
+        :textFunction="ms.textFunction"
         @select="(el) => selectFilter(ms.value, el)"
         @remove="(el) => removeFilter(ms.value, el)"
       />
@@ -36,6 +41,34 @@ let multiSelectFilters = [
   {
     label: 'Nominal',
     value: 'nominal',
+  },
+  {
+    label: 'Münzzeichen',
+    value: 'coinMark',
+  },
+  {
+    label: 'Kalif',
+    value: 'caliph',
+    attribute: 'shortName',
+    queryParams: ['id', 'shortName'],
+  },
+  {
+    label: 'Sonstige Personen',
+    value: 'otherPerson',
+    queryCommand: 'searchPersonsWithRole',
+    queryParams: ['id', 'name', { role: ['id', 'name'] }],
+    textFunction: function (search) {
+      console.log(search);
+      return `${search.name} (${this.$tc(`role.${search.role.name}`)})`;
+    },
+  },
+  {
+    label: 'Title',
+    value: 'title',
+  },
+  {
+    label: 'Ehrenname',
+    value: 'honorific',
   },
 ];
 

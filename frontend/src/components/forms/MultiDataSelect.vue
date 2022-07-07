@@ -11,6 +11,7 @@
       :attribute="attribute"
       :required="required"
       :text="text"
+      :textFunction="textFunction"
       :query="query"
       :queryCommand="queryCommand"
       :msg="msg"
@@ -24,7 +25,7 @@
         :key="`active-${el.id}`"
         @click="() => $emit('remove', el)"
       >
-        {{ el.name }} <CloseThickIcon :size="14" />
+        {{ el[attribute] }} <CloseThickIcon :size="14" />
       </button>
     </div>
   </div>
@@ -62,12 +63,14 @@ export default {
     },
     attribute: {
       type: String,
+      default: 'name',
     },
     required: Boolean,
     // Text allows us to format the text as we want to.
     // This is an alternative to attribute.
     // Use JavaScript template literals placeholders ('${your_variable}')
     text: String,
+    textFunction: Function,
     /**
      * Unselectable is used, when you e.g. have multiple selection options and the
      * field is cleared afterwards and only the selection is tracked.

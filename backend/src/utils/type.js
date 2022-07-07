@@ -439,7 +439,12 @@ class Type {
         const where = []
         for (let [key, filters] of Object.entries(filterObj)) {
             let db_key = camelCaseToSnakeCase(key)
-            if (filters == null || filters === "") continue
+            if (
+                // Skip if filter is invalid:
+                filters == null ||
+                filters === "" ||
+                // Skip if an empty array is passed:
+                (filters.length != null && filters.length === 0)) continue
 
             if (!Array.isArray(filters)) filters = [filters]
 
@@ -510,7 +515,7 @@ class Type {
         ORDER BY t.project_id ASC
         ${pageInfo.toQuery()}
 ; `
-        console.log(query)
+        // console.log(query)
 
         const result = await Database.manyOrNone(query)
         let fields = graphqlFields(info)
