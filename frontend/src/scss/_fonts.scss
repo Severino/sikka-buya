@@ -1,0 +1,48 @@
+@mixin declareFontFace($family,
+    $regular,
+    $regular-italic,
+    $bold,
+    $bold-italic,
+    $format: "truetype") {
+
+    @font-face {
+        font-family: $family;
+        src: url($regular) format($format);
+    }
+
+    @font-face {
+        font-family: $family;
+        font-style: italic;
+        src: url($regular-italic) format($format);
+    }
+
+    @font-face {
+        font-family: $family;
+        font-weight: bold;
+        src: url($bold) format($format);
+    }
+
+
+
+    @font-face {
+        font-family: $family;
+        font-weight: bold;
+        font-style: italic;
+        src: url($bold-italic) format($format);
+    }
+}
+
+@include declareFontFace("Arimo",
+    "/fonts/Arimo/static/Arimo-Regular.ttf",
+    "/fonts/Arimo/static/Arimo-Italic.ttf",
+    "/fonts/Arimo/static/Arimo-Bold.ttf",
+    "/fonts/Arimo/static/Arimo-BoldItalic.ttf",
+
+);
+
+@include declareFontFace("Carlito",
+    "/fonts/Carlito/Carlito-Regular.ttf",
+    "/fonts/Carlito/Carlito-Italic.ttf",
+    "/fonts/Carlito/Carlito-Bold.ttf",
+    "/fonts/Carlito/Carlito-BoldItalic.ttf",
+);
