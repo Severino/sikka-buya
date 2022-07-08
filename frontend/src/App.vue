@@ -106,6 +106,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+main {
+  padding-bottom: 25vh;
+}
+
 p {
   line-height: 1.5rem;
 }

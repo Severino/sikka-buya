@@ -12,6 +12,7 @@ const PageInfo = require('../models/pageinfo')
 const graphqlFields = require('graphql-fields')
 const { JSDOM } = require("jsdom");
 const DictDE = require('../dictionaries/dict_de')
+const QueryBuilder = require('./querybuilder')
 
 let i = 1
 class Type {
@@ -480,11 +481,12 @@ class Type {
             ON cm.type = type.id
          */
 
-        const { join: complex_join, where: complex_where } = this.complexFilters(filters)
+        const queryBuilder = this.complexFilters(filters)
 
 
         const conditions = this.objectToConditions(filters)
-        const whereClause = this.buildWhereFilter([...conditions, ...complex_where])
+        const joinClause = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
+        const whereClause = this.buildWhereFilter([...conditions, ...queryBuilder.where])
         const pageInfo = new PageInfo(pagination)
 
 
@@ -492,9 +494,7 @@ class Type {
         const totalQuery = `
         SELECT count(*)
         FROM type t 
-        ${this.joins}
-        ${complex_join.join("\n")}
-        ${additionalJoin}
+        ${joinClause}
         ${whereClause}
         `
 
@@ -508,9 +508,7 @@ class Type {
             ].join(",")
             }
         FROM type t 
-        ${this.joins}
-        ${complex_join.join("\n")}
-        ${additionalJoin}
+        ${joinClause}
         ${whereClause}
         ORDER BY t.project_id ASC
         ${pageInfo.toQuery()}
@@ -528,27 +526,26 @@ class Type {
     }
 
     static complexFilters(filter) {
-        let where = [], join = []
-        if (Object.hasOwnProperty.bind(filter)("coinMark")) {
-            const cmJoin = `RIGHT JOIN(
-    SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) AS coin_mark, array_agg(type_coin_marks.coin_mark) as coin_mark_ids 
-                FROM type_coin_marks 
-                JOIN coin_marks 
-                ON coin_marks.id = type_coin_marks.coin_mark
-                GROUP BY type_coin_marks.type
-) AS cm
-            ON cm.type = t.id`
-            join.push(cmJoin)
 
-            const cmWhere = pgp.as.format("$1=ANY(cm.coin_mark_ids)", [filter.coinMark])
+        const queryBuilder = new QueryBuilder
+
+        if (Object.hasOwnProperty.bind(filter)("coinMark")) {
+            queryBuilder.addJoin(`RIGHT JOIN(
+                SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) AS coin_mark, array_agg(type_coin_marks.coin_mark) as coin_mark_ids 
+                            FROM type_coin_marks 
+                            JOIN coin_marks 
+                            ON coin_marks.id = type_coin_marks.coin_mark
+                            GROUP BY type_coin_marks.type ) AS cm
+                        ON cm.type = t.id`)
+
+            queryBuilder.addWhere(pgp.as.format("$1=ANY(cm.coin_mark_ids)", [filter.coinMark]))
             delete filter.coinMark
-            where.push(cmWhere)
         }
 
         if (Object.hasOwnProperty.bind(filter)("completed")) {
             if (filter.completed != null) {
                 let completedWhere = (filter.completed) ? "tc.type IS NOT NULL" : "tc.type IS NULL"
-                where.push(completedWhere)
+                queryBuilder.addWhere(completedWhere)
             }
             delete filter.completed
         }
@@ -556,7 +553,7 @@ class Type {
         if (Object.hasOwnProperty.bind(filter)("reviewed")) {
             if (filter.reviewed != null) {
                 let reviewedWhere = (filter.reviewed) ? "tr.type IS NOT NULL" : "tr.type IS NULL"
-                where.push(reviewedWhere)
+                queryBuilder.addWhere(reviewedWhere)
             }
             delete filter.reviewed
         }
@@ -564,13 +561,76 @@ class Type {
         if (Object.hasOwnProperty.bind(filter)("text")) {
             filter.text = filter.text.trim()
             if (filter.text != "") {
-                let text = pgp.as.format("unaccent(t.project_id) ILIKE unaccent('%$1#%')", [filter.text])
-                where.push(text)
+                queryBuilder.addWhere(pgp.as.format("unaccent(t.project_id) ILIKE unaccent('%$1#%')", [filter.text]))
             }
             delete filter.text
         }
 
-        return { where, join }
+        if (Object.hasOwnProperty.bind(filter)("title")) {
+            if (Array.isArray(filter.title) && filter.title.length > 0) {
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT o.type,
+                        COALESCE(ARRAY_AGG(title_id) FILTER (
+                                                             WHERE title_id IS NOT NULL ), '{}') as titles
+                 FROM overlord o
+                 LEFT JOIN overlord_titles ot ON o.id = ot.overlord_id
+                 GROUP BY o.type) type_titles ON type_titles.type = t.id`)
+
+                queryBuilder.addSelect(`
+                 COALESCE(type_titles.titles, '{}') as titles
+                 `)
+
+                queryBuilder.addWhere(pgp.as.format(`$[titles]::int[] && type_titles.titles `, { titles: filter.title }))
+            }
+            delete filter.title
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("honorific")) {
+            if (Array.isArray(filter.honorific) && filter.honorific.length > 0) {
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT o.type,
+                        COALESCE(ARRAY_AGG(honorific_id) FILTER (
+                                                             WHERE honorific_id IS NOT NULL ), '{}') as honorifics
+                 FROM overlord o
+                 LEFT JOIN overlord_honorifics ot ON o.id = ot.overlord_id
+                 GROUP BY o.type) type_honorifics ON type_honorifics.type = t.id`)
+
+                queryBuilder.addSelect(`
+                 COALESCE(type_honorifics.honorifics, '{}') as honorifics
+                 `)
+
+                queryBuilder.addWhere(pgp.as.format(`$[honorifics]::int[] && type_honorifics.honorifics `, { honorifics: filter.honorific }))
+            }
+            delete filter.honorific
+        }
+
+        if (Object.hasOwnProperty.bind(filter)("ruler")) {
+            if (Array.isArray(filter.ruler) && filter.ruler.length > 0) {
+                queryBuilder.addSelect(`(issuers || overlords) as rulers`)
+                queryBuilder.addJoin(`LEFT JOIN ( 
+                    SELECT
+                        o.type,
+                        COALESCE(array_agg(o.person)) as overlords
+                    FROM
+                        overlord o
+                    GROUP BY
+                        o.type
+                ) overlord_query ON overlord_query.type = t.id
+                LEFT JOIN (
+                    SELECT
+                        i.type,
+                        COALESCE(array_agg(i.person)) as issuers
+                    FROM
+                        issuer i
+                    GROUP BY
+                        i.type 
+                ) issuer_query ON issuer_query.type = t.id `)
+                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords)  && $[ruler]::int[])`, { ruler: filter.ruler }))
+            }
+            delete filter.ruler
+        }
+
+        return queryBuilder
     }
 
     static counter = 0
@@ -1024,5 +1084,6 @@ exclude_from_type_catalogue,
     }
 
 }
+
 
 module.exports = Type

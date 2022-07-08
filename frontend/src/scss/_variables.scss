@@ -1,8 +1,8 @@
 $sans-serif: 'Arimo';
 $arabic: 'Amiri';
 $font: $sans-serif,
-$arabic,
-sans-serif;
+  $arabic,
+  sans-serif;
 
 $small-padding: 0.3em;
 $padding: 0.5em;
@@ -19,12 +19,13 @@ $black: #111;
 $text-color: $black;
 $background-color: whitesmoke;
 
-$primary-color: #48ac48;
 
 $yellow: #e4b20d;
-$green: #18f2b2;
+$green: #48ac48;
 $red: #da4133;
 $dark-red: darken($red, 10%);
+
+$primary-color: $green;
 
 $large-font: 1.2rem;
 $regular-font: 1rem;
@@ -49,7 +50,7 @@ $strong-shadow: $shadow-offset 5px rgba(66, 66, 66, 0.2);
   border-radius: 15px;
   box-shadow: $shadow;
   overflow: hidden;
-  
+
   background-color: $white;
   @include box-padding($big-padding);
-} 
+}

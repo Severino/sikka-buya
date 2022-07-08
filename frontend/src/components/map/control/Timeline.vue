@@ -36,14 +36,14 @@
               @click="toggleTimeline"
               v-if="timelineActive"
             >
-              <TimerOff />Zeitleiste deaktivieren
+              Zeitleiste deaktivieren
             </div>
             <div
               class="button small-button rounded"
               @click="toggleTimeline"
               v-else
             >
-              <Timer />Zeitleiste aktivieren
+              Zeitleiste aktivieren
             </div>
           </div>
         </div>

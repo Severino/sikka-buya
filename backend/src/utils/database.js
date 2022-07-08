@@ -3,7 +3,7 @@ require("dotenv").config()
 const pgp = require("pg-promise")({
     // This logs the queries that are executed
     query: function (e) {
-        // console.log(e);
+        console.log(e.query);
     }
 })
 

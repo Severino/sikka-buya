@@ -91,7 +91,7 @@ const threeWayFilters = [
     value: 'cursive',
   },
   {
-    label: 'Geschenkmünze (?)',
+    label: 'Geschenkmünze',
     value: 'dontaiv',
   },
   {
