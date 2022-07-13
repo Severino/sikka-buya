@@ -10,10 +10,10 @@
       </p>
 
       <div class="nav-grid grid">
-        <big-navigation-button :to="{ name: 'CatalogFullSearch' }">
+        <big-navigation-button :to="{ name: 'Catalog Text Search' }">
           Volltextsuche
         </big-navigation-button>
-        <big-navigation-button :to="{ name: 'CatalogFilterSearch' }">
+        <big-navigation-button :to="{ name: 'Catalog Filter Search' }">
           Filtersuche
         </big-navigation-button>
       </div>

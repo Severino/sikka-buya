@@ -1,3 +1,5 @@
+const { default: routesDe } = require('./de/routes.de')
+
 const general = {
     administration:
         "Admin-Bereich",
@@ -228,5 +230,7 @@ module.exports = {
     property,
     role,
     warning,
-    system
+    system,
+
+    routes: routesDe
 }

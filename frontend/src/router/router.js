@@ -113,12 +113,13 @@ const routes = [
     component: TemplatePage
   },
   {
-    path: "*",
+    path: "",
     component: CommonMain,
+    name: "Home",
+    redirect: "home",
     children: [
       {
         path: "/home",
-        name: "Home",
         component: LandingPage
       },
       analyticsRoutes,
@@ -130,19 +131,21 @@ const routes = [
       {
         path: '/catalog/',
         component: RouterContainer,
+        name: 'Catalog',
+        redirect: { name: "Catalog Overview" },
         meta: { auth: true },
         children: [{
           path: '',
-          name: 'Catalog',
+          name: "Catalog Overview",
           component: CatalogLanding
         }, {
           path: 'filter',
-          name: 'CatalogFilterSearch',
+          name: 'Catalog Filter Search',
           component: CatalogFilterSearch
         },
         {
           path: 'full',
-          name: 'CatalogFullSearch',
+          name: 'Catalog Text Search',
           component: CatalogFullSearch
         },
         {
@@ -335,16 +338,8 @@ const routes = [
             path: "province/:id",
             name: "EditProvince",
             component: ProvinceForm
-          },
-          {
-            path: "*",
-            redirect: { name: "PageNotFound" }
           }
         ]
-      },
-      {
-        path: "*",
-        redirect: { name: "PageNotFound" }
       }
     ]
   },

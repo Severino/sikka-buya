@@ -8,7 +8,6 @@
         >Reihenfolge bearbeiten</Button
       >
     </editor-toolbar>
-    <router-link>Typensuche</router-link>
     <search-field v-model="searchText" />
     <div class="list">
       <collapsible
@@ -32,6 +31,17 @@
           </div>
           {{ person.name }}
         </template>
+
+        <span
+          class="hint"
+          v-if="
+            !person.loading &&
+            (!map[person.id] || objectToSortedArray(map[person.id]).length == 0)
+          "
+        >
+          Keine Typen gefunden
+        </span>
+
         <div
           class="mint-area area"
           v-if="
