@@ -12,6 +12,7 @@
         <catalog-filter
           :pageInfo="pageInfo"
           @update="updateTypes"
+          :constantFilters="{ excludeFromTypeCatalog: false }"
           ref="catalogFilter"
         />
       </aside>

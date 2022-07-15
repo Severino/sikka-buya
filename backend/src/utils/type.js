@@ -632,6 +632,23 @@ class Type {
             delete filter.ruler
         }
 
+        if (Object.hasOwnProperty.bind(filter)("otherPerson")) {
+            queryBuilder.addSelect(`other_`)
+            queryBuilder.addJoin(`LEFT JOIN ( 
+                SELECT
+                    op.type,
+                    COALESCE(array_agg(op.person)) as other_person
+                FROM
+                    other_person op
+                GROUP BY
+                    op.type
+            ) other_person_query ON other_person_query.type = t.id`)
+
+            queryBuilder.addWhere(pgp.as.format(`(other_person  && $[otherPerson]::int[])`, { otherPerson: filter.otherPerson }))
+            delete filter.otherPerson
+        }
+
+
         return queryBuilder
     }
 

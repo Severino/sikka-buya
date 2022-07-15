@@ -2,6 +2,7 @@
 
 import MintLocation from '../../../models/mintlocation';
 import Query from '../../../database/query';
+import Mint from '../../../models/map/mint';
 
 export default {
     data() {
@@ -18,9 +19,12 @@ export default {
         if (this.mintLocationLayer) this.mintLocationLayer.clearLayers();
     },
     mounted() {
-        this.mintLocation = new MintLocation({ markerOptions: this.mintMarkerOptions, popup: () => "Hello" });
+        this.mintLocation = new MintLocation({ markerOptions: this.mintMarkerOptions, popup: this.mintLocationPopup });
     },
     methods: {
+        mintLocationPopup(feature) {
+            return Mint.popupMintHeader(feature.mint)
+        },
         async fetchMints() {
             const result = await this.queryMints()
             this.applyQuery(result.data.data.mints)
@@ -80,11 +84,9 @@ export default {
         updateMintLocationMarker() {
             if (this.mintLocationLayer)
                 this.mintLocationLayer.clearLayers();
-            const _ = new MintLocation({ markerOptions: this.mintMarkerOptions, popup: () => "Hello 2" });
 
-            console.log(this.mints)
-            let features = _.mapToGeoJsonFeature(this.mints);
-            this.mintLocationLayer = _.createGeometryLayer(features);
+            let features = this.mintLocation.mapToGeoJsonFeature(this.mints);
+            this.mintLocationLayer = this.mintLocation.createGeometryLayer(features);
             this.mintLocationLayer.addTo(this.map);
         },
         mintSelectionChanged(selected, { preventUpdate = false }) {

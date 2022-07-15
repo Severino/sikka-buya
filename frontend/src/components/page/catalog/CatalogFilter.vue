@@ -68,14 +68,14 @@ import PageInfo, { Pagination } from '../../../models/pageinfo';
 
 const searchRequestGuard = new RequestGuard();
 
-const numberFilters = [
+const unfilteredNumberFilters = [
   {
     label: 'Herstellungsjahr',
     value: 'yearOfMint',
   },
 ];
 
-const buttonGroupFilters = [
+const unfilteredButtonGroupFilters = [
   {
     label: 'Herstellungsart',
     value: 'procedure',
@@ -84,7 +84,7 @@ const buttonGroupFilters = [
   },
 ];
 
-const threeWayFilters = [
+const unfilteredThreeWayFilters = [
   {
     label: 'Kursive Schrift',
     value: 'cursive',
@@ -103,7 +103,7 @@ const threeWayFilters = [
   },
 ];
 
-let multiSelectFilters = [
+let unfilteredMultiSelectFilters = [
   {
     label: 'Material',
     value: 'material',
@@ -156,22 +156,24 @@ let multiSelectFilters = [
   },
 ];
 
-multiSelectFilters = multiSelectFilters.sort(
+unfilteredMultiSelectFilters = unfilteredMultiSelectFilters.sort(
   Sorter.stringPropAlphabetically('label')
 );
 
 let filterData = {};
 let filterMethods = {};
 
-[...threeWayFilters, ...buttonGroupFilters, ...numberFilters].forEach(
-  (item) => {
-    filterData = Object.assign(filterData, {
-      [item.value]: item.defaultValue || null,
-    });
-  }
-);
+[
+  ...unfilteredThreeWayFilters,
+  ...unfilteredButtonGroupFilters,
+  ...unfilteredNumberFilters,
+].forEach((item) => {
+  filterData = Object.assign(filterData, {
+    [item.value]: item.defaultValue || null,
+  });
+});
 
-multiSelectFilters.forEach((item) => {
+unfilteredMultiSelectFilters.forEach((item) => {
   const filter = new Filter(item.value);
   filterData = Object.assign(filterData, filter.mapData());
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
@@ -191,15 +193,21 @@ export default {
       type: String,
       defaultValue: 'id projectId',
     },
+    constantFilters: Object,
+    overwriteFilters: Object,
+    exclude: {
+      type: Array,
+      default: () => [],
+    },
   },
   data() {
     return {
       i: 0,
       max: 10,
-      numberFilters,
-      buttonGroupFilters,
-      multiSelectFilters,
-      threeWayFilters,
+      unfilteredNumberFilters,
+      unfilteredButtonGroupFilters,
+      unfilteredMultiSelectFilters,
+      unfilteredThreeWayFilters,
       types: [],
       filters: {
         ...filterData,
@@ -209,6 +217,13 @@ export default {
   watch: {
     filters: {
       handler() {
+        this.search();
+      },
+      deep: true,
+    },
+    watch: {
+      overwriteFilters() {
+        console.log('overwriteChanged', this.overwriteFilters);
         this.search();
       },
       deep: true,
@@ -230,13 +245,12 @@ export default {
     async search() {
       searchRequestGuard.exec(async () => {
         const filters = Object.assign(
-          {
-            excludeFromTypeCatalogue: false,
-          },
-          this.activeFilters
+          this.activeFilters,
+          this.constantFilters,
+          this.overwriteFilters
         );
 
-        multiSelectFilters.forEach((item) => {
+        this.multiSelectFilters.forEach((item) => {
           if (filters[item.value])
             filters[item.value] = filters[item.value].map((item) => item.id);
         });
@@ -263,6 +277,9 @@ export default {
     removeFilter(name, target) {
       const methodName = Filter.removeMethodName(name);
       return this[methodName](target);
+    },
+    excludeItem(group) {
+      return group.filter((item) => this.exclude.indexOf(item.value) === -1);
     },
   },
   computed: {
@@ -293,6 +310,18 @@ export default {
           obj[name] = val;
           return obj;
         }, {});
+    },
+    numberFilters() {
+      return this.excludeItem(this.unfilteredNumberFilters);
+    },
+    buttonGroupFilters() {
+      return this.excludeItem(this.unfilteredButtonGroupFilters);
+    },
+    multiSelectFilters() {
+      return this.excludeItem(this.unfilteredMultiSelectFilters);
+    },
+    threeWayFilters() {
+      return this.excludeItem(this.unfilteredThreeWayFilters);
     },
   },
 };

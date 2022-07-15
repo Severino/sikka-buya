@@ -9,7 +9,6 @@ export default class MintLocation {
     }) {
         this.markerOptions = markerOptions
         this.iconSize = this.markerOptions.radius * 3 / 2
-        console.trace(popup)
         this.popup = popup
     }
 
@@ -36,7 +35,6 @@ export default class MintLocation {
 
     createGeometryLayer(features) {
         let that = this
-        console.log(this)
         let layer = new L.geoJSON(features, {
             pointToLayer: function (feature, latlng) {
                 return that.createMarker.call(that, feature, latlng)
@@ -51,33 +49,49 @@ export default class MintLocation {
 
     createMarker(feature, latlng) {
         const mint = feature.mint
-        let circle = L.circleMarker(latlng, this.markerOptions)
-        if (this.popup) {
-            circle.bindPopup(this.popup(feature))
+        let marker = null
+
+        if (mint?.data?.types) {
+            const size = this.markerOptions.radius * 2
+            const icon = L.divIcon({
+                className: "mint-location-div-marker",
+                html: `${mint.data.types.length}`,
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2]
+            })
+
+            marker = L.marker(latlng, { icon })
+
         } else {
-            circle.bindPopup(Mint.popupMintHeader(mint));
+            marker = L.circleMarker(latlng, this.markerOptions)
+
+            if (!mint.uncertain) {
+                const uncertainIcon = L.svgIcon(latlng, {
+                    path: "M10,19H13V22H10V19M12,2C17.35,2.22 19.68,7.62 16.5,11.67C15.67,12.67 14.33,13.33 13.67,14.17C13,15 13,16 13,17H10C10,15.33 10,13.92 10.67,12.92C11.33,11.92 12.67,11.33 13.5,10.67C15.92,8.43 15.32,5.26 12,5A3,3 0 0,0 9,8H6A6,6 0 0,1 12,2Z",
+                    width: 10,
+                    height: 10,
+                    scale: 0.4,
+                    interactive: false
+                })
+
+                uncertainIcon.setStyle({
+                    stroke: false,
+                    color: "#666666",
+                    fillOpacity: 1
+                })
+
+                uncertainIcon.bringToFront()
+                marker = L.featureGroup([marker, uncertainIcon])
+            }
         }
 
-        if (!mint.uncertain) return circle
-        else {
-            const uncertainIcon = L.svgIcon(latlng, {
-                path: "M10,19H13V22H10V19M12,2C17.35,2.22 19.68,7.62 16.5,11.67C15.67,12.67 14.33,13.33 13.67,14.17C13,15 13,16 13,17H10C10,15.33 10,13.92 10.67,12.92C11.33,11.92 12.67,11.33 13.5,10.67C15.92,8.43 15.32,5.26 12,5A3,3 0 0,0 9,8H6A6,6 0 0,1 12,2Z",
-                width: 10,
-                height: 10,
-                scale: 0.4,
-                interactive: false
-            })
-
-            uncertainIcon.setStyle({
-                stroke: false,
-                color: "#666666",
-                fillOpacity: 1
-            })
-
-            uncertainIcon.bringToFront()
-
-            return L.featureGroup([circle, uncertainIcon])
+        if (this.popup) {
+            marker.bindPopup(this.popup(feature))
+        } else {
+            marker.bindPopup(Mint.popupMintHeader(mint));
         }
+
+
+        return marker
     }
-
 }

@@ -438,9 +438,15 @@ a {
   grid-template-columns: 1fr 2fr;
 }
 
-.col-2 {
-  grid-template-columns: 1fr 1fr;
+@mixin grid-even-columns {
+  @for $i from 2 through 6 {
+    .col-#{$i} {
+      grid-template-columns: repeat($i, 1fr);
+    }
+  }
 }
+
+@include grid-even-columns();
 
 .center {
   align-self: center;

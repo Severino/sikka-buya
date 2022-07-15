@@ -1,0 +1,110 @@
+.leaflet-popup {
+    font-family: $font;
+    min-width: 250px;
+
+    .body {
+        position: relative;
+    }
+
+    .leaflet-popup-content .popup-body {
+        padding-top: 0;
+
+        max-height: 420px;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        h2 {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            padding-bottom: $padding * 2;
+        }
+    }
+
+    .leaflet-popup-content-wrapper {
+        padding: 0;
+        border-radius: $border-radius;
+    }
+
+    .leaflet-popup-content {
+        margin: 0;
+        min-height: 34px;
+
+        > * {
+            padding: $padding 2 * $padding $padding 2 * $padding;
+        }
+    }
+
+    a.leaflet-popup-close-button {
+        color: $gray;
+        opacity: 1;
+        font-size: 1.5em !important;
+        padding: 9px !important;
+    }
+
+    h2,
+    h3,
+    h4 {
+        margin: 0.5em 0;
+    }
+
+    h2:first-child {
+        margin-bottom: 0;
+    }
+
+    ul,
+    ol {
+        margin: 0.5em 0;
+        padding-left: 1em;
+    }
+
+    .active {
+        padding: 2px 5px;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    .catalog-link {
+        position: absolute;
+        right: $padding * 2;
+        top: 46px;
+        color: $primary-color;
+        padding: 3px 5px;
+        font-weight: bold;
+        border: 1px solid $primary-color;
+        border-radius: 5px;
+    }
+
+    .leaflet-popup-content header {
+        color: $gray;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        &:not(:last-child) {
+            border-bottom: 1px solid $light-gray;
+        }
+
+        // margin-left: calc(#{$padding * -2} - 2px);
+        // margin-top: calc(#{$padding * -2} - 2px);
+        // margin-right: calc(#{$padding * -2} - 2px);
+        margin-bottom: 10px;
+        padding: $padding $padding * 2;
+        padding-right: 34px;
+
+        border-top-right-radius: $border-radius;
+        border-top-left-radius: $border-radius;
+        // min-width: 200px;
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .subtitle {
+            color: $gray;
+            font-weight: bold;
+            font-style: italic;
+        }
+    }
+}

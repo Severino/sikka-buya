@@ -96,14 +96,7 @@
   }
 }
 
-@mixin font-face(
-  $name,
-  $regular,
-  $italic,
-  $bold,
-  $bold-italic,
-  $format: 'truetype'
-) {
+@mixin font-face($name, $regular, $italic, $bold, $bold-italic, $format: "truetype") {
   @font-face {
     font-family: $name;
     font-style: normal;
@@ -131,4 +124,10 @@
     font-weight: bold;
     src: url($bold-italic) format($format);
   }
+}
+
+@mixin circle($radius) {
+  width: $radius * 2;
+  height: $radius * 2;
+  border-radius: $radius;
 }

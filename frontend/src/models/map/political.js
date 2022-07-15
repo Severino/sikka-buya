@@ -1,3 +1,4 @@
+import router from '../../router/router';
 import Mint from './mint';
 
 
@@ -46,12 +47,19 @@ export function rulerPopup(coin, clickedRuler) {
         `
     }
 
+
+
+    let route = router.resolve({
+        name: 'Catalog Entry',
+        params: { id: coin.id },
+    });
+
     return `
        ${Mint.popupMintHeader(coin.mint)}
         <div class="popup-body">
             <h2>${coin.projectId}</h2>
             ${!coin.excludeFromTypeCatalogue
-            ? `<a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>`
+            ? `<a href="${route.href}" target="_blank" class="catalog-link">Katalogeintrag</a>`
             : ''
         }
             

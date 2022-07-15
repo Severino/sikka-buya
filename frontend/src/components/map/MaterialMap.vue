@@ -54,7 +54,15 @@
         <catalog-filter
           @update="dataUpdated"
           :pageInfo="pageInfo"
-          typeBody="mint {
+          :exclude="['mint', 'yearOfMint']"
+          :constantFilters="{
+            excludeFromMapApp: false,
+          }"
+          :overwriteFilters="overwriteFilters"
+          typeBody="
+              id
+              projectId
+              mint {
                 id
                 name
                 location 
@@ -126,6 +134,7 @@ export default {
       mintTimelineData: [],
       timelineActive: true,
       mintLayer: null,
+      overwriteFilters: {},
       filters: {
         material: { id: null, name: '' },
         materials: [],
@@ -167,7 +176,7 @@ export default {
     },
     mintMarkerOptions() {
       return {
-        radius: 10,
+        radius: 20,
         stroke: true,
         weight: 1,
         color: 'gray',
@@ -200,29 +209,63 @@ export default {
         .forEach((type) => {
           if (!mints[type.mint.id]) {
             const mint = type.mint;
-            mint.location = JSON.parse(mint.location);
+            // mint.location = JSON.parse(mint.location);
             mints[type.mint.id] = mint;
-            mints[type.mint.id].data = { mint, types: [] };
+            mints[type.mint.id].data = { types: [] };
           }
+          mints[type.mint.id].data.types.push(type);
         });
 
       this.mints = mints;
 
       this.updateMints();
     },
+    mintLocationPopup(feature) {
+      return `
+      ${Mint.popupMintHeader(feature.mint)}
+      <div class="popup-body grid col-3">
+      ${feature.mint.data.types
+        .map((type) => {
+          const route = this.$router.resolve({
+            name: 'Catalog Entry',
+            params: { id: type.id },
+          });
+
+          return `<a href="${route.href}" target="_blank">${type.projectId}</a>`;
+        })
+        .join('')}
+      </div>`;
+    },
     toggleSettings() {
       this.settings.visible = !this.settings.visible;
     },
     timelineChanged(value) {
       localStorage.setItem('material-map-timeline', value);
+      this.updateOverwriteFilter();
       this.timeChanged(value);
     },
     updateTimeline: async function () {
       this.types = await this.fetchTypes();
       this.update();
     },
+    updateOverwriteFilter() {
+      const overwriteFilters = {};
+
+      if (this.timelineActive) {
+        this.$set(
+          this.overwriteFilters,
+          'yearOfMint',
+          this.timeline.value.toString()
+        );
+      }
+
+      this.overwriteFilters = overwriteFilters;
+      // TODO
+    },
+
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
+      this.updateOverwriteFilter();
       // this.fetchTypes();
       this.update();
     },
@@ -422,9 +465,6 @@ export default {
 
           this.mintLocation = new MintLocation({
             markerOptions: that.mintMarkerOptions,
-            popup() {
-              return 'Hello WOrld';
-            },
           });
           const mintMarker = mintLocations.createMarker(feature, latlng);
           mintMarker.addTo(featureGroup);
