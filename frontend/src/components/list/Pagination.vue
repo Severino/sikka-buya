@@ -51,6 +51,7 @@ export default {
   border: $border;
   border-radius: 4px;
   overflow: hidden;
+  background-color: $background-color;
 }
 
 header {

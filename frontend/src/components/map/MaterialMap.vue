@@ -51,45 +51,20 @@
 
     <Sidebar title="Filter" side="right">
       <div class="padding-box">
-        <labeled-input-container label="Material">
-          <data-select-field
-            table="material"
-            attribute="name"
-            v-model="filters.material"
-            @select="selectMaterialFilter"
-            :unselectable="true"
-          />
-          <div class="active-list">
-            <button
-              v-for="material of filters.materials"
-              :key="`material-filter-${material.id}`"
-              @click="removeMaterialFilter(material)"
-            >
-              {{ material.name }} x
-            </button>
-          </div>
-        </labeled-input-container>
-        <!--
-        <labeled-input-container label="Material">
-          <data-select-field />
-        </labeled-input-container>
-
-        <labeled-input-container label="Kaliph">
-          <data-select-field />
-        </labeled-input-container> -->
-
-        <labeled-input-container label="Donativ"
-          ><three-way-toggle v-model="filters.donativ"
-        /></labeled-input-container>
-        <labeled-input-container label="Kursive Schrift"
-          ><three-way-toggle v-model="filters.cursive"
-        /></labeled-input-container>
-        <labeled-input-container label="Jahr unsicher"
-          ><three-way-toggle v-model="filters.yearUncertain"
-        /></labeled-input-container>
-        <labeled-input-container label="Prägeort unsicher"
-          ><three-way-toggle v-model="filters.mintUncertain"
-        /></labeled-input-container>
+        <catalog-filter
+          @update="dataUpdated"
+          :pageInfo="pageInfo"
+          typeBody="mint {
+                id
+                name
+                location 
+                uncertain
+                province {
+                  id
+                  name
+                }
+              }"
+        />
       </div>
     </Sidebar>
   </div>
@@ -104,8 +79,6 @@ import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
 import mintLocations from './mixins/mintLocations';
-
-import Query from '../../database/query';
 
 import MintLocation from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
@@ -123,6 +96,7 @@ import LabeledInputContainer from '../LabeledInputContainer.vue';
 import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
 import MultiButton from '../layout/buttons/MultiButton.vue';
 import Button from '../layout/buttons/Button.vue';
+import CatalogFilter from '../page/catalog/CatalogFilter.vue';
 
 export default {
   name: 'MaterialMap',
@@ -140,15 +114,18 @@ export default {
     ThreeWayToggle,
     MultiButton,
     Button,
+    CatalogFilter,
   },
   data: function () {
     return {
+      pageInfo: { page: 0, count: 100000 },
       materialLayer: null,
       mints: [],
       mintData: {},
       mintLocation: null,
       mintTimelineData: [],
       timelineActive: true,
+      mintLayer: null,
       filters: {
         material: { id: null, name: '' },
         materials: [],
@@ -188,6 +165,16 @@ export default {
           .sort(Sorter.stringPropAlphabetically('name')),
       ];
     },
+    mintMarkerOptions() {
+      return {
+        radius: 10,
+        stroke: true,
+        weight: 1,
+        color: 'gray',
+        fillColor: 'white',
+        fillOpacity: 1,
+      };
+    },
   },
   watch: {
     settings: {
@@ -201,30 +188,27 @@ export default {
   mounted: async function () {
     const starTime =
       parseInt(localStorage.getItem('material-map-timeline')) || 433;
-
-    this.mintLocation = new MintLocation(this.mintMarkerOptions);
-
     await this.initTimeline(starTime);
     this.updateTimeline();
   },
   methods: {
-    selectMaterialFilter(material) {
-      if (!this.hasMaterialFilter(material)) {
-        this.filters.materials.push(material);
-      }
-      this.filters.material = { id: null, name: '' };
-    },
-    removeMaterialFilter(material) {
-      if (this.hasMaterialFilter(material)) {
-        this.filters.materials = this.filters.materials.filter(
-          (mat) => mat.id != material.id
-        );
-      }
-    },
-    hasMaterialFilter(material) {
-      return this.filters.materials
-        .map((material) => material.id)
-        .includes(material.id);
+    dataUpdated(data) {
+      const mints = {};
+
+      data.types
+        .filter((type) => type?.mint?.location != null)
+        .forEach((type) => {
+          if (!mints[type.mint.id]) {
+            const mint = type.mint;
+            mint.location = JSON.parse(mint.location);
+            mints[type.mint.id] = mint;
+            mints[type.mint.id].data = { mint, types: [] };
+          }
+        });
+
+      this.mints = mints;
+
+      this.updateMints();
     },
     toggleSettings() {
       this.settings.visible = !this.settings.visible;
@@ -239,22 +223,21 @@ export default {
     },
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
-      this.fetchTypes();
+      // this.fetchTypes();
       this.update();
     },
     async fetchTypes() {
-      await this.fetchMints();
-
-      try {
-        if (this.timelineActive) {
-          await this.fetchMaterial();
-        } else {
-          await this.fetchMaterial();
-        }
-        this.update();
-      } catch (e) {
-        console.error(e);
-      }
+      // await this.fetchMints();
+      // try {
+      //   if (this.timelineActive) {
+      //     await this.fetchMaterial();
+      //   } else {
+      //     await this.fetchMaterial();
+      //   }
+      //   this.update();
+      // } catch (e) {
+      //   console.error(e);
+      // }
     },
     //     async fetchMaterial2() {
     //       this.mintData = {};
@@ -291,79 +274,77 @@ export default {
     //       );
     //     },
 
-    async fetchMaterial() {
-      this.mintData = {};
-      const types = {};
-      let fetching = true;
+    // async fetchMaterial() {
+    //   this.mintData = {};
+    //   const types = {};
+    //   let fetching = true;
 
-      let pagination = {
-        page: 0,
-        count: 1000,
-      };
+    //   let pagination = {
+    //     page: 0,
+    //     count: 1000,
+    //   };
 
-      const filters = {
-        material: this.filters.materials.map((mat) => mat.id),
-      };
+    //   const filters = {
+    //     material: this.filters.materials.map((mat) => mat.id),
+    //   };
 
-      if (this.timelineActive)
-        filters.yearOfMint = this.timeline.value.toString();
+    //   if (this.timelineActive)
+    //     filters.yearOfMint = this.timeline.value.toString();
 
-      while (fetching) {
-        console.log(filters);
+    //   while (fetching) {
+    //     console.log(filters);
 
-        const result = await Query.raw(
-          `query ($pagination:Pagination, $filters: TypeFilter){
-              coinType (pagination: $pagination, filters: $filters) {
-                pageInfo{
-                    page
-                    count
-                    last
-                    total
-                  }
-                  types {
-                    id
-                    projectId
-                    mint {id, name}
-                    material {id name color}
-                  }
-                }
-            }`,
-          { filters, pagination }
-        );
+    //     const result = await Query.raw(
+    //       `query ($pagination:Pagination, $filters: TypeFilter){
+    //           coinType (pagination: $pagination, filters: $filters) {
+    //             pageInfo{
+    //                 page
+    //                 count
+    //                 last
+    //                 total
+    //               }
+    //               types {
+    //                 id
+    //                 projectId
+    //                 mint {id, name}
+    //                 material {id name color}
+    //               }
+    //             }
+    //         }`,
+    //       { filters, pagination }
+    //     );
 
-        pagination.page++;
+    //     pagination.page++;
 
-        const { types, pageInfo } = result.data.data.coinType;
+    //     const { types, pageInfo } = result.data.data.coinType;
 
-        console.log(types);
+    //     if (
+    //       pageInfo.count * (pageInfo.page + 1) >= pageInfo.total ||
+    //       types.length == 0
+    //     ) {
+    //       fetching = false;
+    //     }
 
-        if (
-          pageInfo.count * (pageInfo.page + 1) >= pageInfo.total ||
-          types.length == 0
-        ) {
-          fetching = false;
-        }
-
-        types.forEach((type) => {
-          const mintId = type?.mint?.id;
-          const materialId = type?.material?.id;
-          if (materialId && mintId) {
-            if (!this.mintData[mintId]) {
-              this.mintData[mintId] = {};
-              this.mintData[mintId][materialId] = this.getMaterialOptions(
-                type?.material
-              );
-            } else {
-              if (!this.mintData[mintId][materialId]) {
-                this.mintData[mintId][materialId] = this.getMaterialOptions(
-                  type?.material
-                );
-              } else this.mintData[mintId][materialId].count++;
-            }
-          }
-        });
-      }
-    },
+    //     types.forEach((type) => {
+    //       const mintId = type?.mint?.id;
+    //       const materialId = type?.material?.id;
+    //       if (materialId && mintId) {
+    //         if (!this.mintData[mintId]) {
+    //           this.mintData[mintId] = {};
+    //           this.mintData[mintId][materialId] = this.getMaterialOptions(
+    //             type?.material
+    //           );
+    //         } else {
+    //           if (!this.mintData[mintId][materialId]) {
+    //             this.mintData[mintId][materialId] = this.getMaterialOptions(
+    //               type?.material
+    //             );
+    //           } else this.mintData[mintId][materialId].count++;
+    //         }
+    //       }
+    //     });
+    //   }
+    // },
     getMaterialOptions(material) {
       return {
         id: material?.id,
@@ -381,7 +362,7 @@ export default {
     },
     update() {
       this.updateMints();
-      this.updateConcentricCircles();
+      // this.updateConcentricCircles();
       this.$emit('timeline-updated', this.value);
     },
     updateConcentricCircles() {
@@ -405,6 +386,9 @@ export default {
         });
 
       const that = this;
+
+      console.log(that);
+
       this.materialLayer = this.L.geoJSON(materialFeatures, {
         pointToLayer: function (feature, latlng) {
           let data = feature.data.materials.map((materials) => {
@@ -436,7 +420,12 @@ export default {
             },
           });
 
-          const mintLocations = new MintLocation(that.mintMarkerOptions);
+          this.mintLocation = new MintLocation({
+            markerOptions: that.mintMarkerOptions,
+            popup() {
+              return 'Hello WOrld';
+            },
+          });
           const mintMarker = mintLocations.createMarker(feature, latlng);
           mintMarker.addTo(featureGroup);
 
@@ -453,12 +442,22 @@ export default {
 
       this.materialLayer.addTo(this.featureGroup);
     },
+    popupFunction(feature) {
+      console.log(feature);
+      return 'Hello World';
+    },
   },
 };
 </script>
 
 <style lang="scss">
 .material-map {
+  .catalog-filters {
+    > * {
+      grid-column: span 6;
+    }
+  }
+
   .side-bar {
     grid-row: 1 / span 3;
 

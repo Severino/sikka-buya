@@ -3,9 +3,14 @@ import Mint from './map/mint';
 var L = require('leaflet');
 
 export default class MintLocation {
-    constructor(circleOptions = {}) {
-        this.circleOptions = circleOptions
-        this.iconSize = this.circleOptions.radius * 3 / 2
+    constructor({
+        markerOptions = {},
+        popup = null,
+    }) {
+        this.markerOptions = markerOptions
+        this.iconSize = this.markerOptions.radius * 3 / 2
+        console.trace(popup)
+        this.popup = popup
     }
 
 
@@ -31,7 +36,7 @@ export default class MintLocation {
 
     createGeometryLayer(features) {
         let that = this
-
+        console.log(this)
         let layer = new L.geoJSON(features, {
             pointToLayer: function (feature, latlng) {
                 return that.createMarker.call(that, feature, latlng)
@@ -46,8 +51,12 @@ export default class MintLocation {
 
     createMarker(feature, latlng) {
         const mint = feature.mint
-
-        let circle = L.circleMarker(latlng, this.circleOptions).bindPopup(Mint.popupMintHeader(mint));
+        let circle = L.circleMarker(latlng, this.markerOptions)
+        if (this.popup) {
+            circle.bindPopup(this.popup(feature))
+        } else {
+            circle.bindPopup(Mint.popupMintHeader(mint));
+        }
 
         if (!mint.uncertain) return circle
         else {

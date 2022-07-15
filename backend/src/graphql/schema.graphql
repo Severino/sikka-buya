@@ -468,6 +468,7 @@ input ModTypeFilter {
 input TypeFilter {
   text: String
   donativ: Boolean
+  procedure: String
   cursiveScript: Boolean
   excludeFromTypeCatalogue: Boolean
   excludeFromMapApp: Boolean

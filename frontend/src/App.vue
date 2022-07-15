@@ -106,10 +106,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-main {
-  padding-bottom: 25vh;
-}
-
 p {
   line-height: 1.5rem;
 }
@@ -423,11 +419,6 @@ a {
 }
 
 .error {
-  // font-size: 0.8rem;
-  // padding: 20px;
-  // background-color: ;
-  // border: 1px solid rgb(192, 68, 68);
-
   font-weight: bold;
   color: $red;
 }
@@ -436,8 +427,15 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  // width: 22px;
-  // height: 22px;
+}
+
+.grid {
+  display: grid;
+  gap: $padding;
+}
+
+.col-1-2 {
+  grid-template-columns: 1fr 2fr;
 }
 
 .col-2 {

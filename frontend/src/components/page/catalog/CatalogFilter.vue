@@ -6,11 +6,7 @@
       :label="num.label"
       class="three-way-wrapper"
     >
-      <input
-        type="number"
-        v-model="filters[num.value]"
-        @input="filterChanged"
-      />
+      <input type="number" v-model="filters[num.value]" />
     </labeled-input-container>
 
     <labeled-input-container
@@ -45,8 +41,8 @@
     >
       <multi-data-select
         :table="ms.value"
-        v-model="filters[ms.value]"
-        :active="getActiveFilters(ms.value)"
+        v-model="filters[Filter.searchVariableName(ms.value)]"
+        :active="filters[ms.value]"
         :attribute="ms.attribute"
         :queryParams="ms.queryParams"
         :queryCommand="ms.queryCommand"
@@ -56,8 +52,6 @@
         @remove="(el) => removeFilter(ms.value, el)"
       />
     </labeled-input-container>
-    <button>Search</button>
-    <p>{{ types.length }} types found.</p>
   </div>
 </template>
 
@@ -68,6 +62,11 @@ import LabeledInputContainer from '../../LabeledInputContainer.vue';
 import Sorter from '../../../utils/Sorter';
 import ThreeWayToggle from '../../forms/ThreeWayToggle.vue';
 import ButtonGroup from '../../forms/ButtonGroup.vue';
+import { RequestGuard } from '../../../utils/Async';
+import Type from '../../../utils/Type';
+import PageInfo, { Pagination } from '../../../models/pageinfo';
+
+const searchRequestGuard = new RequestGuard();
 
 const numberFilters = [
   {
@@ -92,7 +91,7 @@ const threeWayFilters = [
   },
   {
     label: 'Geschenkmünze',
-    value: 'dontaiv',
+    value: 'donativ',
   },
   {
     label: 'Jahr nicht sicher',
@@ -146,7 +145,7 @@ let multiSelectFilters = [
   },
   {
     label: 'Herrscher',
-    value: 'rulers',
+    value: 'ruler',
     queryCommand: 'searchPersonsWithoutRole',
     queryParams: ['id', 'name', { dynasty: ['id', 'name'] }],
     textFunction: function (search) {
@@ -186,8 +185,17 @@ export default {
     ThreeWayToggle,
     ButtonGroup,
   },
+  props: {
+    pageInfo: Object,
+    typeBody: {
+      type: String,
+      defaultValue: 'id projectId',
+    },
+  },
   data() {
     return {
+      i: 0,
+      max: 10,
       numberFilters,
       buttonGroupFilters,
       multiSelectFilters,
@@ -198,29 +206,93 @@ export default {
       },
     };
   },
-  methods: {
-    filterChanged() {
-      const filtered = Object.entries(this.filters).filter(([name, val]) => {
-        if (Array.isArray(val)) return val.length !== 0;
-        else if (val == null) return false;
-        else if (typeof val === 'object') return val.id !== null;
-
-        return true;
-      });
-      console.log(filtered);
+  watch: {
+    filters: {
+      handler() {
+        this.search();
+      },
+      deep: true,
     },
+    pageInfo: {
+      async handler(oldPageInfo, pageInfo) {
+        if (!PageInfo.equals(oldPageInfo, pageInfo)) {
+          await this.search(pageInfo);
+        }
+      },
+      deep: true,
+    },
+  },
+  mounted() {
+    this.search();
+  },
+  methods: {
     ...filterMethods,
+    async search() {
+      searchRequestGuard.exec(async () => {
+        const filters = Object.assign(
+          {
+            excludeFromTypeCatalogue: false,
+          },
+          this.activeFilters
+        );
+
+        multiSelectFilters.forEach((item) => {
+          if (filters[item.value])
+            filters[item.value] = filters[item.value].map((item) => item.id);
+        });
+
+        let { types, pageInfo } = await Type.filteredQuery({
+          pagination: Pagination.fromPageInfo(this.pageInfo),
+          filters,
+          typeBody: this.typeBody,
+        });
+
+        this.$emit('update', { types, pageInfo });
+      });
+    },
     getActiveFilters(name) {
-      const activeFiltersName = Filter.activeSelector(name);
-      return this.filters[activeFiltersName];
+      // const activeFiltersName = Filter.activeSelector(name);
+      return this.filters[name];
     },
     selectFilter(name, target) {
       const methodName = Filter.selectMethodName(name);
+      console.log(name, target, methodName);
+
       return this[methodName](target);
     },
     removeFilter(name, target) {
       const methodName = Filter.removeMethodName(name);
       return this[methodName](target);
+    },
+  },
+  computed: {
+    Filter() {
+      return Filter;
+    },
+    activeFilters() {
+      return Object.entries(this.filters)
+        .filter(([name, val]) => {
+          if (name.startsWith(Filter.searchPrefix)) return false;
+
+          if (val === null) return false;
+          if (typeof val === 'object') {
+            if (Array.isArray(val)) {
+              return val.length !== 0;
+            } else {
+              return val.id && val.id !== null;
+            }
+          } else {
+            switch (typeof val) {
+              case 'string':
+                return val != '';
+            }
+            return true;
+          }
+        })
+        .reduce((obj, [name, val]) => {
+          obj[name] = val;
+          return obj;
+        }, {});
     },
   },
 };

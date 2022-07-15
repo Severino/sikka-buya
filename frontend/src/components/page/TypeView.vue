@@ -336,7 +336,7 @@ $columns: 4;
 h1 {
   margin: 0;
   align-self: center;
-  padding: 0 0 $padding * 2 0;
+  // padding: 0 0 $padding 0;
 }
 
 .box {

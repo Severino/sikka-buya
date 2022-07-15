@@ -58,6 +58,7 @@ a {
 .list-item-row {
   @include input();
   @include interactive();
+  border-radius: 0;
   padding: $padding;
 
   position: relative;

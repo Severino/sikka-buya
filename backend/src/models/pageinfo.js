@@ -4,10 +4,9 @@
 class PageInfo {
     constructor(
         {
-            count = null,
-            page = null,
+            count = 20,
+            page = 0,
             total = null,
-
         } = {}) {
         this.count = count
         this.page = page
@@ -15,8 +14,9 @@ class PageInfo {
     }
 
     updateTotal(total) {
-        this.total = parseInt(total)
-        this.last = (total) ? (this.count == 0) ? 0 : Math.floor(this.total / this.count) : null
+        this.total = (total == null) ? null : parseInt(total)
+        this.last = (total == null) ? null : Math.max(Math.floor((this.total - 1) / this.count), 0)
+        this.page = this.last == null ? this.page : (this.page > this.last) ? this.last : this.page
     }
 
     toObject() {

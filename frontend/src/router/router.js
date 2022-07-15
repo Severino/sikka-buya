@@ -150,7 +150,7 @@ const routes = [
         },
         {
           path: '/type/:id',
-          name: 'CatalogEntry',
+          name: 'Catalog Entry',
           component: CatalogEntry
         }]
       }, {

@@ -6,8 +6,10 @@ export default class Filter {
         this.name = name
     }
 
-    static activeSelector(name) {
-        return "active" + StringUtils.capitalize(name) + "s"
+    static searchPrefix = "__search"
+
+    static searchVariableName(name) {
+        return Filter.searchPrefix + StringUtils.capitalize(name)
     }
 
     static selectMethodName(name) {
@@ -24,8 +26,8 @@ export default class Filter {
 
     mapData() {
         return {
-            [this.name]: { id: null, name: '' },
-            [Filter.activeSelector(this.name)]: []
+            [this.name]: [],
+            [Filter.searchVariableName(this.name)]: { id: null, name: '' }
         }
     }
 
@@ -38,30 +40,31 @@ export default class Filter {
     }
 
 
-    selectFilter(name) {
+    selectFilter() {
+        const name = this.name
         return function (target) {
             if (!this["has" + StringUtils.capitalize(name) + "Filter"](target)) {
-                this.filters[Filter.activeSelector(name)].push(target);
+                this.filters[name].push(target);
             }
-            this.filters[name] = { id: null, name: '' };
-            this.filterChanged()
+            this.filters[Filter.searchVariableName(name)] = { id: null, name: '' };
         }
     }
 
-    removeFilter(name) {
+    removeFilter() {
+        const name = this.name
         return function (target) {
             if (this["has" + StringUtils.capitalize(name) + "Filter"](target)) {
-                this.filters[Filter.activeSelector(name)] = this.filters[Filter.activeSelector(name)].filter(
+                this.filters[name] = this.filters[name].filter(
                     (el) => el.id != target.id
                 );
-                this.filterChanged()
             }
         }
     }
 
-    hasFilter(name) {
+    hasFilter() {
+        const name = this.name
         return function (target) {
-            return this.filters[Filter.activeSelector(name)]
+            return this.filters[name]
                 .map((el) => el.id)
                 .includes(target.id);
         }

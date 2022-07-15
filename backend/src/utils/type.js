@@ -481,6 +481,8 @@ class Type {
             ON cm.type = type.id
          */
 
+        console.log(pagination)
+
         const queryBuilder = this.complexFilters(filters)
 
 
@@ -667,7 +669,7 @@ SELECT
         FROM type t
         ${this.joins}
         , websearch_to_tsquery($[text]) as keywords 
-        ${whereClause}
+        ${whereClause} 
         ORDER BY t.project_id ASC
         ${pagination.toQuery()}
 ; `

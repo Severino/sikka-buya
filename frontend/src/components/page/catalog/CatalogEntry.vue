@@ -17,7 +17,7 @@ export default {
     TypeView,
     LoadingSpinner,
   },
-  name: 'CatalogEntry',
+  name: 'Catalog Entry',
   data: function () {
     return {
       loading: true,

@@ -125,7 +125,7 @@ export default {
 }
 </style>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .catalog-landing .list-item-row {
   padding: $padding;
 }
@@ -135,11 +135,5 @@ export default {
   font-weight: bold;
   text-decoration: underline;
   padding: $padding 0;
-}
-
-.grid {
-  display: grid;
-  gap: $padding;
-  grid-template-columns: 1fr 1fr;
 }
 </style>

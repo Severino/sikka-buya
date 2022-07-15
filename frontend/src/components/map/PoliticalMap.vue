@@ -272,7 +272,7 @@ person {
               let data = result.data.data;
               let types = data.coinType.types;
 
-              this.applyQuery(result);
+              this.applyQuery(result.data.data.mint);
 
               data.person.forEach(
                 (person) => (this.persons[person.id] = person)
@@ -458,7 +458,9 @@ person {
                 mint: feature.coins[0].mint,
               };
 
-              const mintLocations = new MintLocation(mintMarkerOptions);
+              const mintLocations = new MintLocation({
+                markerOptions: mintMarkerOptions,
+              });
               mintLocations
                 .createMarker(mintFeature, latlng)
                 .addTo(featureGroup);

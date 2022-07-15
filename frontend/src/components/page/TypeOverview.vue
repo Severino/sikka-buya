@@ -131,15 +131,18 @@
 
 <script>
 import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
-import List from '../layout/List.vue';
+
 import Query from '../../database/query.js';
 import BackHeader from '../layout/BackHeader.vue';
 import SearchField from '../layout/SearchField.vue';
-import ListItem from '../layout/ListItem.vue';
 import CompletedToggle from '../layout/buttons/CompletedToggle.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+
+import List from '../layout/List.vue';
+import ListItem from '../layout/ListItem.vue';
 import ListItemIdField from '../layout/list/ListItemIdField.vue';
 import ListItemCell from '../layout/list/ListItemCell.vue';
+
 import ListFilterContainer from '../layout/list/ListFilterContainer.vue';
 import ButtonGroup from '../forms/ButtonGroup.vue';
 import AxiosHelper from '@/utils/AxiosHelper.js';
@@ -219,7 +222,7 @@ export default {
       return this.adminView;
     },
     path() {
-      return this.isEditor ? 'EditType' : 'CatalogEntry';
+      return this.isEditor ? 'EditType' : 'Catalog Entry';
     },
     allToggleFilters() {
       return [...this.evalFilter, ...this.toggleFilter, ...this.adminFilter];

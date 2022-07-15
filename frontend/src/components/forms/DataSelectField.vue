@@ -225,7 +225,6 @@ export default {
         });
     },
     transformTextContent: function (search) {
-      console.log(this.textFunction);
       if (this.textFunction) return this.textFunction(search);
       else if (this.text) {
         return this.text.replace(/\${(.+?)}/g, function (match, name) {

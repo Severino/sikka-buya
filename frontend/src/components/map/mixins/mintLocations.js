@@ -8,28 +8,30 @@ export default {
         return {
             mints: {},
             mintLocation: null,
+            mintLocationLayer: null,
             selectedMints: [],
             availableMints: [],
             unavailableMints: [],
         }
     },
     unmounted: function () {
-        if (this.mintLocations) this.mintLocations.clearLayers();
+        if (this.mintLocationLayer) this.mintLocationLayer.clearLayers();
     },
     mounted() {
-
-        this.mintLocation = new MintLocation(this.mintMarkerOptions);
+        this.mintLocation = new MintLocation({ markerOptions: this.mintMarkerOptions, popup: () => "Hello" });
     },
     methods: {
         async fetchMints() {
             const result = await this.queryMints()
-            this.applyQuery(result)
+            this.applyQuery(result.data.data.mints)
         },
         async queryMints() {
             return Query.raw(`{${this.mintGraphQL}}`);
         },
-        applyQuery(result) {
-            let mints = result.data.data.mint.filter((mint) => mint.location != null);
+        applyQuery(mintArray) {
+            console.log(mintArray)
+
+            let mints = mintArray.filter((mint) => mint.location != null);
             this.mints = {};
             mints
                 .filter((mint) => mint.location != null)
@@ -76,12 +78,14 @@ export default {
             }
         },
         updateMintLocationMarker() {
-            if (this.mintLocations)
-                this.mintLocations.clearLayers();
-            const _ = new MintLocation(this.mintMarkerOptions);
+            if (this.mintLocationLayer)
+                this.mintLocationLayer.clearLayers();
+            const _ = new MintLocation({ markerOptions: this.mintMarkerOptions, popup: () => "Hello 2" });
+
+            console.log(this.mints)
             let features = _.mapToGeoJsonFeature(this.mints);
-            this.mintLocations = _.createGeometryLayer(features);
-            this.mintLocations.addTo(this.map);
+            this.mintLocationLayer = _.createGeometryLayer(features);
+            this.mintLocationLayer.addTo(this.map);
         },
         mintSelectionChanged(selected, { preventUpdate = false }) {
             this.selectedMints = selected;

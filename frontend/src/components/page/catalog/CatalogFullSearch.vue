@@ -25,7 +25,7 @@
           <list-item
             v-for="{ preview, type } of results"
             :key="'type-search-result-' + type.id"
-            :to="{ name: 'CatalogEntry', params: { id: type.id } }"
+            :to="{ name: 'Catalog Entry', params: { id: type.id } }"
           >
             <div class="result-id">{{ type.projectId }}</div>
             <pre class="result-preview" v-html="preview"></pre>

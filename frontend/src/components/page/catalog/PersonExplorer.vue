@@ -121,7 +121,7 @@
                     }"
                   >
                     <router-link
-                      :to="{ name: 'CatalogEntry', params: { id: type.id } }"
+                      :to="{ name: 'Catalog Entry', params: { id: type.id } }"
                       target="_blank"
                       ><ExternalLinkIcon :size="16"
                     /></router-link>
