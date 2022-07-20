@@ -87,7 +87,7 @@ const unfilteredButtonGroupFilters = [
 const unfilteredThreeWayFilters = [
   {
     label: 'Kursive Schrift',
-    value: 'cursive',
+    value: 'cursiveScript',
   },
   {
     label: 'Geschenkmünze',
@@ -221,8 +221,8 @@ export default {
       },
       deep: true,
     },
-    watch: {
-      overwriteFilters() {
+    overwriteFilters: {
+      handler() {
         console.log('overwriteChanged', this.overwriteFilters);
         this.search();
       },
@@ -254,6 +254,8 @@ export default {
           if (filters[item.value])
             filters[item.value] = filters[item.value].map((item) => item.id);
         });
+
+        console.table(filters);
 
         let { types, pageInfo } = await Type.filteredQuery({
           pagination: Pagination.fromPageInfo(this.pageInfo),

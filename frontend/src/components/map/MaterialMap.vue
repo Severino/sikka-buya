@@ -134,7 +134,9 @@ export default {
       mintTimelineData: [],
       timelineActive: true,
       mintLayer: null,
-      overwriteFilters: {},
+      overwriteFilters: {
+        yearOfMint: null,
+      },
       filters: {
         material: { id: null, name: '' },
         materials: [],
@@ -176,7 +178,7 @@ export default {
     },
     mintMarkerOptions() {
       return {
-        radius: 20,
+        radius: 14,
         stroke: true,
         weight: 1,
         color: 'gray',
@@ -241,32 +243,28 @@ export default {
     },
     timelineChanged(value) {
       localStorage.setItem('material-map-timeline', value);
-      this.updateOverwriteFilter();
+      this.updateOverwriteFilter(value);
       this.timeChanged(value);
     },
     updateTimeline: async function () {
       this.types = await this.fetchTypes();
       this.update();
     },
-    updateOverwriteFilter() {
-      const overwriteFilters = {};
-
+    updateOverwriteFilter(value) {
       if (this.timelineActive) {
-        this.$set(
-          this.overwriteFilters,
-          'yearOfMint',
-          this.timeline.value.toString()
-        );
+        this.overwriteFilters.yearOfMint = value.toString();
+      } else {
+        console.log('reset');
+        this.overwriteFilters.yearOfMint = null;
       }
-
-      this.overwriteFilters = overwriteFilters;
-      // TODO
     },
 
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
-      this.updateOverwriteFilter();
       // this.fetchTypes();
+      this.updateOverwriteFilter(
+        this.timelineActive ? this.timeline.value : null
+      );
       this.update();
     },
     async fetchTypes() {
