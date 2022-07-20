@@ -7,7 +7,7 @@
       <mint-list
         :items="mintsList"
         :selectedIds="selectedMints"
-        @selectionChanged="mintSelectionChanged"
+        @selectionChanged="selectionChanged"
       />
     </Sidebar>
 
@@ -88,7 +88,7 @@ import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
 import mintLocations from './mixins/mintLocations';
 
-import MintLocation from '../../models/mintlocation';
+import MintLocation, { CountMarker } from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
 import MultiSelectList from '../MultiSelectList.vue';
 
@@ -126,6 +126,8 @@ export default {
   },
   data: function () {
     return {
+      filteredMintLocation: null,
+      filteredMintLayer: null,
       pageInfo: { page: 0, count: 100000 },
       materialLayer: null,
       mints: [],
@@ -136,6 +138,7 @@ export default {
       mintLayer: null,
       overwriteFilters: {
         yearOfMint: null,
+        mint: null,
       },
       filters: {
         material: { id: null, name: '' },
@@ -158,7 +161,9 @@ export default {
     map,
     timeline,
     localstore('material-map-settings', ['settings']),
-    mintLocations,
+    mintLocations({
+      showMarkers: false,
+    }),
   ],
   computed: {
     mintsList() {
@@ -176,16 +181,6 @@ export default {
           .sort(Sorter.stringPropAlphabetically('name')),
       ];
     },
-    mintMarkerOptions() {
-      return {
-        radius: 14,
-        stroke: true,
-        weight: 1,
-        color: 'gray',
-        fillColor: 'white',
-        fillOpacity: 1,
-      };
-    },
   },
   watch: {
     settings: {
@@ -197,12 +192,26 @@ export default {
     },
   },
   mounted: async function () {
+    this.filteredMintLocation = new MintLocation({
+      markerOptions: this.mintMarkerOptions,
+      createMarker: (latlng, feature) => {
+        const cm = new CountMarker(26);
+        return cm.create(latlng, feature.data.types.length);
+      },
+      bindPopup: this.mintLocationPopup,
+    });
+
     const starTime =
       parseInt(localStorage.getItem('material-map-timeline')) || 433;
+    this.fetchMints();
     await this.initTimeline(starTime);
     this.updateTimeline();
   },
   methods: {
+    selectionChanged(mints) {
+      this.mintSelectionChanged(mints);
+      this.overwriteFilters.mint = mints;
+    },
     dataUpdated(data) {
       const mints = {};
 
@@ -210,23 +219,35 @@ export default {
         .filter((type) => type?.mint?.location != null)
         .forEach((type) => {
           if (!mints[type.mint.id]) {
-            const mint = type.mint;
-            // mint.location = JSON.parse(mint.location);
-            mints[type.mint.id] = mint;
-            mints[type.mint.id].data = { types: [] };
+            const feature = JSON.parse(type.mint.location);
+            feature.mint = type.mint;
+            feature.data = { types: [] };
+            mints[type.mint.id] = feature;
           }
           mints[type.mint.id].data.types.push(type);
         });
 
-      this.mints = mints;
+      const filteredMintFeatures = Object.values(mints);
+      if (this.filteredMintLayer) this.filteredMintLayer.clearLayers();
+      this.filteredMintLayer =
+        this.filteredMintLocation.createGeometryLayer(filteredMintFeatures);
+      this.filteredMintLayer.addTo(this.featureGroup);
 
       this.updateMints();
     },
+    updateMints() {
+      if (this.filteredMints) {
+        Object.values(this.filteredMints);
+      }
+    },
     mintLocationPopup(feature) {
+      const mint = feature.mint ? feature.mint : new Mint();
+      const types = feature?.data?.types ? feature.data.types : [];
+
       return `
-      ${Mint.popupMintHeader(feature.mint)}
+      ${Mint.popupMintHeader(mint)}
       <div class="popup-body grid col-3">
-      ${feature.mint.data.types
+      ${types
         .map((type) => {
           const route = this.$router.resolve({
             name: 'Catalog Entry',
@@ -243,26 +264,24 @@ export default {
     },
     timelineChanged(value) {
       localStorage.setItem('material-map-timeline', value);
-      this.updateOverwriteFilter(value);
       this.timeChanged(value);
     },
     updateTimeline: async function () {
+      this.updateYearOverwrite(this.timeline.value);
       this.types = await this.fetchTypes();
       this.update();
     },
-    updateOverwriteFilter(value) {
+    updateYearOverwrite(value) {
       if (this.timelineActive) {
         this.overwriteFilters.yearOfMint = value.toString();
       } else {
-        console.log('reset');
         this.overwriteFilters.yearOfMint = null;
       }
     },
-
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
       // this.fetchTypes();
-      this.updateOverwriteFilter(
+      this.updateYearOverwrite(
         this.timelineActive ? this.timeline.value : null
       );
       this.update();
@@ -428,8 +447,6 @@ export default {
 
       const that = this;
 
-      console.log(that);
-
       this.materialLayer = this.L.geoJSON(materialFeatures, {
         pointToLayer: function (feature, latlng) {
           let data = feature.data.materials.map((materials) => {
@@ -461,12 +478,6 @@ export default {
             },
           });
 
-          this.mintLocation = new MintLocation({
-            markerOptions: that.mintMarkerOptions,
-          });
-          const mintMarker = mintLocations.createMarker(feature, latlng);
-          mintMarker.addTo(featureGroup);
-
           featureGroup.on('mouseover', () => featureGroup.bringToFront());
           featureGroup.on('click', () => featureGroup.bringToFront());
 
@@ -479,10 +490,6 @@ export default {
       });
 
       this.materialLayer.addTo(this.featureGroup);
-    },
-    popupFunction(feature) {
-      console.log(feature);
-      return 'Hello World';
     },
   },
 };

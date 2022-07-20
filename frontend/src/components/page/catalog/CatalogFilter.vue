@@ -255,8 +255,6 @@ export default {
             filters[item.value] = filters[item.value].map((item) => item.id);
         });
 
-        console.table(filters);
-
         let { types, pageInfo } = await Type.filteredQuery({
           pagination: Pagination.fromPageInfo(this.pageInfo),
           filters,

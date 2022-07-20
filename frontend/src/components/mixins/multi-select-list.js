@@ -8,7 +8,10 @@ export default {
             return this.selectedIds.indexOf(item.id) != -1;
         },
         selectionChanged(items) {
+            console.log(this)
             this.$emit('selectionChanged', items);
+            console.log("END")
+
         },
         checkboxSelected(item) {
             let selection = this.selectedIds;

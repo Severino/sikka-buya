@@ -27,6 +27,10 @@ export default {
             this.featureGroup.addTo(this.map)
         }
     },
+    unmounted: function () {
+        this.featureGroup.clearLayers()
+
+    },
     beforeRouteEnter: function (_, _2, next) {
         next()
     },

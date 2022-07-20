@@ -82,6 +82,7 @@ export default {
     var map = L.map('map_' + this._uid, {
       center: this.location,
       zoom: this.zoom,
+      minZoom: 3,
       maxBounds: mapBoundaries,
       zoomControl: false,
       scrollWheelZoom: false, // disable original zoom function

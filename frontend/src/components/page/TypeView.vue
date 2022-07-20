@@ -128,10 +128,9 @@
       <div v-if="!type.pieces" class="error">Stücke wurden nicht geladen!</div>
       <div v-if="type.pieces && type.pieces.length == 0">-</div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
-        <a :href="piece" target="_blank">
-          <img :src="getLogoFromPath(piece)" alt="" width="32" />
-          {{ piece }}</a
-        >
+        <a :href="piece" target="_blank"
+          >{{ piece }}<ExternalIcon size="16"
+        /></a>
       </div>
     </catalog-property>
 
@@ -157,6 +156,8 @@ import Tag from '../Tag.vue';
 import Web from '../../utils/Web';
 
 import EditIcon from 'vue-material-design-icons/Pen.vue';
+import ExternalIcon from 'vue-material-design-icons/OpenInNew.vue';
+
 import Button from '../layout/buttons/Button.vue';
 import PersonView from '../Person/PersonView.vue';
 import PersonList from '../Person/PersonList.vue';
@@ -171,6 +172,7 @@ export default {
   components: {
     CatalogItem,
     EditIcon,
+    ExternalIcon,
     LabeledField,
     Gift,
     Italic,
@@ -404,6 +406,22 @@ header {
     color: $white;
     border-radius: $size/2;
     box-shadow: $shadow;
+  }
+}
+
+.piece {
+  font-size: 1rem;
+  &:not(:last-child) {
+    margin-bottom: $padding;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .material-design-icon {
+    margin-left: 0.5rem;
   }
 }
 </style>

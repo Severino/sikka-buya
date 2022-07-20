@@ -131,7 +131,11 @@ export default {
     map,
     timeline,
     localstore('political-map-settings', ['settings']),
-    mintLocations,
+    mintLocations({
+      onMintSelectionChanged: () => {
+        this.drawMintCountOntoTimeline();
+      },
+    }),
   ],
   computed: {
     filtersActive: function () {
@@ -462,7 +466,7 @@ person {
                 markerOptions: mintMarkerOptions,
               });
               mintLocations
-                .createMarker(mintFeature, latlng)
+                .createMarker(latlng, mintFeature)
                 .addTo(featureGroup);
             }
 
