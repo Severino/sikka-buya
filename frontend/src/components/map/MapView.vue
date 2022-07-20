@@ -10,6 +10,8 @@
 var L = require('leaflet');
 require('leaflet.pattern');
 
+import Simplebar from 'simplebar';
+
 import('/node_modules/leaflet/dist/leaflet.css');
 
 import LeafletSmoothZoom from '../../vendor/leafletsmoothzoom';
@@ -91,6 +93,23 @@ export default {
     });
 
     window.map = map;
+
+    map.on('popupopen', function (e) {
+      const _container = e.popup._container;
+      const target = _container.querySelector('[make-simplebar]');
+
+      const targetHTML = target.innerHTML;
+      target.innerHTML = '';
+
+      let wrapper = document.createElement('div');
+      wrapper.innerHTML = targetHTML;
+      wrapper.style.overflow = 'visible';
+      wrapper.classList.add(...target.className.split(' '));
+
+      const simplebar = new Simplebar(target, { autoHide: false });
+      const content = simplebar.getContentElement();
+      content.appendChild(wrapper);
+    });
 
     if (this.height) {
       this.$refs.map.style.height = this.height;

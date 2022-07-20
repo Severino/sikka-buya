@@ -246,7 +246,7 @@ export default {
 
       return `
       ${Mint.popupMintHeader(mint)}
-      <div class="popup-body grid col-3">
+      <div class="popup-body grid col-3" make-simplebar>
       ${types
         .map((type) => {
           const route = this.$router.resolve({
