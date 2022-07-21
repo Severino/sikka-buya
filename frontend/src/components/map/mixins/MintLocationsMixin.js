@@ -4,9 +4,11 @@ import MintLocation from '../../../models/mintlocation';
 import Query from '../../../database/query';
 import Mint from '../../../models/map/mint';
 
+
 export default function ({
     showMarkers = true,
     onMintSelectionChanged = null,
+    selectedMintStorageName = "active-mints",
     mintMarkerOptions = {
         radius: 5,
         stroke: false,
@@ -14,6 +16,18 @@ export default function ({
         fillOpacity: 1,
     }
 } = {}) {
+
+    let selectedMints = window.localStorage.getItem(selectedMintStorageName)
+    try {
+        selectedMints = JSON.parse(selectedMints)
+    } catch (e) {
+        console.warn("Could not get available mints from localstorage.")
+    }
+
+    if (!Array.isArray(selectedMints)) {
+        selectedMints = []
+    }
+
     return {
         data() {
             return {
@@ -30,6 +44,7 @@ export default function ({
         },
         mounted() {
             this.mintLocation = new MintLocation({ markerOptions: mintMarkerOptions, popup: this.mintLocationPopup });
+            this.mintSelectionChanged(selectedMints)
         },
         methods: {
             mintLocationPopup(feature) {
@@ -102,8 +117,9 @@ export default function ({
             },
             mintSelectionChanged(selected, { preventUpdate = false } = {}) {
                 this.selectedMints = selected;
+                window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
                 if (onMintSelectionChanged)
-                    onMintSelectionChanged()
+                    onMintSelectionChanged.call(this)
                 if (!preventUpdate) this.update();
             },
             clearMintSelection({ preventUpdate = false } = {}) {

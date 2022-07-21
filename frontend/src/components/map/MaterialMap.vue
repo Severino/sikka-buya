@@ -86,7 +86,7 @@ import Checkbox from '../forms/Checkbox.vue';
 import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
-import mintLocations from './mixins/mintLocations';
+import mintLocations from './mixins/MintLocationsMixin';
 
 import MintLocation, { CountMarker } from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
@@ -96,15 +96,15 @@ import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
-import { concentricCircles } from '../../models/map/geometry';
 import Mint from '../../models/map/mint';
-import { White } from '../../utils/Color';
 import DataSelectField from '../forms/DataSelectField.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
 import MultiButton from '../layout/buttons/MultiButton.vue';
 import Button from '../layout/buttons/Button.vue';
 import CatalogFilter from '../page/catalog/CatalogFilter.vue';
+
+import DataPainter from '../../maps/DataPainter';
 
 export default {
   name: 'MaterialMap',
@@ -126,6 +126,7 @@ export default {
   },
   data: function () {
     return {
+      painter: null,
       filteredMintLocation: null,
       filteredMintLayer: null,
       pageInfo: { page: 0, count: 100000 },
@@ -206,6 +207,36 @@ export default {
     this.fetchMints();
     await this.initTimeline(starTime);
     this.updateTimeline();
+
+    this.painter = new DataPainter(this.featureGroup, {
+      onTransform(data) {
+        const obj = data.types
+          .filter((type) => {
+            if (!type?.mint?.location) return false;
+            try {
+              type.mint.location = JSON.parse(type.mint.location);
+              return true;
+            } catch (e) {
+              return false;
+            }
+          })
+          .reduce((prev, type) => {
+            const mint = type.mint;
+            if (!prev[mint.id]) {
+              prev[mint.id] = mint.location;
+              prev[mint.id].data = { mint, types: [] };
+            }
+            prev[mint.id].data.types.push(type);
+            return prev;
+          }, {});
+        return Object.values(obj);
+      },
+      createMarker: (latlng, feature) => {
+        console.log(feature);
+        const cm = new CountMarker(26);
+        return cm.create(latlng, feature.data.types.length);
+      },
+    });
   },
   methods: {
     selectionChanged(mints) {
@@ -213,27 +244,28 @@ export default {
       this.overwriteFilters.mint = mints;
     },
     dataUpdated(data) {
-      const mints = {};
+      console.log(data);
+      this.painter.update(data);
 
-      data.types
-        .filter((type) => type?.mint?.location != null)
-        .forEach((type) => {
-          if (!mints[type.mint.id]) {
-            const feature = JSON.parse(type.mint.location);
-            feature.mint = type.mint;
-            feature.data = { types: [] };
-            mints[type.mint.id] = feature;
-          }
-          mints[type.mint.id].data.types.push(type);
-        });
+      // data.types
+      //   .filter((type) => type?.mint?.location != null)
+      //   .forEach((type) => {
+      //     if (!mints[type.mint.id]) {
+      //       const feature = JSON.parse(type.mint.location);
+      //       feature.mint = type.mint;
+      //       feature.data = { types: [] };
+      //       mints[type.mint.id] = feature;
+      //     }
+      //     mints[type.mint.id].data.types.push(type);
+      //   });
 
-      const filteredMintFeatures = Object.values(mints);
-      if (this.filteredMintLayer) this.filteredMintLayer.clearLayers();
-      this.filteredMintLayer =
-        this.filteredMintLocation.createGeometryLayer(filteredMintFeatures);
-      this.filteredMintLayer.addTo(this.featureGroup);
+      // const filteredMintFeatures = Object.values(mints);
+      // if (this.filteredMintLayer) this.filteredMintLayer.clearLayers();
+      // this.filteredMintLayer =
+      //   this.filteredMintLocation.createGeometryLayer(filteredMintFeatures);
+      // this.filteredMintLayer.addTo(this.featureGroup);
 
-      this.updateMints();
+      // this.updateMints();
     },
     updateMints() {
       if (this.filteredMints) {
@@ -424,72 +456,6 @@ export default {
       this.updateMints();
       // this.updateConcentricCircles();
       this.$emit('timeline-updated', this.value);
-    },
-    updateConcentricCircles() {
-      this.clearLayers();
-
-      let materialFeatures = Object.values(this.mints)
-        .filter((mint) => {
-          return this.mintData[mint.id];
-        })
-        .map((mint) => {
-          const data = {
-            mint,
-            materials: Object.values(this.mintData[mint.id]),
-          };
-          return {
-            coordinates: mint.location.coordinates,
-            type: mint.location.type,
-            data,
-            mint,
-          };
-        });
-
-      const that = this;
-
-      this.materialLayer = this.L.geoJSON(materialFeatures, {
-        pointToLayer: function (feature, latlng) {
-          let data = feature.data.materials.map((materials) => {
-            return {
-              data: [materials],
-            };
-          });
-
-          let sorted = data.sort((a, b) => {
-            return a.data[0].name.localeCompare(b.data[0].name);
-          });
-
-          const featureGroup = concentricCircles(latlng, sorted, {
-            innerRadius: 5,
-            radius: 15,
-            styles: [
-              {
-                stroke: true,
-                color: White,
-                weight: 1.5,
-              },
-            ],
-            openPopup: (data) => {
-              return `
-                ${Mint.popupMintHeader(feature.mint)}
-                <div class="popup-body">
-                ${data.data.name}
-                </div>`;
-            },
-          });
-
-          featureGroup.on('mouseover', () => featureGroup.bringToFront());
-          featureGroup.on('click', () => featureGroup.bringToFront());
-
-          featureGroup.bringToFront();
-          return featureGroup;
-        },
-        coordsToLatLng: function (coords) {
-          return new that.L.LatLng(coords[0], coords[1], coords[2]);
-        },
-      });
-
-      this.materialLayer.addTo(this.featureGroup);
     },
   },
 };

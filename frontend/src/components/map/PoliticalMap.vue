@@ -75,7 +75,7 @@ import Sort from '../../utils/Sorter';
 import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
-import mintLocations from './mixins/mintLocations';
+import mintLocations from './mixins/MintLocationsMixin';
 
 import Query from '../../database/query';
 
@@ -114,10 +114,7 @@ export default {
       availableRulers: [],
       selectedUnavailableRulers: [],
       selectedRulers: [],
-      selectedMints: [],
       rulerListStyles: [],
-      availableMints: [],
-      unavailableMints: [],
       patterns: {},
       mintTimelineData: [],
       settings: {
@@ -132,7 +129,7 @@ export default {
     timeline,
     localstore('political-map-settings', ['settings']),
     mintLocations({
-      onMintSelectionChanged: () => {
+      onMintSelectionChanged: function () {
         this.drawMintCountOntoTimeline();
       },
     }),
@@ -534,12 +531,6 @@ person {
         this.unavailableMints = unavailMints;
       }
     },
-    mintSelectionChanged(selected, preventUpdate = false) {
-      this.selectedMints = selected;
-      if (!preventUpdate) this.update();
-
-      this.drawMintCountOntoTimeline();
-    },
     rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
       if (!preventUpdate) this.update();
@@ -585,62 +576,111 @@ person {
         )
           .then((val) => {
             this.mintTimelineData = val.data.data.typeCountOfMints;
-
+            console.log(this.mintTimelineData);
             const lineWidth = 3;
             let curveMax = 0;
             let curveData = {};
-            this.mintTimelineData.forEach((mint) => {
-              mint.data.forEach((point) => {
-                if (!curveData[point.x]) curveData[point.x] = point.y;
-                else curveData[point.x] += point.y;
+            this.mintTimelineData.forEach((mintData, idx) => {
+              if (!curveData[mintData.id]) {
+                curveData[mintData.id] = {
+                  mint: mintData,
+                  xSet: new Set(),
+                  x: [],
+                  y: 10 * (idx + 1),
+                };
+              }
 
-                if (curveData[point.x] > curveMax)
-                  curveMax = curveData[point.x];
+              mintData.data.forEach(({ x }) => {
+                console.log(x);
+                curveData[mintData.id].xSet.add(x);
               });
-            });
 
-            const yStep =
-              (canv.height - lineWidth - 10) / (curveMax > 0 ? curveMax : 20);
+              const all = Array.from(
+                curveData[mintData.id].xSet.values()
+              ).sort();
 
-            let y = (val) => {
-              return canv.height - val * yStep;
-            };
+              console.log(all);
 
-            let x = (val) => {
-              return (
-                ((val - this.raw_timeline.from) /
-                  (this.raw_timeline.to - this.raw_timeline.from)) *
-                  canv.width -
-                2
-              );
-            };
+              if (all.length !== 0) {
+                const first = all.shift();
+                curveData[mintData.id].x.push([first, first]);
 
-            ctx.lineWidth = lineWidth;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.strokeStyle = '#bfbfbf';
-            ctx.fillStyle = '#eee';
-            ctx.beginPath();
-
-            let last = null;
-            Object.keys(curveData)
-              .sort((a, b) => a - b)
-              .forEach((x_key) => {
-                const point = { x: x_key, y: curveData[x_key] };
-                if (last && point.x - last > 1) {
-                  ctx.lineTo(x(last), y(0));
-                  last = null;
+                let prev = first;
+                let prevRange = 0;
+                for (let point of all) {
+                  console.log(first, prev, point, point - prev);
+                  if (point - prev === 1) {
+                    curveData[mintData.id].x[prevRange][1] = point;
+                  } else {
+                    curveData[mintData.id].x.push([point, point]);
+                    prevRange++;
+                    console.log('ENLARGE');
+                  }
+                  prev = point;
                 }
-                if (last == null) ctx.moveTo(x(point.x), y(0));
+              }
 
-                ctx.lineTo(x(point.x), y(point.y));
-                last = point.x;
-              });
+              //TODO
 
-            ctx.lineTo(x(last), y(0));
-            ctx.stroke();
-            ctx.fill();
-            ctx.closePath();
+              // const covered = false;
+              // for (let i = curveData[mint.id].ranges.length - 1; i >= 0; i--) {
+              //   let range = curveData[mint.id].ranges[i];
+              //   if (mint.x >= range[0] && mint[1] <= range[1]) {
+              //     covered = true;
+              //     break;
+              //   }
+              // }
+
+              // if (!covered) {
+              //   /**
+              //    * Combine if they overlap
+              //    */
+              //   const nextIndex = curveData[mint.id].ranges.length - 1;
+              //   if (i < nextIndex) {
+              //     const nextRange = curveData[mint.id].ranges[nextIndex];
+              //     if (range[i][1] === nextRange[nextIndex][0]) {
+              //       range[i][1] = nextRange[nextIndex][1];
+              //       curveData[mint.id].ranges.splice(nextIndex, 1);
+              //     }
+              //   }
+              // }
+            });
+            // const yStep =
+            //   (canv.height - lineWidth - 10) / (curveMax > 0 ? curveMax : 20);
+            // let y = (val) => {
+            //   return canv.height - val * yStep;
+            // };
+            // let x = (val) => {
+            //   return (
+            //     ((val - this.raw_timeline.from) /
+            //       (this.raw_timeline.to - this.raw_timeline.from)) *
+            //       canv.width -
+            //     2
+            //   );
+            // };
+            // ctx.lineWidth = lineWidth;
+            // ctx.lineCap = 'round';
+            // ctx.lineJoin = 'round';
+            // ctx.strokeStyle = '#bfbfbf';
+            // ctx.fillStyle = '#eee';
+            // ctx.beginPath();
+            // let last = null;
+            // Object.keys(curveData)
+            //   .sort((a, b) => a - b)
+            //   .forEach((x_key) => {
+            //     const point = { x: x_key, y: curveData[x_key] };
+            //     if (last && point.x - last > 1) {
+            //       ctx.lineTo(x(last), y(0));
+            //       last = null;
+            //     }
+            //     if (last == null) ctx.moveTo(x(point.x), y(0));
+            //     ctx.lineTo(x(point.x), y(point.y));
+            //     last = point.x;
+            //   });
+            // ctx.lineTo(x(last), y(0));
+            // ctx.stroke();
+            // ctx.fill();
+            // ctx.closePath();
           })
           .catch(console.error);
     },

@@ -1,8 +1,10 @@
+import MapView from './MapView';
 import Mint from './map/mint';
-
 var L = require('leaflet');
 
-export default class MintLocation {
+
+export class MaterialView extends MapView {
+
     constructor({
         markerOptions = {},
         createMarker = null,
@@ -89,10 +91,15 @@ export default class MintLocation {
         }
         return marker
     }
+
+
+
+
 }
 
+
 export class CountMarker {
-    constructor(size = 20) {
+    constructor(size = 10) {
         this.size = size
     }
 
