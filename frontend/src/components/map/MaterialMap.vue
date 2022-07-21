@@ -54,7 +54,7 @@
         <catalog-filter
           @update="dataUpdated"
           :pageInfo="pageInfo"
-          :exclude="['mint', 'yearOfMint']"
+          :exclude="['mint', 'yearOfMint', 'ruler', 'caliph']"
           :constantFilters="{
             excludeFromMapApp: false,
           }"
@@ -195,7 +195,7 @@ export default {
     this.filteredMintLocation = new MintLocation({
       markerOptions: this.mintMarkerOptions,
       createMarker: (latlng, feature) => {
-        const cm = new CountMarker(26);
+        const cm = new CountMarker(16);
         return cm.create(latlng, feature.data.types.length);
       },
       bindPopup: this.mintLocationPopup,
