@@ -295,7 +295,7 @@ type Query {
     evalFilters: EvalFilter
   ): ModCoinTypePagination
 
-  typeCountOfMints(ids: [ID]): [LabeledPointArray]
+  typeCountOfMints(ids: [ID]): [MintPointArray]
 
   timespan: Range
   getAnalytics: Analytics
@@ -332,9 +332,8 @@ type Query {
   ): PaginationTypeTextSearch
 }
 
-type LabeledPointArray {
-  id: String
-  name: String
+type MintPointArray {
+  mint: Mint
   data: [Point]
 }
 

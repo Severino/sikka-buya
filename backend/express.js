@@ -1,3 +1,4 @@
+const Mint = require('./src/models/mint.js')
 const { pgp, Database, setupDatabase } = require('./src/utils/database.js')
 const Person = require('./src/utils/person.js')
 
@@ -374,21 +375,26 @@ async function start({
                     const mintArray = []
 
                     for (let id of ids) {
+                        const mint = await Mint.getById(id)
+
                         const result = await Database.manyOrNone(`
-                        SELECT year_of_mint, COUNT(*) 
+                        SELECT  m.id, m.name,  year_of_mint,  COUNT(*) 
                         FROM type 
-                        WHERE mint=$[mint] 
+                        LEFT JOIN mint m ON type.mint = m.id 
+                        WHERE mint=$[id]
                         AND year_of_mint~ '^[0-9]+$'
                         AND exclude_from_map_app!=True 
-                        GROUP BY year_of_mint 
+                        GROUP BY year_of_mint, m.name, m.id
                         ORDER BY year_of_mint;`,
-                            { mint: id })
+                            { id })
+
+                        console.log(mint)
 
                         mintArray.push({
-                            id,
+                            mint,
                             data: result.map(({ year_of_mint, count }) => {
                                 return { x: year_of_mint, y: count }
-                            })
+                            }, {})
                         })
                     }
 

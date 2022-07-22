@@ -1,39 +1,102 @@
+class Chart {
+    constructor(canvas) {
+        this.canvas = canvas
+    }
 
-export class TimelineChart {
-    constructor(timeline) {
+
+    clear(){
+        this.getContext().clearRect(0,0, this.canvas.width, this.canvas.height)
+    }
+
+    getContext(){
+        return this.canvas.getContext('2d');
+    }
+
+}
+export default class TimelineChart extends Chart{
+
+    constructor(canvas, timeline){
+super(canvas)
+console.log(timeline.from, timeline.to)
+
         this.timeline = timeline
     }
 
-    drawMintLinesOnCanvas(canvas){
-        
+    updateTimeline(timeline){
+        console.log(timeline.from, timeline.to)
+        this.timeline = timeline
     }
 
-    drawGraphOnTimeline(canvas) {
-        let ctx = canv.getContext('2d');
 
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#bfbfbf';
-        ctx.fillStyle = '#eee';
+    y  (val) {
+        return this.canvas.height - val;
+      }
+      
+     x  (val)  {
+        const timelineSpan = this.timeline.to - this.timeline.from
+        const widthPerYear = this.canvas.width / timelineSpan
+        const x = (val - this.timeline.from) * widthPerYear
+        console.log(x)
+        return x
+      }
+
+    drawMintLinesOnCanvas(data, lineOptions){
+        let ctx = this.getContext()
+        Object.assign(ctx, lineOptions)
+        this.clear()
+
+        let i = 1
+        data.forEach(mint =>{
+            
+
+            mint.x.forEach(range =>{
+                ctx.beginPath();
+                ctx.moveTo(this.x(range[0]), this.y(10 * i))
+                ctx.lineTo(this.x(range[1]), this.y(10 * i))
+                ctx.stroke()
+            })
+            
+            i++
+        })
+    }
+
+    drawGraphOnTimeline(data, lineOptions) {
+        
+        let ctx = this.canvas.getContext('2d');
+        Object.assign(ctx, lineOptions)
         ctx.beginPath();
 
+        let curveMax = 0;
+        let curveData = {};
+        data.forEach((mint) => {
+          mint.data.forEach((point) => {
+            if (!curveData[point.x]) curveData[point.x] = point.y;
+            else curveData[point.x] += point.y;
+
+            if (curveData[point.x] > curveMax)
+              curveMax = curveData[point.x];
+          });
+        });
+
+        let yStep = (this.canvas.height - (lineOptions.lineWidth || 1) - 10) / (curveMax > 0 ? curveMax : 20);
+            
+
         let last = null;
-        Object.keys(curveData)
+        Object.keys(data)
             .sort((a, b) => a - b)
             .forEach((x_key) => {
-                const point = { x: x_key, y: curveData[x_key] };
+                const point = { x: x_key, y: data[x_key] };
                 if (last && point.x - last > 1) {
-                    ctx.lineTo(x(last), y(0));
+                    ctx.lineTo(this.x(last), this.y(0));
                     last = null;
                 }
-                if (last == null) ctx.moveTo(x(point.x), y(0));
+                if (last == null) ctx.moveTo(this.x(point.x), this.y(0));
 
-                ctx.lineTo(x(point.x), y(point.y));
+                ctx.lineTo(this.x(point.x), this.y(point.y * yStep));
                 last = point.x;
             });
 
-        ctx.lineTo(x(last), y(0));
+        ctx.lineTo(this.x(last), this.y(0));
         ctx.stroke();
         ctx.fill();
         ctx.closePath();

@@ -67,30 +67,37 @@
 </template>
 
 <script>
-import Sidebar from './Sidebar.vue';
-import Timeline from './control/Timeline.vue';
-import Checkbox from '../forms/Checkbox.vue';
-import Sort from '../../utils/Sorter';
+// Models
+import TimelineChart from '../../models/timeline/TimelineChart.js';
+import MintLocation from '../../models/mintlocation';
+import { rulerPopup } from '../../models/map/political';
+import { concentricCircles } from '../../models/map/geometry';
+import { coinsToRulerData } from '../../models/rulers';
 
+//Utils
+import Sort from '../../utils/Sorter';
+import Sorter from '../../utils/Sorter';
+
+// Other
+import Query from '../../database/query';
+
+//Mixins
 import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
 import mintLocations from './mixins/MintLocationsMixin';
 
-import Query from '../../database/query';
-
-import Sorter from '../../utils/Sorter';
-import MultiSelectList from '../MultiSelectList.vue';
-import { rulerPopup } from '../../models/map/political';
-
+// Components
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
-import { concentricCircles } from '../../models/map/geometry';
-import { coinsToRulerData } from '../../models/rulers';
+
+import Sidebar from './Sidebar.vue';
+import Timeline from './control/Timeline.vue';
+import Checkbox from '../forms/Checkbox.vue';
+import MultiSelectList from '../MultiSelectList.vue';
+import ScrollView from '../layout/ScrollView.vue';
 import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
-import ScrollView from '../layout/ScrollView.vue';
-import MintLocation from '../../models/mintlocation';
 
 export default {
   name: 'PoliticalMap',
@@ -117,6 +124,7 @@ export default {
       rulerListStyles: [],
       patterns: {},
       mintTimelineData: [],
+      timelineChart: null,
       settings: {
         visible: false,
         minRadius: { value: 10, min: 0, max: 50 },
@@ -174,6 +182,10 @@ export default {
   mounted: async function () {
     const starTime =
       parseInt(localStorage.getItem('political-timeline')) || 433;
+    this.timelineChart = new TimelineChart(
+      this.$refs.timelineCanvas,
+      this.raw_timeline
+    );
     await this.initTimeline(starTime);
     this.updateTimeline();
   },
@@ -566,11 +578,8 @@ person {
         Query.raw(
           `{
  typeCountOfMints(ids: [${this.selectedMints.join(',')}]){
-  id, data {
-    x
-    y
-  }
-	
+   mint {id name}
+    data {x, y}
 }
 }`
         )
@@ -579,46 +588,42 @@ person {
             console.log(this.mintTimelineData);
             const lineWidth = 3;
             let curveMax = 0;
-            let curveData = {};
+            let curveData = [];
             this.mintTimelineData.forEach((mintData, idx) => {
-              if (!curveData[mintData.id]) {
-                curveData[mintData.id] = {
-                  mint: mintData,
-                  xSet: new Set(),
-                  x: [],
-                  y: 10 * (idx + 1),
-                };
-              }
+              let xSet = new Set();
+              let x = [];
 
               mintData.data.forEach(({ x }) => {
-                console.log(x);
-                curveData[mintData.id].xSet.add(x);
+                xSet.add(x);
               });
 
-              const all = Array.from(
-                curveData[mintData.id].xSet.values()
-              ).sort();
-
-              console.log(all);
+              const all = Array.from(xSet.values()).sort();
 
               if (all.length !== 0) {
                 const first = all.shift();
-                curveData[mintData.id].x.push([first, first]);
+                x.push([first, first]);
 
                 let prev = first;
                 let prevRange = 0;
                 for (let point of all) {
-                  console.log(first, prev, point, point - prev);
                   if (point - prev === 1) {
-                    curveData[mintData.id].x[prevRange][1] = point;
+                    x[prevRange][1] = point;
                   } else {
-                    curveData[mintData.id].x.push([point, point]);
+                    x.push([point, point]);
                     prevRange++;
-                    console.log('ENLARGE');
                   }
                   prev = point;
                 }
               }
+
+              const mint = mintData;
+              delete mint.data;
+
+              curveData.push({
+                mint,
+                x,
+                y: 10 * (idx + 1),
+              });
 
               //TODO
 
@@ -644,6 +649,12 @@ person {
               //     }
               //   }
               // }
+            });
+
+            this.timelineChart.updateTimeline(this.raw_timeline);
+            this.timelineChart.drawMintLinesOnCanvas(Object.values(curveData), {
+              lineWidth: 3,
+              strokeStyle: '#ff0000',
             });
             // const yStep =
             //   (canv.height - lineWidth - 10) / (curveMax > 0 ? curveMax : 20);
