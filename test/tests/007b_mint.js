@@ -41,7 +41,6 @@ const TEST_DATA_BODY = `{
 
 const UPDATE_DATA_BODY = `
 {
-    id: 5,
     name: "Renamed",
     location: "{'type':'Point','coordinates':[12,51]}",
     uncertain: false,
@@ -152,7 +151,7 @@ describe(`Mint Queries`, function () {
 
     it("Unauthorized Update Rejected", async function () {
         const query = `mutation{
-            updateMint(data:
+            updateMint(id: 5,data:
                 ${UPDATE_DATA_BODY}
             )
         }`
@@ -161,7 +160,7 @@ describe(`Mint Queries`, function () {
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateMint(data: ${UPDATE_DATA_BODY})}`, {}, User1.token)
+        let promise = graphql(`mutation{updateMint(id: 5, data: ${UPDATE_DATA_BODY})}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 

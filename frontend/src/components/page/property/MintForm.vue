@@ -193,11 +193,39 @@ export default {
       };
 
       let id;
+      console.log(this.mint.id);
       if (this.mint.id == -1) {
         id = await this.query('addMint', data);
       } else {
-        data.id = this.mint.id;
-        id = await this.query('updateMint', data);
+        id = this.mint.id;
+        data.id = id;
+
+        await Query.raw(
+          `
+        mutation UpdateMint(
+            $id:ID!,
+            $name:String,
+            $location:String,
+            $uncertain:Boolean,
+            $uncertainArea:String,
+            $province:ID,
+          ){
+            updateMint(  
+            id: $id,
+            data: {
+              name:$name,
+            location:$location,
+            uncertain:$uncertain,
+            uncertainArea:$uncertainArea,
+            province:$province,
+            })
+          }
+  `,
+          data
+        ).catch((err) => {
+          this.error = this.$t(err);
+          console.error(err);
+        });
       }
 
       const query = `mutation UpdateNote($note:String, $id:ID!) {
@@ -227,6 +255,8 @@ export default {
         this.error = this.$t(err);
         console.error(err);
       });
+
+      console.log(result);
 
       return result?.data.data[name];
     },

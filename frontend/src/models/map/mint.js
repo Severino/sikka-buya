@@ -19,8 +19,6 @@ export default class Mint {
         })
     }
 
-
-
     static popupMintHeader(mint) {
         return `<header>
             <span class="subtitle">${mint.name}</span>    

@@ -22,8 +22,8 @@ class Mint {
             $[province]
         )
         RETURNING id;`
-        let result = await this.request(query, mint)
-        return (result.length > 0) ? result[0].id : null
+        let result = await Database.one(query, mint)
+        return result.id
     }
 
 
@@ -34,10 +34,8 @@ class Mint {
         obj["location"] = (obj["location"]) ? obj.location.replace(/'/g, '"') : null
     }
 
-    static async update(mint) {
+    static async update(id, mint) {
         this.fixGeoJSON(mint)
-
-        if (!mint.id || mint.id <= 0) throw new Error("error.invalid_id")
 
         const query = `UPDATE mint 
         SET name=$[name],
@@ -45,10 +43,9 @@ class Mint {
         uncertain=$[uncertain],
         uncertain_area=${mint.uncertain_area ? "ST_GeomFromGeoJSON($[uncertain_area])" : null},
         province=$[province]
-        WHERE id=$[id]
-        RETURNING id;`
-        await this.request(query, mint)
-        return mint.id
+        WHERE id=$[id];`
+        await Database.none(query, Object.assign({}, mint, { id }))
+        return id
     }
 
     static async search(text) {

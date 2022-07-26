@@ -25,7 +25,6 @@ type Material {
 }
 
 input MintInput {
-  id: ID
   name: String
   location: String
   uncertain: Boolean
@@ -377,7 +376,7 @@ type Mutation {
 
   # Tested in 007_mint
   addMint(data: MintInput): ID
-  updateMint(data: MintInput): Void
+  updateMint(id: ID!, data: MintInput): Void
   deleteMint(id: ID): Void
 
   # Tested in 008_role

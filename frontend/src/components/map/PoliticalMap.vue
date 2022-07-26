@@ -585,45 +585,40 @@ person {
         )
           .then((val) => {
             this.mintTimelineData = val.data.data.typeCountOfMints;
-            console.log(this.mintTimelineData);
-            const lineWidth = 3;
-            let curveMax = 0;
-            let curveData = [];
-            this.mintTimelineData.forEach((mintData, idx) => {
-              let xSet = new Set();
-              let x = [];
 
-              mintData.data.forEach(({ x }) => {
-                xSet.add(x);
-              });
+            let xSet = new Set();
+            let x = [];
 
-              const all = Array.from(xSet.values()).sort();
+            function resolveRange(arr) {
+              const sorted = arr.sort();
+              let ranges = [];
 
-              if (all.length !== 0) {
-                const first = all.shift();
-                x.push([first, first]);
+              if (sorted.length !== 0) {
+                const first = sorted.shift();
+                ranges.push([first, first]);
 
                 let prev = first;
                 let prevRange = 0;
-                for (let point of all) {
+                for (let point of sorted) {
                   if (point - prev === 1) {
-                    x[prevRange][1] = point;
+                    ranges[prevRange][1] = point;
                   } else {
-                    x.push([point, point]);
+                    ranges.push([point, point]);
                     prevRange++;
                   }
                   prev = point;
                 }
               }
+              return ranges;
+            }
+
+            this.mintTimelineData.forEach((mintData, idx) => {
+              mintData.data.forEach(({ x }) => {
+                xSet.add(x);
+              });
 
               const mint = mintData;
               delete mint.data;
-
-              curveData.push({
-                mint,
-                x,
-                y: 10 * (idx + 1),
-              });
 
               //TODO
 
@@ -652,10 +647,15 @@ person {
             });
 
             this.timelineChart.updateTimeline(this.raw_timeline);
-            this.timelineChart.drawMintLinesOnCanvas(Object.values(curveData), {
-              lineWidth: 3,
-              strokeStyle: '#ff0000',
-            });
+            this.timelineChart.drawMintLinesOnCanvas(
+              resolveRange(Array.from(xSet.values())),
+              5,
+              {
+                lineCap: 'square',
+                lineWidth: 5,
+                strokeStyle: '#48ac48',
+              }
+            );
             // const yStep =
             //   (canv.height - lineWidth - 10) / (curveMax > 0 ? curveMax : 20);
             // let y = (val) => {

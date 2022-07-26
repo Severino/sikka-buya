@@ -16,7 +16,7 @@ class MintResolver extends Resolver {
     }
 
     async update(_, args) {
-        return Mint.update(args.data)
+        return Mint.update(args.id, args.data)
     }
 
     async search(_, args) {

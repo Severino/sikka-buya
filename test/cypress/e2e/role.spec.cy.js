@@ -1,4 +1,15 @@
-export default function () {
+describe("Testing Role", function () {
+
+    this.beforeAll(function () {
+        cy.task("MountMinimalDatabase")
+        cy.fixture("users/admin").then(user => {
+            cy.login(user.email, user.password)
+        })
+    })
+
+    this.beforeEach(function () {
+        cy.restoreLocalStorage()
+    })
 
     it("Item in editor list", function () {
         cy.visit('/editor')
@@ -160,4 +171,4 @@ export default function () {
             cy.get(".list-item").children().should("have.length", 3)
         })
     })
-}
+})
