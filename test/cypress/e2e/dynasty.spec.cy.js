@@ -29,7 +29,7 @@ describe("Testing Dynasty", function () {
         cy.get(".list-item").contains('ʿAbbāside')
     })
 
-    it("Coin mark list is showing", function () {
+    it("Dynasty list is showing", function () {
         cy.visit('/editor/dynasty')
         cy.get(".list").children().should("have.length", 2)
     })
@@ -46,7 +46,7 @@ describe("Testing Dynasty", function () {
         cy.get(".list").children().should("have.length", 1)
     })
 
-    describe("Create Coin mark", function () {
+    describe("Create Dynasty", function () {
 
         it("Can reach create page", function () {
             cy.visit("/editor/dynasty")
@@ -85,7 +85,7 @@ describe("Testing Dynasty", function () {
 
     })
 
-    describe("Edit Coin mark", function () {
+    describe("Edit Dynasty", function () {
 
         it("Access edit page", function () {
             cy.visit('/editor/dynasty')
@@ -145,7 +145,7 @@ describe("Testing Dynasty", function () {
         })
     })
 
-    describe("Delete Coin mark", function () {
+    describe("Delete Dynasty", function () {
 
         it("Delete", function () {
             cy.visit("/editor/dynasty")

@@ -1,5 +1,5 @@
 
-const baseTemplate = require("../../../../frontend/src/assets/template_types/base.json")
+const baseTemplate = require("../../../frontend/src/assets/template_types/base.json")
 
 const createdTypeAvers = {
     fieldText: [
