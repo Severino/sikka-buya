@@ -180,8 +180,7 @@ export default {
     },
   },
   mounted: async function () {
-    const starTime =
-      parseInt(localStorage.getItem('political-timeline')) || 433;
+    const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
     this.timelineChart = new TimelineChart(
       this.$refs.timelineCanvas,
       this.raw_timeline
@@ -197,7 +196,7 @@ export default {
       this.settings.visible = !this.settings.visible;
     },
     timelineChanged(value) {
-      localStorage.setItem('political-timeline', value);
+      localStorage.setItem('map-timeline', value);
       this.timeChanged(value);
     },
     fetchTypes: async function () {

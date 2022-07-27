@@ -24,11 +24,16 @@ export default class Filter {
         return "has" + StringUtils.capitalize(name) + "Filter"
     }
 
-    mapData() {
+    static unsetFilter(name) {
         return {
-            [this.name]: [],
-            [Filter.searchVariableName(this.name)]: { id: null, name: '' }
+            [name]: [],
+            [Filter.searchVariableName(name)]: { id: null, name: '' }
         }
+
+    }
+
+    mapData() {
+        return Filter.unsetFilter(this.name)
     }
 
     mapMethods() {
@@ -44,6 +49,8 @@ export default class Filter {
         const name = this.name
         return function (target) {
             if (!this["has" + StringUtils.capitalize(name) + "Filter"](target)) {
+                target.id = parseInt(target.id)
+                console.log(target)
                 this.filters[name].push(target);
             }
             this.filters[Filter.searchVariableName(name)] = { id: null, name: '' };

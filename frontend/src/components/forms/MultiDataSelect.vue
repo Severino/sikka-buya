@@ -18,8 +18,9 @@
       :tooltip="tooltip"
       :placeholder="placeholder"
       :unselectable="true"
+      :disableRemoveButton="disableRemoveButton"
     />
-    <div class="active-list">
+    <div class="active-list" v-if="active.length > 0">
       <button
         v-for="el of active"
         :key="`active-${el.id}`"
@@ -80,6 +81,10 @@ export default {
     msg: String,
     tooltip: String,
     placeholder: String,
+    disableRemoveButton: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   active: [],

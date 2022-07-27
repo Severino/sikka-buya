@@ -12,6 +12,15 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
+      <div class="toolbar top-right-toobar">
+        <Button
+          v-if="catalogFilterActive"
+          class="clear-filter-btn"
+          @click="resetFilters()"
+          >Filter aufheben</Button
+        >
+      </div>
+
       <div class="settings">
         <SettingsIcon class="settings-icon" @click="toggleSettings" />
         <div class="settings-window" v-if="settings.visible">
@@ -52,6 +61,7 @@
     <Sidebar title="Filter" side="right">
       <div class="padding-box">
         <catalog-filter
+          ref="catalogFilter"
           @update="dataUpdated"
           :pageInfo="pageInfo"
           :exclude="['mint', 'yearOfMint', 'ruler', 'caliph']"
@@ -90,17 +100,13 @@ import mintLocations from './mixins/MintLocationsMixin';
 
 import MintLocation, { CountMarker } from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
-import MultiSelectList from '../MultiSelectList.vue';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import Mint from '../../models/map/mint';
-import DataSelectField from '../forms/DataSelectField.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
-import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
-import MultiButton from '../layout/buttons/MultiButton.vue';
 import Button from '../layout/buttons/Button.vue';
 import CatalogFilter from '../page/catalog/CatalogFilter.vue';
 
@@ -114,13 +120,9 @@ export default {
     Timeline,
     Checkbox,
     FilterIcon,
-    MultiSelectList,
     MintList,
     ScrollView,
-    DataSelectField,
     LabeledInputContainer,
-    ThreeWayToggle,
-    MultiButton,
     Button,
     CatalogFilter,
   },
@@ -137,19 +139,10 @@ export default {
       mintTimelineData: [],
       timelineActive: true,
       mintLayer: null,
+      catalogFilterActive: false,
       overwriteFilters: {
         yearOfMint: null,
         mint: null,
-      },
-      filters: {
-        material: { id: null, name: '' },
-        materials: [],
-        nominals: [],
-        caliphs: [],
-        donativ: null,
-        cursive: null,
-        yearUncertain: null,
-        mintUncertain: null,
       },
       settings: {
         visible: false,
@@ -167,6 +160,24 @@ export default {
     }),
   ],
   computed: {
+    // filtersActive() {
+    //   for (let [key, val] of Object.entries(inactiveFilters)) {
+    //     console.log(key, val, this.filters[key]);
+    //     if (this.filters[key] !== null) {
+    //       let filterValue = this.filters[key];
+    //       if (Array.isArray(filterValue)) {
+    //         if (filterValue.length > 0) return true;
+    //       } else if (typeof val === 'object') {
+    //         if (filterValue.id != null && filterValue.id != val.id) return true;
+    //       } else {
+    //         if (filterValue !== val) {
+    //           return true;
+    //         }
+    //       }
+    //     }
+    //   }
+    //   return false;
+    // },
     mintsList() {
       function addAvailability(mint, available) {
         mint.available = available;
@@ -202,8 +213,11 @@ export default {
       bindPopup: this.mintLocationPopup,
     });
 
-    const starTime =
-      parseInt(localStorage.getItem('material-map-timeline')) || 433;
+    const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
+    this.timelineActive = !localStorage.getItem('map-timeline-active')
+      ? false
+      : localStorage.getItem('map-timeline-active') === 'true';
+
     this.fetchMints();
     await this.initTimeline(starTime);
     this.updateTimeline();
@@ -244,6 +258,18 @@ export default {
     },
     dataUpdated(data) {
       this.painter.update(data);
+
+      const catalogFilters = Object.entries(
+        this.$refs.catalogFilter.activeFilters
+      ).filter(([key, val]) => {
+        if (['excludeFromMapApp', 'mint'].indexOf(key) != -1) return false;
+        else if (key === 'yearOfMint') {
+          return false;
+        }
+
+        return true;
+      });
+      this.catalogFilterActive = catalogFilters.length > 0;
 
       // data.types
       //   .filter((type) => type?.mint?.location != null)
@@ -293,7 +319,7 @@ export default {
       this.settings.visible = !this.settings.visible;
     },
     timelineChanged(value) {
-      localStorage.setItem('material-map-timeline', value);
+      localStorage.setItem('map-timeline', value);
       this.timeChanged(value);
     },
     updateTimeline: async function () {
@@ -310,7 +336,7 @@ export default {
     },
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
-      // this.fetchTypes();
+      localStorage.setItem('map-timeline-active', this.timelineActive);
       this.updateYearOverwrite(
         this.timelineActive ? this.timeline.value : null
       );
@@ -447,6 +473,7 @@ export default {
       };
     },
     resetFilters: function () {
+      this.$refs.catalogFilter.resetFilters();
       this.clearMintSelection({ preventUpdate: true });
       this.update();
     },
@@ -462,6 +489,34 @@ export default {
 <style lang="scss">
 .material-map {
   .catalog-filters {
+    $smaller-input-pad: $small-padding 2 * $small-padding;
+
+    .labeled-input-container {
+      margin-bottom: 0.1em;
+    }
+
+    .radio-button {
+      label {
+        padding: $smaller-input-pad;
+      }
+    }
+
+    label {
+      font-size: $small-font;
+      font-weight: normal;
+      margin-bottom: 0.1em;
+    }
+
+    .three-way-toggle {
+      min-height: 20px;
+    }
+
+    .button,
+    button,
+    input {
+      padding: $smaller-input-pad;
+    }
+
     > * {
       grid-column: span 6;
     }

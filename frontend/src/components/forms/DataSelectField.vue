@@ -11,7 +11,12 @@
       :required="required"
     />
 
-    <Button id="clear-btn" @click.stop.prevent="clear()"><Close /></Button>
+    <Button
+      v-if="!disableRemoveButton"
+      id="clear-btn"
+      @click.stop.prevent="clear()"
+      ><Close
+    /></Button>
 
     <div v-if="!unselectable" class="indicator">
       <Alert v-if="invalid" class="alert" />
@@ -117,6 +122,10 @@ export default {
     msg: String,
     tooltip: String,
     placeholder: String,
+    disableRemoveButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     invalid: function () {

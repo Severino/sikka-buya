@@ -13,7 +13,6 @@ export default class DataPainter {
     }
 
     update(geoJson) {
-        console.log(this.createMarker)
         if (this.onTransform)
             geoJson = this.onTransform(geoJson)
 
@@ -23,7 +22,6 @@ export default class DataPainter {
         const that = this
         this.layer = new L.geoJSON(geoJson, {
             pointToLayer: function (feature, latlng) {
-                console.log(feature, latlng)
                 return that.createMarker.call(that, latlng, feature)
             },
             coordsToLatLng: function (coords) {

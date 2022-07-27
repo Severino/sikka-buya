@@ -525,18 +525,24 @@ class Type {
 
     static complexFilters(filter) {
 
-        const queryBuilder = new QueryBuilder
+        const queryBuilder = new QueryBuilder()
 
         if (Object.hasOwnProperty.bind(filter)("coinMark")) {
-            queryBuilder.addJoin(`RIGHT JOIN(
-                SELECT type_coin_marks.type, array_agg(to_json(coin_marks.*)) AS coin_mark, array_agg(type_coin_marks.coin_mark) as coin_mark_ids 
-                            FROM type_coin_marks 
-                            JOIN coin_marks 
-                            ON coin_marks.id = type_coin_marks.coin_mark
-                            GROUP BY type_coin_marks.type ) AS cm
-                        ON cm.type = t.id`)
+            if (Array.isArray(filter.coinMark) && filter.coinMark.length > 0) {
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT tcm.type,
+                    COALESCE(ARRAY_AGG(id) FILTER(
+                        WHERE id IS NOT NULL), '{}') as coin_marks
+                 FROM type_coin_marks tcm
+                 LEFT JOIN coin_marks cm ON tcm.coin_mark = cm.id
+                 GROUP BY tcm.type) agg_coin_marks ON agg_coin_marks.type = t.id`)
 
-            queryBuilder.addWhere(pgp.as.format("$1=ANY(cm.coin_mark_ids)", [filter.coinMark]))
+                queryBuilder.addSelect(`
+                 COALESCE(agg_coin_marks.titles, '{}') as coin_marks
+                 `)
+
+                queryBuilder.addWhere(pgp.as.format(`$[coin_marks]:: int[] && agg_coin_marks.coin_marks`, { coin_marks: filter.coinMark }))
+            }
             delete filter.coinMark
         }
 
@@ -578,7 +584,7 @@ class Type {
                  COALESCE(type_titles.titles, '{}') as titles
                  `)
 
-                queryBuilder.addWhere(pgp.as.format(`$[titles]::int[] && type_titles.titles `, { titles: filter.title }))
+                queryBuilder.addWhere(pgp.as.format(`$[titles]:: int[] && type_titles.titles`, { titles: filter.title }))
             }
             delete filter.title
         }
@@ -597,7 +603,7 @@ class Type {
                  COALESCE(type_honorifics.honorifics, '{}') as honorifics
                  `)
 
-                queryBuilder.addWhere(pgp.as.format(`$[honorifics]::int[] && type_honorifics.honorifics `, { honorifics: filter.honorific }))
+                queryBuilder.addWhere(pgp.as.format(`$[honorifics]:: int[] && type_honorifics.honorifics`, { honorifics: filter.honorific }))
             }
             delete filter.honorific
         }
@@ -605,42 +611,42 @@ class Type {
         if (Object.hasOwnProperty.bind(filter)("ruler")) {
             if (Array.isArray(filter.ruler) && filter.ruler.length > 0) {
                 queryBuilder.addSelect(`(issuers || overlords) as rulers`)
-                queryBuilder.addJoin(`LEFT JOIN ( 
-                    SELECT
+                queryBuilder.addJoin(`LEFT JOIN(
+                            SELECT
                         o.type,
-                        COALESCE(array_agg(o.person)) as overlords
+                            COALESCE(array_agg(o.person)) as overlords
                     FROM
                         overlord o
                     GROUP BY
                         o.type
-                ) overlord_query ON overlord_query.type = t.id
-                LEFT JOIN (
-                    SELECT
+                        ) overlord_query ON overlord_query.type = t.id
+                LEFT JOIN(
+                            SELECT
                         i.type,
-                        COALESCE(array_agg(i.person)) as issuers
+                            COALESCE(array_agg(i.person)) as issuers
                     FROM
                         issuer i
                     GROUP BY
-                        i.type 
-                ) issuer_query ON issuer_query.type = t.id `)
-                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords)  && $[ruler]::int[])`, { ruler: filter.ruler }))
+                        i.type
+                        ) issuer_query ON issuer_query.type = t.id`)
+                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) && $[ruler]:: int[])`, { ruler: filter.ruler }))
             }
             delete filter.ruler
         }
 
         if (Object.hasOwnProperty.bind(filter)("otherPerson")) {
             queryBuilder.addSelect(`other_`)
-            queryBuilder.addJoin(`LEFT JOIN ( 
-                SELECT
+            queryBuilder.addJoin(`LEFT JOIN(
+                            SELECT
                     op.type,
-                    COALESCE(array_agg(op.person)) as other_person
+                            COALESCE(array_agg(op.person)) as other_person
                 FROM
                     other_person op
                 GROUP BY
                     op.type
-            ) other_person_query ON other_person_query.type = t.id`)
+                        ) other_person_query ON other_person_query.type = t.id`)
 
-            queryBuilder.addWhere(pgp.as.format(`(other_person  && $[otherPerson]::int[])`, { otherPerson: filter.otherPerson }))
+            queryBuilder.addWhere(pgp.as.format(`(other_person && $[otherPerson]:: int[])`, { otherPerson: filter.otherPerson }))
             delete filter.otherPerson
         }
 
@@ -670,14 +676,18 @@ SELECT
 COUNT(*) as total     
         FROM type t
         ${this.joins}
-        , websearch_to_tsquery($[text]) as keywords
+                , websearch_to_tsquery($[text]) as keywords
         ${whereClause}
 ; `
         const { total } = await Database.one(test_query, Object.assign(filters, { text }))
         pagination.updateTotal(total)
 
         const query = `
+            SELECT 
 SELECT 
+            SELECT 
+SELECT 
+            SELECT 
         ${this.rows}, ts_headline(plain_text, keywords, 'MaxFragments=10, HighlightALL=true') as preview        
         FROM type t
         ${this.joins}
@@ -685,7 +695,7 @@ SELECT
         ${whereClause} 
         ORDER BY t.project_id ASC
         ${pagination.toQuery()}
-; `
+            ; `
 
 
         const result = await Database.manyOrNone(query, { text })
@@ -713,12 +723,16 @@ SELECT
         if (!id) throw new Error("Id must be provided!")
 
         const result = await Database.one(`
+            SELECT 
 SELECT 
+            SELECT 
+SELECT 
+            SELECT 
                 ${this.rows}
             FROM type t
                 ${this.joins}
             WHERE t.id = $1
-    `, id).catch((e) => {
+                `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
         const fields = graphqlFields(info)
@@ -740,12 +754,16 @@ SELECT
      */
     static async getFullType(id) {
         const result = await Database.one(`
+            SELECT 
 SELECT 
+            SELECT 
+SELECT 
+            SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
         WHERE t.id = $1
-    `, id).catch((e) => {
+                `, id).catch((e) => {
             throw new Error("Requested type does not exist: " + e)
         })
 
@@ -760,13 +778,17 @@ SELECT
 
         const result = await Database.manyOrNone(`
         WITH rulers AS(
-        SELECT type FROM overlord WHERE person = $1
+                    SELECT type FROM overlord WHERE person = $1
                     UNION
                     SELECT type from issuer WHERE person = $1
                     UNION
                     SELECT id AS type from type WHERE caliph = $1
-    )
+                )
+            SELECT 
         SELECT 
+            SELECT 
+        SELECT 
+            SELECT 
             ${this.rows}
         FROM type t
             ${this.joins}
@@ -785,19 +807,19 @@ SELECT
 
     static get rows() {
         return ` t.*,
-    ${Material.query()}
+                ${Material.query()}
     ${Material.colorQuery()},
         ${Mint.query()}
-        province.id AS mint_province_id,
-        province.name AS mint_province_name,
-        ${Nominal.query()}
-exclude_from_type_catalogue,
-    exclude_from_map_app,
-    internal_notes,
-    year_uncertain,
-    mint_uncertain as guessed_mint,
-    p.id AS caliph_id,
-    pc.color AS caliph_color`
+            province.id AS mint_province_id,
+                province.name AS mint_province_name,
+                    ${Nominal.query()}
+            exclude_from_type_catalogue,
+                exclude_from_map_app,
+                internal_notes,
+                year_uncertain,
+                mint_uncertain as guessed_mint,
+                p.id AS caliph_id,
+                    pc.color AS caliph_color`
     }
 
     static get joins() {
@@ -814,7 +836,7 @@ exclude_from_type_catalogue,
         ON t.caliph = p.id
         LEFT JOIN person_color pc
         ON p.id = pc.person
-    `
+                `
     }
 
     static async postprocessType(type, fields) {

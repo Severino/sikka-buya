@@ -49,6 +49,7 @@
         :additionalParameters="ms.additionalParameters"
         :text="ms.text"
         :textFunction="ms.textFunction"
+        :disableRemoveButton="true"
         @select="(el) => selectFilter(ms.value, el)"
         @remove="(el) => removeFilter(ms.value, el)"
       />
@@ -268,14 +269,24 @@ export default {
         this.$emit('update', { types, pageInfo });
       });
     },
-    getActiveFilters(name) {
-      // const activeFiltersName = Filter.activeSelector(name);
-      return this.filters[name];
+    resetFilters() {
+      [
+        ...unfilteredThreeWayFilters,
+        ...unfilteredButtonGroupFilters,
+        ...unfilteredNumberFilters,
+      ].forEach((item) => {
+        this.$set(this.filters, item.value, item.defaultValue || null);
+      });
+
+      [...unfilteredMultiSelectFilters].forEach((filter) => {
+        const emptyObj = Filter.unsetFilter(filter);
+        for (let [key, val] of Object.entries(emptyObj)) {
+          this.$set(this.filters, key, val || null);
+        }
+      });
     },
     selectFilter(name, target) {
       const methodName = Filter.selectMethodName(name);
-      console.log(name, target, methodName);
-
       return this[methodName](target);
     },
     removeFilter(name, target) {
@@ -334,7 +345,7 @@ export default {
 <style lang="scss">
 .catalog-filters {
   .three-way-toggle {
-    min-height: 36px;
+    min-height: 22px;
   }
 }
 </style>
