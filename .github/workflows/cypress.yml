@@ -25,9 +25,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: npm yarn install --immutable --immutable-cache --check-cache
-      - run: npm yarn install --immutable --immutable-cache --check-cache
-        working-directory: frontend
-      - run: npm yarn install --immutable --immutable-cache --check-cache
-        working-directory: backend
-      - run: npm run test
+      - uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: install 
+
