@@ -46,6 +46,7 @@
         :attribute="ms.attribute"
         :queryParams="ms.queryParams"
         :queryCommand="ms.queryCommand"
+        :additionalParameters="ms.additionalParameters"
         :text="ms.text"
         :textFunction="ms.textFunction"
         @select="(el) => selectFilter(ms.value, el)"
@@ -131,6 +132,9 @@ let unfilteredMultiSelectFilters = [
     value: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
     queryParams: ['id', 'name', { role: ['id', 'name'] }],
+    additionalParameters: {
+      exclude: ['caliph', 'heir'],
+    },
     textFunction: function (search) {
       return `${search.name} (${this.$tc(`role.${search.role.name}`)})`;
     },

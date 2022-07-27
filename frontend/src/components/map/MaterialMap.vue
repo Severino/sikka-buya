@@ -232,7 +232,6 @@ export default {
         return Object.values(obj);
       },
       createMarker: (latlng, feature) => {
-        console.log(feature);
         const cm = new CountMarker(26);
         return cm.create(latlng, feature.data.types.length);
       },
@@ -244,7 +243,6 @@ export default {
       this.overwriteFilters.mint = mints;
     },
     dataUpdated(data) {
-      console.log(data);
       this.painter.update(data);
 
       // data.types

@@ -140,7 +140,8 @@ const role = {
     warden: "Münzwardein | Münzwardeien",
     buyid: "Būyide | Būyiden",
     caliph: "Kalif | Kalifen",
-    vassal: "Vasallendynastie"
+    vassal: "Vasallendynastie",
+    donator: "Donator | Donatoren",
 }
 
 const attribute = {

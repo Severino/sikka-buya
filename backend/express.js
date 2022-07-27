@@ -388,8 +388,6 @@ async function start({
                         ORDER BY year_of_mint;`,
                             { id })
 
-                        console.log(mint)
-
                         mintArray.push({
                             mint,
                             data: result.map(({ year_of_mint, count }) => {

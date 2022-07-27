@@ -59,9 +59,9 @@ class Person {
 
 
         if (include) {
-            query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS true", include)}`
+            query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS true", [include])}`
         } else if (exclude) {
-            query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", exclude)}`
+            query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", [exclude])}`
         }
 
         query = `${query} ORDER BY p.name ASC`

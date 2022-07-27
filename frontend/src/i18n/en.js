@@ -112,7 +112,8 @@ const role = {
     warden: "mint warden | mint wardens",
     buyid: "Būyid | Būyids",
     caliph: "caliph | caliphs",
-    vassal: "vassal dynastie"
+    vassal: "vassal dynastie",
+    donator: "donator | donators"
 }
 
 const attribute = {

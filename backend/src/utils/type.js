@@ -481,10 +481,7 @@ class Type {
             ON cm.type = type.id
          */
 
-        console.log(pagination)
-
         const queryBuilder = this.complexFilters(filters)
-
 
         const conditions = this.objectToConditions(filters)
         const joinClause = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
@@ -515,7 +512,6 @@ class Type {
         ORDER BY t.project_id ASC
         ${pageInfo.toQuery()}
 ; `
-        // console.log(query)
 
         const result = await Database.manyOrNone(query)
         let fields = graphqlFields(info)
