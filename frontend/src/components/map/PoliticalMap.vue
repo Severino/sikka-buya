@@ -99,6 +99,10 @@ import ScrollView from '../layout/ScrollView.vue';
 import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
 
+import { RequestGuard } from '../../utils/Async';
+
+let mintRequestGuard = new RequestGuard();
+
 export default {
   name: 'PoliticalMap',
   components: {
@@ -200,122 +204,122 @@ export default {
       this.timeChanged(value);
     },
     fetchTypes: async function () {
-      return new Promise((resolve, reject) => {
-        if (!this.timeline.value) {
-          reject('Invalid value in timeline.');
-        } else {
-          Query.raw(
-            `{
-person {
-  id
-  name
-  shortName
-  color
-  dynasty {
-    id
-    name
-  }
-}
-  ${this.mintGraphQL}    
+      const timelineVal = this.timeline.value;
+      console.log(timelineVal);
 
-  coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
-    types{
-    id
-    projectId
-    material {name}
-    donativ
-    procedure
-    nominal {name}
-    mintAsOnCoin
-    caliph {
-      name,
-      shortName
-      id
-      color
-      dynasty{
-        id,name
-      }
-    }
-    mint {
-      id
-      name
-      location
-      uncertain
-      province {
-        id
-        name
-      }
-    },
-    issuers {
-      id
-      name
-      shortName
-      color
-      dynasty{
-        id,name
-      }
-    }
-    overlords {
-      id
-      name
-      shortName
-      rank
-      color
-      dynasty{
-        id,name
-      }
-    }
-    otherPersons {
-    id
-    shortName
-    name
-    color
-    role {
-      id
-      name
-    }
-  }
-    excludeFromTypeCatalogue
-  }
-  }
-}`
-          )
-            .then((result) => {
-              let data = result.data.data;
-              let types = data.coinType.types;
+      return mintRequestGuard.exec(async () => {
+        if (!this.timeline.value) throw new Error('Invalid value in timeline.');
 
-              this.applyQuery(result.data.data.mint);
+        const result = await Query.raw(
+          `{
+              person {
+                id
+                name
+                shortName
+                color
+                dynasty {
+                  id
+                  name
+                }
+              }
+                ${this.mintGraphQL}    
 
-              data.person.forEach(
-                (person) => (this.persons[person.id] = person)
-              );
-
-              types.forEach((type) => {
-                if (type?.mint.location) {
-                  try {
-                    type.mint.location = JSON.parse(type.mint.location);
-                  } catch (e) {
-                    console.error(
-                      'Could not parse GeoJSON.',
-                      type.mint.location
-                    );
+                coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
+                  types{
+                  id
+                  projectId
+                  material {name}
+                  donativ
+                  procedure
+                  nominal {name}
+                  mintAsOnCoin
+                  caliph {
+                    name,
+                    shortName
+                    id
+                    color
+                    dynasty{
+                      id,name
+                    }
+                  }
+                  mint {
+                    id
+                    name
+                    location
+                    uncertain
+                    province {
+                      id
+                      name
+                    }
+                  },
+                  issuers {
+                    id
+                    name
+                    shortName
+                    color
+                    dynasty{
+                      id,name
+                    }
+                  }
+                  overlords {
+                    id
+                    name
+                    shortName
+                    rank
+                    color
+                    dynasty{
+                      id,name
+                    }
+                  }
+                  otherPersons {
+                  id
+                  shortName
+                  name
+                  color
+                  role {
+                    id
+                    name
                   }
                 }
-              });
+                  excludeFromTypeCatalogue
+                }
+                }
+              }`,
+          []
+        );
 
-              types = types.filter(
-                (d) => (d.mint?.location && d.mint.location.coordinates) != null
-              );
+        let data = result.data.data;
+        let types = data.coinType.types;
 
-              resolve(types);
-            })
-            .catch(reject);
-        }
+        this.applyQuery(result.data.data.mint);
+
+        data.person.forEach((person) => (this.persons[person.id] = person));
+
+        types.forEach((type) => {
+          if (type?.mint.location) {
+            try {
+              type.mint.location = JSON.parse(type.mint.location);
+            } catch (e) {
+              console.error('Could not parse GeoJSON.', type.mint.location);
+            }
+          }
+        });
+
+        types = types.filter(
+          (d) => (d.mint?.location && d.mint.location.coordinates) != null
+        );
+
+        return types;
       });
     },
     updateTimeline: async function () {
-      this.types = await this.fetchTypes();
-      this.update();
+      let types = await this.fetchTypes();
+      console.log(types);
+
+      if (types != null) {
+        this.types = types;
+        this.update();
+      }
     },
     resetFilters: function () {
       this.mintSelectionChanged([], true);

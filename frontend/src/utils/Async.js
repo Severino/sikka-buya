@@ -17,12 +17,13 @@ class RequestGuard {
      */
     async exec(callback) {
         this.reqCount++
+        let returnValue = null
         if (!this.locked) {
             do {
                 this.locked = true
                 let current = this.reqCount
                 try {
-                    await callback()
+                    returnValue = await callback()
                 } catch (e) {
                     console.error(e)
                 } finally {
@@ -38,6 +39,8 @@ class RequestGuard {
             this.reqCount = 0
             this.current = 0
         }
+        return returnValue
+
     }
 
 }

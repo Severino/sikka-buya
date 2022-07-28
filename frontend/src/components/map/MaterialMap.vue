@@ -249,6 +249,7 @@ export default {
         const cm = new CountMarker(26);
         return cm.create(latlng, feature.data.types.length);
       },
+      bindPopup: this.mintLocationPopup,
     });
   },
   methods: {
@@ -257,8 +258,6 @@ export default {
       this.overwriteFilters.mint = mints;
     },
     dataUpdated(data) {
-      this.painter.update(data);
-
       const catalogFilters = Object.entries(
         this.$refs.catalogFilter.activeFilters
       ).filter(([key, val]) => {
@@ -270,26 +269,6 @@ export default {
         return true;
       });
       this.catalogFilterActive = catalogFilters.length > 0;
-
-      // data.types
-      //   .filter((type) => type?.mint?.location != null)
-      //   .forEach((type) => {
-      //     if (!mints[type.mint.id]) {
-      //       const feature = JSON.parse(type.mint.location);
-      //       feature.mint = type.mint;
-      //       feature.data = { types: [] };
-      //       mints[type.mint.id] = feature;
-      //     }
-      //     mints[type.mint.id].data.types.push(type);
-      //   });
-
-      // const filteredMintFeatures = Object.values(mints);
-      // if (this.filteredMintLayer) this.filteredMintLayer.clearLayers();
-      // this.filteredMintLayer =
-      //   this.filteredMintLocation.createGeometryLayer(filteredMintFeatures);
-      // this.filteredMintLayer.addTo(this.featureGroup);
-
-      // this.updateMints();
     },
     updateMints() {
       if (this.filteredMints) {
@@ -297,6 +276,7 @@ export default {
       }
     },
     mintLocationPopup(feature) {
+      console.log('CLICK');
       const mint = feature.mint ? feature.mint : new Mint();
       const types = feature?.data?.types ? feature.data.types : [];
 

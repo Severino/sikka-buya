@@ -50,7 +50,6 @@ export default class Filter {
         return function (target) {
             if (!this["has" + StringUtils.capitalize(name) + "Filter"](target)) {
                 target.id = parseInt(target.id)
-                console.log(target)
                 this.filters[name].push(target);
             }
             this.filters[Filter.searchVariableName(name)] = { id: null, name: '' };

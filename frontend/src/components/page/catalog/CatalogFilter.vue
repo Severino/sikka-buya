@@ -41,7 +41,7 @@
     >
       <multi-data-select
         :table="ms.value"
-        v-model="filters[Filter.searchVariableName(ms.value)]"
+        v-model="filters[searchVariableName(ms.value)]"
         :active="filters[ms.value]"
         :attribute="ms.attribute"
         :queryParams="ms.queryParams"
@@ -250,6 +250,7 @@ export default {
     async search() {
       searchRequestGuard.exec(async () => {
         const filters = Object.assign(
+          {},
           this.activeFilters,
           this.constantFilters,
           this.overwriteFilters
@@ -296,11 +297,11 @@ export default {
     excludeItem(group) {
       return group.filter((item) => this.exclude.indexOf(item.value) === -1);
     },
+    searchVariableName(value) {
+      return Filter.searchVariableName(value);
+    },
   },
   computed: {
-    Filter() {
-      return Filter;
-    },
     activeFilters() {
       return Object.entries(this.filters)
         .filter(([name, val]) => {
