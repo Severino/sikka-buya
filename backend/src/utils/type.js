@@ -684,10 +684,6 @@ COUNT(*) as total
 
         const query = `
             SELECT 
-SELECT 
-            SELECT 
-SELECT 
-            SELECT 
         ${this.rows}, ts_headline(plain_text, keywords, 'MaxFragments=10, HighlightALL=true') as preview        
         FROM type t
         ${this.joins}
@@ -724,10 +720,6 @@ SELECT
 
         const result = await Database.one(`
             SELECT 
-SELECT 
-            SELECT 
-SELECT 
-            SELECT 
                 ${this.rows}
             FROM type t
                 ${this.joins}
@@ -754,10 +746,6 @@ SELECT
      */
     static async getFullType(id) {
         const result = await Database.one(`
-            SELECT 
-SELECT 
-            SELECT 
-SELECT 
             SELECT 
             ${this.rows}
         FROM type t
