@@ -574,36 +574,50 @@ class Type {
             if (Array.isArray(filter.title) && filter.title.length > 0) {
                 queryBuilder.addJoin(`LEFT JOIN
                 (SELECT o.type,
-                        COALESCE(ARRAY_AGG(title_id) FILTER (
-                                                             WHERE title_id IS NOT NULL ), '{}') as titles
+                        COALESCE(ARRAY_AGG(title_id) FILTER (WHERE title_id IS NOT NULL ), '{}') as titles
                  FROM overlord o
                  LEFT JOIN overlord_titles ot ON o.id = ot.overlord_id
-                 GROUP BY o.type) type_titles ON type_titles.type = t.id`)
+                 GROUP BY o.type) type_overlord_titles ON type_overlord_titles.type = t.id`)
+
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT i.type,
+                        COALESCE(ARRAY_AGG(title) FILTER (WHERE title IS NOT NULL ), '{}') as titles
+                 FROM issuer i
+                 LEFT JOIN issuer_titles it ON i.id = it.issuer
+                 GROUP BY i.type) type_issuer_titles ON type_issuer_titles.type = t.id`)
 
                 queryBuilder.addSelect(`
-                 COALESCE(type_titles.titles, '{}') as titles
+                 COALESCE(type_overlord_titles.titles, type_issuer_titles.titles, '{}') as titles
                  `)
 
-                queryBuilder.addWhere(pgp.as.format(`$[titles]:: int[] && type_titles.titles`, { titles: filter.title }))
+                queryBuilder.addWhere(pgp.as.format(`$[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles`, { titles: filter.title }))
             }
             delete filter.title
         }
 
         if (Object.hasOwnProperty.bind(filter)("honorific")) {
             if (Array.isArray(filter.honorific) && filter.honorific.length > 0) {
+
                 queryBuilder.addJoin(`LEFT JOIN
                 (SELECT o.type,
-                        COALESCE(ARRAY_AGG(honorific_id) FILTER (
-                                                             WHERE honorific_id IS NOT NULL ), '{}') as honorifics
+                        COALESCE(ARRAY_AGG(honorific_id) FILTER (WHERE honorific_id IS NOT NULL ), '{}') as honorifics
                  FROM overlord o
-                 LEFT JOIN overlord_honorifics ot ON o.id = ot.overlord_id
-                 GROUP BY o.type) type_honorifics ON type_honorifics.type = t.id`)
+                 LEFT JOIN overlord_honorifics oh ON o.id = oh.overlord_id
+                 GROUP BY o.type) type_overlord_honorifics ON type_overlord_honorifics.type = t.id`)
+
+
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT i.type,
+                        COALESCE(ARRAY_AGG(honorific) FILTER (WHERE honorific IS NOT NULL ), '{}') as honorifics
+                 FROM issuer i
+                 LEFT JOIN issuer_honorifics ih ON i.id = ih.issuer
+                 GROUP BY i.type) type_issuer_honorifics ON type_issuer_honorifics.type = t.id`)
 
                 queryBuilder.addSelect(`
-                 COALESCE(type_honorifics.honorifics, '{}') as honorifics
+                 COALESCE(type_overlord_honorifics.honorifics, type_issuer_honorifics.honorifics , '{}') as honorifics
                  `)
 
-                queryBuilder.addWhere(pgp.as.format(`$[honorifics]:: int[] && type_honorifics.honorifics`, { honorifics: filter.honorific }))
+                queryBuilder.addWhere(pgp.as.format(`$[honorifics]:: int[] && type_overlord_honorifics.honorifics OR $[honorifics]:: int[] && type_issuer_honorifics.honorifics`, { honorifics: filter.honorific }))
             }
             delete filter.honorific
         }
