@@ -590,7 +590,7 @@ class Type {
                  COALESCE(type_overlord_titles.titles, type_issuer_titles.titles, '{}') as titles
                  `)
 
-                queryBuilder.addWhere(pgp.as.format(`$[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles`, { titles: filter.title }))
+                queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles)`, { titles: filter.title }))
             }
             delete filter.title
         }
@@ -617,7 +617,7 @@ class Type {
                  COALESCE(type_overlord_honorifics.honorifics, type_issuer_honorifics.honorifics , '{}') as honorifics
                  `)
 
-                queryBuilder.addWhere(pgp.as.format(`$[honorifics]:: int[] && type_overlord_honorifics.honorifics OR $[honorifics]:: int[] && type_issuer_honorifics.honorifics`, { honorifics: filter.honorific }))
+                queryBuilder.addWhere(pgp.as.format(`($[honorifics]:: int[] && type_overlord_honorifics.honorifics OR $[honorifics]:: int[] && type_issuer_honorifics.honorifics)`, { honorifics: filter.honorific }))
             }
             delete filter.honorific
         }
