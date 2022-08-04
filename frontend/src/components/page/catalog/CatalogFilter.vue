@@ -228,7 +228,6 @@ export default {
     },
     overwriteFilters: {
       handler() {
-        console.log('overwriteChanged', this.overwriteFilters);
         this.search();
       },
       deep: true,

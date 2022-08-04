@@ -412,16 +412,10 @@ export default {
   },
   computed: {
     filteredPersons() {
-      console.log(
-        SearchUtils.filter(this.searchText, this.persons, 'name').map(
-          (p) => p.name
-        )
-      );
       return SearchUtils.filter(this.searchText, this.persons, 'name');
     },
     filteredPersonsInactive() {
       const filteredIds = this.filteredPersons.map((p) => p.id);
-      console.log(filteredIds);
       return this.persons.filter((p) => {
         return !filteredIds.includes(p.id);
       });

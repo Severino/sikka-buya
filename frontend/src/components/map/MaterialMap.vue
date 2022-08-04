@@ -72,6 +72,11 @@
           typeBody="
               id
               projectId
+              material {
+                id
+                name
+                color
+              }
               mint {
                 id
                 name
@@ -97,8 +102,14 @@ import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
 import mintLocations from './mixins/MintLocationsMixin';
+import L from 'leaflet';
 
-import MintLocation, { CountMarker } from '../../models/mintlocation';
+import MaterialStats from '../../models/material/MaterialStats';
+import MaterialOverlay from '../../maps/MaterialOverlay';
+import MintLocation, {
+  CountMarker,
+  MintLocationMarker,
+} from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
@@ -160,24 +171,6 @@ export default {
     }),
   ],
   computed: {
-    // filtersActive() {
-    //   for (let [key, val] of Object.entries(inactiveFilters)) {
-    //     console.log(key, val, this.filters[key]);
-    //     if (this.filters[key] !== null) {
-    //       let filterValue = this.filters[key];
-    //       if (Array.isArray(filterValue)) {
-    //         if (filterValue.length > 0) return true;
-    //       } else if (typeof val === 'object') {
-    //         if (filterValue.id != null && filterValue.id != val.id) return true;
-    //       } else {
-    //         if (filterValue !== val) {
-    //           return true;
-    //         }
-    //       }
-    //     }
-    //   }
-    //   return false;
-    // },
     mintsList() {
       function addAvailability(mint, available) {
         mint.available = available;
@@ -204,15 +197,6 @@ export default {
     },
   },
   mounted: async function () {
-    this.filteredMintLocation = new MintLocation({
-      markerOptions: this.mintMarkerOptions,
-      createMarker: (latlng, feature) => {
-        const cm = new CountMarker(16);
-        return cm.create(latlng, feature.data.types.length);
-      },
-      bindPopup: this.mintLocationPopup,
-    });
-
     const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
     this.timelineActive = !localStorage.getItem('map-timeline-active')
       ? false
@@ -224,32 +208,55 @@ export default {
 
     this.painter = new DataPainter(this.featureGroup, {
       onTransform(data) {
-        const obj = data.types
-          .filter((type) => {
-            if (!type?.mint?.location) return false;
-            try {
-              type.mint.location = JSON.parse(type.mint.location);
-              return true;
-            } catch (e) {
-              return false;
-            }
-          })
-          .reduce((prev, type) => {
-            const mint = type.mint;
-            if (!prev[mint.id]) {
-              prev[mint.id] = mint.location;
-              prev[mint.id].data = { mint, types: [] };
-            }
-            prev[mint.id].data.types.push(type);
-            return prev;
-          }, {});
-        return Object.values(obj);
+        const types = data.types.filter((type) => {
+          if (!type?.mint?.location) return false;
+          try {
+            type.mint.location = JSON.parse(type.mint.location);
+            return true;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        const mints = types.reduce((prev, type) => {
+          const mint = type.mint;
+          if (!prev[mint.id]) {
+            prev[mint.id] = mint.location;
+            prev[mint.id].data = {
+              mint,
+              types: [],
+              materialStats: new MaterialStats(),
+            };
+          }
+
+          prev[mint.id].data.materialStats.add(type.material);
+          prev[mint.id].data.types.push(type);
+          return prev;
+        }, {});
+
+        return Object.values(mints);
       },
       createMarker: (latlng, feature) => {
-        const cm = new CountMarker(26);
-        return cm.create(latlng, feature.data.types.length);
+        let materialOverlay = MaterialOverlay.createMarker(
+          latlng,
+          feature,
+          feature.data.materialStats
+        );
+
+        let mlm = new MintLocationMarker(feature.data.mint);
+        let marker = mlm.create(latlng);
+        marker.bindPopup(this.mintLocationPopup(feature.data));
+
+        const featureGroup = L.featureGroup([marker, materialOverlay]);
+        console.log(featureGroup);
+
+        featureGroup.on('mouseover', () => featureGroup.bringToFront());
+        featureGroup.on('click', () => featureGroup.bringToFront());
+
+        featureGroup.bringToFront();
+
+        return featureGroup;
       },
-      bindPopup: this.mintLocationPopup,
     });
   },
   methods: {
@@ -269,16 +276,17 @@ export default {
         return true;
       });
       this.catalogFilterActive = catalogFilters.length > 0;
+
+      this.painter.update(data);
     },
     updateMints() {
       if (this.filteredMints) {
         Object.values(this.filteredMints);
       }
     },
-    mintLocationPopup(feature) {
-      console.log('CLICK');
-      const mint = feature.mint ? feature.mint : new Mint();
-      const types = feature?.data?.types ? feature.data.types : [];
+    mintLocationPopup(data) {
+      const mint = data.mint ? data.mint : new Mint();
+      const types = data?.types ? data.types : [];
 
       return `
       ${Mint.popupMintHeader(mint)}
@@ -370,77 +378,6 @@ export default {
     //       );
     //     },
 
-    // async fetchMaterial() {
-    //   this.mintData = {};
-    //   const types = {};
-    //   let fetching = true;
-
-    //   let pagination = {
-    //     page: 0,
-    //     count: 1000,
-    //   };
-
-    //   const filters = {
-    //     material: this.filters.materials.map((mat) => mat.id),
-    //   };
-
-    //   if (this.timelineActive)
-    //     filters.yearOfMint = this.timeline.value.toString();
-
-    //   while (fetching) {
-    //     console.log(filters);
-
-    //     const result = await Query.raw(
-    //       `query ($pagination:Pagination, $filters: TypeFilter){
-    //           coinType (pagination: $pagination, filters: $filters) {
-    //             pageInfo{
-    //                 page
-    //                 count
-    //                 last
-    //                 total
-    //               }
-    //               types {
-    //                 id
-    //                 projectId
-    //                 mint {id, name}
-    //                 material {id name color}
-    //               }
-    //             }
-    //         }`,
-    //       { filters, pagination }
-    //     );
-
-    //     pagination.page++;
-
-    //     const { types, pageInfo } = result.data.data.coinType;
-
-    //     if (
-    //       pageInfo.count * (pageInfo.page + 1) >= pageInfo.total ||
-    //       types.length == 0
-    //     ) {
-    //       fetching = false;
-    //     }
-
-    //     types.forEach((type) => {
-    //       const mintId = type?.mint?.id;
-    //       const materialId = type?.material?.id;
-    //       if (materialId && mintId) {
-    //         if (!this.mintData[mintId]) {
-    //           this.mintData[mintId] = {};
-    //           this.mintData[mintId][materialId] = this.getMaterialOptions(
-    //             type?.material
-    //           );
-    //         } else {
-    //           if (!this.mintData[mintId][materialId]) {
-    //             this.mintData[mintId][materialId] = this.getMaterialOptions(
-    //               type?.material
-    //             );
-    //           } else this.mintData[mintId][materialId].count++;
-    //         }
-    //       }
-    //     });
-    //   }
-    // },
     getMaterialOptions(material) {
       return {
         id: material?.id,
@@ -459,6 +396,7 @@ export default {
     },
     update() {
       this.updateMints();
+      // MaterialOverlay.update();
       // this.updateConcentricCircles();
       this.$emit('timeline-updated', this.value);
     },

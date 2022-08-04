@@ -68,7 +68,6 @@ export default {
   name: 'PersonForm',
   mounted: function () {
     let id = +this.$route.params.id;
-    console.log(id);
 
     if (!isNaN(id)) {
       Query.raw(

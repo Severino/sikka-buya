@@ -40,7 +40,6 @@ Cypress.Commands.add('login', (email, password) => {
 })
 
 Cypress.Commands.add("typeLines", (selector, lines, clear = true) => {
-    console.log(cy.get(selector))
     if (clear) cy.get(selector).clear()
     cy.get(selector).type(lines.join("{enter}"))
 })
@@ -146,15 +145,12 @@ Cypress.Commands.add("checkPersonList", (selector, items = []) => {
     selection.should("have.length", items.length)
     selection.each(function (listItem, idx) {
 
-        console.log(items[idx])
         const { id, name, titles, honorifics } = items[idx]
 
         cy.checkDataSelect(".titled-person-select > .input-group > .data-select.name", name, id, listItem)
 
         if (titles != null && titles.length > 0) {
-            console.log(titles)
             cy.wrap(listItem).find(".titled-person-title-list .list-item").should("have.length", titles.length).each((titleListItem, idx) => {
-                console.log(titleListItem)
                 const title = titles[idx]
                 cy.checkDataSelect(".data-select.title", title.name, title.id, titleListItem)
             })

@@ -23,7 +23,6 @@ export default class TimelineChart extends Chart {
     }
 
     updateTimeline(timeline) {
-        console.log(timeline.from, timeline.to)
         this.timeline = timeline
     }
 

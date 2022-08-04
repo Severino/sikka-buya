@@ -9,11 +9,14 @@ export function rulersFromCoin(coin, patterns) {
         if (!coin.heir) {
             rulers.push(coin.caliph)
         } else {
+
+            const fillPattern = patterns[coin.caliph.id] ? patterns[coin.caliph.id][coin.heir.id] : null
+
             rulers.push({
                 group: true,
                 items: [coin.caliph, coin.heir],
                 styles: {
-                    fillPattern: patterns[coin.caliph.id][coin.heir.id]
+                    fillPattern
                 }
             })
         }
@@ -72,6 +75,7 @@ export function dataFromRulers(rulers, selected = []) {
 export function coinsToRulerData(coins, selected = [], patterns = {}) {
     let data = []
     let sel = false
+
     coins.forEach(coin => {
         const rulers = rulersFromCoin(coin, patterns)
         let { data: rulerData, selected: sel2 } = dataFromRulers(rulers, selected)

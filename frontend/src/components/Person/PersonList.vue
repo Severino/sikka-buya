@@ -17,9 +17,6 @@ export default {
   props: {
     value: [Array, Object, null],
   },
-  mounted() {
-    console.log(this.value);
-  },
 };
 </script>
 

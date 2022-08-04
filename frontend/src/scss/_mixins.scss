@@ -37,12 +37,12 @@
   color: $foregroundColor;
   background-color: $backgroundColor;
 
-  &:hover {
+  &:hover:not(.disable-input) {
     color: lighten($foregroundColor, 5%);
     background-color: lighten($backgroundColor, 5%);
   }
 
-  &:active {
+  &:active:not(.disable-input) {
     color: darken($foregroundColor, 5%);
     background-color: darken($backgroundColor, 5%);
   }
@@ -62,6 +62,7 @@
 }
 
 @mixin media-tablet {
+
   /* Portrait and Landscape */
   @media only screen and (max-width: 1024px) {
     @content;
@@ -86,6 +87,7 @@
 }
 
 @mixin allHeadings {
+
   h1,
   h2,
   h3,

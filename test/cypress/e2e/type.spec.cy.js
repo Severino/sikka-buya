@@ -958,7 +958,6 @@ describe("Testing Type", function () {
             cy.get('.list-item .cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text().trim()).get()
-                    console.log(arr)
                     return arr
                 })
                 .should('deep.eq', ["Fārs365Ga", "Šīr389"])

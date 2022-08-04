@@ -145,7 +145,6 @@ describe("Testing Role", function () {
             cy.get('.list-item .cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
-                    console.log(arr)
                     return arr
                 })
                 .should('deep.eq', ["caliph", "cutter", "heir", "warden"])

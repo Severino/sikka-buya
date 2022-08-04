@@ -65,6 +65,17 @@ export default {
 </script>
 
 <style lang="scss">
+.clear-filter-btn {
+  margin: 15px;
+  @include buttonColor($white, $primary-color);
+
+  font-weight: bold;
+  text-align: center;
+  border-radius: $border-radius;
+  justify-content: center;
+  padding: 3px 10px;
+}
+
 .map-view-container {
   position: relative;
   flex: 1;

@@ -31,4 +31,17 @@ export default class Mint {
             }
         `
     }
+
+    static mintGraphQL() {
+        return `mint {
+            id
+            name
+            location 
+            uncertain
+            province {
+              id
+              name
+            }
+          }`
+    }
 }

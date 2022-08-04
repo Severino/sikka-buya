@@ -1,0 +1,214 @@
+import L from "leaflet"
+import { RequestGuard } from '../utils/Async';
+
+export class OverlaySettings {
+
+    constructor(name, window) {
+        this.name = name
+        this.window = window
+        this.settings = null
+    }
+
+    onSettingsChanged(fun) {
+        this._onSettingsChanged = fun
+    }
+
+    get(param) {
+        const val = this.settings[param]
+        if (val === undefined) console.error(`Could not load setting: ${param}`)
+        return val
+    }
+
+    load() {
+        let settings = {}
+        const changedSettings = []
+
+        const settingsString = window.localStorage.getItem(this.name)
+        if (settingsString) {
+            try {
+                settings = JSON.parse(settingsString)
+
+                Object.entries(this.settings).forEach((entry) => {
+                    changedSettings.push(entry)
+                })
+            } catch (e) {
+                console.warn(`Invalid JSON for settings "${this.name}".`)
+            }
+        }
+        this.settings = Object.assign({}, this.defaultSettings, settings)
+        this._changed(changedSettings)
+
+        console.log("Loaded", this.settings)
+        return this.settings
+    }
+
+    save() {
+        if (this.initialized) {
+            const dataString = JSON.stringify(this.settings)
+            this.window.localStorage.setItem(this.name, dataString)
+        }
+    }
+
+    get initialized() {
+        return !!this.settings
+    }
+
+    toggle(key) {
+        this.settings[key] = !this.settings[key]
+        this._changed([[key, this.settings[key]]])
+    }
+
+    change(key, value) {
+        this.settings[key] = value
+        this._changed([[key, value]])
+    }
+
+    _changed(keyValPairs = []) {
+        this.save()
+        if (keyValPairs.length > 0) console.log(keyValPairs[0])
+        if (this._onSettingsChanged)
+            this._onSettingsChanged(keyValPairs)
+    }
+
+
+    get defaultSettings() {
+        return {
+            uiOpen: false,
+        }
+    }
+
+}
+
+export default class Overlay {
+
+    constructor(parent, settings, {
+        onDataTransformed = null,
+        onGeoJSONTransform = null,
+    } = {}) {
+        this.data = {}
+        this.parent = parent
+        this.settings = settings
+        this.fetchGuard = new RequestGuard()
+        this._onDataTransformed = onDataTransformed
+        this._onGeoJSONTransform = onGeoJSONTransform
+    }
+
+    /** Fetches the data from the server. */
+    async fetch() {
+        console.error("Error in Overlay: Abstract method not overloaded: fetch().")
+    }
+
+    async guardedFetch(filters) {
+        return this.fetchGuard.exec(async (filters) => {
+            return this.fetch(filters)
+        }, filters)
+    }
+
+    /**
+     * Transforms the data into an appropriate form.
+     */
+    transform() {
+        console.error("Error in Overlay: Abstract method not overloaded: transform().")
+    }
+
+    /**
+     * Takes the transformed data and translates it into GeoJSON format.
+     * The additional data of each feature should be stored at the object at'feature.data'.
+     */
+    toGeoJSON() {
+        console.error("Error in Overlay: Abstract method not overloaded: toGeoJSON().")
+    }
+
+    /**
+     * Draws the marker onto the map.
+     */
+    createMarker() {
+        console.error("Error in Overlay: Abstract method not overloaded: createMarker().")
+    }
+
+    parseGeoJSON(result) {
+        if (result.mint) {
+            for (let idx in result.mint) {
+                result.mint[idx] = this._parseGeoJson(result.mint[idx])
+            }
+        }
+
+        if (result.type) {
+            for (let idx in result.type) {
+                if (result.type[idx].mint) {
+                    result.type[idx].mint = this._parseGeoJson(result.mint[idx])
+                }
+            }
+        }
+
+        return result
+    }
+
+    _parseGeoJson(el) {
+        if (el.location) {
+            try {
+                el.location = JSON.parse(el.location);
+            } catch (e) {
+                console.error('Could not parse GeoJSON.', el.location);
+            }
+        }
+        return el
+    }
+
+    async repaint({
+        selections = {},
+        markerOptions = {},
+    } = {}) {
+        const geoJson = this.toGeoJSON(this.data)
+        if (this._onGeoJSONTransform)
+            this._onGeoJSONTransform(geoJson)
+
+        if (this.layer)
+            this.layer.remove()
+
+        const that = this
+
+        this.layer = new L.geoJSON(geoJson, Object.assign({}, {
+            pointToLayer: function (feature, latlng) {
+                return that.createMarker.call(that, latlng, feature, { selections, markerOptions })
+            },
+            coordsToLatLng: function (coords) {
+                return new L.LatLng(coords[0], coords[1], coords[2]);
+            }
+        }, this.geoJSONOptions));
+
+        this.layer.addTo(this.parent)
+    }
+
+
+    async update({
+        filters = {},
+        selections = {},
+        markerOptions = {},
+    } = {}) {
+        const data = await this.guardedFetch(filters)
+        if (!data) return null
+
+        const transformedData = this.transform(data)
+        if (this._onDataTransformed)
+            this._onDataTransformed(transformedData)
+
+        // Saves the data for future repaints
+        this.data = transformedData
+
+        this.repaint({
+            filters,
+            selections,
+            markerOptions
+        })
+
+    }
+
+
+    get geoJSONOptions() {
+        return {
+            style: { fillOpacity: 1 }
+        }
+    }
+
+}

@@ -20,16 +20,18 @@
 
       <div class="settings">
         <SettingsIcon class="settings-icon" @click="toggleSettings" />
-        <div class="settings-window" v-if="settings.visible">
+        <div class="settings-window" v-if="overlaySettings.uiOpen">
           <header>
             <h3>Einstellungen</h3>
           </header>
           <label>Kreisgröße</label>
           <input
             type="range"
-            v-model="settings.maxRadius.value"
-            :min="settings.maxRadius.min"
-            :max="settings.maxRadius.max"
+            name="maxRadius"
+            :value="overlaySettings.maxRadius"
+            @input="overlaySettingsChanged"
+            :min="overlaySettings.maxRadiusMinimum"
+            :max="overlaySettings.maxRadiusMaximum"
           />
         </div>
       </div>
@@ -53,9 +55,6 @@
     </div>
 
     <Sidebar title="Herrscher" side="right">
-      <!-- <Button class="clear-filter-btn" @click="clearRulerSelection"
-        >Auswahl aufheben</Button
-      > -->
       <ruler-list
         :selectedUnavailable="selectedUnavailableRulers"
         :items="availableRulers"
@@ -69,10 +68,6 @@
 <script>
 // Models
 import TimelineChart from '../../models/timeline/TimelineChart.js';
-import MintLocation from '../../models/mintlocation';
-import { rulerPopup } from '../../models/map/political';
-import { concentricCircles } from '../../models/map/geometry';
-import { coinsToRulerData } from '../../models/rulers';
 
 //Utils
 import Sort from '../../utils/Sorter';
@@ -84,7 +79,6 @@ import Query from '../../database/query';
 //Mixins
 import map from './mixins/map';
 import timeline from './mixins/timeline';
-import localstore from '../mixins/localstore';
 import mintLocations from './mixins/MintLocationsMixin';
 
 // Components
@@ -99,9 +93,9 @@ import ScrollView from '../layout/ScrollView.vue';
 import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
 
-import { RequestGuard } from '../../utils/Async';
-
-let mintRequestGuard = new RequestGuard();
+import PoliticalOverlay, {
+  PoliticalOverlaySettings,
+} from '../../maps/PoliticalOverlay';
 
 export default {
   name: 'PoliticalMap',
@@ -118,6 +112,9 @@ export default {
   },
   data: function () {
     return {
+      data: null,
+      overlay: null,
+      overlaySettings: null,
       types: [],
       mints: [],
       persons: {},
@@ -129,24 +126,30 @@ export default {
       patterns: {},
       mintTimelineData: [],
       timelineChart: null,
-      settings: {
-        visible: false,
-        minRadius: { value: 10, min: 0, max: 50 },
-        maxRadius: { value: 30, min: 10, max: 100 },
-      },
     };
   },
   mixins: [
     map,
     timeline,
-    localstore('political-map-settings', ['settings']),
     mintLocations({
       onMintSelectionChanged: function () {
         this.drawMintCountOntoTimeline();
+        // this.update();
       },
     }),
   ],
   computed: {
+    filters() {
+      return {
+        yearOfMint: this.timeline.value.toString(),
+        mint: this.selectedMints,
+      };
+    },
+    selections() {
+      return {
+        selectedRulers: this.selectedRulers,
+      };
+    },
     filtersActive: function () {
       return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
     },
@@ -165,23 +168,32 @@ export default {
           .sort(Sorter.stringPropAlphabetically('name')),
       ];
     },
-    mintMarkerOptions() {
-      return {
-        radius: 5,
-        stroke: false,
-        fillColor: 'white',
-        fillOpacity: 1,
-      };
-    },
   },
-  watch: {
-    settings: {
-      handler: function () {
-        this.update();
-        this.save();
+  created: function () {
+    let overlaySettings = new PoliticalOverlaySettings(window);
+
+    overlaySettings.onSettingsChanged((changedSettings) => {
+      changedSettings.forEach(([key, value]) => {
+        this.overlaySettings[(key, value)];
+      });
+
+      this.repaint();
+    });
+
+    this.overlaySettings = overlaySettings.load();
+    console.log(this.overlaySettings.uiOpen);
+
+    this.overlay = new PoliticalOverlay(this.featureGroup, overlaySettings, {
+      onDataTransformed: (transformedData, filters) => {
+        this.mints = transformedData.mints;
+        this.unavailableMints = transformedData.unavailableMints;
+        this.availableMints = transformedData.availableMints;
+        this.persons = transformedData.persons;
+        this.rulers = transformedData.rulers;
+
+        this.updateAvailableRulers();
       },
-      deep: true,
-    },
+    });
   },
   mounted: async function () {
     const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
@@ -190,148 +202,53 @@ export default {
       this.raw_timeline
     );
     await this.initTimeline(starTime);
-    this.updateTimeline();
+    // this.updateTimeline();
+    this.update();
   },
   unmounted: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();
   },
   methods: {
+    overlaySettingsChanged(e) {
+      this.overlay.settings.change(e.currentTarget.name, e.currentTarget.value);
+    },
     toggleSettings() {
-      this.settings.visible = !this.settings.visible;
+      this.overlay.settings.toggle('uiOpen');
     },
     timelineChanged(value) {
       localStorage.setItem('map-timeline', value);
       this.timeChanged(value);
     },
-    fetchTypes: async function () {
-      const timelineVal = this.timeline.value;
-      console.log(timelineVal);
-
-      return mintRequestGuard.exec(async () => {
-        if (!this.timeline.value) throw new Error('Invalid value in timeline.');
-
-        const result = await Query.raw(
-          `{
-              person {
-                id
-                name
-                shortName
-                color
-                dynasty {
-                  id
-                  name
-                }
-              }
-                ${this.mintGraphQL}    
-
-                coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
-                  types{
-                  id
-                  projectId
-                  material {name}
-                  donativ
-                  procedure
-                  nominal {name}
-                  mintAsOnCoin
-                  caliph {
-                    name,
-                    shortName
-                    id
-                    color
-                    dynasty{
-                      id,name
-                    }
-                  }
-                  mint {
-                    id
-                    name
-                    location
-                    uncertain
-                    province {
-                      id
-                      name
-                    }
-                  },
-                  issuers {
-                    id
-                    name
-                    shortName
-                    color
-                    dynasty{
-                      id,name
-                    }
-                  }
-                  overlords {
-                    id
-                    name
-                    shortName
-                    rank
-                    color
-                    dynasty{
-                      id,name
-                    }
-                  }
-                  otherPersons {
-                  id
-                  shortName
-                  name
-                  color
-                  role {
-                    id
-                    name
-                  }
-                }
-                  excludeFromTypeCatalogue
-                }
-                }
-              }`,
-          []
-        );
-
-        let data = result.data.data;
-        let types = data.coinType.types;
-
-        this.applyQuery(result.data.data.mint);
-
-        data.person.forEach((person) => (this.persons[person.id] = person));
-
-        types.forEach((type) => {
-          if (type?.mint.location) {
-            try {
-              type.mint.location = JSON.parse(type.mint.location);
-            } catch (e) {
-              console.error('Could not parse GeoJSON.', type.mint.location);
-            }
-          }
-        });
-
-        types = types.filter(
-          (d) => (d.mint?.location && d.mint.location.coordinates) != null
-        );
-
-        return types;
-      });
-    },
-    updateTimeline: async function () {
-      let types = await this.fetchTypes();
-      console.log(types);
-
-      if (types != null) {
-        this.types = types;
-        this.update();
-      }
+    timelineUpdated: async function () {
+      this.update();
+      //   let types = await this.fetchTypes();
+      //   if (types != null) {
+      //     this.types = types;
+      //     this.update();
+      //   }
     },
     resetFilters: function () {
-      this.mintSelectionChanged([], true);
       this.rulerSelectionChanged([], true);
+      this.mintSelectionChanged([], true);
       this.update();
     },
-    update() {
-      this.updateMintLocationMarker();
-      this.updateConcentricCircles();
-      this.updateAvailableMints();
-      this.updateAvailableRulers();
-      this.$emit('timeline-updated', this.value);
+    async update() {
+      await this.overlay.update({
+        filters: this.filters,
+        selections: this.selections,
+      });
+      // this.updateMintLocationMarker();
+      // this.updateAvailableMints();
+      // this.updateAvailableRulers();
+      // this.$emit('timeline-updated', this.value);
+    },
+    repaint() {
+      if (this.overlay) {
+        this.overlay.repaint({
+          filters: this.filters,
+          selections: this.selections,
+        });
+      }
     },
     updateAvailableRulers() {
       let selectedRulers = this.selectedRulers.slice();
@@ -440,70 +357,31 @@ export default {
 
       const selectedRulers = this.selectedRulers.slice();
       const patterns = this.patterns;
-      const radius = this.settings.maxRadius.value;
       const mintMarkerOptions = this.mintMarkerOptions;
       const L = this.L;
 
-      this.concentricCircles = this.L.geoJSON(
-        Object.values(mintsFeatures),
+      // this.concentricCircles = this.L.geoJSON(
+      //   Object.values(mintsFeatures),
 
-        {
-          pointToLayer: function (feature, latlng) {
-            const { data, selected } = coinsToRulerData(
-              feature.coins,
-              selectedRulers,
-              patterns
-            );
+      //   {
+      //     pointToLayer: function (feature, latlng) {},
+      //     coordsToLatLng: function (coords) {
+      //       return new L.LatLng(coords[0], coords[1], coords[2]);
+      //     },
+      //     style: {
+      //       fillOpacity: 1,
+      //     },
+      //   }
+      // );
 
-            const featureGroup = concentricCircles(latlng, data, {
-              openPopup: function ({ data, groupData }) {
-                return rulerPopup(groupData, data?.data);
-              },
-              innerRadius: mintMarkerOptions.radius,
-              radius,
-              borderStyle: {
-                stroke: true,
-                weight: 1.5,
-                color: '#fff',
-                fill: false,
-              },
-            });
-
-            if (feature?.coins?.length > 0) {
-              const mintFeature = {
-                mint: feature.coins[0].mint,
-              };
-
-              const mintLocations = new MintLocation({
-                markerOptions: mintMarkerOptions,
-              });
-              mintLocations
-                .createMarker(latlng, mintFeature)
-                .addTo(featureGroup);
-            }
-
-            featureGroup.selected = selected;
-            featureGroup.on('mouseover', () => featureGroup.bringToFront());
-            featureGroup.on('click', () => featureGroup.bringToFront());
-            return featureGroup;
-          },
-          coordsToLatLng: function (coords) {
-            return new L.LatLng(coords[0], coords[1], coords[2]);
-          },
-          style: {
-            fillOpacity: 1,
-          },
-        }
-      );
-
-      this.concentricCircles.addTo(this.featureGroup);
+      // this.concentricCircles.addTo(this.featureGroup);
 
       /**
        * Bring selected layer to the front.
        */
-      for (let layer of Object.values(this.concentricCircles._layers)) {
-        if (layer.selected) layer.bringToFront();
-      }
+      // for (let layer of Object.values(this.concentricCircles._layers)) {
+      //   if (layer.selected) layer.bringToFront();
+      // }
     },
     clearMintSelection() {
       this.mintSelectionChanged([]);
@@ -516,56 +394,54 @@ export default {
       return ruler.color || '#ff00ff';
     },
     updateAvailableMints() {
-      let avalMints = {};
-      let mints = this.mints;
-
-      if (this.types) {
-        for (let type of this.types) {
-          if (avalMints[type.mint.id] == null)
-            if (type.mint) {
-              const mintId = type.mint.id;
-
-              if (this.selectedRulers.length == 0) {
-                avalMints[mintId] = type.mint;
-              } else {
-                if (this.mintHasActiveRuler(type)) {
-                  avalMints[mintId] = type.mint;
-                }
-              }
-            }
-        }
-
-        let unavailMints = [];
-        for (let mint of Object.values(mints)) {
-          if (!avalMints[mint.id]) {
-            unavailMints.push(mint);
-          }
-        }
-
-        this.availableMints = Object.values(avalMints);
-        this.unavailableMints = unavailMints;
-      }
+      // let avalMints = {};
+      // let mints = this.mints;
+      // if (this.types) {
+      //   for (let type of this.types) {
+      //     if (avalMints[type.mint.id] == null && type?.mint?.id) {
+      //       const mintId = type.mint.id;
+      //       if (this.selectedRulers.length == 0) {
+      //         avalMints[mintId] = type.mint;
+      //       } else {
+      //         if (this.mintHasActiveRuler(type)) {
+      //           avalMints[mintId] = type.mint;
+      //         }
+      //       }
+      //     }
+      //   }
+      //   let unavailMints = [];
+      //   for (let mint of Object.values(mints)) {
+      //     if (!avalMints[mint.id]) {
+      //       unavailMints.push(mint);
+      //     }
+      //   }
+      //   this.availableMints = Object.values(avalMints);
+      //   this.unavailableMints = unavailMints;
+      // }
     },
     rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
-      if (!preventUpdate) this.update();
-    },
-    mintHasActiveRuler(type) {
-      if (!type.mint) return false;
-      for (let property of ['issuers', 'overlords', 'caliph']) {
-        if (!type[property]) continue;
-        let personArr = !Array.isArray(type[property])
-          ? [type[property]]
-          : type[property];
 
-        for (let i = 0; i < personArr.length; i++) {
-          const personId = personArr[i].id;
-          if (this.selectedRulers.indexOf(personId) != -1) return true;
-        }
+      if (!preventUpdate) {
+        this.repaint();
       }
-
-      return false;
     },
+    // mintHasActiveRuler(type) {
+    //   if (!type.mint) return false;
+    //   for (let property of ['issuers', 'overlords', 'caliph']) {
+    //     if (!type[property]) continue;
+    //     let personArr = !Array.isArray(type[property])
+    //       ? [type[property]]
+    //       : type[property];
+
+    //     for (let i = 0; i < personArr.length; i++) {
+    //       const personId = personArr[i].id;
+    //       if (this.selectedRulers.indexOf(personId) != -1) return true;
+    //     }
+    //   }
+
+    //   return false;
+    // },
     drawMintCountOntoTimeline() {
       const canv = this.$refs.timelineCanvas;
       let ctx = canv.getContext('2d');
@@ -649,7 +525,7 @@ export default {
               // }
             });
 
-            this.timelineChart.updateTimeline(this.raw_timeline);
+            // this.timelineChart.updateTimeline(this.raw_timeline);
             this.timelineChart.drawMintLinesOnCanvas(
               resolveRange(Array.from(xSet.values())),
               5,
@@ -805,17 +681,6 @@ export default {
   height: 100%;
 }
 
-.clear-filter-btn {
-  margin-bottom: 15px;
-
-  @include buttonColor($white, $primary-color);
-
-  font-weight: bold;
-  text-align: center;
-  border-radius: $border-radius;
-  justify-content: center;
-  padding: 3px 10px;
-}
 .grayedOut {
   opacity: 0.3;
   background-color: gray;

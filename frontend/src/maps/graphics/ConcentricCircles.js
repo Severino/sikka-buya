@@ -49,11 +49,7 @@ export function concentricCircles(latlng, data, {
         const subStartAngle = startAngle + angleWidth * i
         const stopAngle = subStartAngle + angleWidth
 
-        if (slice.data.length == 0) {
-            const graphics = L.semiCircleMarker(latlng, Object.assign({}, { radius, startAngle: subStartAngle, stopAngle, fillColor: "#ddd", weight: 1, color: "#fff", stroke: "true" }))
-            concentricCircles.push(graphics)
-            assignGeometryProperties(graphics, { data: null, groupData: slice.groupData, openPopup })
-        } else {
+        if (slice?.data?.length > 0) {
             const circle = createRadials(latlng, {
                 data: slice.data,
                 groupData: slice.groupData,
@@ -64,26 +60,32 @@ export function concentricCircles(latlng, data, {
                 openPopup
             })
             concentricCircles.push(circle)
+        } else {
+            const circleMarkerOptions = Object.assign({}, { radius, startAngle: subStartAngle, stopAngle, fillOpacity: 1, fillColor: "#ddd", weight: 1, color: "#fff", stroke: "true" }, slice)
+            const graphics = L.semiCircleMarker(latlng, circleMarkerOptions)
+            concentricCircles.push(graphics)
+            assignPopup(graphics, { data: null, groupData: slice.groupData, openPopup })
+
         }
     })
 
-    data.forEach((slice, i) => {
-        const angleWidth = 360 / data.length
-        const subStartAngle = startAngle + angleWidth * i
-        const stopAngle = subStartAngle + angleWidth
+    // data.forEach((slice, i) => {
+    //     const angleWidth = 360 / data.length
+    //     const subStartAngle = startAngle + angleWidth * i
+    //     const stopAngle = subStartAngle + angleWidth
 
-        const graphics = L.semiCircleMarker(latlng, Object.assign({},
-            {
-                radius,
-                startAngle: subStartAngle,
-                stopAngle, fillColor: "#ddd",
-                weight: 1, color: "#fff",
-                stroke: "true"
-            }
-            , borderStyle))
+    //     const graphics = L.semiCircleMarker(latlng, Object.assign({},
+    //         {
+    //             radius,
+    //             startAngle: subStartAngle,
+    //             stopAngle, fillColor: "#ddd",
+    //             weight: 1, color: "#fff",
+    //             stroke: "true"
+    //         }
+    //         , borderStyle))
 
-        concentricCircles.push(graphics)
-    })
+    //     concentricCircles.push(graphics)
+    // })
 
 
 
@@ -119,7 +121,7 @@ export function concentricCircle(latlng, {
             circles.push(radials)
         } else {
             const graphics = L.semiCircleMarker(latlng, Object.assign({}, { radius, startAngle: _startAngle, stopAngle: _stopAngle }, item))
-            assignGeometryProperties(graphics, { data: item, groupData, openPopup })
+            assignPopup(graphics, { data: item, groupData, openPopup })
             circles.push(graphics)
         }
     }
@@ -128,7 +130,7 @@ export function concentricCircle(latlng, {
 
 }
 
-function assignGeometryProperties(geom, { data, groupData, openPopup }) {
+function assignPopup(geom, { data, groupData, openPopup }) {
 
     if (openPopup) {
         geom.bindPopup(() => {

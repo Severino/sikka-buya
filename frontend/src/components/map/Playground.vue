@@ -4,7 +4,7 @@
 
 <script>
 import MapMixin from './mixins/map';
-import { concentricCircles } from '../../models/map/geometry';
+import { concentricCircles } from '../../maps/graphics/ConcentricCircles';
 
 export default {
   mixins: [MapMixin],

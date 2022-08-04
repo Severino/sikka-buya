@@ -2,9 +2,7 @@
   <div class="person-view">
     <catalog-property label="Münzherr(en)">
       <div class="issuer-grid">
-        <div v-for="issuer in issuers" :key="`issuer-${issuer.id}`">
-          {{ issuer.name }}
-        </div>
+        <person-list :value="issuers" />
       </div>
     </catalog-property>
     <catalog-property label="Oberherr(en)">

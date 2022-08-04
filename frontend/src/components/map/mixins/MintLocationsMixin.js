@@ -27,6 +27,7 @@ export default function ({
     if (!Array.isArray(selectedMints)) {
         selectedMints = []
     }
+    console.log(selectedMints)
 
     return {
         data() {
@@ -34,7 +35,7 @@ export default function ({
                 mints: {},
                 mintLocation: null,
                 mintLocationLayer: null,
-                selectedMints: [],
+                selectedMints,
                 availableMints: [],
                 unavailableMints: [],
             }
@@ -44,7 +45,6 @@ export default function ({
         },
         mounted() {
             this.mintLocation = new MintLocation({ markerOptions: mintMarkerOptions, popup: this.mintLocationPopup });
-            this.mintSelectionChanged(selectedMints)
         },
         methods: {
             mintLocationPopup(feature) {

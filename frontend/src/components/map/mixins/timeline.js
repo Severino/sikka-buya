@@ -12,15 +12,14 @@ export default {
     },
     methods: {
         timeChanged: async function (val) {
-
             this.timeBuffer.update(val, () => {
                 this.raw_timeline.value = val;
                 /** 
                  * To allow proper editing, but also preventing the timeline
                  * to go above min and above max, we clamp the values for the 
-                 * updateTimeline.
+                 * timelineUpdated.
                  */
-                this.updateTimeline();
+                this.timelineUpdated();
             })
 
         },
@@ -42,8 +41,8 @@ export default {
                 console.error(e);
             }
         },
-        updateTimeline() {
-            throw new Error("Mixin requires method 'updateTimeline'.")
+        timelineUpdated() {
+            throw new Error("Mixin requires method 'timelineUpdated'.")
         }
     },
     computed: {

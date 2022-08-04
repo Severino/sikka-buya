@@ -136,7 +136,6 @@ describe("Testing Nominal", function () {
             cy.get('.list-item .cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
-                    console.log(arr)
                     return arr
                 })
                 .should('deep.eq', ["Dinar", 'Ǧalālī-Dinar', 'Ruknī-Dinar'])

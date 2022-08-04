@@ -135,7 +135,6 @@ describe("Testing Coin Marks", function () {
             cy.get('.list-item .cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
-                    console.log(arr)
                     return arr
                 })
                 .should('deep.eq', ["bāʾ/tāʾ/ṯāʾ", "drei Punkte (∴)", "ḫamsa"])

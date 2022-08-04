@@ -44,7 +44,6 @@ const store = new Vuex.Store({
       setTimeout(() => state.errors.shift(0, error.length), 5000)
     },
     resetErrors(state) {
-      console.log("RESET")
       state.errors = []
     }
   }, getters: {

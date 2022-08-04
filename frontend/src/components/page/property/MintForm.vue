@@ -193,7 +193,6 @@ export default {
       };
 
       let id;
-      console.log(this.mint.id);
       if (this.mint.id == -1) {
         id = await this.query('addMint', data);
       } else {

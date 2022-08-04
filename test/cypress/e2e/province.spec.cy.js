@@ -144,7 +144,6 @@ describe("Testing Province", function () {
             cy.get('.list-item .cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
-                    console.log(arr)
                     return arr
                 })
                 .should('deep.eq', ['Fārs', "ḫamsa", 'Ḫūzistān', 'ʿUmān'])
