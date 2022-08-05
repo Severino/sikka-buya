@@ -27,7 +27,6 @@ export default function ({
     if (!Array.isArray(selectedMints)) {
         selectedMints = []
     }
-    console.log(selectedMints)
 
     return {
         data() {

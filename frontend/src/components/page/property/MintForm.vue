@@ -255,8 +255,6 @@ export default {
         console.error(err);
       });
 
-      console.log(result);
-
       return result?.data.data[name];
     },
     cancel: function () {

@@ -12,7 +12,6 @@ export default {
       return this.item.color || '#ffffff';
     },
     style() {
-      console.log(this.item);
       return `background-color: ${this.color};`;
     },
   },

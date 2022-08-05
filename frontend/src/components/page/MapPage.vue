@@ -4,8 +4,8 @@
     <div class="map-view-container">
       <map-view
         class="mapview"
-        :location="location"
-        :zoom="zoom"
+        :location="mapSettings.location"
+        :zoom="mapSettings.zoom"
         ref="map"
         @mapReady="mapChanged"
       >
@@ -17,11 +17,15 @@
 </template>
 
 <script>
+import Settings from '../../settings';
 import MapNav from '../map/MapNav.vue';
 require('leaflet-semicircle');
 require('../../plugins/leaflet-svg-icon');
 
 import MapView from '../map/MapView.vue';
+
+const settings = new Settings(window, 'Map');
+const mapSettings = settings.load();
 
 export default {
   name: 'MapPage',
@@ -30,29 +34,27 @@ export default {
     return {
       map: null,
       types: [],
-      location: [29.70507136092254, 51.17151184658878],
-      zoom: 6,
+      mapSettings,
     };
   },
   mounted() {
-    let location = localStorage.getItem('map-location');
-    if (location) {
-      this.location = JSON.parse(location);
-    }
-
-    let zoom = localStorage.getItem('map-zoom');
-
-    if (zoom) {
-      this.zoom = parseInt(zoom);
-    }
+    settings.onSettingsChanged((keyValPairs) => {
+      keyValPairs.forEach(([key, val]) => {
+        this.$data.mapSettings[key] = val;
+      });
+    });
 
     this.$nextTick(() => {
       this.map.on('moveend', function (args) {
         const { target: map } = args;
 
         const { lat, lng } = map.getCenter();
-        localStorage.setItem('map-location', JSON.stringify([lat, lng]));
-        localStorage.setItem('map-zoom', map.getZoom());
+
+        console.log('getZoom', map.getZoom());
+        settings.multiChange([
+          ['location', [lat, lng]],
+          ['zoom', map.getZoom()],
+        ]);
       });
     });
   },

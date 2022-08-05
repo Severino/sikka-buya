@@ -1,3 +1,4 @@
+import Settings from '../settings';
 import Mint from './map/mint';
 
 var L = require('leaflet');
@@ -75,14 +76,9 @@ export class MintLocationMarker {
     }
 
     create(latlng) {
-        let marker = L.circleMarker(latlng, {
-            radius: 6,
-            stroke: true,
-            weight: 1,
-            color: "#333",
-            fillColor: 'white',
-            fillOpacity: 1,
-        })
+        const MintLocationMarkerSettings = new Settings(window, "MintLocationMarker")
+
+        let marker = L.circleMarker(latlng, MintLocationMarkerSettings.load())
 
         if (this.mint.uncertain) {
             const uncertainIcon = L.svgIcon(latlng, {
@@ -93,11 +89,9 @@ export class MintLocationMarker {
                 interactive: false
             })
 
-            uncertainIcon.setStyle({
-                stroke: false,
-                color: "#666666",
-                fillOpacity: 1
-            })
+            const MintLocationMarkerUncertainIconSettings = new Settings(window, "MintLocationMarkerUncertainIcon")
+
+            uncertainIcon.setStyle(MintLocationMarkerUncertainIconSettings.load())
 
             uncertainIcon.bringToFront()
             marker = L.featureGroup([marker, uncertainIcon])

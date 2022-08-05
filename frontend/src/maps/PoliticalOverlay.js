@@ -1,27 +1,13 @@
 import L from "leaflet"
 import Mint from '../models/map/mint';
-import Overlay, { OverlaySettings } from './Overlay';
+import Overlay from './Overlay';
 import Query from '../database/query';
 import { coinsToRulerData } from "../models/rulers"
 import { rulerPopup } from '../models/map/political';
 import { concentricCircles } from '../maps/graphics/ConcentricCircles';
 import Color from '../utils/Color';
+import { MintLocationMarker } from '../models/mintlocation';
 
-export class PoliticalOverlaySettings extends OverlaySettings {
-  constructor(window) {
-    super("sikka-buya-political-overlay-settings", window)
-  }
-
-  get defaultSettings() {
-    const parentSettings = super.defaultSettings
-    return Object.assign({}, parentSettings, {
-      innerRadius: 0,
-      maxRadius: 20,
-      maxRadiusMinimum: 10,
-      maxRadiusMaximum: 100
-    })
-  }
-}
 
 export default class PoliticalOverlay extends Overlay {
 
@@ -143,15 +129,27 @@ export default class PoliticalOverlay extends Overlay {
     let availableMints = {}
     let rulers = {}
 
+    let mintMap = {}
+    let mints = data.mint.map(mint => {
+      mintMap[mint.id] = mint
+      if (!mint.province)
+        mint.province = { name: null, id: -1 }
+
+      if (!mint.province.name) {
+        mint.province.name = "Provinzlos"
+      }
+
+      if (!mint.data) mint.data = {}
+      mint.data.types = []
+      return mint
+    })
+
     // Sort the types by mints
     data.types.forEach(type => {
       const mintId = type?.mint?.id
       if (mintId) {
         if (!availableMints[mintId]) {
-          availableMints[mintId] = type.mint
-          availableMints[mintId].data = {
-            types: []
-          }
+          availableMints[mintId] = mintMap[mintId]
         }
 
         availableMints[mintId].data.types.push(type)
@@ -165,7 +163,6 @@ export default class PoliticalOverlay extends Overlay {
             type[person.role.name] = person
 
             if (person.role.name === "heir") {
-              console.log(person)
               rulersOnType.push(person)
             }
           } else {
@@ -178,16 +175,6 @@ export default class PoliticalOverlay extends Overlay {
         })
       }
 
-    })
-
-    let mints = data.mint.map(mint => {
-      if (!mint.province)
-        mint.province = { name: null, id: -1 }
-
-      if (!mint.province.name) {
-        mint.province.name = "Provinzlos"
-      }
-      return mint
     })
 
     let unavailableMints = [];
@@ -214,15 +201,16 @@ export default class PoliticalOverlay extends Overlay {
 
   toMapObject(data, selection) {
     const geoJSON = []
-    console.log(this)
+
     let patterns = this._buildHeirStripes(data, selection)
     //Build mint map and parse GeoJSON
-    Object.values(data.availableMints).forEach(mint => {
+    Object.values(data.mints).forEach(mint => {
       if (mint.location && mint.id) {
         try {
           let locationData = JSON.parse(mint.location)
           locationData.data = {
-            types: mint.data.types
+            types: mint.data.types,
+            mint
           }
           geoJSON.push(locationData)
         } catch (e) { console.error("Could not parse locaton", e) /* If location is invalid, we don't care.*/ }
@@ -247,8 +235,6 @@ export default class PoliticalOverlay extends Overlay {
           caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.InactiveColor
           heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.InactiveColor
         }
-
-        console.log(selectedRulers, caliphColor, heirColor)
 
         const stripes = new L.StripePattern({
           color: caliphColor,
@@ -283,25 +269,8 @@ export default class PoliticalOverlay extends Overlay {
     selections = {}
   } = {}) {
 
-
-    // feature.data.types.forEach((type) => {
-    //   if (type.heir){
-    //     if(!selections[type.heir]){
-    //       selections[]
-    //     }
-    //   }
-    // })
-
-    // const stripes = new this.L.StripePattern({
-    //   color: type.caliph.color,
-    //   spaceColor: heir.color,
-    //   opacity: 1,
-    //   spaceOpacity: 1,
-    //   weight: 7,
-    //   angle: -45,
-    // });
-    // stripes.addTo(this.map);
-
+    const mlm = new MintLocationMarker(feature.data.mint)
+    const locationMarker = mlm.create(latlng)
 
     const { data, selected } = coinsToRulerData(
       feature.data.types,
@@ -309,15 +278,15 @@ export default class PoliticalOverlay extends Overlay {
       this.heirStripes
     );
 
-    const featureGroup = concentricCircles(latlng, data, {
+    const concentricCirclesMarker = concentricCircles(latlng, data, {
       openPopup: function ({ data, groupData }) {
         return rulerPopup(groupData, data?.data);
       },
-      innerRadius: this.settings.get("innerRadius"),
-      radius: this.settings.get("maxRadius"),
+      innerRadius: this.settings.innerRadius,
+      radius: this.settings.maxRadius,
       borderStyle: {
         stroke: true,
-        weight: 1.5,
+        weight: 1,
         color: '#fff',
         fill: false,
       },
@@ -335,11 +304,11 @@ export default class PoliticalOverlay extends Overlay {
     //     .createMarker(latlng, mintFeature)
     //     .addTo(featureGroup);
     // }
-
+    const featureGroup = L.featureGroup([locationMarker, concentricCirclesMarker]);
     featureGroup.selected = selected;
     featureGroup.on('mouseover', () => featureGroup.bringToFront());
     featureGroup.on('click', () => featureGroup.bringToFront());
-    return featureGroup;
+    return featureGroup
   }
 
 

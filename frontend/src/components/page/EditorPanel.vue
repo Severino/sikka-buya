@@ -80,7 +80,6 @@ export default {
       );
 
       props = props.map((name) => {
-        console.log(name, propertyMap[name]);
         if (propertyMap[name]) {
           return {
             name,

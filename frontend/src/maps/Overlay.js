@@ -37,8 +37,6 @@ export class OverlaySettings {
         }
         this.settings = Object.assign({}, this.defaultSettings, settings)
         this._changed(changedSettings)
-
-        console.log("Loaded", this.settings)
         return this.settings
     }
 
@@ -58,6 +56,10 @@ export class OverlaySettings {
         this._changed([[key, this.settings[key]]])
     }
 
+    multiChange(keyValPairs) {
+        this._changed(keyValPairs)
+    }
+
     change(key, value) {
         this.settings[key] = value
         this._changed([[key, value]])
@@ -65,7 +67,6 @@ export class OverlaySettings {
 
     _changed(keyValPairs = []) {
         this.save()
-        if (keyValPairs.length > 0) console.log(keyValPairs[0])
         if (this._onSettingsChanged)
             this._onSettingsChanged(keyValPairs)
     }
@@ -195,8 +196,7 @@ export default class Overlay {
         if (this._onDataTransformed)
             this._onDataTransformed(transformedData)
 
-        // Saves the data for future repaints
-        this.data = transformedData
+        this.setData(transformedData)
 
         this.repaint({
             filters,
@@ -204,6 +204,11 @@ export default class Overlay {
             markerOptions
         })
 
+    }
+
+    // Saves the data for future repaints
+    setData(data) {
+        this.data = data
     }
 
 

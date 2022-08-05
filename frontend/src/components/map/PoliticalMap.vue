@@ -33,6 +33,9 @@
             :min="overlaySettings.maxRadiusMinimum"
             :max="overlaySettings.maxRadiusMaximum"
           />
+          <Button @click.native="resetSettings"
+            >Standard wiederherstellen</Button
+          >
         </div>
       </div>
     </div>
@@ -93,9 +96,11 @@ import ScrollView from '../layout/ScrollView.vue';
 import RulerList from '../RulerList.vue';
 import MintList from '../MintList.vue';
 
-import PoliticalOverlay, {
-  PoliticalOverlaySettings,
-} from '../../maps/PoliticalOverlay';
+import PoliticalOverlay from '../../maps/PoliticalOverlay';
+import Settings from '../../settings.js';
+
+let settings = new Settings(window, 'PoliticalOverlay');
+const overlaySettings = settings.load();
 
 export default {
   name: 'PoliticalMap',
@@ -114,7 +119,7 @@ export default {
     return {
       data: null,
       overlay: null,
-      overlaySettings: null,
+      overlaySettings,
       types: [],
       mints: [],
       persons: {},
@@ -169,19 +174,16 @@ export default {
       ];
     },
   },
-  created: function () {
-    let overlaySettings = new PoliticalOverlaySettings(window);
-
-    overlaySettings.onSettingsChanged((changedSettings) => {
+  created() {
+    settings.onSettingsChanged((changedSettings) => {
+      let settings = this.overlaySettings;
       changedSettings.forEach(([key, value]) => {
-        this.overlaySettings[(key, value)];
+        settings[key] = value;
       });
+      this.overlaySettings = Object.assign(this.overlaySettings, settings);
 
       this.repaint();
     });
-
-    this.overlaySettings = overlaySettings.load();
-    console.log(this.overlaySettings.uiOpen);
 
     this.overlay = new PoliticalOverlay(this.featureGroup, overlaySettings, {
       onDataTransformed: (transformedData, filters) => {
@@ -209,11 +211,14 @@ export default {
     if (this.mintLocations) this.mintLocations.clearLayers();
   },
   methods: {
+    resetSettings() {
+      this.overlay.settings.reset();
+    },
     overlaySettingsChanged(e) {
-      this.overlay.settings.change(e.currentTarget.name, e.currentTarget.value);
+      settings.change(e.currentTarget.name, e.currentTarget.value);
     },
     toggleSettings() {
-      this.overlay.settings.toggle('uiOpen');
+      settings.toggle('uiOpen');
     },
     timelineChanged(value) {
       localStorage.setItem('map-timeline', value);
@@ -644,15 +649,6 @@ export default {
     h3 {
       margin: 0;
       margin-bottom: 1em;
-    }
-
-    .settings-window {
-      width: 240px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: $shadow;
-      border: 1px solid whitesmoke;
     }
 
     .material-design-icon svg {

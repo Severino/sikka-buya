@@ -59,17 +59,29 @@ export default {
   > * {
     display: flex;
   }
+
+  .links {
+    position: absolute;
+    top: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100000;
+  }
+
   .links > * {
     $bottom-border-width: 3px;
     display: block;
     padding: $padding 2 * $padding;
     padding-bottom: calc(#{$padding} - #{$bottom-border-width});
-    margin-right: 0 $padding;
+    margin: $padding;
     box-sizing: border-box;
-    border-bottom: $bottom-border-width solid transparent;
+    border: $bottom-border-width solid $primary-color;
+    border-radius: 30px;
+    background-color: rgba(255, 255, 255, 0.8);
 
     &.router-link-exact-active {
-      color: $primary-color;
+      color: $white;
+      background-color: $primary-color;
       font-size: bold;
       border-color: $primary-color;
     }

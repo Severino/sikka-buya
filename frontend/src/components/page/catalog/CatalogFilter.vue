@@ -241,33 +241,35 @@ export default {
       deep: true,
     },
   },
-  mounted() {
-    this.search();
-  },
   methods: {
     ...filterMethods,
     async search() {
-      searchRequestGuard.exec(async () => {
-        const filters = Object.assign(
-          {},
-          this.activeFilters,
-          this.constantFilters,
-          this.overwriteFilters
-        );
+      const filters = Object.assign(
+        {},
+        this.activeFilters,
+        this.constantFilters,
+        this.overwriteFilters
+      );
 
-        this.multiSelectFilters.forEach((item) => {
-          if (filters[item.value])
-            filters[item.value] = filters[item.value].map((item) => item.id);
-        });
+      const multiSelectFilters = this.multiSelectFilters;
 
-        let { types, pageInfo } = await Type.filteredQuery({
-          pagination: Pagination.fromPageInfo(this.pageInfo),
-          filters,
-          typeBody: this.typeBody,
-        });
+      searchRequestGuard.exec(
+        async ({ filters, multiSelectFilters } = {}) => {
+          multiSelectFilters.forEach((item) => {
+            if (filters[item.value])
+              filters[item.value] = filters[item.value].map((item) => item.id);
+          });
 
-        this.$emit('update', { types, pageInfo });
-      });
+          let { types, pageInfo } = await Type.filteredQuery({
+            pagination: Pagination.fromPageInfo(this.pageInfo),
+            filters,
+            typeBody: this.typeBody,
+          });
+
+          this.$emit('update', { types, pageInfo });
+        },
+        { filters, multiSelectFilters }
+      );
     },
     resetFilters() {
       [

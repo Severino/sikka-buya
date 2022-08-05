@@ -1,13 +1,50 @@
 import { concentricCircles } from "../maps/graphics/ConcentricCircles"
 import Mint from "../models/map/mint"
 import L from "leaflet"
+import Overlay from './Overlay'
+import MaterialStats from '../models/material/MaterialStats'
+import { MintLocationMarker } from '../models/mintlocation'
 
-export default class MaterialOverlay {
+import Color from '../utils/Color'
 
 
-    static createMarker(latlng, feature, materialStats) {
+export default class MaterialOverlay extends Overlay {
 
-        const materialArrays = Object.values(materialStats.get()).map(({ material }) => {
+
+    toMapObject(data) {
+        const types = data.types.filter((type) => {
+            if (!type?.mint?.location) return false;
+            try {
+                type.mint.location = JSON.parse(type.mint.location);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        });
+
+        const mints = types.reduce((prev, type) => {
+            const mint = type.mint;
+            if (!prev[mint.id]) {
+                prev[mint.id] = mint.location;
+                prev[mint.id].data = {
+                    mint,
+                    types: [],
+                    materialStats: new MaterialStats(),
+                };
+            }
+
+            prev[mint.id].data.materialStats.add(type.material);
+            prev[mint.id].data.types.push(type);
+            return prev;
+        }, {});
+
+        return { geoJSON: Object.values(mints) };
+    }
+
+    createMarker(latlng, feature) {
+
+        const materialArrays = Object.values(feature.data.materialStats.get()).map(({ material }) => {
+            console.log("%cmaterial.name", `color: ${material.color}`)
             let data = {
                 material,
                 fillOpacity: 1,
@@ -22,77 +59,44 @@ export default class MaterialOverlay {
             else a.name.localeCompare(b.name)
         })
 
-        return concentricCircles(latlng, materialArrays, {
+        const materialCircles = concentricCircles(latlng, materialArrays, {
             innerRadius: 5,
             radius: 15,
             styles: [
                 {
                     stroke: true,
-                    color: "#ff0000",
+                    color: Color.MissingColor,
                     weight: 1.5,
                 },
             ]
         });
+
+        let mlm = new MintLocationMarker(feature.data.mint);
+        let marker = mlm.create(latlng);
+
+        const featureGroup = L.featureGroup([marker, materialCircles]);
+        featureGroup.bindPopup(this.mintLocationPopup(feature.data));
+
+        featureGroup.on('mouseover', () => featureGroup.bringToFront());
+        featureGroup.on('click', () => featureGroup.bringToFront());
+
+        featureGroup.bringToFront();
+        return featureGroup;
+
     }
-    static update(mints, mintData) {
 
+    mintLocationPopup(data) {
+        const mint = data.mint ? data.mint : new Mint();
+        const types = data?.types ? data.types : [];
 
-        let materialFeatures = Object.values(mints)
-            .filter((mint) => {
-                return mintData[mint.id];
-            })
-            .map((mint) => {
-                const data = {
-                    mint,
-                    materials: Object.values(mintData[mint.id]),
-                };
-                return {
-                    coordinates: mint.location.coordinates,
-                    type: mint.location.type,
-                    data,
-                    mint,
-                };
-            });
-
-        const layer = this.L.geoJSON(materialFeatures, {
-            pointToLayer: function (feature, latlng) {
-                let data = feature.data.materials.map((materials) => {
-                    return {
-                        data: [materials],
-                    };
-                });
-
-                let sorted = data.sort((a, b) => {
-                    return a.data[0].name.localeCompare(b.data[0].name);
-                });
-
-                const featureGroup = concentricCircles(latlng, sorted, {
-                    innerRadius: 5,
-                    radius: 15,
-                    styles: [
-                        {
-                            stroke: true,
-                            color: "#ff0000",
-                            weight: 1.5,
-                        },
-                    ],
-                    openPopup: (data) => {
-                        return `
-                  ${Mint.popupMintHeader(feature.mint)}
-                  <div class="popup-body">
-                  ${data.data.name}
-                  </div>`;
-                    },
-                });
-
-
-                return featureGroup;
-            },
-            coordsToLatLng: function (coords) {
-                return new L.LatLng(coords[0], coords[1], coords[2]);
-            },
-        });
-
-        return layer
+        return `
+        ${Mint.popupMintHeader(mint)}
+        <div class="popup-body grid col-3" make-simplebar>
+        ${types
+                .map((type) => {
+                    return `<a href="${type.route.href}" style="color: ${type.material.color}" target="_blank">${type.projectId}</a>`;
+                })
+                .join('')}
+        </div>`;
     }
 }

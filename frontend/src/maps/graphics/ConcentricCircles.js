@@ -69,23 +69,26 @@ export function concentricCircles(latlng, data, {
         }
     })
 
-    // data.forEach((slice, i) => {
-    //     const angleWidth = 360 / data.length
-    //     const subStartAngle = startAngle + angleWidth * i
-    //     const stopAngle = subStartAngle + angleWidth
+    data.forEach((slice, i) => {
+        const angleWidth = 360 / data.length
+        const subStartAngle = startAngle + angleWidth * i
+        const stopAngle = subStartAngle + angleWidth
 
-    //     const graphics = L.semiCircleMarker(latlng, Object.assign({},
-    //         {
-    //             radius,
-    //             startAngle: subStartAngle,
-    //             stopAngle, fillColor: "#ddd",
-    //             weight: 1, color: "#fff",
-    //             stroke: "true"
-    //         }
-    //         , borderStyle))
+        const style = Object.assign({},
+            {
+                radius,
+                startAngle: subStartAngle,
+                stopAngle, fillColor: "#ff00ff",
+                weight: 1, color: "#eee",
+                stroke: "true",
+                fill: false
+            }
+            , borderStyle)
+        console.log(style)
+        const graphics = L.semiCircleMarker(latlng, style)
 
-    //     concentricCircles.push(graphics)
-    // })
+        concentricCircles.push(graphics)
+    })
 
 
 

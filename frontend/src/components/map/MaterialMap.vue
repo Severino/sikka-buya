@@ -34,6 +34,9 @@
             :min="settings.maxRadius.min"
             :max="settings.maxRadius.max"
           />
+          <Button @click.native="resetSettings"
+            >Standard wiederherstellen</Button
+          >
         </div>
       </div>
     </div>
@@ -72,6 +75,7 @@
           typeBody="
               id
               projectId
+              yearOfMint
               material {
                 id
                 name
@@ -102,26 +106,22 @@ import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
 import mintLocations from './mixins/MintLocationsMixin';
-import L from 'leaflet';
 
-import MaterialStats from '../../models/material/MaterialStats';
 import MaterialOverlay from '../../maps/MaterialOverlay';
-import MintLocation, {
-  CountMarker,
-  MintLocationMarker,
-} from '../../models/mintlocation';
 import Sorter from '../../utils/Sorter';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
-import Mint from '../../models/map/mint';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import Button from '../layout/buttons/Button.vue';
 import CatalogFilter from '../page/catalog/CatalogFilter.vue';
 
-import DataPainter from '../../maps/DataPainter';
+import Settings from '../../settings';
+
+let settings = new Settings(window, 'MaterialOverlay');
+const overlaySettings = settings.load();
 
 export default {
   name: 'MaterialMap',
@@ -150,6 +150,7 @@ export default {
       mintTimelineData: [],
       timelineActive: true,
       mintLayer: null,
+      overlaySettings,
       catalogFilterActive: false,
       overwriteFilters: {
         yearOfMint: null,
@@ -187,14 +188,19 @@ export default {
       ];
     },
   },
-  watch: {
-    settings: {
-      handler: function () {
-        this.update();
-        this.save();
+  created() {
+    this.overlay = new MaterialOverlay(this.featureGroup, settings, {
+      onGeoJSONTransform: (features) => {
+        features.forEach((feature) => {
+          feature.data.types.forEach((type) => {
+            type.route = this.$router.resolve({
+              name: 'Catalog Entry',
+              params: { id: type.id },
+            });
+          });
+        });
       },
-      deep: true,
-    },
+    });
   },
   mounted: async function () {
     const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
@@ -205,61 +211,12 @@ export default {
     this.fetchMints();
     await this.initTimeline(starTime);
     this.updateTimeline();
-
-    this.painter = new DataPainter(this.featureGroup, {
-      onTransform(data) {
-        const types = data.types.filter((type) => {
-          if (!type?.mint?.location) return false;
-          try {
-            type.mint.location = JSON.parse(type.mint.location);
-            return true;
-          } catch (e) {
-            return false;
-          }
-        });
-
-        const mints = types.reduce((prev, type) => {
-          const mint = type.mint;
-          if (!prev[mint.id]) {
-            prev[mint.id] = mint.location;
-            prev[mint.id].data = {
-              mint,
-              types: [],
-              materialStats: new MaterialStats(),
-            };
-          }
-
-          prev[mint.id].data.materialStats.add(type.material);
-          prev[mint.id].data.types.push(type);
-          return prev;
-        }, {});
-
-        return Object.values(mints);
-      },
-      createMarker: (latlng, feature) => {
-        let materialOverlay = MaterialOverlay.createMarker(
-          latlng,
-          feature,
-          feature.data.materialStats
-        );
-
-        let mlm = new MintLocationMarker(feature.data.mint);
-        let marker = mlm.create(latlng);
-        marker.bindPopup(this.mintLocationPopup(feature.data));
-
-        const featureGroup = L.featureGroup([marker, materialOverlay]);
-        console.log(featureGroup);
-
-        featureGroup.on('mouseover', () => featureGroup.bringToFront());
-        featureGroup.on('click', () => featureGroup.bringToFront());
-
-        featureGroup.bringToFront();
-
-        return featureGroup;
-      },
-    });
+    this.timelineChanged(starTime);
   },
   methods: {
+    resetSettings() {
+      this.overlay.settings.reset();
+    },
     selectionChanged(mints) {
       this.mintSelectionChanged(mints);
       this.overwriteFilters.mint = mints;
@@ -277,50 +234,33 @@ export default {
       });
       this.catalogFilterActive = catalogFilters.length > 0;
 
-      this.painter.update(data);
+      this.overlay.setData(data);
+      this.overlay.repaint();
     },
     updateMints() {
-      if (this.filteredMints) {
-        Object.values(this.filteredMints);
-      }
-    },
-    mintLocationPopup(data) {
-      const mint = data.mint ? data.mint : new Mint();
-      const types = data?.types ? data.types : [];
-
-      return `
-      ${Mint.popupMintHeader(mint)}
-      <div class="popup-body grid col-3" make-simplebar>
-      ${types
-        .map((type) => {
-          const route = this.$router.resolve({
-            name: 'Catalog Entry',
-            params: { id: type.id },
-          });
-
-          return `<a href="${route.href}" target="_blank">${type.projectId}</a>`;
-        })
-        .join('')}
-      </div>`;
+      this.$refs.catalogFilter.search();
     },
     toggleSettings() {
       this.settings.visible = !this.settings.visible;
     },
     timelineChanged(value) {
       localStorage.setItem('map-timeline', value);
+      this.updateYearOverwrite(value);
       this.timeChanged(value);
     },
+    timelineUpdated() {},
     updateTimeline: async function () {
-      this.updateYearOverwrite(this.timeline.value);
-      this.types = await this.fetchTypes();
-      this.update();
+      const triggered = this.updateYearOverwrite(this.timeline.value);
+      if (!triggered) this.update();
     },
     updateYearOverwrite(value) {
+      const old = this.overwriteFilters.yearOfMint;
       if (this.timelineActive) {
         this.overwriteFilters.yearOfMint = value.toString();
       } else {
         this.overwriteFilters.yearOfMint = null;
       }
+      return old !== this.overwriteFilters.yearOfMint;
     },
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
@@ -330,54 +270,6 @@ export default {
       );
       this.update();
     },
-    async fetchTypes() {
-      // await this.fetchMints();
-      // try {
-      //   if (this.timelineActive) {
-      //     await this.fetchMaterial();
-      //   } else {
-      //     await this.fetchMaterial();
-      //   }
-      //   this.update();
-      // } catch (e) {
-      //   console.error(e);
-      // }
-    },
-    //     async fetchMaterial2() {
-    //       this.mintData = {};
-    //       const result = await Query.raw(`{mintMaterials {
-    //   mint {
-    //     id
-    //     name
-    //   },
-    //   materials {
-    //     id,
-    //     name,
-    //     color
-    //   }
-    // }}`);
-    //       this.mintData = result.data.data.mintMaterials.reduce(
-    //         (prev, { mint, materials }) => {
-    //           if (mint.id) {
-    //             if (prev[mint.id] != null)
-    //               console.error('Mint id was already set.');
-    //             else {
-    //               prev[mint.id] = {};
-    //               materials.forEach((mat) => {
-    //                 if (!mat.id) {
-    //                   console.log(`Material has no id: `, mat);
-    //                 } else {
-    //                   prev[mint.id][mat.id] = this.getMaterialOptions(mat);
-    //                 }
-    //               });
-    //             }
-    //           } else console.error('Mint had no id: ', mint);
-    //           return prev;
-    //         },
-    //         {}
-    //       );
-    //     },
-
     getMaterialOptions(material) {
       return {
         id: material?.id,
@@ -396,8 +288,6 @@ export default {
     },
     update() {
       this.updateMints();
-      // MaterialOverlay.update();
-      // this.updateConcentricCircles();
       this.$emit('timeline-updated', this.value);
     },
   },
@@ -504,15 +394,6 @@ export default {
     h3 {
       margin: 0;
       margin-bottom: 1em;
-    }
-
-    .settings-window {
-      width: 240px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: $shadow;
-      border: 1px solid whitesmoke;
     }
 
     .material-design-icon svg {
