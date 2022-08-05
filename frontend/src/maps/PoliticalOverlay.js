@@ -1,10 +1,11 @@
+import L from "leaflet"
 import Mint from '../models/map/mint';
 import Overlay, { OverlaySettings } from './Overlay';
 import Query from '../database/query';
 import { coinsToRulerData } from "../models/rulers"
 import { rulerPopup } from '../models/map/political';
 import { concentricCircles } from '../maps/graphics/ConcentricCircles';
-
+import Color from '../utils/Color';
 
 export class PoliticalOverlaySettings extends OverlaySettings {
   constructor(window) {
@@ -23,6 +24,18 @@ export class PoliticalOverlaySettings extends OverlaySettings {
 }
 
 export default class PoliticalOverlay extends Overlay {
+
+  constructor(parent, settings, {
+    onDataTransformed = null,
+    onGeoJSONTransform = null,
+  } = {}) {
+    super(parent, settings, {
+      onDataTransformed,
+      onGeoJSONTransform,
+    })
+    this.heirStripes = {}
+  }
+
 
   async fetch(filters) {
     if (isNaN(filters.yearOfMint)) throw new Error('Invalid yearOfMint filter!');
@@ -105,6 +118,10 @@ export default class PoliticalOverlay extends Overlay {
                       id
                       name
                     }
+                    dynasty {
+                      id
+                      name
+                    }
                   }
                     excludeFromTypeCatalogue
                   }
@@ -139,11 +156,28 @@ export default class PoliticalOverlay extends Overlay {
 
         availableMints[mintId].data.types.push(type)
         const rulersOnType = [...type.overlords, ...type.issuers]
-        if (type.caliph) rulersOnType.push(type.caliph)
+        if (type.caliph)
+          rulersOnType.push(type.caliph)
+
+
+        type.otherPersons.forEach(person => {
+          if (person.role) {
+            type[person.role.name] = person
+
+            if (person.role.name === "heir") {
+              console.log(person)
+              rulersOnType.push(person)
+            }
+          } else {
+            console.warn("No role found on other person!", person)
+          }
+        })
+
         rulersOnType.forEach(person => {
           rulers[person.id] = person
         })
       }
+
     })
 
     let mints = data.mint.map(mint => {
@@ -173,12 +207,15 @@ export default class PoliticalOverlay extends Overlay {
       availableMints: Object.values(availableMints),
       unavailableMints,
       rulers,
-      persons
+      persons,
+      types: data.types
     }
   }
 
-  toGeoJSON(data) {
+  toMapObject(data, selection) {
     const geoJSON = []
+    console.log(this)
+    let patterns = this._buildHeirStripes(data, selection)
     //Build mint map and parse GeoJSON
     Object.values(data.availableMints).forEach(mint => {
       if (mint.location && mint.id) {
@@ -192,17 +229,84 @@ export default class PoliticalOverlay extends Overlay {
       }
     })
 
-    return geoJSON
+    return { geoJSON, patterns }
   }
+
+  _buildHeirStripes(data, { selectedRulers = {} } = {}) {
+    this._heirStripesToArray(this.heirStripes).forEach(pattern => pattern.remove())
+    this.heirStripes = {}
+
+    data.types.forEach(type => {
+      const { heir, caliph } = type
+      if (heir != null && caliph != null && !(this.heirStripes?.[heir.id]?.[caliph.id])) {
+
+        let caliphColor = (caliph.color) ? caliph.color : Color.MissingColor
+        let heirColor = (heir.color) ? heir.color : Color.MissingColor
+
+        if (selectedRulers.length > 0) {
+          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.InactiveColor
+          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.InactiveColor
+        }
+
+        console.log(selectedRulers, caliphColor, heirColor)
+
+        const stripes = new L.StripePattern({
+          color: caliphColor,
+          spaceColor: heirColor,
+          opacity: 1,
+          spaceOpacity: 1,
+          weight: 7,
+          angle: -45,
+        });
+        if (!this.heirStripes[caliph.id])
+          this.heirStripes[caliph.id] = {};
+        this.heirStripes[caliph.id][heir.id] = stripes;
+      }
+    })
+    return this._heirStripesToArray(this.heirStripes)
+
+  }
+
+  _heirStripesToArray() {
+    let arr = []
+    Object.values(this.heirStripes).forEach(caliphMap => {
+      Object.values(caliphMap).forEach(pattern => {
+        arr.push(pattern)
+      })
+    })
+    return arr
+  }
+
 
   createMarker(latlng, feature, {
     markerOptions = {},
     selections = {}
   } = {}) {
+
+
+    // feature.data.types.forEach((type) => {
+    //   if (type.heir){
+    //     if(!selections[type.heir]){
+    //       selections[]
+    //     }
+    //   }
+    // })
+
+    // const stripes = new this.L.StripePattern({
+    //   color: type.caliph.color,
+    //   spaceColor: heir.color,
+    //   opacity: 1,
+    //   spaceOpacity: 1,
+    //   weight: 7,
+    //   angle: -45,
+    // });
+    // stripes.addTo(this.map);
+
+
     const { data, selected } = coinsToRulerData(
       feature.data.types,
       selections.selectedRulers,
-      // patterns
+      this.heirStripes
     );
 
     const featureGroup = concentricCircles(latlng, data, {

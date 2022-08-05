@@ -1,4 +1,4 @@
-import { DEBUG_COLOR, INACTIVE_COLOR } from '../utils/Color';
+import Color from '../utils/Color';
 
 export function rulersFromCoin(coin, patterns) {
     let rulers = [];
@@ -53,7 +53,7 @@ export function dataFromRulers(rulers, selected = []) {
         }
 
 
-        let fillColor = !sel ? INACTIVE_COLOR : ruler.color || DEBUG_COLOR
+        let fillColor = !sel ? Color.InactiveColor : ruler.color || Color.Debug
 
         data = Object.assign({
             fillColor,

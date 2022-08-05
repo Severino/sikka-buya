@@ -115,8 +115,8 @@ export default class Overlay {
      * Takes the transformed data and translates it into GeoJSON format.
      * The additional data of each feature should be stored at the object at'feature.data'.
      */
-    toGeoJSON() {
-        console.error("Error in Overlay: Abstract method not overloaded: toGeoJSON().")
+    toMapObject() {
+        console.error("Error in Overlay: Abstract method not overloaded: toMapObject().")
     }
 
     /**
@@ -159,16 +159,18 @@ export default class Overlay {
         selections = {},
         markerOptions = {},
     } = {}) {
-        const geoJson = this.toGeoJSON(this.data)
-        if (this._onGeoJSONTransform)
-            this._onGeoJSONTransform(geoJson)
 
         if (this.layer)
             this.layer.remove()
 
-        const that = this
+        const { geoJSON = [], patterns = [] } = this.toMapObject(this.data, selections)
+        if (this._onGeoJSONTransform)
+            this._onGeoJSONTransform(geoJSON)
 
-        this.layer = new L.geoJSON(geoJson, Object.assign({}, {
+        patterns.forEach(pattern => pattern.addTo(this.parent._map))
+
+        const that = this
+        this.layer = new L.geoJSON(geoJSON, Object.assign({}, {
             pointToLayer: function (feature, latlng) {
                 return that.createMarker.call(that, latlng, feature, { selections, markerOptions })
             },
