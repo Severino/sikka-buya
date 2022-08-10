@@ -14,7 +14,6 @@ const { JSDOM } = require("jsdom");
 const DictDE = require('../dictionaries/dict_de')
 const QueryBuilder = require('./querybuilder')
 
-let i = 1
 class Type {
 
 
@@ -773,7 +772,6 @@ COUNT(*) as total
     }
 
     static async getTypesByRuler(_, { id = null } = {}, context, info) {
-
         const person = id
         if (!person) throw new Error("Person must be provided!")
 
@@ -786,10 +784,6 @@ COUNT(*) as total
                     UNION
                     SELECT id AS type from type WHERE caliph = $1
                 )
-            SELECT 
-        SELECT 
-            SELECT 
-        SELECT 
             SELECT 
             ${this.rows}
         FROM type t

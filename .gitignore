@@ -6,3 +6,5 @@ test/token.txt
 **/videos/**
 
 **/dist/**
+
+test/cypress/screenshots/**

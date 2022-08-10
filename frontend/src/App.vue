@@ -244,6 +244,7 @@ button[type='submit'] {
 button {
   display: flex;
   align-items: center;
+  justify-content: center;
   @include input;
   @include interactive();
 
@@ -274,6 +275,10 @@ button {
       background-color: $gray;
     }
   }
+}
+
+.button.small-button {
+  font-size: $small-font;
 }
 
 .button.ghost-btn {

@@ -167,7 +167,6 @@
           queryCommand="searchPersonsWithRole"
           :queryParams="['id', { role: ['id', 'name'] }, 'name']"
           :additionalParameters="{ include: ['caliph'] }"
-          :textFunction="textFunction"
         />
       </LabeledInputContainer>
       <List
@@ -191,7 +190,7 @@
             attribute="name"
             :value="otherPerson"
             @input="otherPersonChanged($event, index)"
-            text="${name} (${role.name})"
+            :displayTextCallback="otherPersonsTextCallback"
             queryCommand="searchPersonsWithRole"
             :additionalParameters="{ exclude: ['caliph'] }"
             :queryParams="['id', { role: ['id', 'name'] }, 'name']"
@@ -379,6 +378,7 @@ import { TypeQueries } from '../../graphql/type-queries';
 import Modal from '../layout/Modal.vue';
 import Confirmation from '../misc/Confirmation.vue';
 import BackHeader from '../layout/BackHeader.vue';
+import { constantCase } from 'constant-case';
 
 export default {
   name: 'CreateTypePage',
@@ -406,14 +406,14 @@ export default {
     submitDisabled() {
       return !(this.loaded && !this.submitted);
     },
-    productionLabels: function () {
+    productionLabels() {
       return [
         this.$t('property.procedures.pressed'),
         this.$t('property.procedures.cast'),
       ];
     },
   },
-  mounted: function () {
+  mounted() {
     window.onbeforeunload = function (event) {
       event.returnValue = 'Navigation prevented!';
       return '';
@@ -458,7 +458,7 @@ export default {
       this.initFormattedFields.call(this);
     }
   },
-  created: function () {
+  created() {
     let id = this.$route.params.id;
     if (id != null) {
       this.$data.coin.id = id;
@@ -545,7 +545,7 @@ export default {
     }
   },
 
-  data: function () {
+  data() {
     return {
       debug: false,
       loaded: false,
@@ -609,7 +609,7 @@ export default {
     this.next = next;
   },
   methods: {
-    compareJSON: function (event) {
+    compareJSON(event) {
       var input, file, fr;
 
       if (typeof window.FileReader !== 'function') {
@@ -639,13 +639,13 @@ export default {
         window.loadedCoin = obj;
       }
     },
-    applyJSON: function () {
+    applyJSON() {
       if (window.loadedCoin) {
         this.coin = window.loadedCoin;
         this.initFormattedFields();
       } else console.error('You must import a file first.');
     },
-    exportJSON: function () {
+    exportJSON() {
       this.initFormattedFields();
       let data = JSON.stringify(this.coin);
       const blob = new Blob([data], { type: 'text/plain' });
@@ -675,39 +675,39 @@ export default {
         key: 'error-' + this.key++,
       });
     },
-    cancel: function () {
+    cancel() {
       this.$router.push({ name: 'TypeOverview' });
     },
-    reverseChanged: function (coinSideObject) {
+    reverseChanged(coinSideObject) {
       this.coin.reverse = coinSideObject;
     },
-    issuerChanged: function (issuer, index) {
+    issuerChanged(issuer, index) {
       delete issuer.error;
       this.coin.issuers.splice(index, 1, issuer);
     },
-    addCoinMark: function () {
+    addCoinMark() {
       this.coin.coinMarks.push({
         key: 'coin-mark-' + this.key++,
         id: null,
         name: '',
       });
     },
-    removeCoinMark: function (index) {
+    removeCoinMark(index) {
       this.coin.coinMarks.splice(index, 1);
     },
-    addPiece: function () {
+    addPiece() {
       this.coin.pieces.push({
         key: 'piece-' + this.key++,
         value: '',
       });
     },
-    pieceChanged: function (piece) {
+    pieceChanged(piece) {
       delete piece.error;
     },
-    removePiece: function (index) {
+    removePiece(index) {
       this.coin.pieces.splice(index, 1);
     },
-    addIssuer: function () {
+    addIssuer() {
       this.coin.issuers.push({
         key: 'issuer-' + this.key++,
         person: {
@@ -719,7 +719,7 @@ export default {
         honorifics: [],
       });
     },
-    removeIssuer: function (item) {
+    removeIssuer(item) {
       const idx = this.coin.issuers.indexOf(item);
       if (idx != -1) {
         this.coin.issuers.splice(idx, 1);
@@ -728,7 +728,15 @@ export default {
         });
       }
     },
-    initFormattedFields: function () {
+    otherPersonsTextCallback(data) {
+      let txt = data.name;
+
+      if (data?.role?.name) {
+        txt = `${txt} (${this.$tc('role.' + data.role.name)})`;
+      }
+      return txt;
+    },
+    initFormattedFields() {
       this.$refs.internalNotesField.setContent(this.coin.internalNotes);
       this.$refs.literatureField.setContent(this.coin.literature);
       this.$refs.specialsField.setContent(this.coin.specials);
@@ -736,7 +744,7 @@ export default {
       this.$refs.aversField.setFieldContent(this.coin.avers);
       this.$refs.reverseField.setFieldContent(this.coin.reverse);
     },
-    addOverlord: function () {
+    addOverlord() {
       this.coin.overlords.push({
         key: 'overlord-' + this.key++,
         rank: this.coin.overlords.length + 1,
@@ -746,7 +754,7 @@ export default {
         honorifics: [],
       });
     },
-    addOtherPerson: function () {
+    addOtherPerson() {
       this.coin.otherPersons.push({
         id: null,
         key: this.key++,
@@ -754,13 +762,13 @@ export default {
         role: '',
       });
     },
-    overlordChanged: function (overlord, index) {
+    overlordChanged(overlord, index) {
       const old = this.coin.overlords[index];
       Object.assign(old, overlord);
       delete old.error;
       this.coin.overlords.splice(index, 1, old);
     },
-    removeOverlord: function (item) {
+    removeOverlord(item) {
       const idx = this.coin.overlords.indexOf(item);
       if (idx != -1) {
         this.coin.overlords.splice(idx, 1);
@@ -769,24 +777,24 @@ export default {
         });
       }
     },
-    removeOtherPerson: function (item) {
+    removeOtherPerson(item) {
       const idx = this.coin.otherPersons.indexOf(item);
       if (idx != -1) {
         this.coin.otherPersons.splice(idx, 1);
       }
     },
-    mintSelected: function (mint) {
+    mintSelected(mint) {
       if (!this.coin.mintAsOnCoin) {
         this.coin.mintAsOnCoin = mint.name;
       }
     },
-    otherPersonChanged: function (otherPerson, index) {
+    otherPersonChanged(otherPerson, index) {
       const op = this.coin.otherPersons[index];
       Object.assign(op, otherPerson);
       delete op.error;
       this.coin.otherPersons.splice(index, 1, op);
     },
-    submitForm: function () {
+    submitForm() {
       function validateTitledPerson(titledPerson) {
         let valid = true;
         let titledPersonError = '';

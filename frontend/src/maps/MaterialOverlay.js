@@ -11,7 +11,8 @@ import Color from '../utils/Color'
 export default class MaterialOverlay extends Overlay {
 
 
-    toMapObject(data) {
+
+    transform(data) {
         const types = data.types.filter((type) => {
             if (!type?.mint?.location) return false;
             try {
@@ -22,7 +23,11 @@ export default class MaterialOverlay extends Overlay {
             }
         });
 
-        const mints = types.reduce((prev, type) => {
+        return types
+    }
+
+    toMapObject(data) {
+        const mints = data.reduce((prev, type) => {
             const mint = type.mint;
             if (!prev[mint.id]) {
                 prev[mint.id] = mint.location;
@@ -44,7 +49,6 @@ export default class MaterialOverlay extends Overlay {
     createMarker(latlng, feature) {
 
         const materialArrays = Object.values(feature.data.materialStats.get()).map(({ material }) => {
-            console.log("%cmaterial.name", `color: ${material.color}`)
             let data = {
                 material,
                 fillOpacity: 1,
@@ -73,8 +77,12 @@ export default class MaterialOverlay extends Overlay {
 
         let mlm = new MintLocationMarker(feature.data.mint);
         let marker = mlm.create(latlng);
-
-        const featureGroup = L.featureGroup([marker, materialCircles]);
+        if (marker.getLayers) {
+            marker = marker.getLayers()
+        } else {
+            marker = [marker]
+        }
+        const featureGroup = L.featureGroup([...marker, materialCircles]);
         featureGroup.bindPopup(this.mintLocationPopup(feature.data));
 
         featureGroup.on('mouseover', () => featureGroup.bringToFront());
@@ -91,12 +99,18 @@ export default class MaterialOverlay extends Overlay {
 
         return `
         ${Mint.popupMintHeader(mint)}
-        <div class="popup-body grid col-3" make-simplebar>
+        <div class="popup-body" make-simplebar>
+        <br>
+            <div class="popup-content grid col-3">
         ${types
                 .map((type) => {
                     return `<a href="${type.route.href}" style="color: ${type.material.color}" target="_blank">${type.projectId}</a>`;
                 })
                 .join('')}
+                
+                <br>
+                <br>
+                </div>
         </div>`;
     }
 }

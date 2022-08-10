@@ -7,6 +7,7 @@ describe('Setup Page', function () {
 
   this.beforeAll(async function () {
     await cy.task("ResetDatabase")
+    console.log("RESET DATABASE")
   })
 
   it('loads the site', function () {
@@ -68,12 +69,10 @@ describe('Setup Page', function () {
     submitBtn.should("not.have.class", "pending")
     submitBtn.click();
     submitBtn.should("have.class", "pending")
-
+    cy.wait(2000)
   })
 
   it('login working', function () {
-    cy.wait(300)
-
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/editor/")
     })
@@ -115,7 +114,7 @@ describe('User Management', function () {
   })
 
   it("Goto UserManagement", function () {
-    cy.get(".button").contains("Nutzer").click()
+    cy.get("a").contains("Nutzer").click()
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/editor/user")
     })

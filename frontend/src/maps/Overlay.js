@@ -1,90 +1,12 @@
 import L from "leaflet"
 import { RequestGuard } from '../utils/Async';
 
-export class OverlaySettings {
-
-    constructor(name, window) {
-        this.name = name
-        this.window = window
-        this.settings = null
-    }
-
-    onSettingsChanged(fun) {
-        this._onSettingsChanged = fun
-    }
-
-    get(param) {
-        const val = this.settings[param]
-        if (val === undefined) console.error(`Could not load setting: ${param}`)
-        return val
-    }
-
-    load() {
-        let settings = {}
-        const changedSettings = []
-
-        const settingsString = window.localStorage.getItem(this.name)
-        if (settingsString) {
-            try {
-                settings = JSON.parse(settingsString)
-
-                Object.entries(this.settings).forEach((entry) => {
-                    changedSettings.push(entry)
-                })
-            } catch (e) {
-                console.warn(`Invalid JSON for settings "${this.name}".`)
-            }
-        }
-        this.settings = Object.assign({}, this.defaultSettings, settings)
-        this._changed(changedSettings)
-        return this.settings
-    }
-
-    save() {
-        if (this.initialized) {
-            const dataString = JSON.stringify(this.settings)
-            this.window.localStorage.setItem(this.name, dataString)
-        }
-    }
-
-    get initialized() {
-        return !!this.settings
-    }
-
-    toggle(key) {
-        this.settings[key] = !this.settings[key]
-        this._changed([[key, this.settings[key]]])
-    }
-
-    multiChange(keyValPairs) {
-        this._changed(keyValPairs)
-    }
-
-    change(key, value) {
-        this.settings[key] = value
-        this._changed([[key, value]])
-    }
-
-    _changed(keyValPairs = []) {
-        this.save()
-        if (this._onSettingsChanged)
-            this._onSettingsChanged(keyValPairs)
-    }
-
-
-    get defaultSettings() {
-        return {
-            uiOpen: false,
-        }
-    }
-
-}
-
 export default class Overlay {
 
     constructor(parent, settings, {
         onDataTransformed = null,
         onGeoJSONTransform = null,
+        onApplyData = null
     } = {}) {
         this.data = {}
         this.parent = parent
@@ -92,6 +14,7 @@ export default class Overlay {
         this.fetchGuard = new RequestGuard()
         this._onDataTransformed = onDataTransformed
         this._onGeoJSONTransform = onGeoJSONTransform
+        this._onApplyData = onApplyData
     }
 
     /** Fetches the data from the server. */
@@ -208,6 +131,8 @@ export default class Overlay {
 
     // Saves the data for future repaints
     setData(data) {
+        if (this._onApplyData)
+            data = this._onApplyData(data)
         this.data = data
     }
 

@@ -48,7 +48,7 @@
         :queryCommand="ms.queryCommand"
         :additionalParameters="ms.additionalParameters"
         :text="ms.text"
-        :textFunction="ms.textFunction"
+        :displayTextCallback="ms.displayTextCallback"
         :disableRemoveButton="true"
         @select="(el) => selectFilter(ms.value, el)"
         @remove="(el) => removeFilter(ms.value, el)"
@@ -136,7 +136,7 @@ let unfilteredMultiSelectFilters = [
     additionalParameters: {
       exclude: ['caliph', 'heir'],
     },
-    textFunction: function (search) {
+    displayTextCallback: function (search) {
       return `${search.name} (${this.$tc(`role.${search.role.name}`)})`;
     },
   },
@@ -153,7 +153,7 @@ let unfilteredMultiSelectFilters = [
     value: 'ruler',
     queryCommand: 'searchPersonsWithoutRole',
     queryParams: ['id', 'name', { dynasty: ['id', 'name'] }],
-    textFunction: function (search) {
+    displayTextCallback: function (search) {
       let txt = search.name;
       if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
       return txt;

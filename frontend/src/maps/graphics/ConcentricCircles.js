@@ -84,7 +84,7 @@ export function concentricCircles(latlng, data, {
                 fill: false
             }
             , borderStyle)
-        console.log(style)
+
         const graphics = L.semiCircleMarker(latlng, style)
 
         concentricCircles.push(graphics)

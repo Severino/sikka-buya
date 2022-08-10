@@ -339,8 +339,9 @@ export default {
 
             this.$set(this.map, person.id, mints);
           })
-          .catch(() => {
-            person.error();
+          .catch((e) => {
+            console.error(e);
+            person.error = e;
           })
           .finally(() => {
             person.loading = false;

@@ -1,14 +1,8 @@
 const { default: routesDe } = require('./de/routes.de')
 
 const general = {
-    administration:
-        "Admin-Bereich",
     type:
         "Typ | Typen",
-    create_type:
-        "Neuen Typ anlegen",
-    manage_properties:
-        "Eigenschaften verwalten",
     no:
         "nein",
     type_catalogue:
@@ -23,12 +17,28 @@ const general = {
         "offline",
     server_status:
         "server status",
-    user:
-        "Nutzer | Nutzer",
     delete_submit:
         "Entfernen",
+    user:
+        "Nutzer | Nutzer",
     yes: "ja"
 }
+
+const editor = {
+    important_properties:
+        "wichtige Eigenschaften",
+    manage_properties:
+        "Eigenschaften verwalten",
+    create_type:
+        "Neuen Typ anlegen",
+    administration:
+        "Admin-Bereich",
+    assist_tools:
+        "Hilfsprogramme",
+    compare_last_cleanup:
+        "Vergleiche Letzte Bereinigung"
+}
+
 
 const property = {
     additional_persons:
@@ -222,6 +232,7 @@ const system = {
 
 module.exports = {
     attribute,
+    editor,
     error,
     form,
     info,
@@ -232,6 +243,5 @@ module.exports = {
     role,
     warning,
     system,
-
     routes: routesDe
 }

@@ -17,27 +17,21 @@
           >Filter aufheben</Button
         >
       </div>
-
-      <div class="settings">
-        <SettingsIcon class="settings-icon" @click="toggleSettings" />
-        <div class="settings-window" v-if="overlaySettings.uiOpen">
-          <header>
-            <h3>Einstellungen</h3>
-          </header>
-          <label>Kreisgröße</label>
-          <input
-            type="range"
-            name="maxRadius"
-            :value="overlaySettings.maxRadius"
-            @input="overlaySettingsChanged"
-            :min="overlaySettings.maxRadiusMinimum"
-            :max="overlaySettings.maxRadiusMaximum"
-          />
-          <Button @click.native="resetSettings"
-            >Standard wiederherstellen</Button
-          >
-        </div>
-      </div>
+      <map-settings-box
+        :open="overlaySettings.uiOpen"
+        @toggle="toggleSettings"
+        @reset="resetSettings"
+      >
+        <label>Kreisgröße</label>
+        <input
+          type="range"
+          name="maxRadius"
+          :value="overlaySettings.maxRadius"
+          @input="overlaySettingsChanged"
+          :min="overlaySettings.maxRadiusMinimum"
+          :max="overlaySettings.maxRadiusMaximum"
+        />
+      </map-settings-box>
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
@@ -83,6 +77,7 @@ import Query from '../../database/query';
 import map from './mixins/map';
 import timeline from './mixins/timeline';
 import mintLocations from './mixins/MintLocationsMixin';
+import settingsMixin from '../map/mixins/settings';
 
 // Components
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
@@ -99,6 +94,8 @@ import MintList from '../MintList.vue';
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
 
+import MapSettingsBox from '../MapSettingsBox.vue';
+
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
 
@@ -114,12 +111,12 @@ export default {
     RulerList,
     MintList,
     ScrollView,
+    MapSettingsBox,
   },
   data: function () {
     return {
       data: null,
       overlay: null,
-      overlaySettings,
       types: [],
       mints: [],
       persons: {},
@@ -136,6 +133,7 @@ export default {
   mixins: [
     map,
     timeline,
+    settingsMixin(overlaySettings),
     mintLocations({
       onMintSelectionChanged: function () {
         this.drawMintCountOntoTimeline();
@@ -153,6 +151,7 @@ export default {
     selections() {
       return {
         selectedRulers: this.selectedRulers,
+        selectedMints: this.selectedMints,
       };
     },
     filtersActive: function () {
@@ -185,7 +184,7 @@ export default {
       this.repaint();
     });
 
-    this.overlay = new PoliticalOverlay(this.featureGroup, overlaySettings, {
+    this.overlay = new PoliticalOverlay(this.featureGroup, settings, {
       onDataTransformed: (transformedData, filters) => {
         this.mints = transformedData.mints;
         this.unavailableMints = transformedData.unavailableMints;
@@ -204,22 +203,12 @@ export default {
       this.raw_timeline
     );
     await this.initTimeline(starTime);
-    // this.updateTimeline();
     this.update();
   },
   unmounted: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();
   },
   methods: {
-    resetSettings() {
-      this.overlay.settings.reset();
-    },
-    overlaySettingsChanged(e) {
-      settings.change(e.currentTarget.name, e.currentTarget.value);
-    },
-    toggleSettings() {
-      settings.toggle('uiOpen');
-    },
     timelineChanged(value) {
       localStorage.setItem('map-timeline', value);
       this.timeChanged(value);
@@ -639,26 +628,6 @@ export default {
       color: $primary-color;
     }
   }
-
-  .settings {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 10px;
-
-    h3 {
-      margin: 0;
-      margin-bottom: 1em;
-    }
-
-    .material-design-icon svg {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      fill: white;
-      filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
-    }
-  }
 }
 </style>
 
@@ -705,17 +674,6 @@ export default {
 
   > * {
     pointer-events: auto;
-  }
-}
-
-.settings {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 10px;
-
-  .material-design-icon {
-    fill: 'red';
   }
 }
 

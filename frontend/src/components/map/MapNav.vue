@@ -65,7 +65,7 @@ export default {
     top: 0px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 100000;
+    z-index: 1;
   }
 
   .links > * {

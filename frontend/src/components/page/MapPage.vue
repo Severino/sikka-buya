@@ -47,10 +47,8 @@ export default {
     this.$nextTick(() => {
       this.map.on('moveend', function (args) {
         const { target: map } = args;
-
         const { lat, lng } = map.getCenter();
 
-        console.log('getZoom', map.getZoom());
         settings.multiChange([
           ['location', [lat, lng]],
           ['zoom', map.getZoom()],

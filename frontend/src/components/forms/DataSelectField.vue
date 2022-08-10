@@ -108,7 +108,7 @@ export default {
       type: String,
       default: null,
     },
-    textFunction: Function,
+    displayTextCallback: Function,
     /**
      * Unselectable is used, when you e.g. have multiple selection options and the
      * field is cleared afterwards and only the selection is tracked.
@@ -234,7 +234,7 @@ export default {
         });
     },
     transformTextContent: function (search) {
-      if (this.textFunction) return this.textFunction(search);
+      if (this.displayTextCallback) return this.displayTextCallback(search);
       else if (this.text) {
         return this.text.replace(/\${(.+?)}/g, function (match, name) {
           const path = name.split('.');

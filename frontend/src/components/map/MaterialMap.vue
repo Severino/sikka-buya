@@ -20,25 +20,19 @@
           >Filter aufheben</Button
         >
       </div>
-
-      <div class="settings">
-        <SettingsIcon class="settings-icon" @click="toggleSettings" />
-        <div class="settings-window" v-if="settings.visible">
-          <header>
-            <h3>Einstellungen</h3>
-          </header>
-          <label>Kreisgröße</label>
-          <input
-            type="range"
-            v-model="settings.maxRadius.value"
-            :min="settings.maxRadius.min"
-            :max="settings.maxRadius.max"
-          />
-          <Button @click.native="resetSettings"
-            >Standard wiederherstellen</Button
-          >
-        </div>
-      </div>
+      <map-settings-box
+        :open="overlaySettings.uiOpen"
+        @toggle="toggleSettings"
+        @reset="resetSettings"
+      >
+        <label>Kreisgröße</label>
+        <input
+          type="range"
+          v-model="overlaySettings.maxRadius.value"
+          :min="overlaySettings.maxRadius.min"
+          :max="overlaySettings.maxRadius.max"
+        />
+      </map-settings-box>
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
@@ -106,12 +100,12 @@ import map from './mixins/map';
 import timeline from './mixins/timeline';
 import localstore from '../mixins/localstore';
 import mintLocations from './mixins/MintLocationsMixin';
+import settingsMixin from '../map/mixins/settings';
 
 import MaterialOverlay from '../../maps/MaterialOverlay';
 import Sorter from '../../utils/Sorter';
 
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
-import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import MintList from '../MintList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
@@ -119,6 +113,7 @@ import Button from '../layout/buttons/Button.vue';
 import CatalogFilter from '../page/catalog/CatalogFilter.vue';
 
 import Settings from '../../settings';
+import MapSettingsBox from '../MapSettingsBox.vue';
 
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
@@ -126,7 +121,6 @@ const overlaySettings = settings.load();
 export default {
   name: 'MaterialMap',
   components: {
-    SettingsIcon,
     Sidebar,
     Timeline,
     Checkbox,
@@ -136,6 +130,7 @@ export default {
     LabeledInputContainer,
     Button,
     CatalogFilter,
+    MapSettingsBox,
   },
   data: function () {
     return {
@@ -150,7 +145,6 @@ export default {
       mintTimelineData: [],
       timelineActive: true,
       mintLayer: null,
-      overlaySettings,
       catalogFilterActive: false,
       overwriteFilters: {
         yearOfMint: null,
@@ -166,6 +160,7 @@ export default {
   mixins: [
     map,
     timeline,
+    settingsMixin(overlaySettings),
     localstore('material-map-settings', ['settings']),
     mintLocations({
       showMarkers: false,
@@ -189,7 +184,32 @@ export default {
     },
   },
   created() {
+    settings.onSettingsChanged((changedSettings) => {
+      let settings = this.overlaySettings;
+      changedSettings.forEach(([key, value]) => {
+        settings[key] = value;
+      });
+      this.overlaySettings = Object.assign(this.overlaySettings, settings);
+
+      this.overlay.repaint();
+    });
+
     this.overlay = new MaterialOverlay(this.featureGroup, settings, {
+      onApplyData: (data) => {
+        const validTypes = [];
+        data.types.forEach((type) => {
+          if (type?.mint?.location) {
+            try {
+              type.mint.location = JSON.parse(type.mint.location);
+              validTypes.push(type);
+            } catch (e) {
+              console.warn(`Could not parse all mints: ${type.mint.name}`, e);
+            }
+          }
+        });
+
+        return validTypes;
+      },
       onGeoJSONTransform: (features) => {
         features.forEach((feature) => {
           feature.data.types.forEach((type) => {
@@ -239,9 +259,6 @@ export default {
     },
     updateMints() {
       this.$refs.catalogFilter.search();
-    },
-    toggleSettings() {
-      this.settings.visible = !this.settings.visible;
     },
     timelineChanged(value) {
       localStorage.setItem('map-timeline', value);
@@ -384,26 +401,6 @@ export default {
       color: $primary-color;
     }
   }
-
-  .settings {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 10px;
-
-    h3 {
-      margin: 0;
-      margin-bottom: 1em;
-    }
-
-    .material-design-icon svg {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      fill: white;
-      filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
-    }
-  }
 }
 </style>
 
@@ -456,17 +453,6 @@ export default {
 
   > * {
     pointer-events: auto;
-  }
-}
-
-.settings {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 10px;
-
-  .material-design-icon {
-    fill: 'red';
   }
 }
 

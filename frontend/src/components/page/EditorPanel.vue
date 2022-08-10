@@ -1,29 +1,21 @@
 <template>
   <div>
     <header>
-      <h2>{{ $t('general.administration') }}</h2>
+      <h2>{{ $t('editor.administration') }}</h2>
     </header>
-    <!-- <router-link :to="{ name: 'TypeList' }"> Explorer </router-link> -->
-    <div class="button-list">
-      <router-link
-        v-if="superuser"
-        class="button icon-button"
-        :to="{ name: 'UserManagement' }"
-        draggable="false"
-      >
-        <span>{{ $tc('general.user') }}</span>
-      </router-link>
 
-      <router-link
-        class="button icon-button"
-        :to="{ name: 'TypeOverview' }"
-        draggable="false"
+    <h3>{{ $t('editor.important_properties') }}</h3>
+    <list :items="featuredProperties">
+      <list-item
+        v-for="(property, idx) of featuredProperties"
+        :key="'prop-' + idx"
+        :to="property.to"
       >
-        <span>{{ $tc('general.type') }}</span>
-      </router-link>
-    </div>
+        <span>{{ $tc('general.' + property.name) }}</span>
+      </list-item>
+    </list>
 
-    <h3>{{ $t('general.manage_properties') }}</h3>
+    <h3>{{ $t('editor.manage_properties') }}</h3>
 
     <list :items="properties">
       <list-item
@@ -34,10 +26,17 @@
         <span>{{ $tc('property.' + property.name) }}</span>
       </list-item>
     </list>
-    <h3>Hilfsprogramme</h3>
-    <router-link class="button icon-button" :to="{ name: 'FixDiff' }"
-      >Vergleiche letzte Bereinigung</router-link
-    >
+
+    <h3>{{ $t('editor.assist_tools') }}</h3>
+    <list :items="supportPrograms">
+      <list-item
+        v-for="(property, idx) of supportPrograms"
+        :key="'prop-' + idx"
+        :to="property.to"
+      >
+        <span>{{ $tc('editor.' + property.name) }}</span>
+      </list-item>
+    </list>
   </div>
 </template>
 
@@ -54,8 +53,26 @@ export default {
     List,
     ListItem,
   },
+  method: {
+    isAccessible(obj) {
+      if (!obj.superuser) return true;
+      else return this.superuser;
+    },
+  },
   computed: {
-    properties: function () {
+    featuredProperties() {
+      const properties = [{ name: 'type', to: { name: 'TypeOverview' } }];
+
+      if (this.superuser) {
+        properties.unshift({ name: 'user', to: { name: 'UserManagement' } });
+      }
+
+      return properties;
+    },
+    supportPrograms() {
+      return [{ name: 'compare_last_cleanup', to: { name: 'FixDiff' } }];
+    },
+    properties() {
       let props = [
         'honorific',
         'coin_mark',
@@ -112,6 +129,12 @@ a {
 header {
   display: flex;
   justify-content: space-between;
+}
+
+h1,
+h2,
+h3 {
+  text-transform: capitalize;
 }
 
 h3 {

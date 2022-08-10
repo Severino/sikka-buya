@@ -27,6 +27,12 @@ export default class PoliticalOverlay extends Overlay {
     if (isNaN(filters.yearOfMint)) throw new Error('Invalid yearOfMint filter!');
 
 
+    // We want to show the 'unselected' mints still visible in the 
+    // list. So we don't filter out the other mints.
+    if (filters.mint) {
+      delete filters.mint
+    }
+
     const pagination = {
       page: 0,
       count: 100000
@@ -206,13 +212,22 @@ export default class PoliticalOverlay extends Overlay {
     //Build mint map and parse GeoJSON
     Object.values(data.mints).forEach(mint => {
       if (mint.location && mint.id) {
+        const types = mint.data.types
         try {
           let locationData = JSON.parse(mint.location)
           locationData.data = {
-            types: mint.data.types,
+            types,
             mint
           }
-          geoJSON.push(locationData)
+
+          //We sort the locationsdata so that the concentric circles
+          // will be drawn on top of the locations markers.
+          if (types.length > 0) {
+            geoJSON.push(locationData)
+          } else {
+            geoJSON.unshift(locationData)
+          }
+
         } catch (e) { console.error("Could not parse locaton", e) /* If location is invalid, we don't care.*/ }
       }
     })
@@ -269,8 +284,7 @@ export default class PoliticalOverlay extends Overlay {
     selections = {}
   } = {}) {
 
-    const mlm = new MintLocationMarker(feature.data.mint)
-    const locationMarker = mlm.create(latlng)
+
 
     const { data, selected } = coinsToRulerData(
       feature.data.types,
@@ -278,38 +292,55 @@ export default class PoliticalOverlay extends Overlay {
       this.heirStripes
     );
 
-    const concentricCirclesMarker = concentricCircles(latlng, data, {
-      openPopup: function ({ data, groupData }) {
-        return rulerPopup(groupData, data?.data);
-      },
-      innerRadius: this.settings.innerRadius,
-      radius: this.settings.maxRadius,
-      borderStyle: {
-        stroke: true,
-        weight: 1,
-        color: '#fff',
-        fill: false,
-      },
+    const selectionsActive = selections?.selectedMints?.length > 0
+
+    let layer;
+    if (data.length > 0 && (!selectionsActive || selections?.selectedMints?.indexOf(feature.data?.mint?.id) != -1)) {
+      const concentricCirclesMarker = concentricCircles(latlng, data, {
+        openPopup: function ({ data, groupData }) {
+          return rulerPopup(groupData, data?.data);
+        },
+        innerRadius: this.settings.settings.innerRadius,
+        radius: this.settings.settings.maxRadius,
+        borderStyle: {
+          stroke: true,
+          weight: 1,
+          color: '#fff',
+          fill: false,
+        },
+      });
+
+      const locationMarker = this.createMintLocationMarker(latlng, feature)
+      const objects = [concentricCirclesMarker, locationMarker]
+
+
+      let i = 0
+      window.mylayer = {}
+      objects.forEach(obj => window.mylayer[i++] = obj)
+
+      layer = L.featureGroup(objects);
+    } else {
+      layer = this.createMintLocationMarker(latlng, feature)
+      layer.bringToBack()
+    }
+
+    layer.selected = selected;
+    layer.on('mouseover', () => {
+      layer.bringToFront()
     });
-
-    // if (feature?.coins?.length > 0) {
-    //   const mintFeature = {
-    //     mint: feature.coins[0].mint,
-    //   };
-
-    //   const mintLocations = new MintLocation({
-    //     markerOptions: mintMarkerOptions,
-    //   });
-    //   mintLocations
-    //     .createMarker(latlng, mintFeature)
-    //     .addTo(featureGroup);
-    // }
-    const featureGroup = L.featureGroup([locationMarker, concentricCirclesMarker]);
-    featureGroup.selected = selected;
-    featureGroup.on('mouseover', () => featureGroup.bringToFront());
-    featureGroup.on('click', () => featureGroup.bringToFront());
-    return featureGroup
+    layer.on('click', () => {
+      layer.bringToFront()
+    });
+    return layer
   }
 
-
+  createMintLocationMarker(latlng, feature) {
+    const mint = feature.data.mint
+    const mlm = new MintLocationMarker(mint)
+    const marker = mlm.create(latlng)
+    marker.bindPopup(Mint.popupMintHeader(mint))
+    return marker
+  }
 }
+
+

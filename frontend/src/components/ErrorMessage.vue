@@ -16,6 +16,10 @@ import AlertCircle from 'vue-material-design-icons/AlertCircle';
 export default {
   components: { AlertCircle },
   props: {
+    icon: {
+      type: Boolean,
+      default: false,
+    },
     error: {
       required: true,
       type: [String, Array],

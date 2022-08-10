@@ -43,7 +43,10 @@ class Auth {
         */
         try {
             let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)
+            console.log(user)
             let result = await Auth.checkPassword(password, user.password)
+            console.log(result)
+
             if (result) {
                 return {
                     success: true,

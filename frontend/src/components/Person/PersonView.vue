@@ -1,7 +1,7 @@
 <template>
   <div class="person-view">
     <catalog-property label="Münzherr(en)">
-      <div class="issuer-grid">
+      <div :class="multipleIssuersClass">
         <person-list :value="issuers" />
       </div>
     </catalog-property>
@@ -45,6 +45,11 @@ export default {
         persons == null ||
         (persons.length != null && persons.length === 0)
       );
+    },
+  },
+  computed: {
+    multipleIssuersClass() {
+      return this.issuers.length > 0 ? 'issuer-grid' : null;
     },
   },
 };

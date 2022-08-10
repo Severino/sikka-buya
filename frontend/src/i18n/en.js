@@ -1,12 +1,6 @@
 const general = {
-    administration:
-        "administration",
     type:
         "type | types",
-    create_type:
-        "create new type",
-    manage_properties:
-        "manage properties",
     no:
         "no",
     type_catalogue:
@@ -23,7 +17,24 @@ const general = {
         "server status",
     delete_submit:
         "Delete",
+    user:
+        "user | users",
     yes: "yes"
+}
+
+const editor = {
+    important_properties:
+        "important properties",
+    manage_properties:
+        "manage properties",
+    create_type:
+        "create new type",
+    administration:
+        "administration",
+    assist_tools:
+        "assist tools",
+    compare_last_cleanup:
+        "compare last cleanup"
 }
 
 const property = {
@@ -171,6 +182,7 @@ const navigation = {
 module.exports = {
     attribute,
     error,
+    editor,
     form,
     info,
     general,

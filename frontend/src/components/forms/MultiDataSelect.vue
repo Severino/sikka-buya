@@ -11,7 +11,7 @@
       :attribute="attribute"
       :required="required"
       :text="text"
-      :textFunction="textFunction"
+      :displayTextCallback="displayTextCallback"
       :query="query"
       :queryCommand="queryCommand"
       :msg="msg"
@@ -71,7 +71,7 @@ export default {
     // This is an alternative to attribute.
     // Use JavaScript template literals placeholders ('${your_variable}')
     text: String,
-    textFunction: Function,
+    displayTextCallback: Function,
     /**
      * Unselectable is used, when you e.g. have multiple selection options and the
      * field is cleared afterwards and only the selection is tracked.

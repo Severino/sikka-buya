@@ -116,6 +116,10 @@ export default class Settings {
         return settings
     }
 
+    get(key) {
+        return this.settings[key]
+    }
+
     apply(vue) {
         const settings = this.load()
         Object.assign(this.settings, settings)
@@ -146,7 +150,7 @@ export default class Settings {
     }
 
     reset() {
-        this.settings = Object.assign({}, Settings.getDefault(this.key))
-        this._changed()
+        let settings = Object.assign({}, Settings.getDefault(this.key))
+        this._changed(Object.entries(settings))
     }
 }
