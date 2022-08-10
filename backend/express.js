@@ -133,7 +133,6 @@ async function start({
 
                 },
                 timespan: async () => {
-
                     let range = await Database.manyOrNone(`SELECT year_of_mint FROM type WHERE year_of_mint !='' AND exclude_from_map_app=false;`)
                     range = range.map(row => row.year_of_mint).filter(res => res && res.match(/^\d+$/g)).sort()
 

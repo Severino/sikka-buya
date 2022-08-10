@@ -204,17 +204,33 @@ export default {
     );
     await this.initTimeline(starTime);
     this.update();
+
+    console.log(this.timeline);
+    this.drawMintCountOntoTimeline();
+
+    window.addEventListener('resize', this.updateCanvas);
   },
   unmounted: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();
+
+    window.removeEventListener('resize', this.updateCanvas);
   },
   methods: {
+    updateCanvas() {
+      const canvas = this.$refs.timelineCanvas;
+      const rect = canvas.parentNode.getBoundingClientRect();
+
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      this.drawMintCountOntoTimeline();
+    },
     timelineChanged(value) {
       localStorage.setItem('map-timeline', value);
       this.timeChanged(value);
     },
     timelineUpdated: async function () {
       this.update();
+
       //   let types = await this.fetchTypes();
       //   if (types != null) {
       //     this.types = types;
@@ -231,6 +247,7 @@ export default {
         filters: this.filters,
         selections: this.selections,
       });
+
       // this.updateMintLocationMarker();
       // this.updateAvailableMints();
       // this.updateAvailableRulers();
@@ -492,34 +509,9 @@ export default {
 
               const mint = mintData;
               delete mint.data;
-
-              //TODO
-
-              // const covered = false;
-              // for (let i = curveData[mint.id].ranges.length - 1; i >= 0; i--) {
-              //   let range = curveData[mint.id].ranges[i];
-              //   if (mint.x >= range[0] && mint[1] <= range[1]) {
-              //     covered = true;
-              //     break;
-              //   }
-              // }
-
-              // if (!covered) {
-              //   /**
-              //    * Combine if they overlap
-              //    */
-              //   const nextIndex = curveData[mint.id].ranges.length - 1;
-              //   if (i < nextIndex) {
-              //     const nextRange = curveData[mint.id].ranges[nextIndex];
-              //     if (range[i][1] === nextRange[nextIndex][0]) {
-              //       range[i][1] = nextRange[nextIndex][1];
-              //       curveData[mint.id].ranges.splice(nextIndex, 1);
-              //     }
-              //   }
-              // }
             });
 
-            // this.timelineChart.updateTimeline(this.raw_timeline);
+            this.timelineChart.updateTimeline(this.raw_timeline);
             this.timelineChart.drawMintLinesOnCanvas(
               resolveRange(Array.from(xSet.values())),
               5,
@@ -529,42 +521,6 @@ export default {
                 strokeStyle: '#48ac48',
               }
             );
-            // const yStep =
-            //   (canv.height - lineWidth - 10) / (curveMax > 0 ? curveMax : 20);
-            // let y = (val) => {
-            //   return canv.height - val * yStep;
-            // };
-            // let x = (val) => {
-            //   return (
-            //     ((val - this.raw_timeline.from) /
-            //       (this.raw_timeline.to - this.raw_timeline.from)) *
-            //       canv.width -
-            //     2
-            //   );
-            // };
-            // ctx.lineWidth = lineWidth;
-            // ctx.lineCap = 'round';
-            // ctx.lineJoin = 'round';
-            // ctx.strokeStyle = '#bfbfbf';
-            // ctx.fillStyle = '#eee';
-            // ctx.beginPath();
-            // let last = null;
-            // Object.keys(curveData)
-            //   .sort((a, b) => a - b)
-            //   .forEach((x_key) => {
-            //     const point = { x: x_key, y: curveData[x_key] };
-            //     if (last && point.x - last > 1) {
-            //       ctx.lineTo(x(last), y(0));
-            //       last = null;
-            //     }
-            //     if (last == null) ctx.moveTo(x(point.x), y(0));
-            //     ctx.lineTo(x(point.x), y(point.y));
-            //     last = point.x;
-            //   });
-            // ctx.lineTo(x(last), y(0));
-            // ctx.stroke();
-            // ctx.fill();
-            // ctx.closePath();
           })
           .catch(console.error);
     },
@@ -634,10 +590,6 @@ export default {
 <style lang="scss" scoped>
 .unavailable {
   color: gray;
-}
-
-.top-right-toobar {
-  margin: $padding;
 }
 
 #timeline-canvas {

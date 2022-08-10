@@ -36,6 +36,8 @@ export default class TimelineChart extends Chart {
         const widthPerYear = this.canvas.width / timelineSpan
         const x = (val - this.timeline.from) * widthPerYear - 2
 
+        // console.log(val, x, timelineSpan, widthPerYear, this.timeline.to, this.timeline.from)
+
         return x
     }
 

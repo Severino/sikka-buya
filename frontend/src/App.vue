@@ -512,4 +512,9 @@ a {
   box-shadow: $shadow;
   border: 1px solid whitesmoke;
 }
+
+.map-page .top-right-toobar {
+  margin: $padding;
+  display: inline-block;
+}
 </style>
