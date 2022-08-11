@@ -129,7 +129,7 @@
       <div v-if="type.pieces && type.pieces.length == 0">-</div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
         <a :href="piece" target="_blank"
-          >{{ piece }}<ExternalIcon size="16"
+          >{{ piece }}<ExternalIcon :size="16"
         /></a>
       </div>
     </catalog-property>

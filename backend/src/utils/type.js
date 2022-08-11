@@ -771,36 +771,6 @@ COUNT(*) as total
         return await this.postprocessType(result);
     }
 
-    static async getTypesByRuler(_, { id = null } = {}, context, info) {
-        const person = id
-        if (!person) throw new Error("Person must be provided!")
-
-
-        const result = await Database.manyOrNone(`
-        WITH rulers AS(
-                    SELECT type FROM overlord WHERE person = $1
-                    UNION
-                    SELECT type from issuer WHERE person = $1
-                    UNION
-                    SELECT id AS type from type WHERE caliph = $1
-                )
-            SELECT 
-            ${this.rows}
-        FROM type t
-            ${this.joins}
-        WHERE t.id IN(SELECT type FROM rulers)
-            `, person);
-
-
-        const fields = graphqlFields(info)
-        for (let [key, value] of result.entries()) {
-            result[key] = await this.postprocessType(value, fields)
-        }
-
-
-        return result
-    }
-
     static get rows() {
         return ` t.*,
                 ${Material.query()}

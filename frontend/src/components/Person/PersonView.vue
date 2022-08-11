@@ -1,8 +1,8 @@
 <template>
   <div class="person-view">
     <catalog-property label="Münzherr(en)">
-      <div :class="multipleIssuersClass">
-        <person-list :value="issuers" />
+      <div>
+        <person-list :value="issuers" :class="multipleIssuersClass" />
       </div>
     </catalog-property>
     <catalog-property label="Oberherr(en)">
@@ -49,7 +49,7 @@ export default {
   },
   computed: {
     multipleIssuersClass() {
-      return this.issuers.length > 0 ? 'issuer-grid' : null;
+      return this.issuers.length > 1 ? 'issuer-grid' : null;
     },
   },
 };
@@ -59,6 +59,14 @@ export default {
 .caliph-group .catalog-property {
   background-color: transparent;
 }
+
+.person-view {
+  .issuer-grid ul {
+    display: grid;
+    gap: $padding;
+    grid-template-columns: 1fr 1fr;
+  }
+}
 </style>
 
 <style lang="scss" scoped>
@@ -66,12 +74,6 @@ export default {
   border: 1px dotted $primary-color;
   padding: $small-padding $padding;
   margin: $padding/2 $padding;
-}
-
-.issuer-grid {
-  display: grid;
-  gap: $padding;
-  grid-template-columns: 1fr 1fr;
 }
 
 .caliph-group {

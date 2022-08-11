@@ -172,6 +172,7 @@ import ExternalLinkIcon from 'vue-material-design-icons/OpenInNew.vue';
 import SearchField from '../../layout/SearchField.vue';
 import SearchUtils from '../../../utils/SearchUtils';
 import EditorToolbar from '../editor/EditorToolbar.vue';
+import Type from '../../../utils/Type';
 
 export default {
   components: {
@@ -264,93 +265,69 @@ export default {
         this.editmode = !this.editmode;
       }
     },
-    getTypesByPerson: function (person) {
+    getTypesByPerson: async function (person) {
       if (!this.map[person.id]) {
-        Query.raw(
-          `{
-        getTypesByRuler(id:${person.id})
-        {
-          id
-          projectId
-          treadwellId
-          mint {id name}
-          mintAsOnCoin
-          yearOfMint
-          material {name}
-          nominal {name}
-          donativ
-          procedure
-          issuers {shortName, name}
-          overlords {shortName,name}
-          caliph {shortName, name}
-          avers {
-              fieldText
-              innerInscript
-              intermediateInscript
-              outerInscript
-              misc
-          }
-          reverse {
-              fieldText
-              innerInscript
-              intermediateInscript
-              outerInscript
-              misc
-          }
-          coinMarks {
-            id
-            name
-          }
-          pieces
-          literature
-        }
-        }`
-        )
-          .then((result) => {
-            const types = result.data.data.getTypesByRuler;
-            this.types[person.id] = types;
-
-            let typeTree = {};
-            types.forEach((type) => {
-              if (type.yearOfMint != null) {
-                const year =
-                  type.yearOfMint === '' ? ' Kein Prägejahr' : type.yearOfMint;
-
-                if (!typeTree[year]) {
-                  typeTree[year] = {
-                    value: year,
-                    active: false,
-                    children: {},
-                  };
-                }
-
-                let mint = type?.mint?.id
-                  ? type.mint
-                  : { id: 0, name: 'Kein Prägeort' };
-                const mintId = mint.id;
-                if (!typeTree[year].children[mintId]) {
-                  typeTree[year].children[mintId] = {
-                    value: mint,
-                    active: false,
-                    children: [],
-                  };
-                }
-
-                typeTree[year].children[mintId].children.push(type);
-              } else {
-                console.error('Type was not valid for the explorer: ', type);
-              }
-            });
-
-            this.$set(this.map, person.id, typeTree);
-          })
-          .catch((e) => {
-            console.error(e);
-            person.error = e;
-          })
-          .finally(() => {
-            person.loading = false;
+        try {
+          const result = await Type.filteredQuery({
+            pagination: {
+              page: 0,
+              count: 100000,
+            },
+            ruler: [person.id],
+            typeBody: `id projectId treadwellId mint {name id} mintAsOnCoin material {name id} nominal {name id}
+yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id name shortName}
+caliph {id name shortName}
+avers {fieldText innerInscript intermediateInscript outerInscript misc}
+reverse {fieldText innerInscript intermediateInscript outerInscript misc} 
+cursiveScript coinMarks {name id}
+literature pieces  specials yearUncertain mintUncertain
+`,
           });
+
+          console.log(result);
+
+          const types = result.types;
+          this.types[person.id] = types;
+
+          let typeTree = {};
+          types.forEach((type) => {
+            if (type.yearOfMint != null) {
+              const year =
+                type.yearOfMint === '' ? ' Kein Prägejahr' : type.yearOfMint;
+
+              if (!typeTree[year]) {
+                typeTree[year] = {
+                  value: year,
+                  active: false,
+                  children: {},
+                };
+              }
+
+              let mint = type?.mint?.id
+                ? type.mint
+                : { id: 0, name: 'Kein Prägeort' };
+              const mintId = mint.id;
+              if (!typeTree[year].children[mintId]) {
+                typeTree[year].children[mintId] = {
+                  value: mint,
+                  active: false,
+                  children: [],
+                };
+              }
+
+              typeTree[year].children[mintId].children.push(type);
+            } else {
+              console.error('Type was not valid for the explorer: ', type);
+            }
+          });
+
+          this.$set(this.map, person.id, typeTree);
+        } catch (e) {
+          console.error(e);
+          person.error = e;
+        } finally {
+          person.loading = false;
+        }
       }
     },
     toSortedArray(obj, property = null) {

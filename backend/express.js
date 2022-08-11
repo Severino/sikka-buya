@@ -217,9 +217,6 @@ async function start({
                     return Person.searchWithRole(...arguments)
                 },
                 searchPersonsWithoutRole: function () { return Person.searchWithoutRole(...arguments) },
-                getTypesByRuler: async function () {
-                    return Type.getTypesByRuler(...arguments)
-                },
                 searchType: async function () {
                     return Type.searchType(...arguments)
                 },

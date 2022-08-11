@@ -287,7 +287,6 @@ type Query {
   searchOverlord(text: String): [Person]
   searchIssuer(text: String): [Person]
 
-  getTypesByRuler(id: ID!): [CoinType]
   modGetTypes(
     pagination: Pagination
     filters: ModTypeFilter

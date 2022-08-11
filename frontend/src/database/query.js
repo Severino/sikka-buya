@@ -42,7 +42,7 @@ export default class Query {
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')
-            }, 5000)
+            }, 15000)
             axios({
                 url: graphqlEndpoint,
                 method: "post",
