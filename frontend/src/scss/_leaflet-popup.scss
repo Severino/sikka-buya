@@ -70,10 +70,13 @@
         text-decoration: underline;
     }
 
+    .catalog-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     .catalog-link {
-        position: absolute;
-        right: $padding * 2;
-        top: 46px;
         color: $primary-color;
         padding: 3px 5px;
         font-weight: bold;

@@ -57,11 +57,12 @@ export function rulerPopup(coin, clickedRuler) {
     return `
        ${Mint.popupMintHeader(coin.mint)}
         <div class="popup-body">
+            <div class="catalog-title">
             <h2>${coin.projectId}</h2>
             ${!coin.excludeFromTypeCatalogue
             ? `<a href="${route.href}" target="_blank" class="catalog-link">Katalogeintrag</a>`
             : ''
-        }
+        }</div>
             
             <h3>Münzherr(en)</h3>
             ${issuersText}
