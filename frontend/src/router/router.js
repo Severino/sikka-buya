@@ -149,7 +149,7 @@ const routes = [
           component: CatalogFullSearch
         },
         {
-          path: '/type/:id',
+          path: ':id',
           name: 'Catalog Entry',
           component: CatalogEntry
         }]

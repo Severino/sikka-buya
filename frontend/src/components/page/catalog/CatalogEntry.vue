@@ -167,6 +167,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.catalog-entry {
+  padding-bottom: 200px;
+}
+
 .center-frame {
   position: absolute;
   top: 0;
