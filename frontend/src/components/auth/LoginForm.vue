@@ -98,15 +98,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-// .login-form {
-//   .button {
-//     justify-content: center;
-//     margin-left: auto;
-//   }
-// }
-</style>
-
 <style lang="scss" scoped>
 .buttons {
   display: flex;

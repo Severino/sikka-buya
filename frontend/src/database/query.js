@@ -60,8 +60,12 @@ export default class Query {
                 }
             }).catch((e) => {
                 if (e.isAxiosError) {
-                    console.error(e.response.data.errors[0])
-                    reject(e.response.data.errors.map(item => item.message).join(" --- "))
+                    if (e.response) {
+                        console.error(e.response.data.errors[0])
+                        reject(e.response.data.errors.map(item => item.message).join(" --- "))
+                    } else {
+                        reject("Server ist derzeit nicht erreichbar. Versuchen Sie es später nochmal.")
+                    }
                 } else reject(e)
             })
                 .finally(() => clearTimeout(timeout))

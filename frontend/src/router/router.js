@@ -402,7 +402,6 @@ router.beforeEach(async (to, from, next) => {
   if (to.fullPath == "/") next({ name: "Home" })
   else {
     if (to.matched.some(record => record.meta.auth)) {
-
       let auth = await Auth.check()
       if (auth) {
         next()
@@ -415,16 +414,6 @@ router.beforeEach(async (to, from, next) => {
         })
 
         store.commit("printError", error)
-      }
-    } else {
-      if (to.name == "Login") {
-
-        let auth = await Auth.check()
-
-        if (auth) {
-          redirect = true
-          router.push({ name: "Editor" })
-        }
       }
     }
 

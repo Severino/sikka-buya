@@ -65,7 +65,7 @@ export default class Auth {
                 let response = await Query.raw(`{
                 auth(token:"${token}"){id}
             }`)
-
+                console.log(response)
                 return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
 
             } catch (e) {

@@ -26,7 +26,7 @@ const DefaultSettings = {
     PoliticalOverlay: {
         _requires: ["Timeline", "Overlay"],
         innerRadius: 6,
-        maxRadius: 20,
+        maxRadius: 30,
         maxRadiusMinimum: 10,
         maxRadiusMaximum: 100
     },
