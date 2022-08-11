@@ -158,7 +158,7 @@ input[type='color'] {
 }
 
 @include allHeadings {
-  font-family: 'Carlito';
+  font-family: 'Arimo';
 }
 
 h1 {
