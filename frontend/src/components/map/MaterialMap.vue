@@ -94,29 +94,32 @@
 </template>
 
 <script>
-import Sidebar from './Sidebar.vue';
-import Timeline from './control/Timeline.vue';
-import Checkbox from '../forms/Checkbox.vue';
-
-import map from './mixins/map';
-import timeline from './mixins/timeline';
+// Mixins
 import localstore from '../mixins/localstore';
+import map from './mixins/map';
 import mintLocations from './mixins/MintLocationsMixin';
 import settingsMixin from '../map/mixins/settings';
+import timeline from './mixins/timeline';
 
-import MaterialOverlay from '../../maps/MaterialOverlay';
-import Sorter from '../../utils/Sorter';
-
-import FilterIcon from 'vue-material-design-icons/Filter.vue';
-import MintList from '../MintList.vue';
-import ScrollView from '../layout/ScrollView.vue';
-import LabeledInputContainer from '../LabeledInputContainer.vue';
+//Components
 import Button from '../layout/buttons/Button.vue';
 import CatalogFilter from '../page/catalog/CatalogFilter.vue';
-
-import Settings from '../../settings';
-import MapSettingsBox from '../MapSettingsBox.vue';
+import Checkbox from '../forms/Checkbox.vue';
+import LabeledInputContainer from '../LabeledInputContainer.vue';
+import MintList from '../MintList.vue';
+import ScrollView from '../layout/ScrollView.vue';
+import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
+import Timeline from './control/Timeline.vue';
+
+//Icons
+import FilterIcon from 'vue-material-design-icons/Filter.vue';
+
+// Other
+import MapSettingsBox from '../MapSettingsBox.vue';
+import MaterialOverlay from '../../maps/MaterialOverlay';
+import Settings from '../../settings';
+import Sorter from '../../utils/Sorter';
 
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
@@ -124,36 +127,36 @@ const overlaySettings = settings.load();
 export default {
   name: 'MaterialMap',
   components: {
-    Sidebar,
-    Timeline,
-    Checkbox,
-    FilterIcon,
-    MintList,
-    ScrollView,
-    LabeledInputContainer,
     Button,
     CatalogFilter,
+    Checkbox,
+    FilterIcon,
+    LabeledInputContainer,
     MapSettingsBox,
+    MintList,
+    ScrollView,
+    Sidebar,
     Slider,
+    Timeline,
   },
   data: function () {
     return {
-      painter: null,
-      filteredMintLocation: null,
-      filteredMintLayer: null,
-      pageInfo: { page: 0, count: 100000 },
-      materialLayer: null,
-      mints: [],
-      mintData: {},
-      mintLocation: null,
-      mintTimelineData: [],
-      timelineActive: true,
-      mintLayer: null,
       catalogFilterActive: false,
+      filteredMintLayer: null,
+      filteredMintLocation: null,
+      materialLayer: null,
+      mintData: {},
+      mintLayer: null,
+      mintLocation: null,
+      mints: [],
+      mintTimelineData: [],
       overwriteFilters: {
         yearOfMint: null,
         mint: null,
       },
+      pageInfo: { page: 0, count: 100000 },
+      painter: null,
+      timelineActive: true,
     };
   },
   mixins: [

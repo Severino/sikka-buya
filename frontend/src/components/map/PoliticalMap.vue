@@ -22,15 +22,15 @@
         @toggle="toggleSettings"
         @reset="resetSettings"
       >
-        <label>Kreisgröße</label>
-        <input
-          type="range"
-          name="maxRadius"
-          :value="overlaySettings.maxRadius"
-          @input="overlaySettingsChanged"
-          :min="overlaySettings.maxRadiusMinimum"
-          :max="overlaySettings.maxRadiusMaximum"
-        />
+        <labeled-input-container label="Kreisgröße">
+          <slider
+            name="maxRadius"
+            :value="overlaySettings.maxRadius"
+            @input="overlaySettingsChanged"
+            :min="overlaySettings.maxRadiusMinimum"
+            :max="overlaySettings.maxRadiusMaximum"
+          />
+        </labeled-input-container>
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center"></div>
@@ -75,26 +75,28 @@ import Query from '../../database/query';
 
 //Mixins
 import map from './mixins/map';
-import timeline from './mixins/timeline';
 import mintLocations from './mixins/MintLocationsMixin';
 import settingsMixin from '../map/mixins/settings';
+import timeline from './mixins/timeline';
 
 // Components
-import FilterIcon from 'vue-material-design-icons/Filter.vue';
+import Checkbox from '../forms/Checkbox.vue';
+import LabeledInputContainer from '../LabeledInputContainer.vue';
+import MapSettingsBox from '../MapSettingsBox.vue';
+import MintList from '../MintList.vue';
+import MultiSelectList from '../MultiSelectList.vue';
+import RulerList from '../RulerList.vue';
+import ScrollView from '../layout/ScrollView.vue';
+import Sidebar from './Sidebar.vue';
+import Slider from '../forms/Slider.vue';
+import Timeline from './control/Timeline.vue';
+
+// Icons
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 
-import Sidebar from './Sidebar.vue';
-import Timeline from './control/Timeline.vue';
-import Checkbox from '../forms/Checkbox.vue';
-import MultiSelectList from '../MultiSelectList.vue';
-import ScrollView from '../layout/ScrollView.vue';
-import RulerList from '../RulerList.vue';
-import MintList from '../MintList.vue';
-
+// Other
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
-
-import MapSettingsBox from '../MapSettingsBox.vue';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -102,32 +104,33 @@ const overlaySettings = settings.load();
 export default {
   name: 'PoliticalMap',
   components: {
-    SettingsIcon,
-    Sidebar,
-    Timeline,
     Checkbox,
-    FilterIcon,
+    LabeledInputContainer,
+    MapSettingsBox,
+    MintList,
     MultiSelectList,
     RulerList,
-    MintList,
     ScrollView,
-    MapSettingsBox,
+    SettingsIcon,
+    Sidebar,
+    Slider,
+    Timeline,
   },
   data: function () {
     return {
-      data: null,
-      overlay: null,
-      types: [],
-      mints: [],
-      persons: {},
-      rulers: [],
       availableRulers: [],
-      selectedUnavailableRulers: [],
-      selectedRulers: [],
-      rulerListStyles: [],
-      patterns: {},
+      data: null,
+      mints: [],
       mintTimelineData: [],
+      overlay: null,
+      patterns: {},
+      persons: {},
+      rulerListStyles: [],
+      rulers: [],
+      selectedRulers: [],
+      selectedUnavailableRulers: [],
       timelineChart: null,
+      types: [],
     };
   },
   mixins: [
@@ -204,8 +207,6 @@ export default {
     );
     await this.initTimeline(starTime);
     this.update();
-
-    console.log(this.timeline);
     this.drawMintCountOntoTimeline();
 
     window.addEventListener('resize', this.updateCanvas);
