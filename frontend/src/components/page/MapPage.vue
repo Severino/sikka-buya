@@ -222,6 +222,7 @@ export default {
 .timeline {
   // max-width: 400px;
   margin: 10px 20px;
+  margin-bottom: 20px;
   width: 100%;
 
   .slider {
@@ -285,5 +286,18 @@ export default {
     display: flex;
     z-index: 100;
   }
+}
+
+.leaflet-container .leaflet-control-attribution {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  text-align: center;
+  transform: translateX(-50%);
+  background-color: white;
+  color: $gray;
+  z-index: 1000;
+  font-size: 0.6rem !important;
 }
 </style>

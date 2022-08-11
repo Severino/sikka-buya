@@ -300,7 +300,7 @@ export default {
   transform: translateY(0);
 
   &.hide {
-    transform: translateY(calc(100% + #{$padding} + 5px));
+    transform: translateY(calc(100% + #{$padding} + 11px));
   }
 
   .slider {

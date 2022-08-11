@@ -129,6 +129,8 @@ export default {
       }
     ).addTo(map);
 
+    map.attributionControl.setPrefix('Build with Leaflet');
+
     this.$data.map = map;
     this.ready = true;
 
