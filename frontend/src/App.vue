@@ -517,4 +517,8 @@ a {
   margin: $padding;
   display: inline-block;
 }
+
+.popup-content {
+  padding-bottom: 10px;
+}
 </style>

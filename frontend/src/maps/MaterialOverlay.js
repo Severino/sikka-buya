@@ -100,16 +100,12 @@ export default class MaterialOverlay extends Overlay {
         return `
         ${Mint.popupMintHeader(mint)}
         <div class="popup-body" make-simplebar>
-        <br>
             <div class="popup-content grid col-3">
         ${types
                 .map((type) => {
                     return `<a href="${type.route.href}" style="color: ${type.material.color}" target="_blank">${type.projectId}</a>`;
                 })
                 .join('')}
-                
-                <br>
-                <br>
                 </div>
         </div>`;
     }
