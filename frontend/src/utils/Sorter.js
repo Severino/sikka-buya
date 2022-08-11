@@ -1,15 +1,35 @@
+import StringUtils from './StringUtils';
+
 export default class Sort {
 
-    static stringPropAlphabetically(property, asc = true) {
+    static stringAlphabetically(asc = true) {
         return function (a, b) {
-            var nameA = a[property]?.toUpperCase();
-            var nameB = b[property]?.toUpperCase();
+            if (!a) return 1
+            if (!b) return -1
 
-            let sort = nameA.localeCompare(nameB)
+            a = Sort._removeCharactersThatObstructSorting(a)
+            b = Sort._removeCharactersThatObstructSorting(b)
+
+            let sort = a.localeCompare(b)
             // Flip if not asc.
             if (!asc) sort *= -1
             return sort
         }
+    }
+
+    static stringPropAlphabetically(property, asc = true) {
+        return function (objA, objB) {
+            var a = Sort._removeCharactersThatObstructSorting(objA[property]?.toUpperCase())
+            var b = Sort._removeCharactersThatObstructSorting(objB[property]?.toUpperCase());
+
+            Sort.stringAlphabetically(a, b)
+        }
+    }
+
+    static _removeCharactersThatObstructSorting(str) {
+        str = StringUtils.removeLeftHalfRing(str)
+        str = StringUtils.removeAlPrefix(str)
+        return str
     }
 
 }
