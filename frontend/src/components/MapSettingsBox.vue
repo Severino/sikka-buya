@@ -5,11 +5,13 @@
       <header>
         <h3>Einstellungen</h3>
       </header>
-      <slot />
-      <Button class="small-button" @click="resetSettings">
-        <ResetIcon class="reset-icon" :size="16" />
-        Standard wiederherstellen
-      </Button>
+      <div class="settings-body">
+        <slot />
+        <Button class="small-button" @click="resetSettings">
+          <ResetIcon class="reset-icon" :size="16" />
+          Standard wiederherstellen
+        </Button>
+      </div>
     </div>
   </div>
 </template>
@@ -42,6 +44,25 @@ export default {
 
 <style lang="scss">
 .settings {
+  .settings-window {
+    user-select: none;
+    width: 240px;
+    background-color: $white;
+    border-radius: 10px;
+    box-shadow: $strong-shadow;
+    border: $big-border-width solid $white;
+
+    header {
+      h3 {
+        @include italian-heading;
+      }
+    }
+
+    .settings-body {
+      padding: $big-padding;
+    }
+  }
+
   position: absolute;
   top: 0;
   right: 0;
@@ -49,11 +70,6 @@ export default {
 
   .reset-icon {
     padding-right: $padding;
-  }
-
-  h3 {
-    margin: 0;
-    margin-bottom: 1em;
   }
 
   .settings-icon svg {
@@ -66,6 +82,10 @@ export default {
 
   .small-button {
     width: 100%;
+  }
+
+  label {
+    font-size: $small-font;
   }
 }
 </style>

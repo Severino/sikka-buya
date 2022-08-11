@@ -66,14 +66,16 @@ export default {
 
 <style lang="scss">
 .clear-filter-btn {
-  margin: 15px;
-  @include buttonColor($white, $primary-color);
+  margin: 3px;
+  @include buttonColor($primary-color, rgba($white, 0.8));
 
   font-weight: bold;
   text-align: center;
   border-radius: $border-radius;
   justify-content: center;
-  padding: 3px 10px;
+  padding: $padding $big-padding * 2;
+  border: none;
+  box-shadow: 0 0 10px $primary-color;
 }
 
 .map-view-container {
@@ -108,38 +110,6 @@ export default {
 
   &::before {
     border-top-color: transparent !important;
-  }
-}
-
-.side-bar {
-  z-index: 100;
-
-  h3 {
-    margin-top: 0;
-  }
-
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-    overflow: hidden;
-  }
-
-  li {
-    margin: $padding;
-    border-radius: 10px;
-    cursor: pointer;
-    box-sizing: border-box;
-    // border: 1px solid transparent;
-    user-select: none;
-
-    &.inactive {
-      opacity: 0.5;
-    }
-
-    // &:hover {
-    //   border: 1px solid $gray;
-    // }
   }
 }
 
@@ -188,5 +158,132 @@ export default {
   top: 55px;
   display: flex;
   transform: translateX(-50%);
+}
+
+.side-bar {
+  grid-row: 1 / span 3;
+
+  .title {
+    color: $gray;
+
+    h3 {
+      @include italian-heading;
+      font-size: 1em;
+      margin-bottom: 0;
+    }
+  }
+
+  z-index: 100;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    overflow: hidden;
+  }
+
+  li {
+    margin: $padding;
+    border-radius: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+    // border: 1px solid transparent;
+    user-select: none;
+
+    &.inactive {
+      opacity: 0.5;
+    }
+  }
+
+  .collapsible-header {
+    margin-right: $padding;
+  }
+
+  .collapsible-content {
+    background-color: rgba($color: #000000, $alpha: 0.05);
+  }
+}
+
+.side-bar-right {
+  .select-list-item {
+    transition: background-color 0.3s;
+    background-color: initial;
+
+    > * {
+      color: black;
+    }
+
+    span {
+      align-self: center;
+    }
+  }
+}
+
+.timeline {
+  // max-width: 400px;
+  margin: 10px 20px;
+  width: 100%;
+
+  .slider {
+    color: $primary-color;
+  }
+}
+
+#timeline-canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.ui {
+  position: absolute;
+  top: 0;
+  // background-color: red;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 5fr 1fr;
+
+  @media screen and (max-width: 1080px) {
+    grid-template-columns: 1fr 3fr 1fr;
+  }
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+
+  grid-template-rows: 1fr 3fr 120px;
+
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.center-ui {
+  grid-column: 2;
+  position: relative;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  &.center-ui-top {
+    grid-row: 1;
+
+    z-index: 100;
+  }
+  &.center-ui-center {
+    grid-row: 2;
+    pointer-events: none;
+    z-index: 100;
+  }
+  &.center-ui-bottom {
+    grid-row: 3;
+    display: flex;
+    z-index: 100;
+  }
 }
 </style>

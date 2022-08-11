@@ -15,6 +15,7 @@
         :min="min"
         :max="max"
         :step="step"
+        :name="name"
         @change="(event) => $emit('change', event)"
         @input="(event) => $emit('input', event)"
       />
@@ -26,22 +27,19 @@
 export default {
   props: {
     value: {
-      type: Number,
       required: true,
       default: 0,
     },
     min: {
-      type: Number,
       default: 0,
     },
     max: {
-      type: Number,
       default: 100,
     },
     step: {
-      type: Number,
       default: 1,
     },
+    name: String,
   },
   watch: {
     value() {
@@ -70,6 +68,7 @@ export default {
       event.value = value;
 
       this.$emit('change', event);
+      this.$emit('input', event);
     },
   },
   computed: {

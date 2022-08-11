@@ -36,7 +36,9 @@ $border-color: rgb(204, 204, 204);
 $small-border-radius: 3px;
 $border-radius: 5px;
 $border-width: 1px;
+$big-border-width: 3px;
 $border: $border-width solid $border-color;
+$big-border: $big-border-width solid $border-color;
 
 $transition-time: 0.3s;
 $long-transition-time: 0.6s;

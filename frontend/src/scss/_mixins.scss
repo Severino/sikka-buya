@@ -12,7 +12,7 @@
 
 @mixin input {
   padding: 10px;
-  color: gray;
+  color: $gray;
   border: 1px solid rgb(204, 204, 204);
   border-radius: 3px;
   box-sizing: border-box;
@@ -21,13 +21,13 @@
   transition: background-color 0.2s, color 0.2s;
 
   &:hover:not(.disable-input) {
-    color: black;
-    background-color: rgb(250, 250, 250);
+    color: darken($gray, 5%);
+    background-color: darken(white, 5%);
   }
 
   &:active:not(.disable-input) {
-    color: black;
-    background-color: rgb(218, 218, 218);
+    color: darken($gray, 10%);
+    background-color: darken(white, 10%);
   }
 
   @include focus();
@@ -132,4 +132,12 @@
   width: $radius * 2;
   height: $radius * 2;
   border-radius: $radius;
+}
+
+@mixin italian-heading {
+  color: $gray;
+  font-style: italic;
+  margin: 0;
+  padding: $padding $big-padding;
+  border-bottom: $border;
 }

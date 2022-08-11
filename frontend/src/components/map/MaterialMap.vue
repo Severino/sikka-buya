@@ -25,13 +25,15 @@
         @toggle="toggleSettings"
         @reset="resetSettings"
       >
-        <label>Kreisgröße</label>
-        <input
-          type="range"
-          v-model="overlaySettings.maxRadius.value"
-          :min="overlaySettings.maxRadius.min"
-          :max="overlaySettings.maxRadius.max"
-        />
+        <labeled-input-container label="Kreisgröße">
+          <slider
+            name="maxRadius"
+            :value="overlaySettings.maxRadius"
+            @input="overlaySettingsChanged"
+            :min="overlaySettings.maxRadiusMinimum"
+            :max="overlaySettings.maxRadiusMaximum"
+          />
+        </labeled-input-container>
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center"></div>
@@ -114,6 +116,7 @@ import CatalogFilter from '../page/catalog/CatalogFilter.vue';
 
 import Settings from '../../settings';
 import MapSettingsBox from '../MapSettingsBox.vue';
+import Slider from '../forms/Slider.vue';
 
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
@@ -131,6 +134,7 @@ export default {
     Button,
     CatalogFilter,
     MapSettingsBox,
+    Slider,
   },
   data: function () {
     return {
@@ -149,11 +153,6 @@ export default {
       overwriteFilters: {
         yearOfMint: null,
         mint: null,
-      },
-      settings: {
-        visible: false,
-        minRadius: { value: 10, min: 0, max: 50 },
-        maxRadius: { value: 30, min: 10, max: 100 },
       },
     };
   },
@@ -185,6 +184,7 @@ export default {
   },
   created() {
     settings.onSettingsChanged((changedSettings) => {
+      console.log(changedSettings);
       let settings = this.overlaySettings;
       changedSettings.forEach(([key, value]) => {
         settings[key] = value;
@@ -346,142 +346,10 @@ export default {
       grid-column: span 6;
     }
   }
-
-  .side-bar {
-    grid-row: 1 / span 3;
-
-    .title {
-      color: $gray;
-      // text-transform: uppercase;
-      // background-color: $light-gray;
-      padding: $padding;
-      margin: $padding 0;
-      border-bottom: $border;
-
-      h3 {
-        font-size: 1em;
-        margin-bottom: 0;
-      }
-    }
-
-    .collapsible-header {
-      margin-right: $padding;
-    }
-
-    .collapsible-content {
-      background-color: rgba($color: #000000, $alpha: 0.05);
-    }
-  }
-
-  .side-bar-right {
-    .select-list-item {
-      transition: background-color 0.3s;
-      background-color: initial;
-
-      > * {
-        color: black;
-      }
-
-      // &.selected {
-      //   background-color: currentColor;
-      // }
-
-      span {
-        align-self: center;
-      }
-    }
-  }
-
-  .timeline {
-    // max-width: 400px;
-    margin: 10px 20px;
-    width: 100%;
-
-    .slider {
-      color: $primary-color;
-    }
-  }
 }
 </style>
 
 <style lang="scss" scoped>
-.unavailable {
-  color: gray;
-}
-
-#timeline-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.clear-filter-btn {
-  margin-bottom: 15px;
-  background-color: $primary-color;
-  color: $white;
-  font-weight: bold;
-  text-align: center;
-  border-radius: $border-radius;
-  justify-content: center;
-  padding: 3px 10px;
-}
-.grayedOut {
-  opacity: 0.3;
-  background-color: gray;
-}
-
-.ui {
-  position: absolute;
-  top: 0;
-  // background-color: red;
-  height: 100%;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 5fr 1fr;
-
-  @media screen and (max-width: 1080px) {
-    grid-template-columns: 1fr 3fr 1fr;
-  }
-
-  @media screen and (max-width: 720px) {
-    grid-template-columns: 1fr 2fr 1fr;
-  }
-
-  grid-template-rows: 1fr 3fr 120px;
-
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
-  }
-}
-
-.center-ui {
-  grid-column: 2;
-  position: relative;
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
-  }
-
-  &.center-ui-top {
-    grid-row: 1;
-
-    z-index: 100;
-  }
-  &.center-ui-center {
-    grid-row: 2;
-    pointer-events: none;
-    z-index: 100;
-  }
-  &.center-ui-bottom {
-    grid-row: 3;
-    display: flex;
-    z-index: 100;
-  }
-}
-
 .active-list {
   display: flex;
   flex-wrap: wrap;

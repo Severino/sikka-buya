@@ -65,7 +65,7 @@ export default class MaterialOverlay extends Overlay {
 
         const materialCircles = concentricCircles(latlng, materialArrays, {
             innerRadius: 5,
-            radius: 15,
+            radius: this.settings.settings.maxRadius,
             styles: [
                 {
                     stroke: true,

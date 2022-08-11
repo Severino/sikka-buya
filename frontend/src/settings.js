@@ -33,9 +33,9 @@ const DefaultSettings = {
     MaterialOverlay: {
         _requires: ["Timeline", "Overlay"],
         innerRadius: 6,
-        maxRadius: 10,
+        maxRadius: 14,
         maxRadiusMinimum: 10,
-        maxRadiusMaximum: 100
+        maxRadiusMaximum: 50
     }
 }
 

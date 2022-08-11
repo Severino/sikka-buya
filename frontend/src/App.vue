@@ -503,16 +503,6 @@ a {
   font-style: italic;
 }
 
-.settings-window {
-  user-select: none;
-  width: 240px;
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: $shadow;
-  border: 1px solid whitesmoke;
-}
-
 .map-page .top-right-toobar {
   margin: $padding;
   display: inline-block;
@@ -520,5 +510,14 @@ a {
 
 .popup-content {
   padding-bottom: 10px;
+}
+
+.grayedOut {
+  opacity: 0.3;
+  background-color: gray;
+}
+
+.unavailable {
+  color: gray;
 }
 </style>
