@@ -36,19 +36,17 @@
           class="hint"
           v-if="
             !person.loading &&
-            (!map[person.id] || objectToSortedArray(map[person.id]).length == 0)
+            (!map[person.id] || toSortedArray(map[person.id]).length == 0)
           "
         >
           Keine Typen gefunden
         </span>
 
         <div
-          class="mint-area area"
-          v-if="
-            map[person.id] && objectToSortedArray(map[person.id]).length > 0
-          "
+          class="year-area area"
+          v-if="map[person.id] && toSortedArray(map[person.id]).length > 0"
         >
-          <h6>Prägeort</h6>
+          <h6>Prägejahr</h6>
           <p
             v-if="!map[person.id] || Object.values(map[person.id]).length == 0"
             class="error"
@@ -57,42 +55,42 @@
           </p>
           <div class="flex">
             <Button
-              v-for="mintObject of objectToSortedArray(map[person.id])"
-              :key="'mint-' + person.id + '-' + mintObject.value.name"
-              class="year-grid"
-              :class="{ active: mintObject.active }"
-              @click="toggleActive(mintObject)"
+              v-for="personDataTress of toSortedArray(map[person.id])"
+              :key="'year-' + person.id + '-' + personDataTress.value"
+              class="mint-grid"
+              :class="{ active: personDataTress.active }"
+              @click="toggleActive(personDataTress)"
             >
-              {{ mintObject.value.name }}
+              {{ personDataTress.value }}
             </Button>
           </div>
           <div
-            class="year-area area"
+            class="mint-area area"
             v-if="getActiveObjects(map[person.id]).length > 0"
           >
-            <h6>Prägejahr</h6>
+            <h6>Prägeort</h6>
             <div
               class="flex"
-              v-for="mintObject of getActiveObjects(map[person.id])"
+              v-for="personDataTress of getActiveObjects(map[person.id])"
               :key="
-                'mint-' + person.id + '-' + mintObject.value.name + '-active'
+                'year-' + person.id + '-' + personDataTress.value + '-active'
               "
             >
-              <b>{{ mintObject.value.name }}:</b>
+              <b>{{ personDataTress.value }}:</b>
               <Button
-                v-for="timeObject of mintObject.children"
+                v-for="mintObject of personDataTress.children"
                 :key="
-                  'mint-' +
+                  'year-' +
                   person.id +
                   '-' +
-                  mintObject.value.name +
+                  personDataTress.value +
                   '-' +
-                  timeObject.value
+                  mintObject.value.name
                 "
-                :class="{ active: timeObject.active }"
-                @click="toggleActive(timeObject)"
+                :class="{ active: mintObject.active }"
+                @click="toggleActive(mintObject)"
               >
-                {{ timeObject.value }}</Button
+                {{ mintObject.value.name }}</Button
               >
               <div class="grid"></div>
             </div>
@@ -312,32 +310,39 @@ export default {
             const types = result.data.data.getTypesByRuler;
             this.types[person.id] = types;
 
-            let mints = {};
+            let typeTree = {};
             types.forEach((type) => {
-              if (type?.mint?.id) {
-                const mintId = type.mint.id;
-                if (!mints[mintId])
-                  mints[mintId] = {
-                    value: type.mint,
+              if (type.yearOfMint != null) {
+                const year =
+                  type.yearOfMint === '' ? ' Kein Prägejahr' : type.yearOfMint;
+
+                if (!typeTree[year]) {
+                  typeTree[year] = {
+                    value: year,
                     active: false,
                     children: {},
                   };
+                }
 
-                if (type.yearOfMint) {
-                  if (!mints[mintId].children[type.yearOfMint]) {
-                    mints[mintId].children[type.yearOfMint] = {
-                      value: type.yearOfMint,
-                      active: false,
-                      children: [],
-                    };
-                  }
+                let mint = type?.mint?.id
+                  ? type.mint
+                  : { id: 0, name: 'Kein Prägeort' };
+                const mintId = mint.id;
+                if (!typeTree[year].children[mintId]) {
+                  typeTree[year].children[mintId] = {
+                    value: mint,
+                    active: false,
+                    children: [],
+                  };
+                }
 
-                  mints[mintId].children[type.yearOfMint].children.push(type);
-                } else console.error('Type has no year set.');
+                typeTree[year].children[mintId].children.push(type);
+              } else {
+                console.error('Type was not valid for the explorer: ', type);
               }
             });
 
-            this.$set(this.map, person.id, mints);
+            this.$set(this.map, person.id, typeTree);
           })
           .catch((e) => {
             console.error(e);
@@ -348,9 +353,13 @@ export default {
           });
       }
     },
-    objectToSortedArray(obj) {
+    toSortedArray(obj, property = null) {
       let arr = Object.values(obj).sort((a, b) => {
-        return Sort.stringPropAlphabetically('name')(a.value, b.value);
+        if (property)
+          return Sort.stringPropAlphabetically('name')(a.value, b.value);
+        else {
+          return a.value.localeCompare(b.value);
+        }
       });
       return arr;
     },
@@ -473,7 +482,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.mint-area {
+.year-area {
   > h6 {
     margin-block-start: 0;
   }
@@ -507,7 +516,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.year-grid > .list-filter-container-content {
+.mint-grid > .list-filter-container-content {
   display: flex;
   // grid-template-columns: repeat(3, 1fr);
   // gap: 10px;
