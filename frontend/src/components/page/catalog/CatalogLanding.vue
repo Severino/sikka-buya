@@ -119,6 +119,8 @@ export default {
   flex: 1;
   position: relative;
 
+  padding-bottom: $page-bottom-spacing;
+
   > header {
     margin-bottom: $padding;
   }
