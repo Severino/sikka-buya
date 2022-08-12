@@ -273,7 +273,10 @@ export default {
               page: 0,
               count: 100000,
             },
-            ruler: [person.id],
+            filters: {
+              ruler: [person.id],
+              excludeFromTypeCatalogue: false,
+            },
             typeBody: `id projectId treadwellId mint {name id} mintAsOnCoin material {name id} nominal {name id}
 yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id name shortName}
 caliph {id name shortName}
