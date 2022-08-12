@@ -1,16 +1,16 @@
 <template>
   <div class="type-view">
-    <h1 class="gm2 gd2">{{ type.projectId }}</h1>
+    <h1 class="gm2">{{ type.projectId }}</h1>
 
-    <div v-if="type.donativ" class="box gt4 gd2">
+    <div v-if="type.donativ" class="box gm4">
       <div>Geschenkmünze</div>
     </div>
-    <div v-else class="blank gt4 gd2"></div>
+    <div v-else class="blank gm4"></div>
 
-    <div v-if="type.procedure != 'pressed'" class="box gt4 gd2">
+    <div v-if="type.procedure != 'pressed'" class="box gm4">
       <div>gegossen</div>
     </div>
-    <div v-else class="blank gt4 gd2"></div>
+    <div v-else class="blank gm4"></div>
 
     <router-link
       v-if="$store.state.user"
@@ -22,35 +22,35 @@
       </button>
     </router-link>
 
-    <div class="property gm2 gd2">
+    <div class="property gm2">
       <catalog-property :label="mapText('mint')">
-        {{ type.mint.name }}
+        {{ printTypeProperty('mint', 'name') }}
         <template v-if="type.mintUncertain">?</template>
       </catalog-property>
     </div>
 
-    <div class="property gm2 gd2">
+    <div class="property gm2">
       <catalog-property :label="mapText('year')">
-        {{ printTypeProperty('year') }}
+        {{ printTypeProperty('yearOfMint') || '-' }}
         <template v-if="type.yearUncertain">?</template>
       </catalog-property>
     </div>
-    <div class="property gm2 gd2">
+    <div class="property gm2">
       <catalog-property label="Prägeort wie auf Münze">
         {{ printTypeProperty('mintAsOnCoin') }}
       </catalog-property>
     </div>
     <div
-      class="property gm2 gt4 gd4"
+      class="property gm2 gm4 gd4"
       v-for="(val, idx) of ['material', 'nominal']"
       v-bind:key="`property-${val}-${idx}`"
     >
       <catalog-property :label="mapText(val)">
-        {{ printTypeProperty(val) }}</catalog-property
+        {{ printTypeProperty(val, 'name') }}</catalog-property
       >
     </div>
 
-    <div class="person-container gm1 gt1 gd1">
+    <div class="person-container gm1">
       <person-view
         :overlords="type.overlords"
         :issuers="type.issuers"
@@ -59,7 +59,7 @@
       />
     </div>
 
-    <div class="person-container gm1 gt1 gd1">
+    <div class="person-container gm1" v-if="hasOtherPersons">
       <catalog-property v-if="cutter.length > 0" label="Stempelschneider">
         <person-list :value="cutter" />
       </catalog-property>
@@ -73,20 +73,20 @@
     </div>
 
     <div
-      v-for="(sideObj, sideIdx) in [
-        { prop: 'avers', label: 'frontside', prefix: 'Avers-' },
-        { prop: 'reverse', label: 'backside', prefix: 'Revers-' },
-      ]"
+      v-for="(sideObj, sideIdx) in existingCoinSideProperties"
       :key="`coin-sides-${sideIdx}`"
-      class="coin-side avers gm1 gt2 gd2"
+      :class="coinSideClass(sideObj, existingCoinSideProperties.length)"
     >
-      <catalog-property class="property coin-side-field">
+      <catalog-property
+        class="property coin-side-field"
+        v-if="getFilledFields(sideObj.name).length > 0"
+      >
         <catalog-property
-          v-for="(val, idx) of getFilledFields(sideObj.prop)"
+          v-for="(val, idx) of getFilledFields(sideObj.name)"
           :key="`property-${val}-${idx}`"
           :label="getCoinSideLabel(val, sideObj)"
         >
-          <div v-html="type[sideObj.prop][val]"></div>
+          <div v-html="type[sideObj.name][val]"></div>
         </catalog-property>
       </catalog-property>
     </div>
@@ -203,37 +203,26 @@ export default {
         return this.getUndefinedString();
       } else return result[key];
     },
-    printTypeProperty(key, attr = 'name') {
-      let value = 'Unbekannt';
+    printTypeProperty(key, attr = null) {
+      let value = '-';
 
-      let map = { year: 'yearOfMint' };
-
-      if (map[key]) {
-        key = map[key];
-      }
-
-      if (typeof this.type[key] == 'object') {
-        if (this.type[key]) {
-          if (this.type[key][attr] !== null) {
-            value = this.type[key][attr];
-          } else {
-            value = this.type[key];
-          }
+      if (this.type[key]) {
+        if (typeof this.type[key] == 'object') {
+          if (this.type[key][attr]) value = this.type[key][attr];
+        } else {
+          value = this.type[key];
         }
-      } else {
-        value = this.type[key];
-      }
 
-      if (typeof value == 'boolean') {
-        value = value ? 'Ja' : 'Nein';
+        if (typeof value == 'boolean') {
+          value = value ? 'Ja' : 'Nein';
+        }
+        if (value == 'pressed') value = this.$tc('property.procedures.pressed');
+        if (value == 'struck') value = this.$tc('property.procedures.struck');
       }
-      if (value == 'pressed') value = this.$tc('property.procedures.pressed');
-      if (value == 'struck') value = this.$tc('property.procedures.struck');
-
       return value;
     },
     getCoinSideLabel(val, sideObj) {
-      let fields = this.getFilledFields(sideObj.prop);
+      let fields = this.getFilledFields(sideObj.name);
       let fieldTextIdx = fields.indexOf('fieldText');
       if (fieldTextIdx != -1) fields.splice(fieldTextIdx, 1);
 
@@ -264,7 +253,6 @@ export default {
           })
           .map(([key, val]) => key);
       }
-
       return result;
     },
 
@@ -304,6 +292,10 @@ export default {
 
       return this.$tc(val, num);
     },
+    coinSideClass(coinSideProperty, coinSideCount) {
+      let classes = ['coin-side', coinSideProperty.name, 'gm' + coinSideCount];
+      return classes.join(' ');
+    },
   },
   computed: {
     warden: function () {
@@ -315,12 +307,36 @@ export default {
     heir: function () {
       return Person.getOtherPersonsByRoleName(this.type, 'heir')[0];
     },
+    hasOtherPersons() {
+      console.log(this.type);
+      return this.type.otherPersons.length > 0;
+    },
+    coinSideProperties() {
+      return [
+        { name: 'avers', label: 'frontside', prefix: 'Avers-' },
+        { name: 'reverse', label: 'backside', prefix: 'Revers-' },
+      ];
+    },
+    existingCoinSideProperties() {
+      const existing = [];
+      this.coinSideProperties.forEach((property) => {
+        if (this.getFilledFields(property.name).length > 0)
+          existing.push(property);
+      });
+      return existing;
+    },
+    hasCoinSideContents() {
+      let hasCoinSide = false;
+
+      console.log(hasCoinSide);
+      return hasCoinSide;
+    },
   },
 };
 </script>
 
 <style lang="scss">
-.type-view .coin-side .property-label {
+.type-view .coin-side .nameerty-label {
   text-align: center;
   margin: 0 auto;
 }
@@ -360,15 +376,7 @@ header {
   grid-column: span 2;
 }
 
-.gt1 {
-  grid-column: span $columns;
-}
-
-.gt2 {
-  grid-column: span 2;
-}
-
-.gt4 {
+.gm4 {
   grid-column: span 1;
 }
 
@@ -423,6 +431,14 @@ header {
   .material-design-icon {
     margin-left: 0.5rem;
   }
+}
+
+.property {
+  display: flex;
+}
+
+.catalog-property {
+  flex: 1;
 }
 </style>
 

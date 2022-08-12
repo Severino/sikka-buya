@@ -1,6 +1,6 @@
 <template>
   <div class="catalog-property">
-    <header>
+    <header v-if="label">
       <div v-if="label" class="property-label">
         {{ label }}
       </div>
