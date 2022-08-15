@@ -26,6 +26,8 @@ export default class PoliticalOverlay extends Overlay {
   async fetch(filters) {
     if (isNaN(filters.yearOfMint)) throw new Error('Invalid yearOfMint filter!');
 
+    filters.excludeFromMapApp = false
+
 
     // We want to show the 'unselected' mints still visible in the 
     // list. So we don't filter out the other mints.

@@ -5,9 +5,14 @@
         {{ label }}
       </div>
 
-      <div v-if="info" class="popup-container">
+      <div
+        v-if="info"
+        class="popup-container"
+        ref="popupButton"
+        @click.stop.prevent="togglePopup()"
+      >
         <InfoIcon />
-        <popup>
+        <popup :active="popupOpened" @close="closePopup" @click.stop.prevent>
           {{ info }}
         </popup>
       </div>
@@ -30,10 +35,23 @@ export default {
     InfoIcon,
     Popup,
   },
+  data() {
+    return {
+      popupOpened: false,
+    };
+  },
   props: {
     label: String,
     html: String,
     info: String,
+  },
+  methods: {
+    togglePopup() {
+      this.popupOpened = !this.popupOpened;
+    },
+    closePopup() {
+      this.popupOpened = false;
+    },
   },
 };
 </script>
@@ -41,13 +59,15 @@ export default {
 <style lang="scss" scoped>
 header {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
 
   .material-design-icon {
-    $size: $small-font;
+    margin-left: $padding;
+    $size: $regular-font;
     width: $size;
     height: $size;
     color: $primary-color;
+    user-select: none;
   }
 }
 

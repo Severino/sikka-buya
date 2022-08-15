@@ -70,6 +70,10 @@
       >
         <person-list :value="warden" />
       </catalog-property>
+
+      <catalog-property v-if="donator.length > 0" label="Donator">
+        <person-list :value="donator" />
+      </catalog-property>
     </div>
 
     <div
@@ -306,6 +310,9 @@ export default {
     },
     cutter: function () {
       return Person.getOtherPersonsByRoleName(this.type, 'cutter');
+    },
+    donator: function () {
+      return Person.getOtherPersonsByRoleName(this.type, 'donator');
     },
     heir: function () {
       return Person.getOtherPersonsByRoleName(this.type, 'heir')[0];

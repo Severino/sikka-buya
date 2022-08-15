@@ -64,9 +64,6 @@
           @update="dataUpdated"
           :pageInfo="pageInfo"
           :exclude="['mint', 'yearOfMint', 'ruler', 'caliph']"
-          :constantFilters="{
-            excludeFromMapApp: false,
-          }"
           :overwriteFilters="overwriteFilters"
           typeBody="
               id

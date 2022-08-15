@@ -1,7 +1,14 @@
 <template>
-  <div v-if="active" class="popup-anchor">
+  <div class="popup-anchor" v-if="active">
     <div class="popup-translator" ref="translator">
-      <div class="popup" ref="popup">
+      <div class="popup" ref="popup" @click.stop>
+        <Button
+          class="close-button"
+          :contentButton="true"
+          @click.native.stop="close"
+        >
+          <CloseButton :size="16" />
+        </Button>
         <slot />
       </div>
     </div>
@@ -9,8 +16,15 @@
 </template>
 
 <script>
+import CloseButton from 'vue-material-design-icons/Close.vue';
+import Button from './layout/buttons/Button.vue';
+
 export default {
-  name: "Popup",
+  name: 'Popup',
+  components: {
+    CloseButton,
+    Button,
+  },
   props: {
     active: Boolean,
   },
@@ -23,27 +37,31 @@ export default {
   watch: {
     active: function (newValue, oldValue) {
       if (newValue != oldValue) {
-        if (newValue == true) this.$root.$emit("popup-opened", this);
-        else this.$root.$emit("popup-closed", this);
+        if (newValue == true) {
+          this.opened();
+          this.$nextTick(() => {
+            this.keepInWindow();
+          });
+        } else this.closed();
       }
     },
   },
   created: function () {
     this.resize = this.resize.bind(this);
-    window.addEventListener("resize", this.resize);
+    window.addEventListener('resize', this.resize);
   },
   destroy: function () {
-    window.removeEventListener("resize", this.resize);
-  },
-  mounted: function () {
-    // We have to wait for the children to render
-    this.keepInWindow();
-
-    // setInterval(this.keepInWindow.bind(this), 1000);
+    window.removeEventListener('resize', this.resize);
   },
   methods: {
-    close(){
-      this.$emit("close")
+    opened() {
+      this.$root.$emit('popup-opened', this);
+    },
+    closed() {
+      this.$root.$emit('popup-closed', this);
+    },
+    close() {
+      this.$emit('close');
     },
     resize: function () {
       this.keepInWindow.call(this);
@@ -55,28 +73,25 @@ export default {
 
         const rightside = window.innerWidth - whitespace;
 
-        let originalRight = rect.right - this.offsetRight;
-
-        if (originalRight > rightside) {
-          this.offsetRight = rightside - originalRight;
+        if (rect.right > rightside) {
+          this.offsetRight = rightside - rect.right;
         } else {
           this.offsetRight = 0;
         }
 
-        let rightCss = parseInt(-this.offsetRight) + "px";
+        let rightCss = parseInt(-this.offsetRight) + 'px';
         this.$refs.popup.style.right = rightCss;
 
         const leftside = whitespace;
 
-        let originalLeft = rect.left - this.offsetLeft;
-
-        if (originalLeft < leftside) {
-          this.offsetLeft = leftside - originalLeft;
+        if (rect.left < leftside) {
+          this.offsetLeft = leftside - rect.left;
         } else {
           this.offsetLeft = 0;
         }
+        console.log(rect.left);
 
-        let leftCss = parseInt(this.offsetLeft) + "px";
+        let leftCss = parseInt(this.offsetLeft) + 'px';
 
         this.$refs.popup.style.left = leftCss;
       }
@@ -92,16 +107,20 @@ $color: $white;
   bottom: 0;
   background-color: $color;
 
-  padding: $padding;
+  font-size: $small-font;
+  line-height: $small-font * 1.5;
 
-  box-shadow: $shadow;
+  padding: $padding;
+  padding-right: 26px;
+
+  box-shadow: $strong-shadow;
   z-index: 1000;
 }
 
 .popup-translator {
   position: absolute;
 
-  width: 400px;
+  width: 450px;
 
   min-height: 100px;
 
@@ -113,7 +132,7 @@ $color: $white;
 }
 
 .popup-anchor::before {
-  content: "";
+  content: '';
   width: 15px;
   height: 15px;
   transform: translateX(-1px) translateY(-120%) rotate(45deg);
@@ -124,5 +143,12 @@ $color: $white;
   background-color: $color;
 
   box-shadow: $shadow;
+}
+
+.close-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: $small-padding;
 }
 </style>

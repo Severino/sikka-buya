@@ -3,12 +3,14 @@
     <span v-if="value == null || (Array.isArray(value) && value.length == 0)">{{
       missingText
     }}</span>
-    <ul v-else-if="Array.isArray(value) && value.length > 1">
+    <ul v-else-if="Array.isArray(value)">
       <li v-for="(item, index) of value" :key="`person-${index}-${item.id}`">
         {{ item.name }}
       </li>
     </ul>
-    <span v-else>{{ Array.isArray(value) ? value[0].name : value.name }}</span>
+    <ul v-else>
+      <li>{{ value.name }}</li>
+    </ul>
   </div>
 </template>
 
@@ -25,10 +27,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-ul {
-  padding-inline-start: 0;
-  list-style-type: none;
-}
-</style>

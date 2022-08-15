@@ -5,7 +5,10 @@
         <person-list :value="issuers" :class="multipleIssuersClass" />
       </div>
     </catalog-property>
-    <catalog-property label="Oberherr(en)">
+    <catalog-property
+      label="Oberherr(en)"
+      info="Vom Münzherrn ausgehende Hierarchie: Der im Folgenden Erstgenannte unterstand dem Zweitgenanntem usw. (zum Kalifen hin aufsteigende Reihenfolge)."
+    >
       <person-list :value="overlords" />
     </catalog-property>
 
@@ -63,7 +66,7 @@ export default {
 .person-view {
   .issuer-grid ul {
     display: grid;
-    gap: $padding;
+    gap: $padding * 3;
     grid-template-columns: 1fr 1fr;
   }
 }

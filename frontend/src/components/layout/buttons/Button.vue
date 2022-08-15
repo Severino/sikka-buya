@@ -1,10 +1,14 @@
 <template>
-  <div class="button" :class="{ colored, multiline }" @click.stop="clicked">
+  <button
+    class="button"
+    :class="{ colored, multiline, 'content-button': contentButton }"
+    @click.stop="clicked"
+  >
     <!-- 
       @slot Default slot to render the button contents.
      -->
     <slot />
-  </div>
+  </button>
 </template>
 
 <script>
@@ -16,6 +20,11 @@
  */
 export default {
   props: {
+    /**
+     * Contentbutton doesn't use a filling, it just uses the
+     * buttons content. Most likely a single icon.
+     */
+    contentButton: Boolean,
     /**
      * Disables the button and the ability to push it.
      */
@@ -74,5 +83,10 @@ export default {
   border-radius: 3px;
 
   @include buttonColor($white, $primary-color);
+}
+
+.button.content-button {
+  background-color: transparent;
+  border: none;
 }
 </style>
