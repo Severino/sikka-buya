@@ -16,7 +16,7 @@
 
       <catalog-property
         v-if="hasPerson(heir)"
-        label="Thronfolger"
+        label="Thronfolger des Kalifen"
         class="heir-grid"
       >
         <person-list :value="heir" />

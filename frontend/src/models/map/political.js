@@ -43,7 +43,7 @@ export function rulerPopup(coin, clickedRuler) {
     let heirText = ""
     if (coin.heir) {
         heirText = `
-        <h3>Thronfolger</h3>
+        <h3>Thronfolger des Kalifen</h3>
         ${buildRulerList(coin.heir, clickedRuler)}
         `
     }
