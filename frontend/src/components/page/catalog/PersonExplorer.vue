@@ -29,7 +29,7 @@
               @change="orderChanged($event, person.id)"
             />
           </div>
-          {{ person.name }}
+          <span v-html="formatName(person.name)" />
         </template>
 
         <span
@@ -248,6 +248,10 @@ export default {
           this.persons = persons;
         })
         .catch(console.error);
+    },
+    formatName(name) {
+      let regex = new RegExp('^(.*)(b\\..*|banū.*)$', 'g');
+      return name.replace(regex, '$1 <i>$2</i>');
     },
     orderChanged(event, personId) {
       Query.raw(
