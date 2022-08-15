@@ -1,4 +1,5 @@
 import router from '../../router/router';
+import StringUtils from '../../utils/StringUtils';
 import Mint from './mint';
 
 
@@ -14,7 +15,7 @@ function printName(person, clickedRuler) {
 }
 
 function buildRulerList(personsArr, clickedRuler, orderedList = false,) {
-    if (!personsArr || personsArr.length == 0) return '-';
+    if (!personsArr || personsArr.length == 0) return StringUtils.missingText;
     else if (Array.isArray(personsArr) && personsArr.length > 1) {
         let str = orderedList ? '<ol>' : '<ul>';
         personsArr.forEach((person) => {
@@ -35,7 +36,7 @@ export function rulerPopup(coin, clickedRuler) {
         let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
         overlordsText = buildRulerList(sorted, clickedRuler, true);
     } else {
-        overlordsText = '-';
+        overlordsText = StringUtils.missingText;
     }
     let issuersText = buildRulerList(coin.issuers, clickedRuler);
 

@@ -31,7 +31,7 @@
 
     <div class="property gm2">
       <catalog-property :label="mapText('year')">
-        {{ printTypeProperty('yearOfMint') || '-' }}
+        {{ printTypeProperty('yearOfMint') || missingText }}
         <template v-if="type.yearUncertain">?</template>
       </catalog-property>
     </div>
@@ -105,7 +105,7 @@
       :html="type.specials"
       class="gm1"
     >
-      -
+      {{ this.missingText }}
     </catalog-property>
 
     <div v-if="!type.literature" class="error">
@@ -121,12 +121,14 @@
       v-else
       :label="$t('property.literature_and_remarks')"
       class="gm2"
-      >-</catalog-property
+      >{{ this.missingText }}</catalog-property
     >
 
     <catalog-property :label="$tc('property.piece', 2)" class="gm2">
       <div v-if="!type.pieces" class="error">Stücke wurden nicht geladen!</div>
-      <div v-if="type.pieces && type.pieces.length == 0">-</div>
+      <div v-if="type.pieces && type.pieces.length == 0">
+        {{ this.missingText }}
+      </div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
         <a :href="piece" target="_blank"
           >{{ piece }}<ExternalIcon :size="16"
@@ -135,7 +137,7 @@
     </catalog-property>
 
     <catalog-property :label="$tc('property.treadwell_id')" class="gm2">
-      {{ type.treadwellId ? type.treadwellId : '-' }}
+      {{ type.treadwellId ? type.treadwellId : missingText }}
     </catalog-property>
   </div>
 </template>
@@ -161,6 +163,7 @@ import ExternalIcon from 'vue-material-design-icons/OpenInNew.vue';
 import Button from '../layout/buttons/Button.vue';
 import PersonView from '../Person/PersonView.vue';
 import PersonList from '../Person/PersonList.vue';
+import StringUtils from '../../utils/StringUtils';
 
 export default {
   name: 'TypeView',
@@ -204,7 +207,7 @@ export default {
       } else return result[key];
     },
     printTypeProperty(key, attr = null) {
-      let value = '-';
+      let value = this.missingText;
 
       if (this.type[key]) {
         if (typeof this.type[key] == 'object') {
@@ -331,6 +334,9 @@ export default {
       console.log(hasCoinSide);
       return hasCoinSide;
     },
+    missingText() {
+      return StringUtils.missingText;
+    },
   },
 };
 </script>
@@ -426,6 +432,8 @@ header {
   a {
     display: inline-flex;
     align-items: center;
+    color: $black;
+    text-decoration: underline;
   }
 
   .material-design-icon {
