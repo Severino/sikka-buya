@@ -129,14 +129,14 @@
                 </MultiButton>
               </div>
               <span v-if="!person.activeType" class="hint"
-                >Wähle Sie einen Typ aus</span
+                >Wähle Sie einen Typ!</span
               >
             </div>
-            <span class="hint" v-else>Wählen Sie einen Prägeort aus</span>
+            <span class="hint" v-else>Wählen Sie einen Prägeort!</span>
 
             <type-view v-if="person.activeType" :type="person.activeType" />
           </div>
-          <span class="hint" v-else>Wählen Sie ein Prägejahr aus</span>
+          <span class="hint" v-else>Wählen Sie ein Prägejahr!</span>
         </div>
       </collapsible>
       <Button
