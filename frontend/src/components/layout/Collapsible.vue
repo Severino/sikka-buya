@@ -1,5 +1,5 @@
 <template>
-  <div class="collapsible">
+  <div class="collapsible" :class="collapsibleClasses">
     <header class="collapsible-header" @click="toggleCollapse">
       <slot name="header" />
 
@@ -41,6 +41,11 @@ export default {
       } else {
         this.$emit('open');
       }
+    },
+  },
+  computed: {
+    collapsibleClasses() {
+      return this.collapsed ? 'collapsed' : 'open';
     },
   },
 };

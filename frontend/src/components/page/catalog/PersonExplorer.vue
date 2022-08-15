@@ -426,6 +426,13 @@ literature pieces  specials yearUncertain mintUncertain
 
     border-radius: $border-radius;
     background-color: $white;
+
+    &.open {
+      header {
+        font-weight: bold;
+        // color: $primary-color;
+      }
+    }
   }
 
   .collapsible-header {
