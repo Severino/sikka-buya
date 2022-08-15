@@ -8,11 +8,13 @@
         >Reihenfolge bearbeiten</Button
       >
     </editor-toolbar>
-    <search-field v-model="searchText" />
     <div class="list">
       <collapsible
         v-for="person of filteredPersons"
-        :class="{ highlight: person.id == 8 }"
+        :class="{
+          highlight: person.id == 8,
+          generationGap: spacingByHardCodedGenerations(orderMap[person.id]),
+        }"
         :key="person.id"
         @open="getTypesByPerson(person)"
       >
@@ -46,7 +48,7 @@
           class="year-area area"
           v-if="map[person.id] && toSortedArray(map[person.id]).length > 0"
         >
-          <h6>Prägejahr</h6>
+          <h6>Prägejahr(e)</h6>
           <p
             v-if="!map[person.id] || Object.values(map[person.id]).length == 0"
             class="error"
@@ -68,7 +70,7 @@
             class="mint-area area"
             v-if="getActiveObjects(map[person.id]).length > 0"
           >
-            <h6>Prägeort</h6>
+            <h6>Prägeort(e)</h6>
             <div
               class="flex"
               v-for="personDataTress of getActiveObjects(map[person.id])"
@@ -98,7 +100,7 @@
               class="type-area area"
               v-if="availableTypes(map[person.id]).length > 0"
             >
-              <h6>Typ</h6>
+              <h6>Typ(en)</h6>
 
               <div class="flex">
                 <MultiButton
@@ -127,14 +129,14 @@
                 </MultiButton>
               </div>
               <span v-if="!person.activeType" class="hint"
-                >Wähle einen Typ</span
+                >Wähle Sie einen Typ aus</span
               >
             </div>
-            <span class="hint" v-else>Wähle ein Prägejahr</span>
+            <span class="hint" v-else>Wählen Sie einen Prägeort aus</span>
 
             <type-view v-if="person.activeType" :type="person.activeType" />
           </div>
-          <span class="hint" v-else>Wähle einen Prägeort</span>
+          <span class="hint" v-else>Wählen Sie ein Prägejahr aus</span>
         </div>
       </collapsible>
       <Button
@@ -203,6 +205,10 @@ export default {
     this.updateRulers();
   },
   methods: {
+    spacingByHardCodedGenerations(num) {
+      let generationalSpacings = [27, 23, 20, 14, 11, 9, 5, 3];
+      return generationalSpacings.indexOf(num) != -1;
+    },
     resetFilters() {
       this.searchText = '';
     },
@@ -244,6 +250,7 @@ export default {
           persons.forEach((person) => {
             person.activeType = null;
             person.loading = true;
+            person.orderNum = orderMap[person.id] || -1000;
           });
           this.persons = persons;
         })
@@ -300,7 +307,7 @@ literature pieces  specials yearUncertain mintUncertain
           types.forEach((type) => {
             if (type.yearOfMint != null) {
               const year =
-                type.yearOfMint === '' ? ' Kein Prägejahr' : type.yearOfMint;
+                type.yearOfMint === '' ? ' ohne Jahresangabe' : type.yearOfMint;
 
               if (!typeTree[year]) {
                 typeTree[year] = {
@@ -312,7 +319,7 @@ literature pieces  specials yearUncertain mintUncertain
 
               let mint = type?.mint?.id
                 ? type.mint
-                : { id: 0, name: 'Kein Prägeort' };
+                : { id: 0, name: 'ohne Ortsangabe' };
               const mintId = mint.id;
               if (!typeTree[year].children[mintId]) {
                 typeTree[year].children[mintId] = {
@@ -517,6 +524,10 @@ literature pieces  specials yearUncertain mintUncertain
   //   background-color: red;
   //   align-self: start;
   // }
+}
+
+.generationGap {
+  margin-bottom: 2 * $padding;
 }
 
 .grid {
