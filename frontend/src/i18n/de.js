@@ -137,7 +137,7 @@ const property = {
     excludeFromTypeCatalogue:
         "Nicht für Typenkatalog",
     excludeFromMapApp:
-        "Nicht für politische Karte",
+        "nicht für polit. Karten",
     varieties:
         "Varianten",
     year_uncertain:
