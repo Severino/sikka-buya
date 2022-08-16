@@ -22,6 +22,7 @@ import SlashForward from 'vue-material-design-icons/SlashForward.vue';
 export default {
   components: { Button, Check, Close, SlashForward },
   props: {
+    invert: Boolean,
     value: {
       validator: (val) => val === true || val === false || val == null,
       defaultValue: null,
@@ -30,10 +31,17 @@ export default {
   },
   methods: {
     select(state) {
+      state = this.invertIfNecessary(state);
       this.$emit('input', state);
     },
     isActive(state) {
+      state = this.invertIfNecessary(state);
       return { active: state === this.value };
+    },
+    invertIfNecessary(state) {
+      console.log(state);
+      if (this.invert && state != null) state = !state;
+      return state;
     },
   },
 };

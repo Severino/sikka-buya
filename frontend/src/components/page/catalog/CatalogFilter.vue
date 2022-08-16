@@ -30,7 +30,7 @@
       :label="tw.label"
       class="three-way-wrapper"
     >
-      <three-way-toggle v-model="filters[tw.value]" />
+      <three-way-toggle v-model="filters[tw.value]" :invert="tw.invert" />
     </labeled-input-container>
 
     <labeled-input-container
@@ -96,12 +96,14 @@ const unfilteredThreeWayFilters = [
     value: 'donativ',
   },
   {
-    label: 'Jahr nicht sicher',
+    label: 'Jahr sicher',
     value: 'yearUncertain',
+    invert: true,
   },
   {
-    label: 'Prägeort nicht sicher',
+    label: 'Prägeort sicher',
     value: 'mintUncertain',
+    invert: true,
   },
 ];
 
