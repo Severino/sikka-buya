@@ -97,6 +97,7 @@ import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 // Other
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
+import StringUtils from '../../utils/StringUtils.js';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -166,14 +167,15 @@ export default {
         return mint;
       }
 
-      return [
-        ...this.availableMints
-          .map((mint) => addAvailability(mint, true))
-          .sort(Sorter.stringPropAlphabetically('name')),
-        ...this.unavailableMints
-          .map((mint) => addAvailability(mint, false))
-          .sort(Sorter.stringPropAlphabetically('name')),
+      let sorted = [
+        ...this.availableMints.map((mint) => addAvailability(mint, true)),
+        ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
       ];
+
+      sorted = sorted.sort(Sorter.stringPropAlphabetically('name'));
+
+      // console.log(sorted.map((mint) => mint.available).join(' '));
+      return sorted;
     },
   },
   created() {

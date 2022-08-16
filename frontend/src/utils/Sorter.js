@@ -22,13 +22,15 @@ export default class Sort {
             var a = Sort._removeCharactersThatObstructSorting(objA[property]?.toUpperCase())
             var b = Sort._removeCharactersThatObstructSorting(objB[property]?.toUpperCase());
 
-            Sort.stringAlphabetically(a, b)
+            return Sort.stringAlphabetically(asc)(a, b)
         }
     }
 
     static _removeCharactersThatObstructSorting(str) {
         str = StringUtils.removeLeftHalfRing(str)
-        str = StringUtils.removeAlPrefix(str)
+        str = StringUtils.removePrefix(str, "AL-")
+        str = StringUtils.removePrefix(str, "AD-")
+        str = StringUtils.removePrefix(str, "AR-")
         return str
     }
 

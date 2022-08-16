@@ -10,8 +10,12 @@ export default class StringUtils {
         else return `${str[0].toUpperCase()}${str.substr(1).toLowerCase()}`
     }
 
-    static removeAlPrefix(str) {
-        return str.replace("al-", "")
+    static removePrefix(str, prefix) {
+        const regex = new RegExp(`(?:^|[^a-zA-Z]+)(${prefix})`, "g")
+
+        let strWihtoutPrefix = str.replace(regex, "")
+        if (str != strWihtoutPrefix) console.log(str, strWihtoutPrefix)
+        return strWihtoutPrefix
     }
 
     static removeLeftHalfRing(str) {
