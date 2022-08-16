@@ -286,8 +286,6 @@ export default class PoliticalOverlay extends Overlay {
     selections = {}
   } = {}) {
 
-
-
     const { data, selected } = coinsToRulerData(
       feature.data.types,
       selections.selectedRulers,

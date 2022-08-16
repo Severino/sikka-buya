@@ -64,14 +64,22 @@ export function rulerPopup(coin, clickedRuler) {
             ? `<a href="${route.href}" target="_blank" class="catalog-link">Katalogeintrag</a>`
             : ''
         }</div>
+            ${(!isCaliphCoin(coin)) ?
+            `<h3>Münzherr(en)</h3>
+                    ${issuersText}
+                    <h3>Oberherr(en)</h3>
+                    ${overlordsText}
+                    ` : ""
+        }
             
-            <h3>Münzherr(en)</h3>
-            ${issuersText}
-            <h3>Oberherr(en)</h3>
-            ${overlordsText}
+          
             <h3>Kalif</h3>
             ${caliphText}
             ${heirText}
         </div>
       `;
+}
+
+function isCaliphCoin(coin) {
+    return (coin?.issuers?.length === 0 && coin?.overlords?.length === 0 && coin?.caliph)
 }
