@@ -12,9 +12,7 @@ export default class StringUtils {
 
     static removePrefix(str, prefix) {
         const regex = new RegExp(`(?:^|[^a-zA-Z]+)(${prefix})`, "g")
-
         let strWihtoutPrefix = str.replace(regex, "")
-        if (str != strWihtoutPrefix) console.log(str, strWihtoutPrefix)
         return strWihtoutPrefix
     }
 

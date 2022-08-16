@@ -39,7 +39,6 @@ export default {
       return { active: state === this.value };
     },
     invertIfNecessary(state) {
-      console.log(state);
       if (this.invert && state != null) state = !state;
       return state;
     },

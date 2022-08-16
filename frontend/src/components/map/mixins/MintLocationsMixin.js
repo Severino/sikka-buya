@@ -5,18 +5,9 @@ import Query from '../../../database/query';
 import Mint from '../../../models/map/mint';
 
 
-export default function ({
-    showMarkers = true,
-    onMintSelectionChanged = null,
-    selectedMintStorageName = "active-mints",
-    mintMarkerOptions = {
-        radius: 5,
-        stroke: false,
-        fillColor: 'white',
-        fillOpacity: 1,
-    }
-} = {}) {
+const selectedMintStorageName = "active-mints"
 
+export function loadSelectedMints() {
     let selectedMints = window.localStorage.getItem(selectedMintStorageName)
     try {
         selectedMints = JSON.parse(selectedMints)
@@ -27,6 +18,22 @@ export default function ({
     if (!Array.isArray(selectedMints)) {
         selectedMints = []
     }
+    return selectedMints
+}
+
+export function mintLocationsMixin({
+    showMarkers = true,
+    onMintSelectionChanged = null,
+    mintMarkerOptions = {
+        radius: 5,
+        stroke: false,
+        fillColor: 'white',
+        fillOpacity: 1,
+    }
+} = {}) {
+
+    const selectedMints = loadSelectedMints()
+
 
     return {
         data() {

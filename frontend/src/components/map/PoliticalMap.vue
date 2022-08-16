@@ -75,7 +75,7 @@ import Query from '../../database/query';
 
 //Mixins
 import map from './mixins/map';
-import mintLocations from './mixins/MintLocationsMixin';
+import { mintLocationsMixin } from './mixins/MintLocationsMixin';
 import settingsMixin from '../map/mixins/settings';
 import timeline from './mixins/timeline';
 
@@ -97,7 +97,6 @@ import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 // Other
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
-import StringUtils from '../../utils/StringUtils.js';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -138,10 +137,9 @@ export default {
     map,
     timeline,
     settingsMixin(overlaySettings),
-    mintLocations({
+    mintLocationsMixin({
       onMintSelectionChanged: function () {
         this.drawMintCountOntoTimeline();
-        // this.update();
       },
     }),
   ],

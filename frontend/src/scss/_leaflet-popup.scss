@@ -90,6 +90,7 @@
         align-items: left;
 
         &:not(:last-child) {
+            margin-bottom: 10px;
             @include underlined-header;
         }
 
@@ -100,7 +101,7 @@
         // margin-left: calc(#{$padding * -2} - 2px);
         // margin-top: calc(#{$padding * -2} - 2px);
         // margin-right: calc(#{$padding * -2} - 2px);
-        margin-bottom: 10px;
+
         padding: $padding $padding * 2;
         padding-right: 34px;
 

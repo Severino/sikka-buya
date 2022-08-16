@@ -94,7 +94,10 @@
 // Mixins
 import localstore from '../mixins/localstore';
 import map from './mixins/map';
-import mintLocations from './mixins/MintLocationsMixin';
+import {
+  mintLocationsMixin,
+  loadSelectedMints,
+} from './mixins/MintLocationsMixin';
 import settingsMixin from '../map/mixins/settings';
 import timeline from './mixins/timeline';
 
@@ -120,6 +123,7 @@ import Sorter from '../../utils/Sorter';
 
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
+const selectedMints = loadSelectedMints();
 
 export default {
   name: 'MaterialMap',
@@ -149,7 +153,7 @@ export default {
       mintTimelineData: [],
       overwriteFilters: {
         yearOfMint: null,
-        mint: null,
+        mint: selectedMints,
       },
       pageInfo: { page: 0, count: 100000 },
       painter: null,
@@ -161,7 +165,7 @@ export default {
     timeline,
     settingsMixin(overlaySettings),
     localstore('material-map-settings', ['settings']),
-    mintLocations({
+    mintLocationsMixin({
       showMarkers: false,
     }),
   ],
@@ -184,7 +188,6 @@ export default {
   },
   created() {
     settings.onSettingsChanged((changedSettings) => {
-      console.log(changedSettings);
       let settings = this.overlaySettings;
       changedSettings.forEach(([key, value]) => {
         settings[key] = value;
