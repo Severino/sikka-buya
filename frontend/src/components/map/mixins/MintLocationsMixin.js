@@ -50,6 +50,7 @@ export function mintLocationsMixin({
             if (this.mintLocationLayer) this.mintLocationLayer.clearLayers();
         },
         mounted() {
+            this.selectedMints = loadSelectedMints()
             this.mintLocation = new MintLocation({ markerOptions: mintMarkerOptions, popup: this.mintLocationPopup });
         },
         methods: {
