@@ -85,13 +85,16 @@
     }
 
     .leaflet-popup-content header {
-        color: $gray;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        align-items: left;
 
         &:not(:last-child) {
-            border-bottom: 1px solid $light-gray;
+            @include underlined-header;
+        }
+
+        &.no-bottom-margin {
+            margin-bottom: 0;
         }
 
         // margin-left: calc(#{$padding * -2} - 2px);
@@ -105,14 +108,13 @@
         border-top-left-radius: $border-radius;
         // min-width: 200px;
 
-        &:last-of-type {
-            margin-bottom: 0;
-        }
 
         .subtitle {
-            color: $gray;
-            font-weight: bold;
-            font-style: italic;
+            @include gray-heading;
+        }
+
+        .uncertain-info {
+            color: $light-gray
         }
     }
 }

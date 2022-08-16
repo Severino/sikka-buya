@@ -54,7 +54,7 @@ export default {
 
     header {
       h3 {
-        @include italian-heading;
+        @include gray-heading;
       }
     }
 

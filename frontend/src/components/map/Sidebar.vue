@@ -33,6 +33,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+header {
+  @include underlined-header;
+}
+
 .side-bar {
   box-sizing: border-box;
   background-color: rgba($color: $white, $alpha: 0.8);

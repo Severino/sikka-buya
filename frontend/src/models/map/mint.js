@@ -19,16 +19,19 @@ export default class Mint {
         })
     }
 
-    static popupMintHeader(mint) {
-        return `<header>
-            <span class="subtitle">${mint.name}</span>    
-        </header >
-        ${(mint.uncertain) ?
-                `<div class="popup-body">
-                    Verortung der Münzstätte ist nicht sicher.
-                </div>`
+    static popupMintHeader(mint, headerClass = null) {
+
+        return `<header ${(headerClass) ? `class="${headerClass}"` : ""}>
+            <span class="subtitle no-padding-bottom">${mint.name}</span>    
+            <div class="uncertain-info"> 
+            (genaue) Lokalisierung unsicher
+            </div>
+        </header >${(mint.uncertain) ? `
+        
+           `
                 : ""
             }
+        
         `
     }
 

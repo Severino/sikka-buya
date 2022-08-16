@@ -167,7 +167,7 @@ export default {
     color: $gray;
 
     h3 {
-      @include italian-heading;
+      @include gray-heading;
       font-size: 1em;
       margin-bottom: 0;
     }

@@ -134,10 +134,13 @@
   border-radius: $radius;
 }
 
-@mixin italian-heading {
+@mixin gray-heading {
   color: $gray;
-  font-style: italic;
   margin: 0;
+
+}
+
+@mixin underlined-header {
   padding: $padding $big-padding;
   border-bottom: $border;
 }
