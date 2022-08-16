@@ -85,7 +85,6 @@ export default {
 .dynasty {
   font-size: 0.7rem;
   color: $gray;
-  opacity: 0.5;
   font-weight: bold;
 }
 

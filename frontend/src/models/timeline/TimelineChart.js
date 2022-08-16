@@ -28,7 +28,10 @@ export default class TimelineChart extends Chart {
 
 
     y(val) {
-        return this.canvas.height - val;
+        if (val < 0)
+            return val * -1
+        else
+            return this.canvas.height - val;
     }
 
     x(val) {
@@ -42,6 +45,8 @@ export default class TimelineChart extends Chart {
     }
 
     drawMintLinesOnCanvas(data, y, lineOptions) {
+
+
         let ctx = this.getContext()
         Object.assign(ctx, lineOptions)
         this.clear()

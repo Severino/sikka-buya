@@ -359,15 +359,16 @@ export default {
             });
 
             this.timelineChart.updateTimeline(this.raw_timeline);
-            this.timelineChart.drawMintLinesOnCanvas(
-              resolveRange(Array.from(xSet.values())),
-              5,
-              {
-                lineCap: 'square',
-                lineWidth: 5,
-                strokeStyle: '#48ac48',
-              }
-            );
+
+            const mintRanges = resolveRange(Array.from(xSet.values()));
+            console.log(mintRanges);
+
+            const height = 20;
+            this.timelineChart.drawMintLinesOnCanvas(mintRanges, height / 2, {
+              lineCap: 'butt',
+              lineWidth: height,
+              strokeStyle: '#aaaaaa',
+            });
           })
           .catch(console.error);
     },

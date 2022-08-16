@@ -135,6 +135,7 @@ $caretWidth: 5px;
 
   input[type='range']::-moz-range-thumb {
     border: none;
+    background-color: transparent;
   }
 
   input[type='range']:focus {
@@ -162,7 +163,7 @@ $caretWidth: 5px;
     top: 0;
     height: 100%;
 
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.05);
     pointer-events: none;
     z-index: 1;
   }
