@@ -2,13 +2,6 @@
   <div class="catalog-landing">
     <header>
       <h1>Typenkatalog</h1>
-      <p>
-        Im dieser primären Ansicht des Typenkatalog sind die Typen nach Personen
-        sortiert. Und bieten so eine politische Herangehensweise bei der Arbeit
-        mit den einzelnen Typen. Um gezielt einzelne Typen unabhängig von der
-        Person zu suchen, Nutzen Sie eine der anderen Suchfunktionen.
-      </p>
-
       <div class="nav-grid grid">
         <big-navigation-button :to="{ name: 'Catalog Text Search' }">
           Volltextsuche
