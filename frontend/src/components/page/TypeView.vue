@@ -24,15 +24,13 @@
 
     <div class="property gm2">
       <catalog-property :label="mapText('mint')">
-        {{ printTypeProperty('mint', 'name') }}
-        <template v-if="type.mintUncertain">?</template>
+        {{ printMintProperty() }}
       </catalog-property>
     </div>
 
     <div class="property gm2">
       <catalog-property :label="mapText('year')">
-        {{ printTypeProperty('yearOfMint') || missingText }}
-        <template v-if="type.yearUncertain">?</template>
+        {{ printYearProperty() }}
       </catalog-property>
     </div>
     <div class="property gm2">
@@ -227,6 +225,20 @@ export default {
         if (value == 'struck') value = this.$tc('property.procedures.struck');
       }
       return value;
+    },
+    printMintProperty() {
+      let str = this.printTypeProperty('mint', 'name');
+      if (this.type?.mint?.id && this.type.mintUncertain) {
+        str += ' ?';
+      }
+      return str;
+    },
+    printYearProperty() {
+      let str = this.printTypeProperty('yearOfMint', 'name');
+      if (this.type?.mint?.id && this.type.mintUncertain) {
+        str += ' ?';
+      }
+      return str;
     },
     getCoinSideLabel(val, sideObj) {
       let fields = this.getFilledFields(sideObj.name);

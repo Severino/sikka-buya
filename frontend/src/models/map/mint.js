@@ -20,8 +20,6 @@ export default class Mint {
     }
 
     static popupMintHeader(mint, headerClasses = []) {
-
-        console.log(headerClasses)
         return `<header class="${headerClasses.join(" ")}">
             <span class="subtitle no-padding-bottom">${mint.name}</span>    
             ${(mint.uncertain) ? `

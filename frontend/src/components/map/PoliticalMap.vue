@@ -34,7 +34,7 @@
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center">
-      <div class="unlocated-mints">
+      <div class="unlocated-mints" v-if="unlocatedTypes.length > 0">
         <header class="underlined-header">
           <h3 class="gray-heading">nicht auf Karte:</h3>
         </header>
@@ -440,12 +440,14 @@ export default {
 
 h4 {
   margin: 0;
+  font-size: $regular-font;
   color: $gray;
   padding-bottom: $padding;
 }
 
 .unlocated-mint-wrapper {
-  padding: $padding;
+  padding: $big-padding;
+  font-size: $small-font;
 }
 </style>
 
