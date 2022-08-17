@@ -226,19 +226,34 @@ export default {
       }
       return value;
     },
+    addQuestionMarkToString(str) {
+      return str + ' ?';
+    },
     printMintProperty() {
-      let str = this.printTypeProperty('mint', 'name');
-      if (this.type?.mint?.id && this.type.mintUncertain) {
-        str += ' ?';
+      let str = '';
+
+      if (this.type?.mint?.id) {
+        this.printTypeProperty('mint', 'name');
       }
-      return str;
+
+      if (this.type.mintUncertain) {
+        str = this.addQuestionMarkToString(str);
+      }
+
+      return str.trim();
     },
     printYearProperty() {
-      let str = this.printTypeProperty('yearOfMint', 'name');
-      if (this.type?.mint?.id && this.type.mintUncertain) {
-        str += ' ?';
+      let str = '';
+
+      if (this.type.yearOfMint != null) {
+        this.printTypeProperty('yearOfMint', 'name');
       }
-      return str;
+
+      if (this.type.yearUncertain) {
+        str = this.addQuestionMarkToString(str);
+      }
+
+      return str.trim();
     },
     getCoinSideLabel(val, sideObj) {
       let fields = this.getFilledFields(sideObj.name);
