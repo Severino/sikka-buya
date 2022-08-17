@@ -4,11 +4,14 @@ export default class Sort {
 
     static stringAlphabetically(asc = true) {
         return function (a, b) {
-            if (!a) return 1
-            if (!b) return -1
 
-            a = Sort._removeCharactersThatObstructSorting(a)
-            b = Sort._removeCharactersThatObstructSorting(b)
+            // If an element is missing, we just push it
+            // to the end of the 
+            if (a == null) return 1
+            if (b == null) return -1
+
+            a = Sort._removeCharactersThatObstructSorting(a.toUpperCase())
+            b = Sort._removeCharactersThatObstructSorting(b.toUpperCase())
 
             let sort = a.localeCompare(b)
             // Flip if not asc.
@@ -17,10 +20,20 @@ export default class Sort {
         }
     }
 
-    static stringPropAlphabetically(property, asc = true) {
+    static stringPropAlphabetically(propertyNameOrPath, asc = true) {
         return function (objA, objB) {
-            var a = Sort._removeCharactersThatObstructSorting(objA[property]?.toUpperCase())
-            var b = Sort._removeCharactersThatObstructSorting(objB[property]?.toUpperCase());
+            const path = propertyNameOrPath.split(".")
+
+            let a = objA
+            let b = objB
+
+            while (path.length > 0) {
+                let property = path.shift()
+
+
+                a = a?.[property] ? a[property] : null
+                b = b?.[property] ? b[property] : null
+            }
 
             return Sort.stringAlphabetically(asc)(a, b)
         }

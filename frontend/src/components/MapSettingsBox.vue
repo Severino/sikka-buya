@@ -2,7 +2,7 @@
   <div class="settings">
     <SettingsIcon class="settings-icon" @click="toggleSettings" />
     <div class="settings-window" v-if="open">
-      <header>
+      <header class="gray-heading">
         <h3>Einstellungen</h3>
       </header>
       <div class="settings-body">
@@ -51,12 +51,6 @@ export default {
     border-radius: 10px;
     box-shadow: $strong-shadow;
     border: $big-border-width solid $white;
-
-    header {
-      h3 {
-        @include gray-heading;
-      }
-    }
 
     .settings-body {
       padding: $big-padding;

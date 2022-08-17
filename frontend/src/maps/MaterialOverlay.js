@@ -98,7 +98,7 @@ export default class MaterialOverlay extends Overlay {
         const types = data?.types ? data.types : [];
 
         return `
-        ${Mint.popupMintHeader(mint, "no-bottom-margin")}
+        ${Mint.popupMintHeader(mint, ["no-bottom-margin", "underlined-header"])}
         <div class="popup-body" make-simplebar>
             <div class="popup-content grid col-3">
         ${types

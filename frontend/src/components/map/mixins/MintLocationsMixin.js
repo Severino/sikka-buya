@@ -55,7 +55,7 @@ export function mintLocationsMixin({
         },
         methods: {
             mintLocationPopup(feature) {
-                return Mint.popupMintHeader(feature.mint)
+                return Mint.popupMintHeader(feature.mint, ["underlined-header"])
             },
             async fetchMints() {
                 const result = await this.queryMints()

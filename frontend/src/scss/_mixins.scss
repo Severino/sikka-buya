@@ -133,14 +133,3 @@
   height: $radius * 2;
   border-radius: $radius;
 }
-
-@mixin gray-heading {
-  color: $gray;
-  margin: 0;
-
-}
-
-@mixin underlined-header {
-  padding: $padding $big-padding;
-  border-bottom: $border;
-}

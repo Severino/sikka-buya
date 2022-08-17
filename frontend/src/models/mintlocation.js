@@ -62,7 +62,7 @@ export default class MintLocation {
         if (this.bindPopupCallback)
             marker.bindPopup(this.bindPopupCallback(feature))
         else
-            marker.bindPopup(Mint.popupMintHeader(feature.mint));
+            marker.bindPopup(Mint.popupMintHeader(feature.mint, ["underlined-header"]));
 
         return marker
     }

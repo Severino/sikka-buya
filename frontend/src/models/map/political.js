@@ -56,7 +56,7 @@ export function rulerPopup(coin, clickedRuler) {
     });
 
     return `
-       ${Mint.popupMintHeader(coin.mint)}
+       ${Mint.popupMintHeader(coin.mint, ["underlined-header"])}
         <div class="popup-body">
             <div class="catalog-title">
             <h2>${coin.projectId}</h2>

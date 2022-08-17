@@ -19,20 +19,21 @@ export default class Mint {
         })
     }
 
-    static popupMintHeader(mint, headerClass = null) {
+    static popupMintHeader(mint, headerClasses = []) {
 
-        return `<header ${(headerClass) ? `class="${headerClass}"` : ""}>
+        console.log(headerClasses)
+        return `<header class="${headerClasses.join(" ")}">
             <span class="subtitle no-padding-bottom">${mint.name}</span>    
-            <div class="uncertain-info"> 
+            ${(mint.uncertain) ? `
+        <div class="uncertain-info"> 
             (genaue) Lokalisierung unsicher
             </div>
-        </header >${(mint.uncertain) ? `
-        
            `
                 : ""
             }
         
-        `
+       
+        </header > `
     }
 
     static mintGraphQL() {

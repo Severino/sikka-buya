@@ -520,4 +520,13 @@ a {
 .unavailable {
   color: gray;
 }
+.gray-heading {
+  color: $gray;
+  margin: 0;
+}
+
+.underlined-header {
+  padding: $padding $big-padding;
+  border-bottom: $border;
+}
 </style>

@@ -152,8 +152,14 @@ export default class PoliticalOverlay extends Overlay {
       return mint
     })
 
+    const unlocatedTypes = []
+
     // Sort the types by mints
     data.types.forEach(type => {
+
+      if (!type.mint.location)
+        unlocatedTypes.push(type)
+
       const mintId = type?.mint?.id
       if (mintId) {
         if (!availableMints[mintId]) {
@@ -203,6 +209,7 @@ export default class PoliticalOverlay extends Overlay {
       unavailableMints,
       rulers,
       persons,
+      unlocatedTypes,
       types: data.types
     }
   }
@@ -213,6 +220,7 @@ export default class PoliticalOverlay extends Overlay {
     let patterns = this._buildHeirStripes(data, selection)
     //Build mint map and parse GeoJSON
     Object.values(data.mints).forEach(mint => {
+
       if (mint.location && mint.id) {
         const types = mint.data.types
         try {
@@ -338,7 +346,7 @@ export default class PoliticalOverlay extends Overlay {
     const mint = feature.data.mint
     const mlm = new MintLocationMarker(mint)
     const marker = mlm.create(latlng)
-    marker.bindPopup(Mint.popupMintHeader(mint))
+    marker.bindPopup(Mint.popupMintHeader(mint, ["underlined-header"]))
     return marker
   }
 }

@@ -33,7 +33,31 @@
         </labeled-input-container>
       </map-settings-box>
     </div>
-    <div class="center-ui center-ui-center"></div>
+    <div class="center-ui center-ui-center">
+      <div class="unlocated-mints">
+        <header class="underlined-header">
+          <h3 class="gray-heading">nicht auf Karte:</h3>
+        </header>
+        <section
+          v-for="obj of unlocatedTypesByMint"
+          :key="`unlocated-${obj.mint.id}`"
+          class="unlocated-mint-wrapper"
+        >
+          <h4>
+            {{ obj.mint.name }}
+          </h4>
+          <div class="mint-grid grid col-3">
+            <router-link
+              v-for="type of obj.types"
+              target="_blank"
+              :to="{ name: 'Catalog Entry', params: { id: type.id } }"
+              :key="`unlocated-mint-${type.projectId}`"
+              >{{ type.projectId }}</router-link
+            >
+          </div>
+        </section>
+      </div>
+    </div>
     <div class="center-ui center-ui-bottom">
       <timeline
         ref="timeline"
@@ -129,6 +153,7 @@ export default {
       rulers: [],
       selectedRulers: [],
       selectedUnavailableRulers: [],
+      unlocatedTypes: [],
       timelineChart: null,
       types: [],
     };
@@ -175,6 +200,28 @@ export default {
       // console.log(sorted.map((mint) => mint.available).join(' '));
       return sorted;
     },
+    unlocatedTypesByMint() {
+      const mintMap = {};
+      this.unlocatedTypes.forEach((type) => {
+        const mintId = type?.mint?.id ? type.mint.id : 0;
+
+        if (!mintMap[mintId]) {
+          mintMap[mintId] = {
+            mint: mintId === 0 ? { id: 0, name: 'Ohne Münzstätte' } : type.mint,
+            types: [],
+          };
+        }
+
+        mintMap[mintId].types.push(type);
+      });
+
+      for (let obj of Object.values(mintMap)) {
+        obj.types.sort(Sorter.stringPropAlphabetically('projectId'));
+      }
+      return Object.values(mintMap).sort(
+        Sorter.stringPropAlphabetically('mint.name')
+      );
+    },
   },
   created() {
     settings.onSettingsChanged((changedSettings) => {
@@ -194,6 +241,7 @@ export default {
         this.availableMints = transformedData.availableMints;
         this.persons = transformedData.persons;
         this.rulers = transformedData.rulers;
+        this.unlocatedTypes = transformedData.unlocatedTypes;
 
         this.updateAvailableRulers();
       },
@@ -375,5 +423,30 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.unlocated-mints {
+  position: absolute;
+  left: $padding * 2;
+  bottom: $padding * 4;
+  background-color: $white;
+  width: 260px;
+  border-radius: $border-radius;
+
+  h3 {
+    font-size: 1em;
+  }
+}
+
+h4 {
+  margin: 0;
+  color: $gray;
+  padding-bottom: $padding;
+}
+
+.unlocated-mint-wrapper {
+  padding: $padding;
+}
+</style>
 
 

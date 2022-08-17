@@ -167,7 +167,6 @@ export default {
     color: $gray;
 
     h3 {
-      @include gray-heading;
       font-size: 1em;
       margin-bottom: 0;
     }

@@ -1,6 +1,6 @@
 <template>
   <div class="side-bar" :class="getSideClass">
-    <header class="title">
+    <header class="title underlined-header">
       <h3>{{ title }}</h3>
     </header>
     <scroll-view class="body">
@@ -22,21 +22,13 @@ export default {
   },
   computed: {
     getSideClass: function () {
-      if (this.side == 'left') {
-        return 'side-bar-left';
-      } else {
-        return 'side-bar-right';
-      }
+      return this.side == 'left' ? 'side-bar-left' : 'side-bar-right';
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-header {
-  @include underlined-header;
-}
-
 .side-bar {
   box-sizing: border-box;
   background-color: rgba($color: $white, $alpha: 0.8);
@@ -56,5 +48,9 @@ header {
   .body {
     flex: 1;
   }
+}
+
+.title h3 {
+  margin-top: 0;
 }
 </style>
