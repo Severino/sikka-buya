@@ -233,12 +233,14 @@ export default {
       let str = '';
 
       if (this.type?.mint?.id) {
-        this.printTypeProperty('mint', 'name');
+        str = this.printTypeProperty('mint', 'name');
       }
 
       if (this.type.mintUncertain) {
         str = this.addQuestionMarkToString(str);
       }
+
+      console.log(this.type?.mint?.id);
 
       return str.trim();
     },
@@ -246,7 +248,7 @@ export default {
       let str = '';
 
       if (this.type.yearOfMint != null) {
-        this.printTypeProperty('yearOfMint', 'name');
+        str = this.printTypeProperty('yearOfMint', 'name');
       }
 
       if (this.type.yearUncertain) {
