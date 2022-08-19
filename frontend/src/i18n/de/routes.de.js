@@ -1,8 +1,8 @@
 export default {
     "Home": "Startseite",
-    "Catalog": "Katalog",
+    "Catalog": "Typenkatalog",
     "Catalog Entry": "Eintrag",
-    "Catalog Text Search": "Volltextsuche",
-    "Catalog Filter Search": "Filtersuche",
+    "Catalog Ruler Explorer": "Herrscherliste",
+    "Catalog Search": "Katalogsuche",
     "Catalog Overview": "Übersicht"
 }

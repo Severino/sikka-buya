@@ -1,17 +1,43 @@
 <template>
   <div class="catalog-landing">
     <header>
-      <h1>Typenkatalog</h1>
+      <h1>{{ $t('routes.Catalog') }}</h1>
       <div class="nav-grid grid">
-        <big-navigation-button :to="{ name: 'Catalog Text Search' }">
+        <router-link :to="{ name: 'Catalog Ruler Explorer' }">
+          <card id="person-explorer-card">
+            <template v-slot:header>
+              <h2>{{ $t('routes.Catalog Ruler Explorer') }}</h2>
+            </template>
+            <p>
+              Nulla amet sint nisi excepteur minim voluptate commodo do nulla ea
+              duis fugiat. Pariatur esse esse enim aliqua incididunt do ut. Quis
+              dolor Lorem do duis sunt sunt adipisicing cillum laborum ad.
+            </p>
+          </card>
+        </router-link>
+
+        <router-link :to="{ name: 'Catalog Search' }">
+          <card>
+            <template v-slot:header>
+              <h2>{{ $t('routes.Catalog Search') }}</h2>
+            </template>
+
+            <p>
+              Nulla amet sint nisi excepteur minim voluptate commodo do nulla ea
+              duis fugiat. Pariatur esse esse enim aliqua incididunt do ut. Quis
+              dolor Lorem do duis sunt sunt adipisicing cillum laborum ad.
+            </p>
+          </card>
+        </router-link>
+
+        <!-- <big-navigation-button :to="{ name: 'Catalog Text Search' }">
           Volltextsuche
         </big-navigation-button>
         <big-navigation-button :to="{ name: 'Catalog Filter Search' }">
           Filtersuche
-        </big-navigation-button>
+        </big-navigation-button> -->
       </div>
     </header>
-    <person-explorer />
   </div>
 </template>
 
@@ -26,6 +52,7 @@ import Column from '../../layout/tabs/Column.vue';
 import TypeOverview from '../TypeOverview.vue';
 import PersonExplorer from './PersonExplorer.vue';
 import BigNavigationButton from '../../navigation/BigNavigationButton.vue';
+import Card from '../../navigation/Card.vue';
 export default {
   components: {
     Column,
@@ -37,6 +64,7 @@ export default {
     TypeOverview,
     PersonExplorer,
     BigNavigationButton,
+    Card,
   },
   name: 'CatalogLanding',
 
@@ -95,40 +123,28 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.container {
-  width: 100%;
-  align-items: stretch;
-  top: 0;
-  position: absolute;
-  transition: all 0.3s;
-
-  &.empty {
-    top: 30%;
-  }
-}
-
+<style lang="scss">
 .catalog-landing {
-  flex: 1;
-  position: relative;
+  h2 {
+    margin-top: 0;
+  }
 
-  padding-bottom: $page-bottom-spacing;
-
-  > header {
-    margin-bottom: $padding;
+  .card {
+    color: $black;
   }
 }
 </style>
 
 <style lang="scss" scoped>
-.catalog-landing .list-item-row {
-  padding: $padding;
+.nav-grid {
+  height: 420px;
+  grid-template-columns: 1fr 1fr;
+  gap: 3 * $padding;
 }
 
-.link {
-  color: $primary-color !important;
-  font-weight: bold;
-  text-decoration: underline;
-  padding: $padding 0;
+.card {
+  // background-color: $white;
+  border: $border;
+  padding: $big-box-padding;
 }
 </style>

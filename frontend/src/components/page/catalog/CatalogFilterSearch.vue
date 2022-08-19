@@ -1,11 +1,6 @@
 <template>
   <div class="catalog-filter-search">
-    <h1>Filtersuche</h1>
-    <p>
-      Mit der Filtersuche können Sie alle im Typenkatalog verfügbaren Typen mit
-      sehr detailiert durchsuchen, indem Sie verschiedenste Filter verwenden und
-      kombinieren können.
-    </p>
+    <h1>{{ $t('routes.Catalog Search') }}</h1>
 
     <div class="grid col-2">
       <aside>
