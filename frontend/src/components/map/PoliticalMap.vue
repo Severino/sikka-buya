@@ -34,7 +34,7 @@
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center">
-      <div class="unlocated-mints" v-if="unlocatedTypes.length > 0">
+      <div class="unlocated-mints" v-if="filteredUnlocatedTypes.length > 0">
         <header class="underlined-header">
           <h3 class="gray-heading">nicht auf Karte:</h3>
         </header>
@@ -200,9 +200,24 @@ export default {
       // console.log(sorted.map((mint) => mint.available).join(' '));
       return sorted;
     },
+    filteredUnlocatedTypes() {
+      return this.unlocatedTypes.filter((type) => {
+        const mintId = type?.mint?.id ? type.mint.id : 0;
+
+        if (
+          this.selectedMints.length > 0 &&
+          this.selectedMints.indexOf(mintId) === -1
+        ) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+    },
     unlocatedTypesByMint() {
       const mintMap = {};
-      this.unlocatedTypes.forEach((type) => {
+
+      this.filteredUnlocatedTypes.forEach((type) => {
         const mintId = type?.mint?.id ? type.mint.id : 0;
 
         if (!mintMap[mintId]) {
