@@ -393,6 +393,68 @@ async function start({
                     }
 
                     return mintArray
+                },
+                async ruledMintCount(_, {
+                    rulers = [],
+                    mints = []
+                } = {}) {
+
+                    const result = await Database.manyOrNone(`
+                        WITH objectified AS(
+                                WITH counted AS(
+                                    WITH distinct_year_and_mint AS(
+                                        WITH rulers AS (SELECT ISSUER.TYPE,
+                                            ISSUER.PERSON,
+                                            T.YEAR_OF_MINT,
+                                            T.MINT,
+                                            T.EXCLUDE_FROM_MAP_APP
+                                        FROM ISSUER
+                                        LEFT JOIN TYPE T ON ISSUER.TYPE = T.ID
+                                        UNION
+                                        SELECT OVERLORD.TYPE,
+                                            OVERLORD.PERSON,
+                                            T.YEAR_OF_MINT,
+                                            T.MINT,
+                                            T.EXCLUDE_FROM_MAP_APP
+                                        FROM OVERLORD
+                                        LEFT JOIN TYPE T ON OVERLORD.TYPE = T.ID)
+                                SELECT DISTINCT year_of_mint, person, mint FROM rulers
+                                WHERE year_of_mint~ '^[0-9]+$' 
+                                AND NOT exclude_from_map_app
+                                ${(mints.length > 0) ? "AND mint IN ($[mints:csv])" : ""}
+                                ${(rulers.length > 0) ? "AND person IN ($[rulers:csv]) " : ""}
+                                ORDER BY person, year_of_mint
+                                ) 
+
+                                SELECT year_of_mint, person, COUNT(*) FROM  distinct_year_and_mint
+                                GROUP BY year_of_mint, person
+                                )
+                        SELECT person, json_agg(json_build_object('year', year_of_mint, 'count' , count)) AS json 
+                        FROM counted 
+                        GROUP BY person
+                        ) 
+                        SELECT obj.person as person_id, p.name as person_name, c.color as person_color, json FROM objectified obj
+                        LEFT JOIN person p ON p.id = obj.person
+                        LEFT JOIN person_color c ON c.person = obj.person`, {
+                        rulers,
+                        mints
+                    })
+                    return result.map(obj => {
+                        let rulersPointArray = {
+                            ruler: {
+                                id: obj.person_id,
+                                name: obj.person_name,
+                                color: obj.person_color
+                            },
+                            data: obj.json.map(obj => {
+                                return {
+                                    x: obj.year,
+                                    y: obj.count
+                                }
+                            })
+                        }
+                        return rulersPointArray
+                    })
                 }
             }, Mutation: {
                 changePersonExplorerOrder: async function (_, args) {

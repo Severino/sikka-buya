@@ -89,7 +89,6 @@ export default {
         } else {
           this.offsetLeft = 0;
         }
-        console.log(rect.left);
 
         let leftCss = parseInt(this.offsetLeft) + 'px';
 

@@ -3,8 +3,14 @@ class Chart {
         this.canvas = canvas
     }
 
+    updateSize() {
+        const rect = this.canvas.getBoundingClientRect()
+        this.canvas.width = rect.width
+        this.canvas.height = rect.height
+    }
 
     clear() {
+        this.updateSize()
         this.getContext().clearRect(0, 0, this.canvas.width, this.canvas.height)
     }
 
@@ -34,69 +40,103 @@ export default class TimelineChart extends Chart {
             return this.canvas.height - val;
     }
 
-    x(val) {
+    x(val, pos = null) {
         const timelineSpan = this.timeline.to - this.timeline.from
         const widthPerYear = this.canvas.width / timelineSpan
-        const x = (val - this.timeline.from) * widthPerYear - 2
+        let x = (val - this.timeline.from) * widthPerYear - 2
 
-        // console.log(val, x, timelineSpan, widthPerYear, this.timeline.to, this.timeline.from)
+        if (pos === "start")
+            x = x - widthPerYear / 2
+        else if (pos === "end") {
+            x = x + widthPerYear / 2
+
+        }
+        // console.table({ in: val, x, timelineSpan, widthPerYear, to: this.timeline.to, from: this.timeline.from })
 
         return x
     }
 
-    drawMintLinesOnCanvas(data, y, lineOptions) {
-
-
+    drawRangeLineOnCanvas(data, y, lineOptions) {
         let ctx = this.getContext()
         Object.assign(ctx, lineOptions)
-        this.clear()
 
         data.forEach(range => {
             ctx.beginPath();
-            ctx.moveTo(this.x(range[0]), this.y(y))
-            ctx.lineTo(this.x(range[1]), this.y(y))
+            const start = this.x(range[0], "start")
+            ctx.moveTo(start, this.y(y))
+
+            let end = this.x(range[1], "end")
+            if (end - start <= 1) end = start + 1
+            ctx.lineTo(end, this.y(y))
             ctx.stroke()
         })
 
     }
 
-    drawGraphOnTimeline(data, lineOptions) {
-
+    drawGraphOnTimeline(data, lineOptions = {}, {
+        max = null
+    } = {}) {
         let ctx = this.canvas.getContext('2d');
         Object.assign(ctx, lineOptions)
         ctx.beginPath();
 
-        let curveMax = 0;
-        let curveData = {};
-        data.forEach((mint) => {
-            mint.data.forEach((point) => {
-                if (!curveData[point.x]) curveData[point.x] = point.y;
-                else curveData[point.x] += point.y;
+        let curveMax = max;
 
-                if (curveData[point.x] > curveMax)
-                    curveMax = curveData[point.x];
-            });
-        });
+
+
+        // const prev = null
+        // const toRemove = false
+        // for(let i = data.length; i >= 0; i--){
+        //     const cur = data[i]
+
+        //     removeLast = toRemove
+        //     toRemove = (prev && prev.y === cur.y && prev.x - cur.x === 1)
+
+        //     if(removeLast && toRemove){
+        //         data.splice(i+1, 1)
+        //     }
+
+        //     prev = cur
+        // }
+
+        // if (!curveMax) {
+        //     curveMax = -Infinity
+        //     data.forEach(point => {
+        //         curveMax = point.y > curveMax ? point.y : curveMax
+        //     })
+        // }
+
 
         let yStep = (this.canvas.height - (lineOptions.lineWidth || 1) - 10) / (curveMax > 0 ? curveMax : 20);
-
-
+        data = data.sort((a, b) => a.x - b.x)
         let last = null;
-        Object.keys(data)
-            .sort((a, b) => a - b)
-            .forEach((x_key) => {
-                const point = { x: x_key, y: data[x_key] };
-                if (last && point.x - last > 1) {
-                    ctx.lineTo(this.x(last), this.y(0));
-                    last = null;
-                }
-                if (last == null) ctx.moveTo(this.x(point.x), this.y(0));
+        data.forEach(({ x: _x, y: _y }) => {
+            if (last && _x - last.x > 1) {
+                ctx.lineTo(this.x(last.x), this.y(0));
+                last = null;
+            }
 
-                ctx.lineTo(this.x(point.x), this.y(point.y * yStep));
-                last = point.x;
-            });
+            const x = this.x(_x)
+            const y = this.y(_y * yStep)
+            const bezier = 0
 
-        ctx.lineTo(this.x(last), this.y(0));
+            if (last == null) {
+                ctx.moveTo(this.x(_x), this.y(0));
+                ctx.lineTo(x, y)
+            } else {
+                ctx.lineTo(x, y)
+                // ctx.bezierCurveTo(this.x(last.x + bezier), this.y(last.y), this.x(_x - bezier), this.y(_y), x, y)
+            }
+
+
+
+
+
+
+            last = { x: _x, y: _y };
+        });
+
+        ctx.lineTo(this.x(last.x), this.y(0));
         ctx.stroke();
         ctx.fill();
         ctx.closePath();

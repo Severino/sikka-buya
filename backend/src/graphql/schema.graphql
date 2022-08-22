@@ -293,7 +293,9 @@ type Query {
     evalFilters: EvalFilter
   ): ModCoinTypePagination
 
+  ruledMintCount(rulers: [ID]!,mints: [ID]): [RulerPointArray]
   typeCountOfMints(ids: [ID]): [MintPointArray]
+
 
   timespan: Range
   getAnalytics: Analytics
@@ -332,6 +334,11 @@ type Query {
 
 type MintPointArray {
   mint: Mint
+  data: [Point]
+}
+
+type RulerPointArray {
+  ruler: Person,
   data: [Point]
 }
 
