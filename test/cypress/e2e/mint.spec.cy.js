@@ -200,7 +200,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-location input").should("have.value", "[35.53, 35.11]")
 
 
-            cy.get("#mint-uncertain-location-input button").click()
+            cy.get("#mint-uncertain-location-input .delete-btn").click()
             cy.get("#mint-uncertain-location-input .leaflet-container").click(30, 30, {
                 ctrlKey: true
             }).click(100, 50, {
@@ -251,7 +251,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-location input").should("have.value", "[35.53, 35.11]")
 
 
-            cy.get("#mint-uncertain-location-input button").click()
+            cy.get("#mint-uncertain-location-input .delete-btn").click()
             cy.get("#mint-uncertain-location-input .leaflet-container").click(30, 30, {
                 ctrlKey: true
             }).click(100, 50, {

@@ -20,7 +20,11 @@
         <Button class="ghost-btn" @click="pasteEvt"><ContentPaste /></Button>
       </div>
 
-      <button type="button" @click.prevent.stop="clearData()">
+      <button
+        type="button"
+        class="delete-btn"
+        @click.prevent.stop="clearData()"
+      >
         <Close />
       </button>
     </div>

@@ -169,6 +169,14 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.overview {
+  .list-item a {
+    padding: 0.1rem 0.5rem;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 @import '@/scss/_import.scss';
 .list {
