@@ -1,6 +1,5 @@
 <template>
   <div class="map-page">
-    <map-nav />
     <div class="map-view-container">
       <map-view
         class="mapview"
@@ -11,14 +10,13 @@
       >
       </map-view>
 
-      <router-view :map="map" />
+      <router-view :map="map" @reset="resetMapSettings" />
     </div>
   </div>
 </template>
 
 <script>
 import Settings from '../../settings';
-import MapNav from '../map/MapNav.vue';
 require('leaflet-semicircle');
 require('../../plugins/leaflet-svg-icon');
 
@@ -29,7 +27,7 @@ const mapSettings = settings.load();
 
 export default {
   name: 'MapPage',
-  components: { MapView, MapNav },
+  components: { MapView },
   data: function () {
     return {
       map: null,
@@ -53,12 +51,19 @@ export default {
           ['location', [lat, lng]],
           ['zoom', map.getZoom()],
         ]);
+        // console.log(mapSettings.location, mapSettings.zoom);
       });
     });
   },
   methods: {
     mapChanged: function (map) {
       this.map = map;
+    },
+    resetMapSettings: function () {
+      settings.reset();
+      this.map.setView(this.mapSettings.location, this.mapSettings.zoom, {
+        animation: true,
+      });
     },
   },
 };
@@ -204,7 +209,8 @@ export default {
 }
 
 .side-bar-right {
-  .select-list-item {
+  .select-list-item,
+  .selected-but-unavailable {
     transition: background-color 0.3s;
     background-color: initial;
 

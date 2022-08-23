@@ -9,6 +9,7 @@ export default function (settings) {
         methods: {
             resetSettings() {
                 this.overlay.settings.reset();
+                this.$emit('reset');
             },
             overlaySettingsChanged(e) {
                 this.overlay.settings.change(e.currentTarget.name, e.currentTarget.value);

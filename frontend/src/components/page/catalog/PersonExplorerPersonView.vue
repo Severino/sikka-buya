@@ -243,8 +243,6 @@ literature pieces  specials yearUncertain mintUncertain
 
         Object.keys(obj).forEach((mintId) => {
           const rulerProperty = isOverlord ? 'asOverlord' : 'asIssuer';
-
-          console.log(this.typeTree[year][rulerProperty][mintId]);
           this.typeTree[year][rulerProperty][mintId].children.forEach(
             (type) => {
               types[type.id] = type;
@@ -273,23 +271,14 @@ literature pieces  specials yearUncertain mintUncertain
       let typeTree = Object.values(this.typeTree);
       return typeTree.sort(Sort.stringPropAlphabetically('value'));
     },
-
-    hasSelectedMint() {
-      Object.values(this.activeYears).forEach((yearObj) => {
-        console.log(yearObj);
-      });
-      return true;
-    },
     hasActiveMints() {
       for (let activeYearObj of Object.values(this.activeYears)) {
-        console.log(activeYearObj);
         if (
           Object.keys(activeYearObj.activeOverlordsMints).length > 0 ||
           Object.keys(activeYearObj.activeIssuerMints).length > 0
         )
           return true;
       }
-      console.log('FAIL');
       return false;
     },
     hasActiveYears() {

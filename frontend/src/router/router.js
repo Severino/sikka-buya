@@ -77,6 +77,7 @@ import Auth from "../utils/Auth.js"
  * Maps
  */
 
+import MapLanding from "@/components/page/MapLanding.vue"
 import MapPage from "@/components/page/MapPage.vue"
 import PoliticalMap from "@/components/map/PoliticalMap"
 import MaterialMap from "@/components/map/MaterialMap"
@@ -153,6 +154,17 @@ const routes = [
           component: CatalogEntry
         }]
       }, {
+        path: "/map-overview",
+        name: "Map Overview",
+        component: RouterContainer,
+        redirect: { name: "Map Landing" },
+        children: [
+          {
+            path: "",
+            name: "Map Landing",
+            component: MapLanding,
+          }]
+      }, {
         path: "/map/",
         name: "MapPage",
         component: MapPage,
@@ -163,13 +175,13 @@ const routes = [
         children: [
           {
             path: '',
-            name: 'PoliticalMap',
+            name: 'Political Map',
             component: PoliticalMap,
             meta: { smallNav: true },
           },
           {
             path: "material",
-            name: "MaterialMap",
+            name: "Material Map",
             component: MaterialMap,
             meta: { smallNav: true },
           },

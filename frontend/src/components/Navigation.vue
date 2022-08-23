@@ -66,7 +66,7 @@ export default {
       minimized: false,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: 'Karte', target: { name: 'MapPage' }, auth: true },
+        { name: 'Karte', target: { name: 'Map Landing' }, auth: true },
         { name: 'Typekatalog', target: { name: 'Catalog' }, auth: true },
         { name: 'Analytics', target: { name: 'Analytics' }, auth: true },
       ],

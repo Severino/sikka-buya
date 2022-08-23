@@ -240,8 +240,6 @@ export default {
         str = this.addQuestionMarkToString(str);
       }
 
-      console.log(this.type?.mint?.id);
-
       return str.trim();
     },
     printYearProperty() {
@@ -347,7 +345,6 @@ export default {
       return Person.getOtherPersonsByRoleName(this.type, 'heir')[0];
     },
     hasOtherPersons() {
-      console.log(this.type);
       return this.type.otherPersons.length > 0;
     },
     coinSideProperties() {
@@ -366,8 +363,6 @@ export default {
     },
     hasCoinSideContents() {
       let hasCoinSide = false;
-
-      console.log(hasCoinSide);
       return hasCoinSide;
     },
     missingText() {

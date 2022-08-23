@@ -1,6 +1,6 @@
 const DefaultSettings = {
     Map: {
-        location: [29.70507136092254, 51.17151184658878],
+        location: [30.521645759075508, 48.890055500146026],
         zoom: 6
     },
     Timeline: {
@@ -65,7 +65,7 @@ export default class Settings {
     }
 
     static getStoragePath(key) {
-        return "sikka-buya-settings" + key
+        return "sikka-buya-settings-" + key.toLowerCase()
     }
 
     constructor(window, key) {

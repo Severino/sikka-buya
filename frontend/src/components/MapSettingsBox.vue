@@ -2,8 +2,8 @@
   <div class="settings">
     <SettingsIcon class="settings-icon" @click="toggleSettings" />
     <div class="settings-window" v-if="open">
-      <header class="gray-heading">
-        <h3>Einstellungen</h3>
+      <header class="underlined-header">
+        <h3 class="gray-heading">Einstellungen</h3>
       </header>
       <div class="settings-body">
         <slot />
@@ -81,5 +81,11 @@ export default {
   label {
     font-size: $small-font;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+header {
+  padding: $padding $padding;
 }
 </style>

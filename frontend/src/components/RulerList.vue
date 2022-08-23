@@ -12,11 +12,13 @@
           @checkboxSelected="checkboxSelected(item)"
           @click.native="selectionChanged([item.id])"
           :style="{ color: item.color, borderColor: item.color }"
-          >{{ getRulerName(item) }}
-
-          <span v-if="getDynasty(item)" class="dynasty">{{
-            getDynasty(item)
-          }}</span>
+        >
+          <span
+            >{{ getRulerName(item) }}
+            <span v-if="getDynasty(item)" class="dynasty">{{
+              getDynasty(item)
+            }}</span></span
+          >
         </MultiSelectListItem>
       </ul>
       <ul>

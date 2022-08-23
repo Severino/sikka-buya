@@ -239,6 +239,7 @@ export default {
   methods: {
     resetSettings() {
       this.overlay.settings.reset();
+      this.$emit('reset');
     },
     selectionChanged(mints) {
       this.mintSelectionChanged(mints);

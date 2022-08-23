@@ -211,8 +211,6 @@ export default {
       ];
 
       sorted = sorted.sort(Sorter.stringPropAlphabetically('name'));
-
-      // console.log(sorted.map((mint) => mint.available).join(' '));
       return sorted;
     },
     filteredUnlocatedTypes() {
@@ -348,7 +346,7 @@ export default {
           this.timelineChart.drawGraphOnTimeline(
             data,
             {
-              strokeStyle: ruler.color,
+              strokeStyle: ruler.color + 'aa',
               lineWidth: 2,
               fillStyle: 'transparent',
             },
@@ -434,6 +432,7 @@ export default {
     rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
       localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
+      this.updateAvailableRulers();
 
       if (!preventUpdate) {
         this.repaint();

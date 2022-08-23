@@ -417,7 +417,21 @@ async function start({
                                             T.MINT,
                                             T.EXCLUDE_FROM_MAP_APP
                                         FROM OVERLORD
-                                        LEFT JOIN TYPE T ON OVERLORD.TYPE = T.ID)
+                                        LEFT JOIN TYPE T ON OVERLORD.TYPE = T.ID
+                                        UNION
+                                        SELECT OTHER_PERSON.TYPE,
+                                            OTHER_PERSON.PERSON,
+                                            T.YEAR_OF_MINT,
+                                            T.MINT,
+                                            T.EXCLUDE_FROM_MAP_APP
+                                        FROM OTHER_PERSON
+                                        LEFT JOIN TYPE T ON OTHER_PERSON.TYPE = T.ID
+                                        LEFT JOIN PERSON ON OTHER_PERSON.PERSON = PERSON.ID
+                                        LEFT JOIN PERSON_ROLE ON PERSON.ROLE = PERSON_ROLE.ID
+                                        WHERE PERSON_ROLE.NAME='heir'
+                                        UNION
+                                        SELECT id as Type, caliph as person, year_of_mint, mint, exclude_from_map_app
+                                        FROM type)
                                 SELECT DISTINCT year_of_mint, person, mint FROM rulers
                                 WHERE year_of_mint~ '^[0-9]+$' 
                                 AND NOT exclude_from_map_app
