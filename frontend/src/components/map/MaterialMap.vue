@@ -1,20 +1,19 @@
 <template>
   <div class="material-map ui">
     <Sidebar title="Prägeorte">
-      <!-- <Button class="clear-filter-btn" @click="clearMintSelection"
-        >Auswahl aufheben</Button
-      > -->
       <mint-list
         :items="mintsList"
         :selectedIds="selectedMints"
-        @selectionChanged="selectionChanged"
+        @selectionChanged="
+          (val) => mintSelectionChanged(val, { preventUpdate: true })
+        "
       />
     </Sidebar>
 
     <div class="center-ui center-ui-top">
       <div class="toolbar top-right-toobar">
         <Button
-          v-if="catalogFilterActive"
+          v-if="filtersActive"
           class="clear-filter-btn"
           @click="resetFilters()"
           >Filter aufheben</Button
@@ -167,6 +166,9 @@ export default {
     localstore('material-map-settings', ['settings']),
     mintLocationsMixin({
       showMarkers: false,
+      onMintSelectionChanged(selection) {
+        this.overwriteFilters.mint = selection;
+      },
     }),
   ],
   computed: {
@@ -184,6 +186,9 @@ export default {
           .map((mint) => addAvailability(mint, false))
           .sort(Sorter.stringPropAlphabetically('name')),
       ];
+    },
+    filtersActive() {
+      return this.selectedMints.length > 0 || this.catalogFilterActive;
     },
   },
   created() {
@@ -240,10 +245,6 @@ export default {
     resetSettings() {
       this.overlay.settings.reset();
       this.$emit('reset');
-    },
-    selectionChanged(mints) {
-      this.mintSelectionChanged(mints);
-      this.overwriteFilters.mint = mints;
     },
     dataUpdated(data) {
       const catalogFilters = Object.entries(
@@ -303,11 +304,16 @@ export default {
       };
     },
     resetFilters: function () {
+      // this.$refs.catalogFilter.stopWatching();
       this.$refs.catalogFilter.resetFilters();
       this.clearMintSelection({ preventUpdate: true });
-      this.update();
+      this.overwriteFilters.mint = this.selectedMints;
+      // this.$refs.catalogFilter.resumeWatching();
+
+      // this.update();
     },
     update() {
+      console.log('UPDATE');
       this.updateMints();
       this.$emit('timeline-updated', this.value);
     },

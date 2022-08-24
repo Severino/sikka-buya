@@ -21,7 +21,7 @@
       />
     </div>
 
-    <span v-if="selected == null" class="hint">Wählen Sie einen Typen!</span>
+    <span v-if="selected == null" class="hint">Wählen Sie einen Typ!</span>
   </div>
 </template>
 

@@ -219,18 +219,22 @@ export default {
       filters: {
         ...filterData,
       },
+      watching: true,
     };
   },
   watch: {
     filters: {
       handler() {
-        this.search();
+        console.log('FILTER');
+
+        this.watch();
       },
       deep: true,
     },
     overwriteFilters: {
       handler() {
-        this.search();
+        console.log('OVERWRITE');
+        this.watch();
       },
       deep: true,
     },
@@ -246,6 +250,7 @@ export default {
   methods: {
     ...filterMethods,
     async search() {
+      console.trace('SEARCH');
       const filters = Object.assign(
         {},
         this.activeFilters,
@@ -272,6 +277,9 @@ export default {
         },
         { filters, multiSelectFilters }
       );
+    },
+    watch() {
+      if (this.watching) this.search();
     },
     resetFilters() {
       [
@@ -302,6 +310,20 @@ export default {
     },
     searchVariableName(value) {
       return Filter.searchVariableName(value);
+    },
+    stopWatching() {
+      if (this.watching === false)
+        console.warn("You try to stop, but it's already stopped");
+
+      console.log('STOP');
+      this.watching = false;
+    },
+    resumeWatching() {
+      if (this.watching === true)
+        console.warn('You try to resume, but its not stopped');
+      console.log('RESUME');
+
+      this.watching = true;
     },
   },
   computed: {
