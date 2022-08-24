@@ -9,9 +9,9 @@
               <h2>{{ $t('routes.Political Map') }}</h2>
             </template>
             <p>
-              Nulla amet sint nisi excepteur minim voluptate commodo do nulla ea
+              <!-- Nulla amet sint nisi excepteur minim voluptate commodo do nulla ea
               duis fugiat. Pariatur esse esse enim aliqua incididunt do ut. Quis
-              dolor Lorem do duis sunt sunt adipisicing cillum laborum ad.
+              dolor Lorem do duis sunt sunt adipisicing cillum laborum ad. -->
             </p>
           </card>
         </router-link>
@@ -23,9 +23,9 @@
             </template>
 
             <p>
-              Nulla amet sint nisi excepteur minim voluptate commodo do nulla ea
+              <!-- Nulla amet sint nisi excepteur minim voluptate commodo do nulla ea
               duis fugiat. Pariatur esse esse enim aliqua incididunt do ut. Quis
-              dolor Lorem do duis sunt sunt adipisicing cillum laborum ad.
+              dolor Lorem do duis sunt sunt adipisicing cillum laborum ad. -->
             </p>
           </card>
         </router-link>
@@ -49,7 +49,7 @@ export default {
   }
 
   .card {
-    color: $black;
+    color: $white;
   }
 }
 </style>
@@ -62,7 +62,6 @@ export default {
 }
 
 .card {
-  // background-color: $white;
   border: $border;
   padding: $big-box-padding;
 }

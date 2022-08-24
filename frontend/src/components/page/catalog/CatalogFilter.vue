@@ -296,8 +296,6 @@ export default {
         this.overwriteFilters
       );
 
-      const multiSelectFilters = this.multiSelectFilters;
-
       searchRequestGuard.exec(
         async ({ filters, multiSelectFilters } = {}) => {
           multiSelectFilters.forEach((item) => {
@@ -313,7 +311,7 @@ export default {
 
           this.$emit('update', { types, pageInfo });
         },
-        { filters, multiSelectFilters }
+        { filters, multiSelectFilters: unfilteredMultiSelectFilters }
       );
     },
     watch() {

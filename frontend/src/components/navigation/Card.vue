@@ -26,6 +26,8 @@ export default {
   display: flex;
   flex-direction: column;
   min-height: 360px;
+  color: $white;
+  background-color: $primary-color;
 }
 
 .body {

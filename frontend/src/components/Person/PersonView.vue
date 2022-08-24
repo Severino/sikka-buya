@@ -59,15 +59,18 @@ export default {
 </script>
 
 <style lang="scss">
-.caliph-group .catalog-property {
-  background-color: transparent;
-}
-
 .person-view {
+  .caliph-group .catalog-property {
+    background-color: transparent;
+  }
   .issuer-grid ul {
     display: grid;
     gap: $padding * 3;
     grid-template-columns: 1fr 1fr;
+  }
+
+  ul {
+    margin: 0;
   }
 }
 </style>

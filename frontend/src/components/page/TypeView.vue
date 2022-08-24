@@ -467,6 +467,8 @@ header {
   a {
     display: inline-flex;
     align-items: center;
+    font-weight: normal;
+    line-height: 1.3rem;
     color: $black;
     text-decoration: underline;
   }
