@@ -475,7 +475,6 @@ class Type {
          */
 
         const queryBuilder = this.complexFilters(filters)
-
         const conditions = this.objectToConditions(filters)
         const joinClause = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
         const whereClause = this.buildWhereFilter([...conditions, ...queryBuilder.where])
@@ -556,10 +555,12 @@ class Type {
         }
 
         ;["projectId", "treadwellId"].forEach(val => {
+
+            const sqlValue = { projectId: "project_id", treadwellId: "treadwell_id" }
             if (Object.hasOwnProperty.bind(filter)(val)) {
                 filter[val] = filter[val].trim()
                 if (filter[val] != "") {
-                    queryBuilder.addWhere(pgp.as.format(`unaccent(t.${val}) ILIKE unaccent('%$1#%')`, [filter[val]]))
+                    queryBuilder.addWhere(pgp.as.format(`unaccent(t.${sqlValue[val]}) ILIKE unaccent('%$1#%')`, [filter[val]]))
                 }
                 delete filter[val]
             }

@@ -255,6 +255,8 @@ async function start({
                 modGetTypes: async function (_, args, context) {
                     Auth.requireAuthContext(context)
 
+
+
                     args.additionalRows = [`CASE WHEN tc.type is null
                     then False
                     else True 
@@ -264,7 +266,6 @@ async function start({
                     END AS reviewed`]
                     args.additionalJoin = `LEFT JOIN type_completed tc ON t.id = tc.type
             LEFT JOIN type_reviewed tr ON t.id = tr.type`
-
 
 
                     const modTypes = await Type.getTypes(...arguments)

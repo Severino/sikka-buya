@@ -346,7 +346,7 @@ export default {
           count:${this.pageInfo.count}, page:${this.pageInfo.page}
           },
           filters: {
-            text: "${this.filter.text}"
+            projectId: "${this.filter.text}"
             ${this.editorFilter}
             ${this.getObjectFilters()}
             ${this.getToggleFiltersFields()}

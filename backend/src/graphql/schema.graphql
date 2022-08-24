@@ -454,7 +454,7 @@ input EvalFilter {
 }
 
 input ModTypeFilter {
-  text: String
+  projectId: String
   donativ: Boolean
   cursiveScript: Boolean
   excludeFromTypeCatalogue: Boolean
@@ -463,7 +463,7 @@ input ModTypeFilter {
   mintUncertain: Boolean
   mint: ID
   caliph: ID
-  nominal: ID
+  nominal: ID 
   material: ID
   coinMark: ID
   reviewed: Boolean
