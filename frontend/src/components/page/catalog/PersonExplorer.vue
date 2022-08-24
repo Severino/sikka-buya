@@ -204,7 +204,7 @@ export default {
     background-color: $white;
 
     &.open {
-      header {
+      > header {
         font-weight: bold;
 
         &::before {

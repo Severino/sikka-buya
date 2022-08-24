@@ -112,7 +112,7 @@ const property = {
         pressed:
             "geprägt",
     },
-    province: "Provinz | Provinzen",
+    province: "Region | Regionen",
     reviewed: "Erledigt",
     role:
         "Rolle | Rollen",

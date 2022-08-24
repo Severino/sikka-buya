@@ -2,7 +2,16 @@
   <div class="catalog-filters">
     <template v-for="input of filteredInput">
       <labeled-input-container
-        v-if="input.type === 'number'"
+        v-if="input.type === 'text'"
+        :key="input.value"
+        :label="input.label"
+        class="three-way-wrapper"
+      >
+        <input type="text" v-model="filters[input.value]" />
+      </labeled-input-container>
+
+      <labeled-input-container
+        v-else-if="input.type === 'number'"
         :key="input.value"
         :label="input.label"
         class="three-way-wrapper"
@@ -84,6 +93,20 @@ const searchRequestGuard = new RequestGuard();
 function addType(arr, typeName) {
   arr.forEach((obj) => (obj.type = typeName));
 }
+
+const textFilters = [
+  {
+    label: 'Typen-ID',
+    value: 'projectId',
+    order: -2,
+  },
+  {
+    label: 'Treadwell-ID',
+    value: 'treadwellId',
+    order: -1,
+  },
+];
+addType(textFilters, 'text');
 
 const unfilteredNumberFilters = [
   {
@@ -201,6 +224,7 @@ let filterData = {};
 let filterMethods = {};
 
 [
+  ...textFilters,
   ...unfilteredThreeWayFilters,
   ...unfilteredButtonGroupFilters,
   ...unfilteredNumberFilters,
@@ -222,11 +246,14 @@ const inputs = [
   ...unfilteredButtonGroupFilters,
   ...unfilteredMultiSelectFilters,
   ...unfilteredThreeWayFilters,
+  ...textFilters,
 ].sort((a, b) => {
-  if (!a.order) return -1;
-  else if (!b.order) return 1;
+  if (!a.order) return 1;
+  else if (!b.order) return -1;
   else return a.order - b.order;
 });
+
+console.log(inputs);
 
 export default {
   components: {

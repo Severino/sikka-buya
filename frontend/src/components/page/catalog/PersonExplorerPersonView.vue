@@ -101,6 +101,7 @@ export default {
   },
   methods: {
     selectType(id) {
+      console.log(this.types[id].otherPersons);
       this.activeType = this.activeType === id ? null : id;
     },
     isTypeActive(id) {
@@ -162,7 +163,7 @@ export default {
               excludeFromTypeCatalogue: false,
             },
             typeBody: `id projectId treadwellId mint {name id} mintAsOnCoin material {name id} nominal {name id}
-yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id name shortName}
+yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id role {name id} name shortName}
 caliph {id name shortName}
 avers {fieldText innerInscript intermediateInscript outerInscript misc}
 reverse {fieldText innerInscript intermediateInscript outerInscript misc} 
@@ -172,6 +173,7 @@ literature pieces  specials yearUncertain mintUncertain
           });
 
           const types = result.types;
+
           let typeTree = {};
           types.forEach((type) => {
             this.types[type.id] = type;

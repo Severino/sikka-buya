@@ -379,11 +379,15 @@ export default {
 }
 </style>
 
-<style lang="scss" scoped>
-ul {
-  margin: 0;
+<style lang="scss">
+.type-view {
+  ul {
+    margin: 0;
+  }
 }
+</style>
 
+<style lang="scss" scoped>
 $columns: 4;
 .type-view {
   margin-top: 2 * $padding;

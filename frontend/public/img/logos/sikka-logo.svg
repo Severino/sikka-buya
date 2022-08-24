@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 274 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1,0,0,1,-263,-263)">
+        <g transform="matrix(1.18181,0,0,1.88046,-291.827,115.797)">
+            <g transform="matrix(3.40518,0,0,2.14006,-107.689,-8.73675)">
+                <text x="188.396px" y="50.847px" style="font-family:'Carlito-Bold', 'Carlito', sans-serif;font-weight:700;font-size:11.209px;fill:rgb(47,47,47);">s</text>
+                <text x="193.092px" y="50.847px" style="font-family:'Carlito-Bold', 'Carlito', sans-serif;font-weight:700;font-size:11.209px;fill:rgb(47,47,47);">i</text>
+                <text x="196.069px" y="50.847px" style="font-family:'Carlito-Bold', 'Carlito', sans-serif;font-weight:700;font-size:11.209px;fill:rgb(47,47,47);">k<tspan x="201.562px " y="50.847px ">k</tspan></text>
+                <text x="206.917px" y="50.847px" style="font-family:'Carlito-Bold', 'Carlito', sans-serif;font-weight:700;font-size:11.209px;fill:rgb(47,47,47);">a</text>
+            </g>
+            <g transform="matrix(3.40518,0,0,2.14006,-26.5421,-8.73675)">
+                <text x="188.396px" y="50.847px" style="font-family:'Carlito-Bold', 'Carlito', sans-serif;font-weight:700;font-size:11.209px;fill:rgb(72,172,72);">:</text>
+            </g>
+            <g transform="matrix(3.40518,0,0,2.14006,-15.621,-8.73675)">
+                <text x="188.396px" y="50.847px" style="font-family:'Carlito-Bold', 'Carlito', sans-serif;font-weight:700;font-size:11.209px;fill:rgb(47,47,47);">būy<tspan x="205.566px " y="50.847px ">a</tspan></text>
+            </g>
+            <g transform="matrix(0.848319,0,0,0.533143,-1905.93,-306.361)">
+                <path d="M2828.34,721.979C2843.87,721.979 2856.47,734.58 2856.47,750.1C2856.47,765.621 2843.87,778.222 2828.34,778.222C2812.82,778.222 2800.22,765.621 2800.22,750.1C2800.22,734.58 2812.82,721.979 2828.34,721.979ZM2828.34,727.603C2840.76,727.603 2850.84,737.684 2850.84,750.1C2850.84,762.517 2840.76,772.597 2828.34,772.597C2815.93,772.597 2805.85,762.517 2805.85,750.1C2805.85,737.684 2815.93,727.603 2828.34,727.603Z" style="fill:rgb(50,120,50);"/>
+            </g>
+            <g transform="matrix(0.507764,0,0,0.319114,-942.722,-145.818)">
+                <path d="M2828.34,721.979C2843.87,721.979 2856.47,734.58 2856.47,750.1C2856.47,765.621 2843.87,778.222 2828.34,778.222C2812.82,778.222 2800.22,765.621 2800.22,750.1C2800.22,734.58 2812.82,721.979 2828.34,721.979ZM2828.34,731.394C2838.67,731.394 2847.05,739.776 2847.05,750.1C2847.05,760.424 2838.67,768.806 2828.34,768.806C2818.02,768.806 2809.64,760.424 2809.64,750.1C2809.64,739.776 2818.02,731.394 2828.34,731.394Z" style="fill:rgb(72,172,72);"/>
+            </g>
+            <g transform="matrix(0.167209,0,0,0.105086,20.485,14.7249)">
+                <circle cx="2828.34" cy="750.1" r="28.121" style="fill:rgb(47,47,47);"/>
+            </g>
+        </g>
+    </g>
+</svg>

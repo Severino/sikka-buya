@@ -60,6 +60,7 @@ type ModCoinTypePagination {
 
 type CoinType {
   id: ID
+  plain_text: String
   projectId: String
   treadwellId: String
   mint: Mint
@@ -470,7 +471,9 @@ input ModTypeFilter {
 }
 
 input TypeFilter {
-  text: String
+  plain_text: String
+  projectId: String
+  treadwellId: String
   donativ: Boolean
   procedure: String
   cursiveScript: Boolean

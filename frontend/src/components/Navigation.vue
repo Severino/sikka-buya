@@ -8,8 +8,7 @@
             src="@/assets/images/sikka-buya-no-logo.png"
             alt=""
           />
-          <!-- <img v-else src="@/assets/images/sikka-buya-logo-v2.svg" alt="" /> -->
-          <img v-else src="@/assets/images/sikka-buya.png" alt="" />
+          <img v-else src="/img/logos/sikka-logo.svg" alt="" />
         </router-link>
       </div>
       <div class="nav-menu" :class="{ active: active }">

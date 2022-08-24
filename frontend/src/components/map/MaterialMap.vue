@@ -62,7 +62,14 @@
           ref="catalogFilter"
           @update="dataUpdated"
           :pageInfo="pageInfo"
-          :exclude="['mint', 'yearOfMint', 'ruler', 'caliph']"
+          :exclude="[
+            'mint',
+            'yearOfMint',
+            'ruler',
+            'caliph',
+            'treadwellId',
+            'projectId',
+          ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
               id

@@ -14,6 +14,8 @@ const { JSDOM } = require("jsdom");
 const DictDE = require('../dictionaries/dict_de')
 const QueryBuilder = require('./querybuilder')
 
+
+let i = 0;
 class Type {
 
 
@@ -198,25 +200,12 @@ class Type {
         let errors = {}
         htmlFields = htmlFields.map(key => {
             let text = type[key]
-            // if (type[key]) {
-            //     const html = type[key]
-            //     try {
-            //         const { document } = (new JSDOM(html)).window;
-            //         text = document.body.textContent
-            //     } catch (e) {
-            //         errors[key] = `Element with ${key} could not be parsed to html: ${e} `
-            //     }
-
-            // } else errors[key] = `Key '${key}' is missing on the element.`
-
             return { key, text }
         })
 
-        const fields = [...textFields, ...nameFields, ...htmlFields].filter(obj => {
-
+        let fields = [...textFields, ...nameFields, ...htmlFields].filter(obj => {
             if (!obj || !obj.text || obj.text.trim() === "")
                 return false
-
 
             try {
                 const { document } = (new JSDOM(obj.text)).window;
@@ -226,14 +215,19 @@ class Type {
             }
 
             return true
-
         })
 
+        fields = fields.map(obj => {
+            try {
+                const { document } = (new JSDOM(obj.text)).window;
+                return document.body.textContent.trim()
+            } catch (e) {
+                errors[key] = `Element with ${key} could not be parsed to html: ${e} `
+            }
+            return ""
+        })
 
-        let text = fields.filter(({ text }) => (text != null && text != "")).map(({ key, text }) => {
-            return `<h3>${DictDE.get(key)}</h3>${text}`
-        }).join("\n")
-
+        let text = fields.filter((text) => (text != null && text != "")).join("\n")
         return { text: type.projectId + "\n" + text, errors }
     }
 
@@ -561,13 +555,24 @@ class Type {
             delete filter.reviewed
         }
 
-        if (Object.hasOwnProperty.bind(filter)("text")) {
-            filter.text = filter.text.trim()
-            if (filter.text != "") {
-                queryBuilder.addWhere(pgp.as.format("unaccent(t.project_id) ILIKE unaccent('%$1#%')", [filter.text]))
+        ;["projectId", "treadwellId"].forEach(val => {
+            if (Object.hasOwnProperty.bind(filter)(val)) {
+                filter[val] = filter[val].trim()
+                if (filter[val] != "") {
+                    queryBuilder.addWhere(pgp.as.format(`unaccent(t.${val}) ILIKE unaccent('%$1#%')`, [filter[val]]))
+                }
+                delete filter[val]
             }
-            delete filter.text
+        })
+        if (Object.hasOwnProperty.bind(filter)("plain_text")) {
+            filter["plain_text"] = filter["plain_text"].trim()
+            const searchValue = filter["plain_text"].replace(/\s+/g, "%")
+            if (searchValue != "") {
+                queryBuilder.addWhere(pgp.as.format(`unaccent(t.${"plain_text"}) ILIKE unaccent('%$1#%')`, [searchValue]))
+            }
+            delete filter["plain_text"]
         }
+
 
         if (Object.hasOwnProperty.bind(filter)("title")) {
             if (Array.isArray(filter.title) && filter.title.length > 0) {
@@ -776,6 +781,7 @@ COUNT(*) as total
                 ${Material.query()}
     ${Material.colorQuery()},
         ${Mint.query()}
+        plain_text,
             province.id AS mint_province_id,
                 province.name AS mint_province_name,
                     ${Nominal.query()}
