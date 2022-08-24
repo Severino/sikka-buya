@@ -1,59 +1,69 @@
 <template>
   <div class="catalog-filters">
-    <labeled-input-container
-      v-for="num of numberFilters"
-      :key="num.value"
-      :label="num.label"
-      class="three-way-wrapper"
-    >
-      <input type="number" v-model="filters[num.value]" />
-    </labeled-input-container>
+    <template v-for="input of filteredInput">
+      <labeled-input-container
+        v-if="input.type === 'number'"
+        :key="input.value"
+        :label="input.label"
+        class="three-way-wrapper"
+      >
+        <input type="number" v-model="filters[input.value]" />
+      </labeled-input-container>
 
-    <labeled-input-container
-      v-for="bg of buttonGroupFilters"
-      :key="bg.value"
-      :label="bg.label"
-      class="three-way-wrapper"
-    >
-      <button-group
-        :id="bg.value"
-        :labels="bg.labels"
-        :options="bg.options"
-        :unselectable="true"
-        v-model="filters[bg.value]"
+      <labeled-input-container
+        v-else-if="input.type === 'button-group'"
+        :key="input.value"
+        :label="input.label"
+        class="three-way-wrapper"
+      >
+        <button-group
+          :id="input.value"
+          :labels="input.labels"
+          :options="input.options"
+          :unselectable="true"
+          v-model="filters[input.value]"
+        />
+      </labeled-input-container>
+
+      <labeled-input-container
+        v-else-if="input.type === 'three-way'"
+        :key="input.value"
+        :label="input.label"
+        class="three-way-wrapper"
+      >
+        <three-way-toggle
+          v-model="filters[input.value]"
+          :invert="input.invert"
+        />
+      </labeled-input-container>
+
+      <labeled-input-container
+        v-else-if="input.type === 'multi-select'"
+        :label="input.label"
+        :key="input.value"
+        class="multi-select-wrapper"
+      >
+        <multi-data-select
+          :table="input.value"
+          v-model="filters[searchVariableName(input.value)]"
+          :active="filters[input.value]"
+          :attribute="input.attribute"
+          :queryParams="input.queryParams"
+          :queryCommand="input.queryCommand"
+          :additionalParameters="input.additionalParameters"
+          :text="input.text"
+          :displayTextCallback="input.displayTextCallback"
+          :disableRemoveButton="true"
+          @select="(el) => selectFilter(input.value, el)"
+          @remove="(el) => removeFilter(input.value, el)"
+        />
+      </labeled-input-container>
+      <error-box
+        v-else
+        :key="input.value"
+        :message="`Unbekannter Eingabetyp '${input.type}': EingabeFeld kann nicht angezeigt werden!`"
       />
-    </labeled-input-container>
-
-    <labeled-input-container
-      v-for="tw of threeWayFilters"
-      :key="tw.value"
-      :label="tw.label"
-      class="three-way-wrapper"
-    >
-      <three-way-toggle v-model="filters[tw.value]" :invert="tw.invert" />
-    </labeled-input-container>
-
-    <labeled-input-container
-      v-for="ms of multiSelectFilters"
-      :label="ms.label"
-      :key="ms.value"
-      class="multi-select-wrapper"
-    >
-      <multi-data-select
-        :table="ms.value"
-        v-model="filters[searchVariableName(ms.value)]"
-        :active="filters[ms.value]"
-        :attribute="ms.attribute"
-        :queryParams="ms.queryParams"
-        :queryCommand="ms.queryCommand"
-        :additionalParameters="ms.additionalParameters"
-        :text="ms.text"
-        :displayTextCallback="ms.displayTextCallback"
-        :disableRemoveButton="true"
-        @select="(el) => selectFilter(ms.value, el)"
-        @remove="(el) => removeFilter(ms.value, el)"
-      />
-    </labeled-input-container>
+    </template>
   </div>
 </template>
 
@@ -67,8 +77,13 @@ import ButtonGroup from '../../forms/ButtonGroup.vue';
 import { RequestGuard } from '../../../utils/Async';
 import Type from '../../../utils/Type';
 import PageInfo, { Pagination } from '../../../models/pageinfo';
+import ErrorBox from '../system/ErrorBox.vue';
 
 const searchRequestGuard = new RequestGuard();
+
+function addType(arr, typeName) {
+  arr.forEach((obj) => (obj.type = typeName));
+}
 
 const unfilteredNumberFilters = [
   {
@@ -76,6 +91,7 @@ const unfilteredNumberFilters = [
     value: 'yearOfMint',
   },
 ];
+addType(unfilteredNumberFilters, 'number');
 
 const unfilteredButtonGroupFilters = [
   {
@@ -83,34 +99,42 @@ const unfilteredButtonGroupFilters = [
     value: 'procedure',
     options: ['pressed', 'cast'],
     labels: ['geprägt', 'gegossen'],
+    order: 3,
   },
 ];
+addType(unfilteredButtonGroupFilters, 'button-group');
 
 const unfilteredThreeWayFilters = [
   {
-    label: 'Kursive Schrift',
+    label: 'kursive Schrift',
     value: 'cursiveScript',
+    order: 8,
   },
   {
     label: 'Geschenkmünze',
     value: 'donativ',
+    order: 4,
   },
   {
     label: 'Jahr sicher',
     value: 'yearUncertain',
     invert: true,
+    order: 10,
   },
   {
-    label: 'Prägeort sicher',
+    label: 'Ort sicher',
     value: 'mintUncertain',
     invert: true,
+    order: 9,
   },
 ];
+addType(unfilteredThreeWayFilters, 'three-way');
 
 let unfilteredMultiSelectFilters = [
   {
     label: 'Material',
     value: 'material',
+    order: 0,
   },
   {
     label: 'Prägeort',
@@ -119,10 +143,12 @@ let unfilteredMultiSelectFilters = [
   {
     label: 'Nominal',
     value: 'nominal',
+    order: 3,
   },
   {
-    label: 'Münzzeichen',
+    label: 'Münzzeichen/Einzelworte',
     value: 'coinMark',
+    order: 5,
   },
   {
     label: 'Kalif',
@@ -131,7 +157,7 @@ let unfilteredMultiSelectFilters = [
     queryParams: ['id', 'shortName'],
   },
   {
-    label: 'Sonstige Personen',
+    label: 'sonstige Personen',
     value: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
     queryParams: ['id', 'name', { role: ['id', 'name'] }],
@@ -141,14 +167,17 @@ let unfilteredMultiSelectFilters = [
     displayTextCallback: function (search) {
       return `${search.name} (${this.$tc(`role.${search.role.name}`)})`;
     },
+    order: 6,
   },
   {
-    label: 'Title',
+    label: 'Herrschertitel',
     value: 'title',
+    order: 7,
   },
   {
-    label: 'Ehrenname',
+    label: 'Ehrennamen',
     value: 'honorific',
+    order: 8,
   },
   {
     label: 'Herrscher',
@@ -162,6 +191,7 @@ let unfilteredMultiSelectFilters = [
     },
   },
 ];
+addType(unfilteredMultiSelectFilters, 'multi-select');
 
 unfilteredMultiSelectFilters = unfilteredMultiSelectFilters.sort(
   Sorter.stringPropAlphabetically('label')
@@ -187,12 +217,24 @@ unfilteredMultiSelectFilters.forEach((item) => {
   item.filter = filter;
 });
 
+const inputs = [
+  ...unfilteredNumberFilters,
+  ...unfilteredButtonGroupFilters,
+  ...unfilteredMultiSelectFilters,
+  ...unfilteredThreeWayFilters,
+].sort((a, b) => {
+  if (!a.order) return -1;
+  else if (!b.order) return 1;
+  else return a.order - b.order;
+});
+
 export default {
   components: {
     MultiDataSelect,
     LabeledInputContainer,
     ThreeWayToggle,
     ButtonGroup,
+    ErrorBox,
   },
   props: {
     pageInfo: Object,
@@ -211,10 +253,7 @@ export default {
     return {
       i: 0,
       max: 10,
-      unfilteredNumberFilters,
-      unfilteredButtonGroupFilters,
-      unfilteredMultiSelectFilters,
-      unfilteredThreeWayFilters,
+      inputs,
       types: [],
       filters: {
         ...filterData,
@@ -250,7 +289,6 @@ export default {
   methods: {
     ...filterMethods,
     async search() {
-      console.trace('SEARCH');
       const filters = Object.assign(
         {},
         this.activeFilters,
@@ -305,9 +343,6 @@ export default {
       const methodName = Filter.removeMethodName(name);
       return this[methodName](target);
     },
-    excludeItem(group) {
-      return group.filter((item) => this.exclude.indexOf(item.value) === -1);
-    },
     searchVariableName(value) {
       return Filter.searchVariableName(value);
     },
@@ -352,17 +387,10 @@ export default {
           return obj;
         }, {});
     },
-    numberFilters() {
-      return this.excludeItem(this.unfilteredNumberFilters);
-    },
-    buttonGroupFilters() {
-      return this.excludeItem(this.unfilteredButtonGroupFilters);
-    },
-    multiSelectFilters() {
-      return this.excludeItem(this.unfilteredMultiSelectFilters);
-    },
-    threeWayFilters() {
-      return this.excludeItem(this.unfilteredThreeWayFilters);
+    filteredInput() {
+      return this.inputs.filter(
+        (item) => this.exclude.indexOf(item.value) === -1
+      );
     },
   },
 };

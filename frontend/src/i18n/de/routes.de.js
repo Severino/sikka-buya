@@ -4,7 +4,7 @@ export default {
     "Map Overview": "Karte",
     "Map Landing": "Übersicht",
 
-    "Filter Map": "Filter Karte",
+    "Additional Maps": "Weitere Karten",
     "Political Map": "Politische Karte",
     "Catalog": "Typenkatalog",
     "Catalog Entry": "Eintrag",

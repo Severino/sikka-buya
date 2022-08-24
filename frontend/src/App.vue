@@ -182,7 +182,8 @@ h6 {
 
 .subtitle {
   display: block;
-  color: $gray;
+  color: $black;
+  border-color: $black !important;
   font-size: $regular-font;
   // font-weight: bold;
 }
@@ -528,5 +529,9 @@ a {
 .underlined-header {
   padding: $padding $big-padding;
   border-bottom: $border;
+}
+
+.black {
+  color: $black;
 }
 </style>

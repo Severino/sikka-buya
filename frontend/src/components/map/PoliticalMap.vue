@@ -36,7 +36,7 @@
     <div class="center-ui center-ui-center">
       <div class="unlocated-mints" v-if="filteredUnlocatedTypes.length > 0">
         <header class="underlined-header">
-          <h3 class="gray-heading">nicht auf Karte:</h3>
+          <h3 class="gray-heading"><i>nicht auf Karte:</i></h3>
         </header>
         <section
           v-for="obj of unlocatedTypesByMint"

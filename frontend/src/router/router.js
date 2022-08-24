@@ -180,8 +180,8 @@ const routes = [
             meta: { smallNav: true },
           },
           {
-            path: "filter",
-            name: "Filter Map",
+            path: "additional",
+            name: "Additional Maps",
             component: MaterialMap,
             meta: { smallNav: true },
           },

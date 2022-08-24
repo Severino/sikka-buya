@@ -206,6 +206,17 @@ export default {
     &.open {
       header {
         font-weight: bold;
+
+        &::before {
+          content: '';
+          display: block;
+          $size: 8px;
+          margin-right: $padding;
+          width: $size;
+          height: $size;
+          border-radius: $size/2;
+          background-color: $primary-color;
+        }
       }
     }
   }

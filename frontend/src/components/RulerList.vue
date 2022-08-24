@@ -87,7 +87,6 @@ export default {
 .dynasty {
   font-size: 0.7rem;
   color: $gray;
-  font-weight: bold;
 }
 
 .selected-but-unavailable {

@@ -10,7 +10,7 @@
         :key="route.routeName"
         >{{ route.displayName }}</router-link
       >
-      <!-- <router-link :class="{active: isRouteActive}" :to="{ name: 'MaterialMap' }">Filter Map</router-link> -->
+      <!-- <router-link :class="{active: isRouteActive}" :to="{ name: 'MaterialMap' }">Additional Maps</router-link> -->
 
       <!-- <router-link
         v-for="route of mapRoutes"
