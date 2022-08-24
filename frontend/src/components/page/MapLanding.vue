@@ -16,10 +16,10 @@
           </card>
         </router-link>
 
-        <router-link :to="{ name: 'Material Map' }">
+        <router-link :to="{ name: 'Filter Map' }">
           <card>
             <template v-slot:header>
-              <h2>{{ $t('routes.Material Map') }}</h2>
+              <h2>{{ $t('routes.Filter Map') }}</h2>
             </template>
 
             <p>
