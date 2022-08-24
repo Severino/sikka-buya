@@ -138,15 +138,10 @@ export default class PoliticalOverlay extends Overlay {
     let rulers = {}
 
     let mintMap = {}
-    let mints = data.mint.map(mint => {
+    let mints = data.mint.filter((mint) => {
+      return (mint?.province?.id)
+    }).map(mint => {
       mintMap[mint.id] = mint
-      if (!mint.province)
-        mint.province = { name: null, id: -1 }
-
-      if (!mint.province.name) {
-        mint.province.name = "Provinzlos"
-      }
-
       if (!mint.data) mint.data = {}
       mint.data.types = []
       return mint

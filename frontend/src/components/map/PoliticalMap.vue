@@ -210,7 +210,9 @@ export default {
         ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
       ];
 
-      sorted = sorted.sort(Sorter.stringPropAlphabetically('name'));
+      sorted = sorted
+        .filter((mint) => mint?.province?.id)
+        .sort(Sorter.stringPropAlphabetically('name'));
       return sorted;
     },
     filteredUnlocatedTypes() {
