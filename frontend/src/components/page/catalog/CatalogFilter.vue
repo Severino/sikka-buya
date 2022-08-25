@@ -5,6 +5,7 @@
         v-if="input.type === 'text'"
         :key="input.value"
         :label="input.label"
+        :class="[input.value]"
         class="three-way-wrapper"
       >
         <input type="text" v-model="filters[input.value]" />
@@ -14,6 +15,7 @@
         v-else-if="input.type === 'number'"
         :key="input.value"
         :label="input.label"
+        :class="[input.value]"
         class="three-way-wrapper"
       >
         <input type="number" v-model="filters[input.value]" />
@@ -23,6 +25,7 @@
         v-else-if="input.type === 'button-group'"
         :key="input.value"
         :label="input.label"
+        :class="[input.value]"
         class="three-way-wrapper"
       >
         <button-group
@@ -38,6 +41,7 @@
         v-else-if="input.type === 'three-way'"
         :key="input.value"
         :label="input.label"
+        :class="[input.value]"
         class="three-way-wrapper"
       >
         <three-way-toggle
@@ -49,6 +53,7 @@
       <labeled-input-container
         v-else-if="input.type === 'multi-select'"
         :label="input.label"
+        :class="[input.value]"
         :key="input.value"
         class="multi-select-wrapper"
       >
@@ -96,22 +101,23 @@ function addType(arr, typeName) {
 
 const textFilters = [
   {
-    label: 'Typen-ID',
+    label: 'sikka:būya-ID',
     value: 'projectId',
-    order: -2,
+    order: -10,
   },
   {
     label: 'Treadwell-ID',
     value: 'treadwellId',
-    order: -1,
+    order: -9,
   },
 ];
 addType(textFilters, 'text');
 
 const unfilteredNumberFilters = [
   {
-    label: 'Herstellungsjahr',
+    label: 'Prägejahr',
     value: 'yearOfMint',
+    order: -3,
   },
 ];
 addType(unfilteredNumberFilters, 'number');
@@ -162,6 +168,7 @@ let unfilteredMultiSelectFilters = [
   {
     label: 'Prägeort',
     value: 'mint',
+    order: -5,
   },
   {
     label: 'Nominal',
@@ -178,17 +185,20 @@ let unfilteredMultiSelectFilters = [
     value: 'caliph',
     attribute: 'shortName',
     queryParams: ['id', 'shortName'],
+    order: 5.8,
   },
   {
     label: 'sonstige Personen',
     value: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
-    queryParams: ['id', 'name', { role: ['id', 'name'] }],
+    queryParams: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
     additionalParameters: {
       exclude: ['caliph', 'heir'],
     },
     displayTextCallback: function (search) {
-      return `${search.name} (${this.$tc(`role.${search.role.name}`)})`;
+      return `${search.shortName || search.name} (${this.$tc(
+        `role.${search.role.name}`
+      )})`;
     },
     order: 6,
   },
@@ -206,12 +216,13 @@ let unfilteredMultiSelectFilters = [
     label: 'Herrscher',
     value: 'ruler',
     queryCommand: 'searchPersonsWithoutRole',
-    queryParams: ['id', 'name', { dynasty: ['id', 'name'] }],
+    queryParams: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
     displayTextCallback: function (search) {
-      let txt = search.name;
+      let txt = search.shortName || search.name;
       if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
       return txt;
     },
+    order: 5.5,
   },
 ];
 addType(unfilteredMultiSelectFilters, 'multi-select');

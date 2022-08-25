@@ -70,8 +70,12 @@ module.exports = {
           title: "Frontend",
           collapsable: false,
           path: '/docs/frontend/'
+        },
+        {
+          title: "Database",
+          collapsable: false,
+          path: '/docs/database/'
         }
-
       ]
 
   },

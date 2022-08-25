@@ -55,7 +55,7 @@ export default {
       text: '',
       error: null,
       types: [],
-      pageInfo: { count: 15, page: 0, total: 0, last: 0 },
+      pageInfo: { count: 50, page: 0, total: 0, last: 0 },
     };
   },
   methods: {
@@ -81,6 +81,14 @@ export default {
 .catalog-filter-search {
   .pagination {
     align-self: flex-start;
+  }
+
+  .yearOfMint,
+  .mint,
+  .cursiveScript,
+  .procedure,
+  .donativ {
+    grid-column: span 6;
   }
 }
 </style>

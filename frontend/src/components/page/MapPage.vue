@@ -179,23 +179,22 @@ export default {
 
   z-index: 100;
 
-  ul {
+  ul:not(.search-box) {
     margin: 0;
     padding: 0;
     list-style-type: none;
     overflow: hidden;
-  }
 
-  li {
-    margin: $padding;
-    border-radius: 10px;
-    cursor: pointer;
-    box-sizing: border-box;
-    // border: 1px solid transparent;
-    user-select: none;
+    li {
+      margin: $padding;
+      cursor: pointer;
+      box-sizing: border-box;
+      // border: 1px solid transparent;
+      user-select: none;
 
-    &.inactive {
-      opacity: 0.5;
+      &.inactive {
+        opacity: 0.5;
+      }
     }
   }
 

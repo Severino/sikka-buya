@@ -4,7 +4,7 @@
 class PageInfo {
     constructor(
         {
-            count = 20,
+            count = 50,
             page = 0,
             total = null,
         } = {}) {
