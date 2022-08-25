@@ -124,7 +124,6 @@ export function mintLocationsMixin({
             },
             mintSelectionChanged(selected, { preventUpdate = false } = {}) {
                 this.selectedMints = selected;
-                console.log(this.selectedMints)
                 window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
                 if (onMintSelectionChanged)
                     onMintSelectionChanged.call(this, this.selectedMints)

@@ -50,8 +50,9 @@ export default {
 <style lang="scss">
 .three-way-toggle {
   .material-design-icon {
-    width: 16px;
-    height: 16px;
+    $size: 14px;
+    width: $size;
+    height: $size;
   }
 }
 </style>

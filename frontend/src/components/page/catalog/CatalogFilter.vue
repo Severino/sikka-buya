@@ -248,8 +248,8 @@ const inputs = [
   ...unfilteredThreeWayFilters,
   ...textFilters,
 ].sort((a, b) => {
-  if (!a.order) return 1;
-  else if (!b.order) return -1;
+  if (a.order == null) return 1;
+  else if (b.order == null) return -1;
   else return a.order - b.order;
 });
 
@@ -291,15 +291,12 @@ export default {
   watch: {
     filters: {
       handler() {
-        console.log('FILTER');
-
         this.watch();
       },
       deep: true,
     },
     overwriteFilters: {
       handler() {
-        console.log('OVERWRITE');
         this.watch();
       },
       deep: true,
@@ -338,7 +335,7 @@ export default {
 
           this.$emit('update', { types, pageInfo });
         },
-        { filters, multiSelectFilters: unfilteredMultiSelectFilters }
+        { filters, multiSelectFilters: this.multiSelectFilters }
       );
     },
     watch() {
@@ -385,6 +382,9 @@ export default {
 
       this.watching = true;
     },
+    excludeItem(group) {
+      return group.filter((item) => this.exclude.indexOf(item.value) === -1);
+    },
   },
   computed: {
     activeFilters() {
@@ -416,6 +416,9 @@ export default {
       return this.inputs.filter(
         (item) => this.exclude.indexOf(item.value) === -1
       );
+    },
+    multiSelectFilters() {
+      return this.excludeItem(unfilteredMultiSelectFilters);
     },
   },
 };

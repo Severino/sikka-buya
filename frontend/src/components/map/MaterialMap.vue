@@ -353,11 +353,11 @@ export default {
       min-height: 20px;
     }
 
-    .button,
-    button,
-    input {
-      padding: $smaller-input-pad;
-    }
+    // .button,
+    // button,
+    // input {
+    //   padding: $smaller-input-pad;
+    // }
 
     > * {
       grid-column: span 6;
