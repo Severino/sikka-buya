@@ -567,9 +567,9 @@ class Type {
         })
         if (Object.hasOwnProperty.bind(filter)("plain_text")) {
             filter["plain_text"] = filter["plain_text"].trim()
-            const searchValue = filter["plain_text"].replace(/\s+/g, "%")
-            if (searchValue != "") {
-                queryBuilder.addWhere(pgp.as.format(`unaccent(t.${"plain_text"}) ILIKE unaccent('%$1#%')`, [searchValue]))
+            const searchValues = filter["plain_text"].split(/\s+/g)
+            if (searchValues.length > 0) {
+                queryBuilder.addWhere(pgp.as.format(`unaccent(t.${"plain_text"}) ILIKE unaccent($1)`, `%${searchValues.join("%")}%`))
             }
             delete filter["plain_text"]
         }
