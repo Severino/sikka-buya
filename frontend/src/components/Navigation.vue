@@ -3,12 +3,7 @@
     <div class="content-wrapper">
       <div class="brand">
         <router-link :to="{ name: 'Home' }">
-          <img
-            v-if="minimized"
-            src="@/assets/images/sikka-buya-no-logo.png"
-            alt=""
-          />
-          <img v-else src="/img/logos/sikka-logo.svg" alt="" />
+          <img src="/img/logos/sikka-logo.svg" alt="" />
         </router-link>
       </div>
       <div class="nav-menu" :class="{ active: active }">
