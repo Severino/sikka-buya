@@ -104,8 +104,25 @@ export default {
 </script>
 
 <style lang="scss">
-.timeline-slider .slider-thumb {
-  width: 1px;
+.timeline-slider {
+  .slider-thumb {
+    width: 1px;
+    background-color: $black;
+
+    &::before {
+      content: '';
+      position: absolute;
+      display: block;
+      top: 0;
+      $size: 6px;
+      width: 0;
+      height: 0;
+      border-top: $size * 2 solid $black;
+      border-right: $size solid transparent;
+      border-left: $size solid transparent;
+      transform: translateX(-50%);
+    }
+  }
 }
 </style>
 
