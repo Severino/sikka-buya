@@ -112,10 +112,8 @@ export default {
       return generationalSpacings.indexOf(num) != -1;
     },
     formatName(name) {
-      let regex = new RegExp('^(.*)(b\\..*|banū.*)$', 'g');
-      return name.replace(regex, '$1 <i>$2</i>');
+      return name.replace(/^(.*)(b\..*?|banū.*?)(?=\(|$)/g, '$1 <i>$2</i>');
     },
-
     yearChanged(year) {
       if (this.activeYears[year]) {
         if (this.types?.[this.activeType]?.yearOfMint === year)

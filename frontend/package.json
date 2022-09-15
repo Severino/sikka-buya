@@ -67,7 +67,8 @@
             "vue/no-unused-components": "off",
             "no-unreachable": "off",
             "no-inner-declarations": "off",
-            "no-prototype-builtins": "off"
+            "no-prototype-builtins": "off",
+            "no-useless-escape": "off"
         }
     },
     "browserslist": [
