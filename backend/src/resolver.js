@@ -1,5 +1,5 @@
 const Auth = require("./auth.js")
-const { Database, pgp } = require("./utils/database.js")
+const { WriteableDatabase, Database } = require("./utils/database.js")
 
 class Resolver {
 
@@ -10,6 +10,14 @@ class Resolver {
 
     get capitalizedName() {
         return this.name[0].toUpperCase() + this.name.substr(1)
+    }
+
+    get mutations() {
+        return this.resolvers.Mutation
+    }
+
+    get queries() {
+        return this.resolvers.Query
     }
 
     get resolvers() {
@@ -39,7 +47,7 @@ class Resolver {
     }
 
     async add(_, args, tableName) {
-        return Database.none(`INSERT INTO ${tableName} (${Object.keys(args).join(",")}) VALUES (${Object.keys(args).map((name) => `$[${name}]`)})`, args)
+        return WriteableDatabase.none(`INSERT INTO ${tableName} (${Object.keys(args).join(",")}) VALUES (${Object.keys(args).map((name) => `$[${name}]`)})`, args)
     }
 
     async update(_, args) {
@@ -47,11 +55,11 @@ class Resolver {
         if (!id || id <= 0) throw new Error("error.invalid_id")
         delete args.id
         const query = `UPDATE ${this.tableName} SET ${Object.keys(args).map((val, idx) => `${val}=$${idx + 2}`)} WHERE id=$1`
-        return Database.none(query, [id, ...Object.values(args)])
+        return WriteableDatabase.none(query, [id, ...Object.values(args)])
     }
 
     async delete(_, args) {
-        return Database.none(`DELETE FROM ${this.tableName} WHERE id=$1`, [args.id])
+        return WriteableDatabase.none(`DELETE FROM ${this.tableName} WHERE id=$1`, [args.id])
     }
 
     async get(_, args) {

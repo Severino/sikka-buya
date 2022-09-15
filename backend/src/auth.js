@@ -41,8 +41,9 @@ class Auth {
         We don't want to break out of the function, when we found no user, to
         not provide a potential attacker, with the information that the user does (not) exist!  
         */
+
         try {
-            let user = await Database.one("SELECT * FROM app_user WHERE email=$1", email)
+            let user = await Database.oneOrNone("SELECT * FROM app_user WHERE email=$1", email)
             let result = await Auth.checkPassword(password, user.password)
 
             if (result) {
@@ -61,8 +62,9 @@ class Auth {
                     }
                 }
             }
-        } catch (e) { /*Wrong user was passed. Thats fine! */ }
-
+        } catch (e) {
+            /*Wrong user was passed. Thats fine! */
+        }
 
         return {
             success: false,

@@ -12,11 +12,19 @@ if (!process.env.DB_USER) {
 }
 
 
-const Database = pgp({
+const WriteableDatabase = pgp({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
+})
+
+const Database = pgp({
+    user: process.env.DB_READ_ONLY_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_READ_ONLY_PASSWORD,
     port: process.env.DB_PORT
 })
 
@@ -34,6 +42,7 @@ function addQueryFile(key, queryFile) {
 
 module.exports = {
     Database,
+    WriteableDatabase,
     pgp,
     QueryFile: pgp.QueryFile,
     getQueryFile,

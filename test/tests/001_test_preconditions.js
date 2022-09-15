@@ -11,6 +11,8 @@ describe("Check .env variables", function () {
         "DB_PORT",
         "DB_HOST",
         "DB_NAME",
+        "DB_READ_ONLY_USER",
+        "DB_READ_ONLY_PASSWORD",
         "MAX_SEARCH"].forEach(var_name => {
             it(`Is env variable is set: ${var_name}`, function () {
                 expect(process.env[var_name]).to.not.be.undefined

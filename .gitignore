@@ -8,3 +8,4 @@ test/token.txt
 **/dist/**
 
 test/cypress/screenshots/**
+test/_excluded_data/**

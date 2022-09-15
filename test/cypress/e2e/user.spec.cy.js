@@ -7,7 +7,6 @@ describe('Setup Page', function () {
 
   this.beforeAll(async function () {
     await cy.task("ResetDatabase")
-    console.log("RESET DATABASE")
   })
 
   it('loads the site', function () {

@@ -1,5 +1,6 @@
 require('dotenv').config()
-const { setupTestDatabase, runBackendServer } = require('./tasks/setup')
+const runBackendServer = require('./scripts/run_backend_server');
+const { setupTestDatabase } = require('./tasks/setup')
 
 module.exports = function (grunt) {
 

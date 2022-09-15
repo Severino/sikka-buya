@@ -1,4 +1,4 @@
-const { Database } = require("../utils/database.js")
+const { Database, WriteableDatabase } = require("../utils/database.js")
 const SQLUtils = require('../utils/sql.js')
 
 class Mint {
@@ -22,7 +22,7 @@ class Mint {
             $[province]
         )
         RETURNING id;`
-        let result = await Database.one(query, mint)
+        let result = await WriteableDatabase.one(query, mint)
         return result.id
     }
 
@@ -44,7 +44,7 @@ class Mint {
         uncertain_area=${mint.uncertain_area ? "ST_GeomFromGeoJSON($[uncertain_area])" : null},
         province=$[province]
         WHERE id=$[id];`
-        await Database.none(query, Object.assign({}, mint, { id }))
+        await WriteableDatabase.none(query, Object.assign({}, mint, { id }))
         return id
     }
 

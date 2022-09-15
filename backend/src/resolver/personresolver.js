@@ -1,5 +1,5 @@
 const Resolver = require("../resolver.js")
-const { Database } = require("../utils/database.js")
+const { Database, WriteableDatabase } = require("../utils/database.js")
 const SQLUtils = require("../utils/sql.js")
 const { transformPropertyToSnakeCase } = require("../utils/sql.js")
 const Person = require("../models/person.js")
@@ -14,7 +14,7 @@ class PersonResolver extends Resolver {
         args.data = transformPropertyToSnakeCase(args.data, "shortName")
 
 
-        return Database.tx(async t => {
+        return WriteableDatabase.tx(async t => {
             const result = await t.one(`
                 INSERT INTO person
                 (name, short_name, role, dynasty)
@@ -38,7 +38,7 @@ class PersonResolver extends Resolver {
         args.data = transformPropertyToSnakeCase(args.data, "shortName")
 
 
-        return Database.tx(async t => {
+        return WriteableDatabase.tx(async t => {
             await t.none(`
                 UPDATE person
                SET

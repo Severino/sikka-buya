@@ -1,10 +1,10 @@
 const { join: joinPath } = require("path");
-const start = require('../../backend/express');
-const { Database, QueryFile, QueryFileMap, getQueryFile, addQueryFile } = require('../../backend/src/utils/database');
+const { createReadOnlyUser, hasReadOnlyUser, dropReadOnlyUser } = require('../../backend/scripts/create_read_only_user');
+const { WriteableDatabase, QueryFile, QueryFileMap, getQueryFile, addQueryFile } = require('../../backend/src/utils/database');
 const { readdir } = require('fs').promises;
 
 
-const SuperDatabase = Database.$config.pgp({
+const SuperDatabase = WriteableDatabase.$config.pgp({
     host: process.env.DB_HOST,
     database: process.env.DB_SUPER_NAME,
     user: process.env.DB_SUPER_USER,
@@ -15,15 +15,29 @@ const SuperDatabase = Database.$config.pgp({
 
 let resetLock = false
 
-async function createTestDatabaseIfNecesarry() {
-    const { count } = await SuperDatabase.one("SELECT count(*) FROM pg_database WHERE datname=$1", Database.$cn.database)
+async function createTestDatabaseIfNecessary() {
+    const { count } = await SuperDatabase.one("SELECT count(*) FROM pg_database WHERE datname=$1", WriteableDatabase.$cn.database)
     if (count == 0) {
         await createTestDatabase()
+        return true
+    }
+    return false
+}
+
+async function createReadOnlyUserIfNecessary() {
+    if (!await hasReadOnlyUser()) {
+        await createReadOnlyUser()
+    }
+}
+
+async function dropReadOnlyUserIfNecessary() {
+    if (await hasReadOnlyUser()) {
+        await dropReadOnlyUser()
     }
 }
 
 async function createTestDatabase() {
-    await SuperDatabase.one("CREATE DATABASE $1:name", Database.$cn.database)
+    await SuperDatabase.one("CREATE DATABASE $1:name", WriteableDatabase.$cn.database)
 }
 
 async function resetTestDatabase(backupFile) {
@@ -31,20 +45,31 @@ async function resetTestDatabase(backupFile) {
     if (!resetLock) {
         resetLock = true
         try {
-            await createTestDatabaseIfNecesarry()
+            await createTestDatabaseIfNecessary()
+
+            await dropReadOnlyUserIfNecessary()
 
             // Taken from Thirumal:
             // https://dba.stackexchange.com/questions/154061/delete-all-data-in-postgres-database
-            await Database.manyOrNone(`
-            DROP SCHEMA public CASCADE;
-            CREATE SCHEMA public;
-            GRANT ALL ON SCHEMA public TO postgres;
-            GRANT ALL ON SCHEMA public TO public;
-            `)
+            //
+            // I would like to put it into the 'createTestDatabaseIfNecessary' method. But somehow that
+            // doesn't work.
+            await WriteableDatabase.manyOrNone(`
+        DROP SCHEMA public CASCADE;
+        CREATE SCHEMA public;
+        GRANT ALL ON SCHEMA public TO postgres;
+        GRANT ALL ON SCHEMA public TO public;
+        `)
+
+
 
             const migrationPath = joinPath(__dirname, "..", "..", "backend")
             backupFilePath = backupFile || joinPath(migrationPath, "schema.sql")
-            await applySchemaFile(Database, backupFilePath)
+            await applySchemaFile(WriteableDatabase, backupFilePath)
+
+
+            await createReadOnlyUserIfNecessary()
+
             resetLock = false
         } catch (e) {
             resetLock = false
@@ -68,7 +93,7 @@ async function applyDummyData() {
     for (const file of dummyFiles) {
         const absFilePath = joinPath(sqlDummyDataPath, file)
         console.log(`Apply SQL file: ${file} / ${absFilePath}`)
-        await applySchemaFile(Database, absFilePath)
+        await applySchemaFile(WriteableDatabase, absFilePath)
     }
     console.log(`Dummy data applied!`)
 }
@@ -104,18 +129,5 @@ async function setupTestDatabase() {
     })
 }
 
-async function runBackendServer() {
-    return start({
-        dbUser: process.env.DB_USER,
-        dbPassword: process.env.DB_PASSWORD,
-        dbPort: process.env.DB_PORT,
-        dbHost: process.env.DB_HOST,
-        dbName: process.env.DB_NAME,
-        expressPort: 4000,
-        jwtSecret: "totally_secure_test_secret",
-        testEnvironment: true
-    })
-}
 
-
-module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase, runBackendServer }
+module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase }

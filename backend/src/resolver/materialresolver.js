@@ -1,5 +1,5 @@
 
-const { Database, pgp } = require('../utils/database')
+const { WriteableDatabase, Database, pgp } = require('../utils/database')
 const BaseResolver = require("./base-resolver")
 
 class MaterialResolver extends BaseResolver {
@@ -10,7 +10,7 @@ class MaterialResolver extends BaseResolver {
     async add(_, args, tableName) {
         super.argumentGuard("name", args)
 
-        return Database.tx(async t => {
+        return WriteableDatabase.tx(async t => {
             const { id } = await t.one("INSERT INTO material (name) VALUES ($1)  RETURNING id;", args.name)
             if (args.color)
                 await t.none("INSERT INTO material_color (material, color) VALUES ($1, $2)", [id, args.color])
@@ -22,7 +22,7 @@ class MaterialResolver extends BaseResolver {
     async update(_, args) {
         super.argumentGuard("id", args)
 
-        return Database.tx(t => {
+        return WriteableDatabase.tx(t => {
             if (args.name) {
                 t.none(`UPDATE material SET name=$[name] WHERE id=$[id]`, args)
             }
@@ -36,7 +36,7 @@ class MaterialResolver extends BaseResolver {
 
     async delete(_, args) {
         super.argumentGuard("id", args)
-        return Database.none("DELETE FROM material WHERE id=$1", args.id)
+        return WriteableDatabase.none("DELETE FROM material WHERE id=$1", args.id)
     }
 
     createListQuery() {

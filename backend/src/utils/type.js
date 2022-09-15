@@ -1,5 +1,5 @@
 const { ALLOWED_STYLES, DB_FIELDS } = require("../../constants/html_formatted_fields")
-const { Database, pgp } = require("./database")
+const { WriteableDatabase, Database, pgp } = require("./database")
 const SQLUtils = require("./sql")
 const HTMLSanitizer = require("./HTMLSanitizer")
 const Overlord = require("../models/overlord")
@@ -11,32 +11,27 @@ const Nominal = require('../models/nominal')
 const PageInfo = require('../models/pageinfo')
 const graphqlFields = require('graphql-fields')
 const { JSDOM } = require("jsdom");
-const DictDE = require('../dictionaries/dict_de')
 const QueryBuilder = require('./querybuilder')
 
 
 let i = 0;
 class Type {
 
-
     static async list() {
         return this.getTypes(...arguments)
     }
 
-
-
     static async deleteType(id) {
         if (!id) throw new Error("Id is required.")
-        return Database.none(`DELETE FROM type * WHERE id=$[id]`, { id })
+        return WriteableDatabase.none(`DELETE FROM type * WHERE id=$[id]`, { id })
     }
-
 
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
         data.id = id
         data = await this.postProcessUpsert(data)
 
-        return Database.tx(async t => {
+        return WriteableDatabase.tx(async t => {
             await t.none(`
         UPDATE type 
         SET
@@ -251,7 +246,7 @@ class Type {
     static async addType(_, args, context, info) {
         const data = await this.postProcessUpsert(args.data, true)
 
-        return Database.tx(async t => {
+        return WriteableDatabase.tx(async t => {
 
             const { id: type } = await t.one(`
             INSERT INTO type(
