@@ -1,12 +1,41 @@
 <template>
   <div class="breadcrumbs">
-    <span class="crumb" v-for="matched in $route.matched" :key="matched.name">
-      <router-link :to="matched">
-        {{ $tc(`routes.${matched.name}`) }}</router-link
-      >
+    <span class="crumb" v-for="match in matched" :key="match.name">
+      <router-link :to="match"> {{ $tc(`routes.${match.name}`) }}</router-link>
     </span>
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    matched() {
+      const matched = this.$route.matched;
+      const parts = [];
+      if (matched.length > 0) {
+        for (let i = 1; i < matched.length; i++) {
+          const match = matched[i];
+          const last = matched[i - 1];
+
+          if (last?.redirect?.name) {
+            const matchRedir = match.name.replace('/', '');
+            const lastRedir = last.redirect.name.replace('/', '');
+            if (lastRedir !== matchRedir) {
+              parts.push(last);
+            }
+          } else {
+            parts.push(last);
+          }
+        }
+
+        parts.push(matched[matched.length - 1]);
+      }
+
+      return parts;
+    },
+  },
+};
+</script>
 
 <style lang="scss" scoped>
 .breadcrumbs {

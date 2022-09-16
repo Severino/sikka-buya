@@ -47,11 +47,7 @@ export default {
       mintCount: '',
       typeCount: '',
       yearCount: '',
-      links: [
-        { name: 'Year Link Table', to: { name: 'AnalyticsTable' } },
-        { name: 'Overlord List', to: { name: 'OverlordAccordeon2' } },
-        { name: 'Overlord List 2', to: { name: 'OverlordAccordeon' } },
-      ],
+      links: [{ name: 'Year Link Table', to: { name: 'AnalyticsTable' } }],
     };
   },
   computed: {

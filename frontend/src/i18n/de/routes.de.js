@@ -2,7 +2,10 @@ export default {
     "Home": "Startseite",
     "Map": "Karte",
     "Map Overview": "Karte",
-    "Map Landing": "Übersicht",
+    "Map Landing": "Karte",
+
+    "Analytics": "Analyse",
+    "AnalyticsOverview": "Analyse",
 
     "Additional Maps": "Weitere Karten",
     "Political Map": "Politische Karte",
@@ -10,5 +13,5 @@ export default {
     "Catalog Entry": "Eintrag",
     "Catalog Ruler Explorer": "Herrscherliste",
     "Catalog Search": "Katalogsuche",
-    "Catalog Overview": "Übersicht"
+    "Catalog Overview": "Typenkatalog"
 }

@@ -93,10 +93,11 @@ Vue.use(VueRouter)
 const analyticsRoutes = {
   path: "/analytics/",
   component: RouterContainer,
+  name: "Analytics",
   children: [
     {
       path: "",
-      name: "Analytics",
+      name: "AnalyticsOverview",
       component: AnalyticsDashboard
     },
     {
