@@ -16,6 +16,7 @@
       />
       <overlord-separator
         v-if="getSortedPersonList(yearObject.asOverlord).length > 0"
+        :appended="getSortedPersonList(yearObject.asIssuer).length > 0"
       />
       <toggle-button-list
         :list="getSortedPersonList(yearObject.asOverlord)"
