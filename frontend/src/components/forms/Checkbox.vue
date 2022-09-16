@@ -38,7 +38,7 @@ export default {
     value: {
       type: Boolean,
     },
-    label: String,
+    label: { type: String, default: ' ' },
   },
   methods: {
     input: function (event) {

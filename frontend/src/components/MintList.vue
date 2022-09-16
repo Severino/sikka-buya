@@ -8,6 +8,11 @@
       >
         <template #header>
           <h4 v-if="group.name != '_'">{{ group.name }}</h4>
+          <checkbox
+            :id="`province-select-all-${idx}`"
+            :value="allSelected(group)"
+            @click.native.stop.prevent="toggleAllProvince(group)"
+          />
           <div
             v-if="selectionCountInGroup(group) != 0"
             class="selection-indicator div-icon circle-div-icon"
@@ -39,10 +44,31 @@ import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
 import Collapsible from './layout/Collapsible.vue';
 import Sort from '../utils/Sorter';
+import Checkbox from './forms/Checkbox.vue';
 
 export default {
-  components: { MultiSelectList, MultiSelectListItem, Collapsible },
+  components: { MultiSelectList, MultiSelectListItem, Collapsible, Checkbox },
   mixins: [MultiSelectListMixin],
+  methods: {
+    allSelected(group) {
+      return group.items.every((item) => this.isSelected(item));
+    },
+    toggleAllProvince(group) {
+      let selection = this.selectedIds;
+      if (this.allSelected(group)) {
+        selection = selection.filter(
+          (id) => group.items.find((item) => item.id === id) === undefined
+        );
+      } else {
+        let set = new Set([
+          ...selection,
+          ...group.items.map((item) => item.id),
+        ]);
+        selection = Array.from(set);
+      }
+      this.selectionChanged(selection);
+    },
+  },
   computed: {
     groupedItems() {
       let groups = {};

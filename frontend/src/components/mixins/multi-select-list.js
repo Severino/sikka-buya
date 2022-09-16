@@ -9,7 +9,6 @@ export default {
         },
         selectionChanged(items) {
             this.$emit('selectionChanged', items);
-
         },
         checkboxSelected(item) {
             let selection = this.selectedIds;
