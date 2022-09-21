@@ -13,7 +13,7 @@
               v-for="(item, index) in visibleItems"
               :key="`nav-item-${index}`"
             >
-              <router-link :to="item.target">{{ item.name }}</router-link>
+              <router-link :to="item.target">{{ $t(item.name) }}</router-link>
             </li>
           </ul>
         </nav>
@@ -60,9 +60,9 @@ export default {
       minimized: false,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: 'Karte', target: { name: 'Map Landing' }, auth: true },
-        { name: 'Typekatalog', target: { name: 'Catalog' }, auth: true },
-        { name: 'Diagramme', target: { name: 'Analytics' }, auth: true },
+        { name: 'routes.Map', target: { name: 'Map Landing' }, auth: true },
+        { name: 'routes.Catalog', target: { name: 'Catalog' }, auth: true },
+        { name: 'routes.Analytics', target: { name: 'Analytics' }, auth: true },
       ],
     };
   },

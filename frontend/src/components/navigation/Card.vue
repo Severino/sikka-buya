@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" :class="className">
     <img v-if="img" class="card-background-image" :src="img" />
     <header>
       <slot name="header" />
@@ -21,6 +21,11 @@ export default {
   },
   props: {
     img: String,
+  },
+  computed: {
+    className() {
+      return this.img ? 'image-card' : '';
+    },
   },
 };
 </script>
@@ -49,6 +54,9 @@ export default {
   }
 
   // filter: grayscale(50%);
+}
+
+.image-card {
   header {
     position: absolute;
     bottom: 0;

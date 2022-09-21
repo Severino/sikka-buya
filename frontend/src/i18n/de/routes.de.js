@@ -6,6 +6,7 @@ export default {
 
     "Analytics": "Analyse",
     "AnalyticsOverview": "Analyse",
+    "Analytics Table": "Daten Tabelle",
 
     "Additional Maps": "Weitere Karten",
     "Political Map": "Politische Karte",

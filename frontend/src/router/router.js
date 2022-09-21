@@ -32,7 +32,7 @@ import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
  * Catalog
  */
 import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
-import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
+import CardLinkPage from "@/components/page/CardLinkPage.vue"
 import CatalogFilterSearch from "@/components/page/catalog/CatalogFilterSearch.vue"
 import PersonPage from "@/components/page/catalog/PersonPage.vue"
 
@@ -76,8 +76,6 @@ import Auth from "../utils/Auth.js"
 /**
  * Maps
  */
-
-import MapLanding from "@/components/page/MapLanding.vue"
 import MapPage from "@/components/page/MapPage.vue"
 import PoliticalMap from "@/components/map/PoliticalMap"
 import MaterialMap from "@/components/map/MaterialMap"
@@ -90,15 +88,27 @@ import store from '../store.js'
 
 Vue.use(VueRouter)
 
+console.log(Vue)
+
 const analyticsRoutes = {
   path: "/analytics/",
   component: RouterContainer,
   name: "Analytics",
+  redirect: { name: "AnalyticsOverview" },
   children: [
     {
       path: "",
       name: "AnalyticsOverview",
-      component: AnalyticsDashboard
+      component: CardLinkPage,
+      props: {
+        title: "routes.Analytics",
+        links: [
+          {
+            title: "routes.Analytics Table",
+            to: { name: "AnalyticsTable" }
+          }
+        ]
+      }
     },
     {
       path: "/table/",
@@ -139,7 +149,22 @@ const routes = [
         children: [{
           path: '',
           name: "Catalog Overview",
-          component: CatalogLanding
+          component: CardLinkPage,
+          props: {
+            title: "routes.Catalog",
+            links: [
+              {
+                title: 'routes.Catalog Ruler Explorer',
+                image: "/img/button-images/person-catalog-preview.jpg",
+                to: { name: "Catalog Search" }
+              },
+              {
+                title: "routes.Catalog Search",
+                image: "/img/button-images/catalog-search-preview.jpg",
+                to: { name: "Catalog Ruler Explorer" }
+              }
+            ]
+          }
         }, {
           path: 'search',
           name: 'Catalog Search',
@@ -163,7 +188,21 @@ const routes = [
           {
             path: "",
             name: "Map Landing",
-            component: MapLanding,
+            component: CardLinkPage,
+            props: {
+              title: "routes.Map",
+              links: [{
+                title: "routes.Political Map",
+                to: { name: 'Political Map' },
+                image: "/img/button-images/political-map-preview.jpg",
+              },
+              {
+                title: "routes.Additional Maps",
+                to: { name: 'Additional Maps' },
+                image: "/img/button-images/material-map-preview.jpg",
+              },
+              ]
+            },
           }]
       }, {
         path: "/map/",
@@ -178,7 +217,7 @@ const routes = [
             path: '',
             name: 'Political Map',
             component: PoliticalMap,
-            meta: { smallNav: true },
+            meta: { smallNav: true }
           },
           {
             path: "additional",
