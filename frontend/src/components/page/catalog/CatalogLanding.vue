@@ -4,7 +4,10 @@
       <h1>{{ $t('routes.Catalog') }}</h1>
       <div class="nav-grid grid">
         <router-link :to="{ name: 'Catalog Ruler Explorer' }">
-          <card id="person-explorer-card">
+          <card
+            id="person-catalog-card"
+            img="/img/button-images/person-catalog-preview.jpg"
+          >
             <template v-slot:header>
               <h2>{{ $t('routes.Catalog Ruler Explorer') }}</h2>
             </template>
@@ -17,7 +20,10 @@
         </router-link>
 
         <router-link :to="{ name: 'Catalog Search' }">
-          <card>
+          <card
+            id="catalog-search-card"
+            img="/img/button-images/catalog-search-preview.jpg"
+          >
             <template v-slot:header>
               <h2>{{ $t('routes.Catalog Search') }}</h2>
             </template>
@@ -128,10 +134,6 @@ export default {
   h2 {
     margin-top: 0;
   }
-
-  .card {
-    color: $white;
-  }
 }
 </style>
 
@@ -140,11 +142,5 @@ export default {
   height: 420px;
   grid-template-columns: 1fr 1fr;
   gap: 3 * $padding;
-}
-
-.card {
-  // background-color: $white;
-  border: $border;
-  padding: $big-box-padding;
 }
 </style>

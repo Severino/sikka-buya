@@ -1,5 +1,6 @@
 <template>
   <div class="card">
+    <img v-if="img" class="card-background-image" :src="img" />
     <header>
       <slot name="header" />
     </header>
@@ -18,6 +19,9 @@ export default {
   components: {
     ArrowRight,
   },
+  props: {
+    img: String,
+  },
 };
 </script>
 
@@ -27,7 +31,36 @@ export default {
   flex-direction: column;
   min-height: 360px;
   color: $white;
+  background-size: cover;
+  position: relative;
   background-color: $primary-color;
+  border: $border;
+  border-radius: 5px;
+  padding: $big-box-padding;
+
+  footer {
+    z-index: 100;
+  }
+
+  &:hover {
+    header {
+      min-height: 100%;
+    }
+  }
+
+  // filter: grayscale(50%);
+  header {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 25%;
+    box-sizing: border-box;
+    padding: $padding * 2;
+    background-color: rgba($primary-color, 0.75);
+    transition: min-height $transition-time;
+    backdrop-filter: blur(3px);
+  }
 }
 
 .body {
@@ -39,5 +72,14 @@ export default {
 footer {
   display: flex;
   justify-content: flex-end;
+}
+
+.card-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

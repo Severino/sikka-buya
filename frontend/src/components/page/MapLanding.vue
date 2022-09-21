@@ -4,7 +4,10 @@
       <h1>{{ $t('routes.Map') }}</h1>
       <div class="nav-grid grid">
         <router-link :to="{ name: 'Political Map' }">
-          <card id="person-explorer-card">
+          <card
+            id="political-map-card"
+            img="/img/button-images/political-map-preview.jpg"
+          >
             <template v-slot:header>
               <h2>{{ $t('routes.Political Map') }}</h2>
             </template>
@@ -17,7 +20,10 @@
         </router-link>
 
         <router-link :to="{ name: 'Additional Maps' }">
-          <card>
+          <card
+            id="additional-map-card"
+            img="/img/button-images/material-map-preview.jpg"
+          >
             <template v-slot:header>
               <h2>{{ $t('routes.Additional Maps') }}</h2>
             </template>
@@ -47,10 +53,6 @@ export default {
   h2 {
     margin-top: 0;
   }
-
-  .card {
-    color: $white;
-  }
 }
 </style>
 
@@ -59,10 +61,5 @@ export default {
   height: 420px;
   grid-template-columns: 1fr 1fr;
   gap: 3 * $padding;
-}
-
-.card {
-  border: $border;
-  padding: $big-box-padding;
 }
 </style>
