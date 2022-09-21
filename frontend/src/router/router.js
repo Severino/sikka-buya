@@ -112,7 +112,7 @@ const analyticsRoutes = {
     },
     {
       path: "/table/",
-      name: "AnalyticsTable",
+      name: "Analytics Table",
       component: YearMintTablePage
     },
   ]

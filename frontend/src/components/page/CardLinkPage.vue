@@ -6,7 +6,7 @@
         <router-link
           v-for="link of links"
           :key="`link-to-${link.title}`"
-          :to="{ name: 'Catalog Ruler Explorer' }"
+          :to="link.to"
         >
           <card :img="link.image">
             <template v-slot:header>
@@ -25,7 +25,6 @@ export default {
   components: {
     Card,
   },
-  name: 'CatalogLanding',
   props: {
     title: String,
     links: Array,
