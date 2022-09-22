@@ -166,6 +166,11 @@ export default {
 }
 
 .side-bar {
+  @media screen and (max-width: 720px) {
+    position: absolute;
+    display: none !important;
+  }
+
   grid-row: 1 / span 3;
 
   .title {
@@ -250,11 +255,11 @@ export default {
   grid-template-columns: 1fr 5fr 1fr;
 
   @media screen and (max-width: 1080px) {
-    grid-template-columns: 1fr 3fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr;
   }
 
   @media screen and (max-width: 720px) {
-    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-columns: 0fr 2fr 0fr;
   }
 
   grid-template-rows: 1fr 3fr 120px;

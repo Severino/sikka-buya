@@ -278,6 +278,10 @@ button {
   }
 }
 
+.disabled {
+  color: $light-gray;
+}
+
 .button.small-button {
   font-size: $small-font;
 }

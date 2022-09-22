@@ -4,6 +4,7 @@ $font: $sans-serif,
   $arabic,
   sans-serif;
 
+$tiny-padding: 0.15em;
 $small-padding: 0.3em;
 $padding: 0.5em;
 $big-padding: 0.8em;
@@ -30,8 +31,8 @@ $dark-red: darken($red, 10%);
 $primary-color: $green;
 
 $large-font: 1.2rem;
-$regular-font: 1rem;
-$small-font: 0.8rem;
+$regular-font: 0.9rem;
+$small-font: 0.75rem;
 $xtra-small-font: 0.6rem;
 
 $border-color: rgb(204, 204, 204);

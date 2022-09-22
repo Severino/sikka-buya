@@ -7,17 +7,37 @@
         :key="`mint-list-group-${idx}`"
       >
         <template #header>
+          <div
+            :class="{ active: selectionCountInGroup(group) }"
+            class="selection-indicator"
+          >
+            <span class="count" v-if="selectionCountInGroup(group)">
+              {{ selectionCountInGroup(group) }}
+            </span>
+            <div
+              class="selection-visualizer"
+              :style="{ height: selectionPercentageOfGroup(group) }"
+            ></div>
+          </div>
           <h4 v-if="group.name != '_'">{{ group.name }}</h4>
-          <checkbox
+          <!-- <checkbox
             :id="`province-select-all-${idx}`"
             :value="allSelected(group)"
             @click.native.stop.prevent="toggleAllProvince(group)"
-          />
+          /> -->
+          <div class="fill"></div>
+
           <div
-            v-if="selectionCountInGroup(group) != 0"
-            class="selection-indicator div-icon circle-div-icon"
+            @click.prevent.stop="selectAllInGroup(group)"
+            :class="{ disabled: allSelected(group) }"
           >
-            {{ selectionCountInGroup(group) }}
+            <select-all-icon :size="18" />
+          </div>
+          <div
+            @click.prevent.stop="removeAllFromGroup(group)"
+            :class="{ disabled: !noneSelected(group) }"
+          >
+            <select-remove-icon :size="18" />
           </div>
         </template>
         <ul>
@@ -46,27 +66,53 @@ import Collapsible from './layout/Collapsible.vue';
 import Sort from '../utils/Sorter';
 import Checkbox from './forms/Checkbox.vue';
 
+import SelectAllIcon from 'vue-material-design-icons/SelectAll.vue';
+import SelectRemoveIcon from 'vue-material-design-icons/SelectOff.vue';
+
 export default {
-  components: { MultiSelectList, MultiSelectListItem, Collapsible, Checkbox },
+  components: {
+    MultiSelectList,
+    MultiSelectListItem,
+    Collapsible,
+    Checkbox,
+    SelectAllIcon,
+    SelectRemoveIcon,
+  },
   mixins: [MultiSelectListMixin],
   methods: {
     allSelected(group) {
       return group.items.every((item) => this.isSelected(item));
     },
-    toggleAllProvince(group) {
+    noneSelected(group) {
+      return group.items.some((item) => this.isSelected(item));
+    },
+    selectAllInGroup(group) {
       let selection = this.selectedIds;
-      if (this.allSelected(group)) {
-        selection = selection.filter(
-          (id) => group.items.find((item) => item.id === id) === undefined
-        );
-      } else {
-        let set = new Set([
-          ...selection,
-          ...group.items.map((item) => item.id),
-        ]);
-        selection = Array.from(set);
-      }
+      let set = new Set([...selection, ...group.items.map((item) => item.id)]);
+      selection = Array.from(set);
       this.selectionChanged(selection);
+    },
+    removeAllFromGroup(group) {
+      let selection = this.selectedIds;
+      selection = selection.filter(
+        (id) => group.items.find((item) => item.id === id) === undefined
+      );
+      this.selectionChanged(selection);
+    },
+    toggleAllProvince(group) {
+      if (this.allSelected(group)) {
+        this.selectAllInGroup(group);
+      } else {
+        this.removeAllFromGroup(group);
+      }
+    },
+    selectionPercentageOfGroup(group) {
+      if (!group?.items?.length) return '0%';
+      const cur = this.selectionCountInGroup(group);
+      const max = group.items.length;
+
+      console.log(`${((cur / max) * 100).toFixed(2)}%`);
+      return `${((cur / max) * 100).toFixed(2)}%`;
     },
   },
   computed: {
@@ -122,8 +168,43 @@ h4 {
 }
 
 .selection-indicator {
-  color: $white;
-  background-color: $primary-color;
-  transform: scale(0.75);
+  position: relative;
+  background-color: $light-gray;
+  align-self: stretch;
+  border-right: $border;
+  padding: $tiny-padding;
+  font-size: $xtra-small-font;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+
+  .selection-visualizer {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    background-color: $primary-color;
+    z-index: 0;
+  }
+
+  .count {
+    z-index: 1;
+  }
+
+  &.active {
+    color: $white;
+    font-weight: bold;
+  }
+  // color: $white;
+  // background-color: $primary-color;
+  // transform: scale(0.55);
+  // padding: $small-padding;
+  // box-shadow: inset $shadow;
+  // border-radius: 3px;
+}
+
+.fill {
+  flex: 1;
 }
 </style>
