@@ -11,6 +11,8 @@
       >
       <br />
       <br />
+
+      <router-link class="button" :to="{ name: 'Login' }">Login</router-link>
     </div>
   </section>
 </template>
