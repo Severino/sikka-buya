@@ -22,8 +22,14 @@ EXPRESS_PORT=4000
 DB_USER=user
 DB_HOST=localhost
 DB_NAME=your_database
-DB_PASSWORD=password
+DB_PASSWORD="very_strong_password"
 DB_PORT=5432
+
+# An extra read-only user is used to reduce the risk of exploits, like SQL injection.
+
+DB_READ_ONLY_USER=visitor
+DB_READ_ONLY_PASSWORD="visitor_password"
+
 JWT_SECRET=ENTER_YOUR_SECRET
 MAX_SEARCH=20
 ```

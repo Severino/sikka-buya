@@ -14,6 +14,7 @@ try {
 }
 
 const { pgp } = require("../src/utils/database")
+const { createReadOnlyUser } = require("./create_read_only_user")
 
 const path = require('path');
 const readline = require("readline").createInterface({
@@ -64,12 +65,12 @@ async function applySchema() {
     }
 }
 
-async function userExists(db) {
-    const result = await db.result(`SELECT 1 FROM pg_roles WHERE rolname=$[user]`, { user: process.env.DB_USER })
+async function userExists(db, name) {
+    const result = await db.result(`SELECT 1 FROM pg_roles WHERE rolname=$[name]`, { name })
     return result.rows.length > 0
 }
 
-async function createUser(db) {
+async function createSuperUser(db) {
     await db.none(`CREATE USER $[user:name] SUPERUSER PASSWORD $[password]`, { user: process.env.DB_USER, password: process.env.DB_PASSWORD })
 }
 
@@ -91,11 +92,18 @@ postgres admin password (the password of the user 'postgres'):\n`))
 
     try {
 
-        if (await userExists(root_db)) {
+        if (await userExists(root_db, process.env.DB_USER)) {
             Message.warn(`User ${process.env.DB_USER} already exists.`)
         } else {
             Message.notice(`Creating user '${process.env.DB_USER}' ...`)
-            await createUser(root_db)
+            await createSuperUser(root_db)
+        }
+
+        if (await userExists(root_db, process.env.DB_READ_ONLY_USER)) {
+            Message.warn(`The read-only user '${process.env.DB_READ_ONLY_USER}' already exists. If your permissions and credentials do fit, you can ignore this warning.`)
+        } else {
+            Message.notice(`Creating user '${process.env.DB_READ_ONLY_USER}' ...`)
+            await createReadOnlyUser()
         }
 
         if (await databaseExists(root_db)) {
