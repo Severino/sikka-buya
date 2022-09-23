@@ -87,6 +87,12 @@ export default {
   > * {
     margin-bottom: $padding;
   }
+
+  header {
+    > * {
+      margin: auto;
+    }
+  }
 }
 </style>
 
