@@ -24,7 +24,6 @@ import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
 /**
  * Analytics
  */
-import AnalyticsDashboard from "@/components/page/analytics/AnalyticsDashboard"
 import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
 
 
@@ -105,7 +104,7 @@ const analyticsRoutes = {
         links: [
           {
             title: "routes.Analytics Table",
-            to: { name: "AnalyticsTable" }
+            to: { name: "Analytics Table" }
           }
         ]
       }

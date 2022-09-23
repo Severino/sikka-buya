@@ -1,5 +1,6 @@
 <template>
   <li class="select-list-item" :class="{ selected }">
+    <slot name="before" />
     <div class="checkbox">
       <label @click.stop="() => $emit('checkboxSelected')">
         <div class="box" :class="{ active: selected }"></div>

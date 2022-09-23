@@ -218,9 +218,9 @@ export default {
     transition: background-color 0.3s;
     background-color: initial;
 
-    > * {
-      color: black;
-    }
+    // > * {
+    //   color: black;
+    // }
 
     span {
       align-self: center;
