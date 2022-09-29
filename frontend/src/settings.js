@@ -1,3 +1,24 @@
+
+import URLParams from "./utils/URLParams"
+
+function toNumber(a) {
+    return parseFloat(a)
+}
+
+const Parser = {
+    Map: {
+        zoom: toNumber
+    }
+}
+
+const Validators = {
+    Map: {
+        location: function (value) {
+            return (Array.isArray(value) && value.length == 2 && !isNaN(value[0]) && !isNaN(value[1]))
+        }
+    }
+}
+
 const DefaultSettings = {
     Map: {
         location: [30.521645759075508, 48.890055500146026],
@@ -46,6 +67,7 @@ export default class Settings {
         return DefaultSettings
     }
 
+
     static _getDefault(key) {
         if (!DefaultSettings[key]) throw new Error(`Key does not exist: ${key}.`)
         return DefaultSettings[key]
@@ -78,6 +100,28 @@ export default class Settings {
         this._onSettingsChanged = fun
     }
 
+    overwriteWithQueryParams(vue) {
+        for (let key of Object.keys(this.settings)) {
+            let query = vue.$route.query[key]
+            if (query) {
+
+                try {
+                    query = JSON.parse(query)
+                    if (Parser[this.key]?.[key]) {
+                        query = Parser[this.key][key](query)
+                    }
+
+                    if (this.validateSetting(key, query)) {
+                        this.change(key, query)
+                    }
+                } catch (e) {
+                    console.warn(`Couldn't parse query setting '${this.key}/${key}': ${query}`)
+                }
+            }
+        }
+    }
+
+
     /**
      * Call it once on startup. 
      * Setups all localStorage items, so that all 
@@ -86,8 +130,12 @@ export default class Settings {
     static init(window) {
         Object.entries(this.defaultSettings).forEach(([name, settings]) => {
             const atStoragePath = Settings.getStoragePath(name)
-            if (!window.localStorage.getItem(atStoragePath)) {
-                this._save(window, name, settings)
+            try {
+                if (!window.localStorage.getItem(atStoragePath)) {
+                    this._save(window, name, settings)
+                }
+            } catch (e) {
+                console.warn(e)
             }
         })
     }
@@ -98,22 +146,49 @@ export default class Settings {
 
     static _save(window, key, data) {
         const atStoragePath = Settings.getStoragePath(key)
-        window.localStorage.setItem(atStoragePath, JSON.stringify(data))
+        try {
+            window.localStorage.setItem(atStoragePath, JSON.stringify(data))
+        } catch (e) {
+            console.warn(e)
+        }
     }
 
     load() {
         let settings = Object.assign({}, Settings.getDefault(this.key))
         const storagePath = Settings.getStoragePath(this.key)
+
+        let dataString
         try {
-            const dataString = this.window.localStorage.getItem(storagePath)
-            const parsedSettings = JSON.parse(dataString)
-            settings = Object.assign({}, settings, parsedSettings)
+            dataString = this.window.localStorage.getItem(storagePath)
         } catch (e) {
-            throw new Error(`Could not load and apply local storage data: ${this.key}.`)
+            console.warn(e)
+        }
+        if (dataString) {
+            try {
+                const parsedSettings = JSON.parse(dataString)
+                for (let [key, val] of Object.entries(parsedSettings)) {
+
+                    if (Parser[this.key]?.[key]) {
+                        val = Parser[this.key][key](val)
+                    }
+
+                    parsedSettings[key] = this.validateSetting(key, val) ? val : settings[key]
+                }
+                settings = Object.assign({}, settings, parsedSettings)
+            } catch (e) {
+                console.error(`Could not load and apply local storage data: ${this.key}.`)
+            }
         }
 
         this.settings = settings
         return settings
+    }
+
+    validateSetting(key, val) {
+        if (DefaultSettings[this.key]?._validator?.[key]) {
+            return !DefaultSettings[this.key]?._validator?.[key](val)
+        }
+        return true
     }
 
     get(key) {
@@ -144,10 +219,14 @@ export default class Settings {
         keyValPairs.forEach(([key, val]) => {
             this.settings[key] = val
         })
+
+        URLParams.update(this.settings)
+
         this.save()
         if (this._onSettingsChanged)
             this._onSettingsChanged(keyValPairs)
     }
+
 
     reset() {
         let settings = Object.assign({}, Settings.getDefault(this.key))

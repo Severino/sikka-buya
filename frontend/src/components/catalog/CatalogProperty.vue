@@ -27,7 +27,7 @@
 
 <script>
 import InfoIcon from 'vue-material-design-icons/InformationOutline.vue';
-import Popup from '../Popup.vue';
+import Popup from '../Popup/Popup.vue';
 
 export default {
   name: 'CatalogProperty',

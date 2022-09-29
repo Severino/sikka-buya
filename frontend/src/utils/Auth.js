@@ -11,7 +11,12 @@ export default class Auth {
     }
 
     static saveUser(user) {
-        localStorage.setItem(this.userStore, JSON.stringify(user))
+        try {
+            localStorage.setItem(this.userStore, JSON.stringify(user))
+        }
+        catch (e) {
+            console.warn(e)
+        }
     }
 
     static loadUser() {
@@ -31,7 +36,13 @@ export default class Auth {
     }
 
     static loadToken() {
-        return localStorage.getItem(this.tokenStore)
+        let token;
+        try {
+            token = localStorage.getItem(this.tokenStore)
+        } catch (e) {
+            console.warn(e);
+        }
+        return token
     }
 
     static load() {

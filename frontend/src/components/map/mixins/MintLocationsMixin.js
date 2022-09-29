@@ -3,13 +3,15 @@
 import MintLocation from '../../../models/mintlocation';
 import Query from '../../../database/query';
 import Mint from '../../../models/map/mint';
+import URLParams from '../../../utils/URLParams';
 
 
 const selectedMintStorageName = "active-mints"
 
 export function loadSelectedMints() {
-    let selectedMints = window.localStorage.getItem(selectedMintStorageName)
+    let selectedMints = []
     try {
+        selectedMints = window.localStorage.getItem(selectedMintStorageName)
         selectedMints = JSON.parse(selectedMints)
     } catch (e) {
         console.warn("Could not get available mints from localstorage.")
@@ -124,7 +126,16 @@ export function mintLocationsMixin({
             },
             mintSelectionChanged(selected, { preventUpdate = false } = {}) {
                 this.selectedMints = selected;
-                window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
+
+                URLParams.update({
+                    selectedMints: selected,
+                });
+
+                try {
+                    window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
+                } catch (e) {
+                    console.warn(e)
+                }
                 if (onMintSelectionChanged)
                     onMintSelectionChanged.call(this, this.selectedMints)
                 if (!preventUpdate) this.update();

@@ -8,36 +8,36 @@
 </template>
 
 <script>
-import InfoIcon from "vue-material-design-icons/InformationOutline.vue"
-import Popup from "./Popup.vue";
+import InfoIcon from 'vue-material-design-icons/InformationOutline.vue';
+import Popup from './Popup/Popup.vue';
 
 export default {
-  name: "InfoPopup",
+  name: 'InfoPopup',
   components: {
     Popup,
-    InfoIcon
+    InfoIcon,
   },
   props: {
     content: String,
   },
-  data: function(){
-      return {
-          popupActive: false
-      }
+  data: function () {
+    return {
+      popupActive: false,
+    };
   },
   methods: {
-    togglePopup (){
-        this.popupActive = !this.popupActive
-    } ,
-    closePopup(){
-      this.popupActive = false
-    }
-  }
+    togglePopup() {
+      this.popupActive = !this.popupActive;
+    },
+    closePopup() {
+      this.popupActive = false;
+    },
+  },
 };
 </script>
 
 <style scoped>
 .info-popup {
-    position: relative;
+  position: relative;
 }
 </style>

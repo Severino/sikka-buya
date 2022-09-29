@@ -264,8 +264,6 @@ const inputs = [
   else return a.order - b.order;
 });
 
-console.log(inputs);
-
 export default {
   components: {
     MultiDataSelect,
@@ -323,6 +321,9 @@ export default {
   },
   methods: {
     ...filterMethods,
+    setFilter(key, val) {
+      this.filters[key] = val;
+    },
     async search() {
       const filters = Object.assign(
         {},
@@ -382,14 +383,11 @@ export default {
     stopWatching() {
       if (this.watching === false)
         console.warn("You try to stop, but it's already stopped");
-
-      console.log('STOP');
       this.watching = false;
     },
     resumeWatching() {
       if (this.watching === true)
         console.warn('You try to resume, but its not stopped');
-      console.log('RESUME');
 
       this.watching = true;
     },

@@ -110,8 +110,6 @@ export default {
       if (!group?.items?.length) return '0%';
       const cur = this.selectionCountInGroup(group);
       const max = group.items.length;
-
-      console.log(`${((cur / max) * 100).toFixed(2)}%`);
       return `${((cur / max) * 100).toFixed(2)}%`;
     },
   },

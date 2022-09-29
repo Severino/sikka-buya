@@ -40,7 +40,11 @@ export default function (name, variables = []) {
                         console.error(`Could not stringify key '${key}' of localstore ${this.name}.`, e)
                     }
                 })
-                localStorage.setItem(this.localstore_name, JSON.stringify(data))
+                try {
+                    localStorage.setItem(this.localstore_name, JSON.stringify(data))
+                } catch (e) {
+                    console.warn(e)
+                }
             }
         }
     }

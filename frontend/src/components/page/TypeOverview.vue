@@ -472,8 +472,13 @@ export default {
     updatePagination(val) {
       this.pageInfo = val;
       this.updateTypeList();
-      if (this.isEditor)
-        localStorage.setItem('pagination-count', this.pageInfo.count);
+      if (this.isEditor) {
+        try {
+          localStorage.setItem('pagination-count', this.pageInfo.count);
+        } catch (e) {
+          console.warn(e);
+        }
+      }
     },
     completedChanged(val) {
       this.filter.completed = val;
@@ -491,8 +496,13 @@ export default {
       await this.filtersChanged();
     },
     async filtersChanged() {
-      if (this.isEditor)
-        localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
+      if (this.isEditor) {
+        try {
+          localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
+        } catch (e) {
+          console.warn(e);
+        }
+      }
       await this.updateTypeList();
     },
   },

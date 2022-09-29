@@ -1,7 +1,12 @@
 <template>
-  <div class="popup-anchor" v-if="active">
-    <div class="popup-translator" ref="translator">
+  <div class="popup-anchor" v-if="active" :class="{ ['no-shadow']: noShadow }">
+    <div
+      class="popup-translator"
+      ref="translator"
+      :style="{ width: targetWidth + 'px' }"
+    >
       <div class="popup" ref="popup" @click.stop>
+        <slot />
         <Button
           class="close-button"
           :contentButton="true"
@@ -9,7 +14,6 @@
         >
           <CloseButton :size="16" />
         </Button>
-        <slot />
       </div>
     </div>
   </div>
@@ -17,7 +21,7 @@
 
 <script>
 import CloseButton from 'vue-material-design-icons/Close.vue';
-import Button from './layout/buttons/Button.vue';
+import Button from '../layout/buttons/Button.vue';
 
 export default {
   name: 'Popup',
@@ -27,6 +31,8 @@ export default {
   },
   props: {
     active: Boolean,
+    targetWidth: { type: Number, default: 450 },
+    noShadow: Boolean,
   },
   data: function () {
     return {
@@ -100,11 +106,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.popup > :first-child {
+  margin-top: 0;
+}
+
+.popup-anchor:not(.no-shadow) {
+  filter: drop-shadow($strong-shadow);
+}
+
 $color: $white;
 .popup {
   position: absolute;
   bottom: 0;
   background-color: $color;
+  border-radius: $border-radius;
 
   font-size: $small-font;
   line-height: $small-font * 1.5;
@@ -112,15 +127,11 @@ $color: $white;
   padding: $padding;
   padding-right: 26px;
 
-  box-shadow: $strong-shadow;
   z-index: 1000;
 }
 
 .popup-translator {
   position: absolute;
-
-  width: 450px;
-
   min-height: 100px;
 
   transform: translate(-50%, -100%);
@@ -140,8 +151,6 @@ $color: $white;
   top: 0;
 
   background-color: $color;
-
-  box-shadow: $shadow;
 }
 
 .close-button {

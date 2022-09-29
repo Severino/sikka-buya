@@ -60,7 +60,13 @@ export default {
       }
     });
 
-    const lang = window.localStorage.getItem('language', this.$i18n.locale);
+    let lang;
+    try {
+      lang = window.localStorage.getItem('language', this.$i18n.locale);
+    } catch (e) {
+      console.warn(e);
+    }
+
     if (lang) {
       this.languageChanged(lang);
     } else {
@@ -71,7 +77,11 @@ export default {
     languageChanged: function (lang) {
       this.language = lang;
       this.$i18n.locale = lang;
-      window.localStorage.setItem('language', this.$i18n.locale);
+      try {
+        window.localStorage.setItem('language', this.$i18n.locale);
+      } catch (e) {
+        console.warn(e);
+      }
     },
     goHome: function () {
       if (this.$router.route != '/') this.$router.push('/');

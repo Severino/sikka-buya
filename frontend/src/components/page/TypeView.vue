@@ -1,6 +1,14 @@
 <template>
   <div class="type-view">
-    <h1 class="gm2">{{ type.projectId }}</h1>
+    <header>
+      <h1 class="gm2">{{ type.projectId }}</h1>
+      <router-link
+        v-if="!type.excludeFromMapApp"
+        :to="{ name: 'Political Map', query: { year: type.yearOfMint } }"
+      >
+        <button>zu Karte</button>
+      </router-link>
+    </header>
 
     <div v-if="type.donativ" class="box gm4">
       <div>Geschenkmünze</div>
@@ -410,7 +418,13 @@ h1 {
 }
 
 header {
-  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  grid-column: span 2;
+
+  > * {
+    margin-right: $padding;
+  }
 }
 
 .gm1 {

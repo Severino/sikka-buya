@@ -87,7 +87,6 @@ import store from '../store.js'
 
 Vue.use(VueRouter)
 
-console.log(Vue)
 
 const analyticsRoutes = {
   path: "/analytics/",
@@ -155,12 +154,12 @@ const routes = [
               {
                 title: 'routes.Catalog Ruler Explorer',
                 image: "/img/button-images/person-catalog-preview.jpg",
-                to: { name: "Catalog Search" }
+                to: { name: "Catalog Ruler Explorer" }
               },
               {
                 title: "routes.Catalog Search",
                 image: "/img/button-images/catalog-search-preview.jpg",
-                to: { name: "Catalog Ruler Explorer" }
+                to: { name: "Catalog Search" }
               }
             ]
           }
@@ -209,7 +208,7 @@ const routes = [
         component: MapPage,
         meta: { smallNav: true },
         redirect: {
-          name: "PoliticalMap"
+          name: "Political Map"
         },
         children: [
           {

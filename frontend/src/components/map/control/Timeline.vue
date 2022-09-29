@@ -15,6 +15,14 @@
             <PlusIcon v-if="!toolboxOpen" />
             <MinusIcon v-else />
           </div>
+
+          <popup-activator :targetWidth="280" :noShadow="true">
+            <ShareIcon class="button icon-button" />
+            <template v-slot:popup>
+              <h3>Ansicht Teilen</h3>
+
+              <copy-field :value="shareLink" /> </template
+          ></popup-activator>
         </div>
 
         <div class="center">
@@ -125,6 +133,8 @@ import PauseIcon from 'vue-material-design-icons/PauseCircleOutline.vue';
 
 import PlusIcon from 'vue-material-design-icons/PlusCircleOutline.vue';
 import MinusIcon from 'vue-material-design-icons/MinusCircleOutline.vue';
+import ShareIcon from 'vue-material-design-icons/ShareVariant.vue';
+import CopyIcon from 'vue-material-design-icons/ContentCopy.vue';
 
 import CameraOutlineIcon from 'vue-material-design-icons/CameraOutline.vue';
 import NextIcon from 'vue-material-design-icons/SkipNextCircleOutline.vue';
@@ -136,24 +146,32 @@ import Timer from 'vue-material-design-icons/Timer';
 import TimelineSlider from '../../forms/TimelineSlider.vue';
 import NewSlide from './Slides/NewSlide.vue';
 import Slide from './Slides/Slide.vue';
+import Button from '../../layout/buttons/Button.vue';
+import PopupActivator from '../../Popup/PopupActivator.vue';
+import CopyField from '../../forms/CopyField.vue';
 
 export default {
   components: {
+    Button,
+    CameraOutlineIcon,
+    CopyIcon,
+    Info,
     MenuLeft,
     MenuRight,
-    Info,
-    PlayIcon,
-    PauseIcon,
-    PlusIcon,
     MinusIcon,
-    TimelineSlider,
     NewSlide,
-    Slide,
-    CameraOutlineIcon,
     NextIcon,
+    PauseIcon,
+    PlayIcon,
+    PlusIcon,
+    PopupActivator,
     PrevIcon,
-    TimerOff,
+    ShareIcon,
+    Slide,
+    TimelineSlider,
     Timer,
+    TimerOff,
+    CopyField,
   },
   props: {
     map: Object,
@@ -168,6 +186,10 @@ export default {
     allowToggle: {
       default: false,
       type: Boolean,
+    },
+    shareLink: {
+      type: String,
+      require: true,
     },
   },
   data() {

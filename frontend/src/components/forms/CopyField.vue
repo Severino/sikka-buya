@@ -1,5 +1,5 @@
 <template>
-  <div @click="interact" class="copy-field">
+  <div @click="interact" @hover.stop.prevent class="copy-field">
     <div
       class="overlay"
       :class="{
@@ -9,7 +9,7 @@
       <span class="text">Copied!</span>
     </div>
     <input ref="input" :value="value" readonly />
-    <CopyIcon :size="22" />
+    <CopyIcon :size="14" />
   </div>
 </template>
 
@@ -76,6 +76,21 @@ export default {
   border: 1px solid $gray;
   border-radius: $border-radius;
   cursor: pointer;
+  transition: all 0.3s;
+
+  > * {
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &:hover {
+    background-color: $dark-white;
+  }
+
+  &:active {
+    color: white;
+    background-color: $light-gray;
+  }
 }
 
 input {

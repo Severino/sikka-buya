@@ -66,6 +66,7 @@
         :to="timeline.to"
         :value="raw_timeline.value"
         :valid="timelineValid"
+        :shareLink="shareLink"
         @input="timelineChanged"
         @change="timelineChanged"
       >
@@ -123,6 +124,7 @@ import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 // Other
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
+import URLParams from '../../utils/URLParams.js';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -184,6 +186,20 @@ export default {
     }),
   ],
   computed: {
+    shareLink() {
+      const params = {};
+      if (this.map) {
+        params.zoom = this.map.getZoom();
+        const latlng = this.map.getCenter();
+        params.location = JSON.stringify([latlng.lat, latlng.lng]);
+      }
+
+      params.year = this.timeline.value;
+      params.selectedRulers = JSON.stringify(this.selectedRulers);
+      params.selectedMints = JSON.stringify(this.selectedMints);
+
+      return URLParams.apply(params).href;
+    },
     filters() {
       return {
         yearOfMint: this.timeline.value.toString(),
@@ -278,12 +294,33 @@ export default {
     });
   },
   mounted: async function () {
-    const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
+    if (this.$route.query['selectedRulers']) {
+      try {
+        let parsed = JSON.parse(this.$route.query['selectedRulers']);
+        if (Array.isArray(parsed)) {
+          this.selectedRulers = parsed;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    if (this.$route.query['selectedMints']) {
+      try {
+        let parsed = JSON.parse(this.$route.query['selectedMints']);
+        if (Array.isArray(parsed)) {
+          this.selectedMints = parsed;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
     this.timelineChart = new TimelineChart(
       this.$refs.timelineCanvas,
       this.raw_timeline
     );
-    await this.initTimeline(starTime);
+    await this.initTimeline(433);
     this.update();
     await this.drawTimeline();
 
@@ -364,7 +401,6 @@ export default {
       this.drawTimeline();
     },
     timelineChanged(value) {
-      localStorage.setItem('map-timeline', value);
       this.timeChanged(value);
     },
     timelineUpdated: async function () {
@@ -433,7 +469,16 @@ export default {
     updateAvailableMints() {},
     rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
-      localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
+
+      URLParams.update({
+        selectedRulers: selected,
+      });
+
+      try {
+        localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
+      } catch (e) {
+        console.warn(e);
+      }
       this.updateAvailableRulers();
 
       if (!preventUpdate) {

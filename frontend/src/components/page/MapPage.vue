@@ -20,6 +20,8 @@ import Settings from '../../settings';
 require('leaflet-semicircle');
 require('../../plugins/leaflet-svg-icon');
 
+import URLParams from '../../utils/URLParams';
+
 import MapView from '../map/MapView.vue';
 
 const settings = new Settings(window, 'Map');
@@ -42,8 +44,10 @@ export default {
       });
     });
 
+    settings.overwriteWithQueryParams(this);
+
     this.$nextTick(() => {
-      this.map.on('moveend', function (args) {
+      this.map.on('moveend', (args) => {
         const { target: map } = args;
         const { lat, lng } = map.getCenter();
 
@@ -51,7 +55,9 @@ export default {
           ['location', [lat, lng]],
           ['zoom', map.getZoom()],
         ]);
-        // console.log(mapSettings.location, mapSettings.zoom);
+
+        let { location, zoom } = this.mapSettings;
+        URLParams.update(this, { location, zoom });
       });
     });
   },

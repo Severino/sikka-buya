@@ -46,6 +46,7 @@
         :valid="timelineValid"
         :allowToggle="true"
         :timelineActive="timelineActive"
+        :shareLink="shareLink"
         @input="timelineChanged"
         @change="timelineChanged"
         @toggle="timelineToggled"
@@ -126,7 +127,9 @@ import MapSettingsBox from '../MapSettingsBox.vue';
 import MaterialOverlay from '../../maps/MaterialOverlay';
 import Settings from '../../settings';
 import Sorter from '../../utils/Sorter';
+import URLParams from '../../utils/URLParams';
 
+const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
 const selectedMints = loadSelectedMints();
@@ -179,6 +182,26 @@ export default {
     }),
   ],
   computed: {
+    shareLink() {
+      const params = {};
+      if (this.map) {
+        params.zoom = this.map.getZoom();
+        const latlng = this.map.getCenter();
+        params.location = JSON.stringify([latlng.lat, latlng.lng]);
+      }
+
+      if (this.$refs.catalogFilter?.activeFilters) {
+        for (let [key, val] of Object.entries(
+          this.$refs.catalogFilter.activeFilters
+        )) {
+          params[`${queryPrefix}${key}`] = JSON.stringify(val);
+        }
+      }
+      params.year = this.timelineActive ? this.timeline.value : 'null';
+      params.selectedMints = JSON.stringify(this.selectedMints);
+
+      return URLParams.apply(params).href;
+    },
     mintsList() {
       function addAvailability(mint, available) {
         mint.available = available;
@@ -238,15 +261,41 @@ export default {
     });
   },
   mounted: async function () {
-    const starTime = parseInt(localStorage.getItem('map-timeline')) || 433;
-    this.timelineActive = !localStorage.getItem('map-timeline-active')
-      ? false
-      : localStorage.getItem('map-timeline-active') === 'true';
-
     this.fetchMints();
-    await this.initTimeline(starTime);
+
+    if (this.$route.query['selectedMints']) {
+      try {
+        let parsed = JSON.parse(this.$route.query['selectedMints']);
+        console.log(parsed);
+        if (Array.isArray(parsed)) {
+          this.selectedMints = parsed;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
+    this.$nextTick(() => {
+      for (let [key, val] of Object.entries(this.$route.query)) {
+        if (
+          key.startsWith(queryPrefix) &&
+          this.$refs?.catalogFilter?.activeFilters
+        ) {
+          try {
+            let parsed = JSON.parse(val);
+            const filterKey = key.replace(queryPrefix, '');
+            this.$refs.catalogFilter.setFilter(filterKey, parsed);
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      }
+    });
+
+    if (this.$route.query.year === 'null') this.timelineActive = false;
+
+    await this.initTimeline(433);
     this.updateTimeline();
-    this.timelineChanged(starTime);
   },
   methods: {
     resetSettings() {
@@ -294,6 +343,10 @@ export default {
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
       localStorage.setItem('map-timeline-active', this.timelineActive);
+
+      const year = this.timelineActive ? this.timeline.value : 'null';
+      URLParams.update({ year });
+
       this.updateYearOverwrite(
         this.timelineActive ? this.timeline.value : null
       );
@@ -320,7 +373,6 @@ export default {
       // this.update();
     },
     update() {
-      console.log('UPDATE');
       this.updateMints();
       this.$emit('timeline-updated', this.value);
     },
