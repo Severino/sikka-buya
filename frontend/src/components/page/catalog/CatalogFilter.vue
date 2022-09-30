@@ -363,9 +363,9 @@ export default {
       });
 
       [...unfilteredMultiSelectFilters].forEach((filter) => {
-        const emptyObj = Filter.unsetFilter(filter);
+        const emptyObj = Filter.unsetFilter(filter.value);
         for (let [key, val] of Object.entries(emptyObj)) {
-          this.$set(this.filters, key, val || null);
+          this.$set(this.filters, key, val);
         }
       });
     },

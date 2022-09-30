@@ -1,6 +1,6 @@
 <template>
-  <div class="new-slide button">
-    <PlusIcon />
+  <div class="new-slide slideshow-item button">
+    <PlusIcon :size="14" />
   </div>
 </template>
 
@@ -15,4 +15,9 @@ export default {
 </script>
 
 <style>
+.new-slide {
+  width: 16px;
+  border-style: dashed;
+  background-color: transparent;
+}
 </style>

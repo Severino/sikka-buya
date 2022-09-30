@@ -128,6 +128,7 @@ import MaterialOverlay from '../../maps/MaterialOverlay';
 import Settings from '../../settings';
 import Sorter from '../../utils/Sorter';
 import URLParams from '../../utils/URLParams';
+import slideshow from '../mixins/slideshow';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -172,6 +173,7 @@ export default {
   mixins: [
     map,
     timeline,
+    slideshow,
     settingsMixin(overlaySettings),
     localstore('material-map-settings', ['settings']),
     mintLocationsMixin({
@@ -182,26 +184,34 @@ export default {
     }),
   ],
   computed: {
-    shareLink() {
-      const params = {};
+    options() {
+      const options = {};
       if (this.map) {
-        params.zoom = this.map.getZoom();
+        options.zoom = this.map.getZoom();
         const latlng = this.map.getCenter();
-        params.location = JSON.stringify([latlng.lat, latlng.lng]);
+        options.location = [latlng.lat, latlng.lng];
       }
 
       if (this.$refs.catalogFilter?.activeFilters) {
         for (let [key, val] of Object.entries(
           this.$refs.catalogFilter.activeFilters
         )) {
-          params[`${queryPrefix}${key}`] = JSON.stringify(val);
+          options[`${queryPrefix}${key}`] = val;
         }
       }
-      params.year = this.timelineActive ? this.timeline.value : 'null';
-      params.selectedMints = JSON.stringify(this.selectedMints);
+      options.year = this.timelineActive ? this.timeline.value : 'null';
+      options.selectedMints = this.selectedMints;
 
-      return URLParams.apply(params).href;
+      return options;
     },
+    shareLink() {
+      const options = Object.assign({}, this.options);
+      for (let [key, val] of Object.entries(options)) {
+        options[key] = JSON.stringify(val);
+      }
+      return URLParams.apply(options).href;
+    },
+
     mintsList() {
       function addAvailability(mint, available) {
         mint.available = available;
@@ -298,6 +308,32 @@ export default {
     this.updateTimeline();
   },
   methods: {
+    requestSlide({ slideshow, index } = {}) {
+      console.log(this.options);
+      slideshow.createSlide(this.options, index);
+    },
+    applySlide(options = {}) {
+      console.log(options);
+      if (this.map) {
+        options.zoom = this.map.getZoom();
+        const latlng = this.map.getCenter();
+        options.location = [latlng.lat, latlng.lng];
+      }
+
+      if (options.year) this.timelineChanged(options.year);
+
+      if (options.selectedMints)
+        this.mintSelectionChanged(options.selectedMints);
+
+      this.$refs.catalogFilter.resetFilters();
+      Object.entries(options).forEach(([key, value]) => {
+        if (key.startsWith(queryPrefix)) {
+          const param = key.replace(queryPrefix, '');
+          console.log('APPLY', param, value);
+          this.$refs.catalogFilter.filters[param] = value;
+        }
+      });
+    },
     resetSettings() {
       this.overlay.settings.reset();
       this.$emit('reset');

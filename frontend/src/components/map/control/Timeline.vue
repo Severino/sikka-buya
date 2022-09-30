@@ -3,17 +3,17 @@
     <div class="tool-box-drawer">
       <header>
         <div class="left">
-          <div class="button icon-button" @click="togglePlay">
-            <PlayIcon v-if="!playing" />
-            <PauseIcon v-else />
-          </div>
-
           <div
             class="button icon-button"
             @click="() => (toolboxOpen = !toolboxOpen)"
           >
             <PlusIcon v-if="!toolboxOpen" />
             <MinusIcon v-else />
+          </div>
+
+          <div class="button icon-button" @click="togglePlay">
+            <PlayIcon v-if="!playing" />
+            <PauseIcon v-else />
           </div>
 
           <popup-activator :targetWidth="280" :noShadow="true">
@@ -25,17 +25,7 @@
           ></popup-activator>
         </div>
 
-        <div class="center">
-          <div class="button icon-button" @click="prevSlide">
-            <PrevIcon class="button icon-button" />
-          </div>
-          <div class="button icon-button" @click="createSlide">
-            <CameraOutlineIcon class="button icon-button" />
-          </div>
-          <div class="button icon-button" @click="nextSlide">
-            <NextIcon class="button icon-button" />
-          </div>
-        </div>
+        <div class="center"></div>
 
         <div class="right">
           <div v-if="allowToggle">
@@ -57,16 +47,7 @@
         </div>
       </header>
 
-      <div class="toolbox" v-if="toolboxOpen">
-        <new-slide @click.native="createSlide" />
-        <slide
-          v-for="(slide, idx) of slides"
-          :key="`slide-${idx}`"
-          :name="slide.name"
-          :class="{ active: idx === currentSlide }"
-          @click.native="setSlide(idx)"
-        />
-      </div>
+      <slideshow v-if="toolboxOpen" ref="slideshow" />
     </div>
 
     <!-- <button class="play-btn" @click="play">
@@ -78,15 +59,6 @@
       <button type="button" @click.stop.prevent="down" @focus="focusTimeline">
         <MenuLeft />
       </button>
-      <!-- <input
-        type="range"
-        :min="from"
-        :max="to"
-        :value="value"
-        @change.stop="change"
-        @pointerdown="disableMap"
-        @pointerup="enableMap"
-      /> -->
 
       <timeline-slider
         :min="from"
@@ -134,44 +106,33 @@ import PauseIcon from 'vue-material-design-icons/PauseCircleOutline.vue';
 import PlusIcon from 'vue-material-design-icons/PlusCircleOutline.vue';
 import MinusIcon from 'vue-material-design-icons/MinusCircleOutline.vue';
 import ShareIcon from 'vue-material-design-icons/ShareVariant.vue';
-import CopyIcon from 'vue-material-design-icons/ContentCopy.vue';
-
-import CameraOutlineIcon from 'vue-material-design-icons/CameraOutline.vue';
-import NextIcon from 'vue-material-design-icons/SkipNextCircleOutline.vue';
-import PrevIcon from 'vue-material-design-icons/SkipPreviousCircleOutline.vue';
 
 import TimerOff from 'vue-material-design-icons/TimerOff.vue';
 import Timer from 'vue-material-design-icons/Timer';
 
 import TimelineSlider from '../../forms/TimelineSlider.vue';
-import NewSlide from './Slides/NewSlide.vue';
-import Slide from './Slides/Slide.vue';
 import Button from '../../layout/buttons/Button.vue';
 import PopupActivator from '../../Popup/PopupActivator.vue';
 import CopyField from '../../forms/CopyField.vue';
+import Slideshow from './Slides/Slideshow.vue';
 
 export default {
   components: {
     Button,
-    CameraOutlineIcon,
-    CopyIcon,
     Info,
     MenuLeft,
     MenuRight,
     MinusIcon,
-    NewSlide,
-    NextIcon,
     PauseIcon,
     PlayIcon,
     PlusIcon,
     PopupActivator,
-    PrevIcon,
     ShareIcon,
-    Slide,
     TimelineSlider,
     Timer,
     TimerOff,
     CopyField,
+    Slideshow,
   },
   props: {
     map: Object,
@@ -196,10 +157,6 @@ export default {
     return {
       playInterval: null,
       toolboxOpen: false,
-      slides: [],
-      slideId: 0,
-      selectedSlide: -1,
-      currentSlide: 0,
     };
   },
   computed: {
@@ -208,18 +165,6 @@ export default {
     },
   },
   methods: {
-    createSlide() {
-      const slide = {
-        name: (this.slideId++).toString(),
-        options: {
-          zoom: this.map.getZoom(),
-          location: this.map.getCenter(),
-          year: this.value,
-        },
-      };
-
-      this.slides.push(slide);
-    },
     setMapTo(options) {
       this.map.setView(options.location, options.zoom, { animation: true });
       this.changed(options.year);
@@ -274,39 +219,11 @@ export default {
       let timeline = new L.Control.Timeline();
       timeline.addTo(this.map);
     },
-    nextSlide() {
-      const length = this.slides.length;
-      if (length > 0) {
-        if (this.currentSlide < 0 || this.currentSlide >= length - 1)
-          this.currentSlide = 0;
-        else {
-          this.currentSlide += 1;
-        }
-      }
-      this.updateSlide();
-    },
-    prevSlide() {
-      const length = this.slides.length;
-      if (length > 0) {
-        if (this.currentSlide <= 0) this.currentSlide = length - 1;
-        else {
-          this.currentSlide -= 1;
-        }
-      }
-      this.updateSlide();
-    },
-    updateSlide() {
-      if (this.currentSlide >= 0 && this.currentSlide < this.slides.length) {
-        this.setMapTo(this.slides[this.currentSlide].options);
-      } else console.warn('Slide index is out of range.');
-    },
+
     toggleTimeline() {
       this.$emit('toggle', this.timelineActive);
     },
-    setSlide(index) {
-      this.currentSlide = index;
-      this.updateSlide();
-    },
+
     focusTimeline() {
       const htmlSlider =
         this.$refs.timelineSlider.$el.querySelector('input[type=range]');
@@ -425,19 +342,6 @@ export default {
   transform: translateY(-100%);
   width: 100%;
 
-  .toolbox {
-    background-color: whitesmoke;
-    padding: $padding;
-    border-radius: $border-radius;
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    > *:not(:last-child) {
-      margin-right: $padding;
-    }
-  }
-
   header {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -470,8 +374,6 @@ export default {
   color: white;
   padding: 0px;
 }
-// .icon-button:hover,
-// .icon-button:active {
 
 .icon-button,
 .icon-button:hover,

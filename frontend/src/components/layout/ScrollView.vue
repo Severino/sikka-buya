@@ -12,8 +12,3 @@ export default {
 };
 </script>
 
-<style>
-.scroll-view {
-  height: 100px;
-}
-</style>

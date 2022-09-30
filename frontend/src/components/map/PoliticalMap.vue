@@ -105,6 +105,7 @@ import map from './mixins/map';
 import { mintLocationsMixin } from './mixins/MintLocationsMixin';
 import settingsMixin from '../map/mixins/settings';
 import timeline from './mixins/timeline';
+import slideshow from '../mixins/slideshow';
 
 // Components
 import Checkbox from '../forms/Checkbox.vue';
@@ -178,6 +179,7 @@ export default {
   mixins: [
     map,
     timeline,
+    slideshow,
     settingsMixin(overlaySettings),
     mintLocationsMixin({
       onMintSelectionChanged: async function () {
@@ -186,19 +188,26 @@ export default {
     }),
   ],
   computed: {
-    shareLink() {
-      const params = {};
+    options() {
+      const options = {};
       if (this.map) {
-        params.zoom = this.map.getZoom();
+        options.zoom = this.map.getZoom();
         const latlng = this.map.getCenter();
-        params.location = JSON.stringify([latlng.lat, latlng.lng]);
+        options.location = [latlng.lat, latlng.lng];
       }
 
-      params.year = this.timeline.value;
-      params.selectedRulers = JSON.stringify(this.selectedRulers);
-      params.selectedMints = JSON.stringify(this.selectedMints);
+      options.year = this.timeline.value;
+      options.selectedRulers = this.selectedRulers;
+      options.selectedMints = this.selectedMints;
 
-      return URLParams.apply(params).href;
+      return options;
+    },
+    shareLink() {
+      const options = Object.assign({}, this.options);
+      for (let [key, val] of Object.entries(options)) {
+        options[key] = JSON.stringify(val);
+      }
+      return URLParams.apply(options).href;
     },
     filters() {
       return {
@@ -332,6 +341,10 @@ export default {
     window.removeEventListener('resize', this.updateCanvas);
   },
   methods: {
+    requestSlide({ slideshow, index }) {
+      slideshow.createSlide(this.options, index);
+    },
+    createSlide() {},
     async drawTimeline() {
       this.timelineChart.clear();
       if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
@@ -405,12 +418,6 @@ export default {
     },
     timelineUpdated: async function () {
       this.update();
-
-      //   let types = await this.fetchTypes();
-      //   if (types != null) {
-      //     this.types = types;
-      //     this.update();
-      //   }
     },
     resetFilters: function () {
       this.rulerSelectionChanged([], true);
@@ -435,6 +442,24 @@ export default {
           selections: this.selections,
         });
       }
+    },
+    applySlide(options = {}) {
+      if (options.zoom && options.location)
+        this.map.panTo(options.location, options.zoom);
+
+      if (options.selectedRulers) {
+        this.selectedRulers = options.selectedRulers.slice();
+      }
+
+      if (options.selectedMints) {
+        this.mintSelectionChanged(options.selectedMints.slice());
+      }
+
+      if (options.year) {
+        this.timeChanged(options.year);
+      }
+
+      console.log('applySlides', options);
     },
     updateAvailableRulers() {
       let selectedRulers = this.selectedRulers.slice();
