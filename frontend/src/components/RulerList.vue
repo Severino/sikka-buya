@@ -13,6 +13,12 @@
           @click.native="selectionChanged([item.id])"
           :style="{ color: item.color, borderColor: item.color }"
         >
+          <template v-slot:before>
+            <div
+              class="color-indicator"
+              :class="{ 'color-indicator-selected': isSelected(item) }"
+            ></div>
+          </template>
           <span
             >{{ getRulerName(item) }}
             <span v-if="getDynasty(item)" class="dynasty">{{
@@ -84,7 +90,7 @@ export default {
   }
 
   .multi-select-list .select-list-item {
-    grid-template-columns: 20px 30px 1fr;
+    grid-template-columns: auto 30px 1fr;
   }
 
   span {
@@ -92,22 +98,15 @@ export default {
   }
 
   .color-indicator {
-    $size: 10px;
-    width: $size;
+    $size: 1em;
+    width: $size/3;
     height: $size;
-    border-radius: $size;
-    border: 2px solid currentColor;
-
-    &.color-indicator-selected {
-      background-color: currentColor;
-    }
+    border-radius: $border-radius;
+    border: 3px solid currentColor;
+    background-color: currentColor;
+    margin-right: 5px;
   }
 }
-// .ruler-list li.select-list-item {
-//   border-left: 10px solid white;
-//   margin-bottom: 3px;
-//   align-items: center;
-// }
 </style>
 
 <style lang="scss" scoped>
