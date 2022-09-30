@@ -16,18 +16,17 @@
   border: 1px solid rgb(204, 204, 204);
   border-radius: 3px;
   box-sizing: border-box;
-  background-color: white;
+  background-color: $white;
 
   transition: background-color 0.2s, color 0.2s;
 
   &:hover:not(.disable-input) {
-    color: darken($gray, 5%);
-    background-color: darken(white, 5%);
+    filter: brightness(95%);
   }
 
   &:active:not(.disable-input) {
-    color: darken($gray, 10%);
-    background-color: darken(white, 10%);
+    filter: brightness(90%);
+
   }
 
   @include focus();
