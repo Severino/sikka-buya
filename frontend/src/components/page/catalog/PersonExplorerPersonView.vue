@@ -101,7 +101,6 @@ export default {
   },
   methods: {
     selectType(id) {
-      console.log(this.types[id].otherPersons);
       this.activeType = this.activeType === id ? null : id;
     },
     isTypeActive(id) {
@@ -160,13 +159,13 @@ export default {
               ruler: [this.person.id],
               excludeFromTypeCatalogue: false,
             },
-            typeBody: `id projectId treadwellId mint {name id} mintAsOnCoin material {name id} nominal {name id}
+            typeBody: `id projectId treadwellId mint {name id location} mintAsOnCoin material {name id} nominal {name id}
 yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id role {name id} name shortName}
 caliph {id name shortName}
 avers {fieldText innerInscript intermediateInscript outerInscript misc}
 reverse {fieldText innerInscript intermediateInscript outerInscript misc} 
 cursiveScript coinMarks {name id}
-literature pieces  specials yearUncertain mintUncertain
+literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
 `,
           });
 
@@ -197,6 +196,12 @@ literature pieces  specials yearUncertain mintUncertain
               ? type.mint
               : { id: 0, name: 'ohne Ortsangabe' };
             const mintId = mint.id;
+
+            try {
+              type.mint.location = JSON.parse(type.mint.location);
+            } catch (e) {
+              type.mint.location = null;
+            }
 
             if (isIssuer) {
               if (!typeTree[year].asIssuer[mintId]) {

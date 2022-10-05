@@ -458,8 +458,6 @@ export default {
       if (options.year) {
         this.timeChanged(options.year);
       }
-
-      console.log('applySlides', options);
     },
     updateAvailableRulers() {
       let selectedRulers = this.selectedRulers.slice();

@@ -276,7 +276,6 @@ export default {
     if (this.$route.query['selectedMints']) {
       try {
         let parsed = JSON.parse(this.$route.query['selectedMints']);
-        console.log(parsed);
         if (Array.isArray(parsed)) {
           this.selectedMints = parsed;
         }
@@ -309,11 +308,9 @@ export default {
   },
   methods: {
     requestSlide({ slideshow, index } = {}) {
-      console.log(this.options);
       slideshow.createSlide(this.options, index);
     },
     applySlide(options = {}) {
-      console.log(options);
       if (this.map) {
         options.zoom = this.map.getZoom();
         const latlng = this.map.getCenter();
@@ -329,7 +326,6 @@ export default {
       Object.entries(options).forEach(([key, value]) => {
         if (key.startsWith(queryPrefix)) {
           const param = key.replace(queryPrefix, '');
-          console.log('APPLY', param, value);
           this.$refs.catalogFilter.filters[param] = value;
         }
       });

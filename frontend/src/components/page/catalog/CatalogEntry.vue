@@ -72,7 +72,8 @@ export default {
                 treadwellId
                 mint {
                   id,
-                  name
+                  name,
+                  location
                 }
                 mintAsOnCoin
                 mintUncertain
@@ -158,7 +159,16 @@ export default {
       `
     )
       .then((result) => {
-        Object.assign(this.$data.type, result.data.data.getCoinType);
+        const data = result.data.data.getCoinType;
+        if (data.mint.location) {
+          try {
+            data.mint.location = JSON.parse(data.mint.location);
+          } catch (e) {
+            data.mint.location = undefined;
+          }
+        }
+
+        Object.assign(this.$data.type, data);
         this.loading = false;
       })
       .catch(console.error);

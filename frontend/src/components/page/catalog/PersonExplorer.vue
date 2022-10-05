@@ -106,68 +106,6 @@ export default {
         this.editmode = !this.editmode;
       }
     },
-
-    // toggleActive(obj) {
-    //   obj.active = !obj.active;
-    // },
-
-    // availableTypes(mintListObject) {
-    //   const selected = [];
-    //   for (let mintObj of Object.values(mintListObject)) {
-    //     if (mintObj.active) {
-    //       for (let yearObj of Object.values(mintObj.children)) {
-    //         if (yearObj.active) {
-    //           selected.push(...yearObj.children);
-    //         }
-    //       }
-    //     }
-    //   }
-
-    //   return selected.sort(Sort.stringPropAlphabetically('projectId'));
-    // },
-    // getActiveObjects(arr) {
-    //   const active = Object.values(arr).filter((obj) => obj.active);
-    //   return active;
-    // },
-    // getInscripts(coinside) {
-    //   function hasContent(htmlString) {
-    //     try {
-    //       const parser = new DOMParser();
-    //       let document = parser.parseFromString(htmlString, 'text/html');
-    //       return document.body.textContent == '' ? false : true;
-    //     } catch (e) {
-    //       console.error(e);
-    //     }
-
-    //     return false;
-    //   }
-
-    //   let inscripts = [];
-    //   ['innerInscript', 'intermediateInscript', 'outerInscript'].forEach(
-    //     (prop) => {
-    //       if (coinside[prop] && hasContent(coinside[prop])) {
-    //         inscripts.push(coinside[prop]);
-    //       }
-    //     }
-    //   );
-
-    //   return inscripts;
-    // },
-
-    // mintOverlordChanged(person) {
-    //   if (person.activeOverlords[person.id]) {
-    //     delete person.activeOverlords[person.id];
-    //   } else {
-    //     person.activeOverlords[person.id] = true;
-    //   }
-    // },
-    // mintIssuerChanged(person) {
-    //   if (person.activeIssuers[person.id]) {
-    //     delete person.activeIssuers[person.id];
-    //   } else {
-    //     person.activeIssuers[person.id] = true;
-    //   }
-    // },
   },
   computed: {
     persons() {

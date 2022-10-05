@@ -2,12 +2,12 @@
   <div class="type-view">
     <header>
       <h1 class="gm2">{{ type.projectId }}</h1>
-      <router-link
+
+      <sikka-buya-button
         v-if="!type.excludeFromMapApp"
         :to="{ name: 'Political Map', query: { year: type.yearOfMint } }"
+        >zu Karte</sikka-buya-button
       >
-        <button>zu Karte</button>
-      </router-link>
     </header>
 
     <div v-if="type.donativ" class="box gm4">
@@ -32,7 +32,23 @@
 
     <div class="property gm2">
       <catalog-property :label="mapText('mint')">
-        {{ printMintProperty() }}
+        <div style="display: flex">
+          {{ printMintProperty() }}
+          <sikka-buya-button
+            v-if="mintHasLocation"
+            style="margin-left: auto"
+            :to="{
+              name: 'Political Map',
+              query: {
+                year: null,
+                location: JSON.stringify(mintLocation),
+                zoom: 10,
+                selectedMints: JSON.stringify([type.mint.id]),
+              },
+            }"
+            >zu Karte</sikka-buya-button
+          >
+        </div>
       </catalog-property>
     </div>
 
@@ -174,6 +190,7 @@ import Button from '../layout/buttons/Button.vue';
 import PersonView from '../Person/PersonView.vue';
 import PersonList from '../Person/PersonList.vue';
 import StringUtils from '../../utils/StringUtils';
+import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
 
 export default {
   name: 'TypeView',
@@ -195,6 +212,7 @@ export default {
     Button,
     PersonView,
     PersonList,
+    SikkaBuyaButton,
   },
   methods: {
     dynamicHeading() {
@@ -375,6 +393,18 @@ export default {
     },
     missingText() {
       return StringUtils.missingText;
+    },
+    mintHasLocation() {
+      return (
+        this?.type &&
+        this.type.excludeFromMapApp === false &&
+        this.type?.mint?.location?.coordinates &&
+        Array.isArray(this.type.mint.location.coordinates)
+      );
+    },
+    mintLocation() {
+      if (!this?.type?.mint?.location?.coordinates) return [0, 0];
+      return this.type.mint.location.coordinates;
     },
   },
 };
