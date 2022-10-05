@@ -436,6 +436,8 @@ $columns: 4;
 
 h1 {
   margin: 0;
+  margin-left: $padding;
+
   align-self: center;
   // padding: 0 0 $padding 0;
 }
@@ -452,6 +454,7 @@ header {
   align-items: center;
   grid-column: span 2;
 
+  margin-bottom: 1rem;
   > * {
     margin-right: $padding;
   }

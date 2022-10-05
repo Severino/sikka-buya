@@ -173,12 +173,12 @@ input[type='color'] {
 
 h1 {
   font-weight: bold;
-  font-size: 3rem;
+  font-size: 2rem;
 }
 
 h2 {
-  font-size: 1.64rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  // font-weight: bold;
   margin-block-end: 1rem;
 }
 
