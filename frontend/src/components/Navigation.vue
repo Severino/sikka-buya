@@ -3,7 +3,7 @@
     <div class="content-wrapper">
       <div class="brand">
         <router-link :to="{ name: 'Home' }">
-          <img src="/img/logos/sikka-logo.svg" alt="" />
+          <img src="/img/logos/sikka-buya-logo.svg" alt="" />
         </router-link>
       </div>
       <div class="nav-menu" :class="{ active: active }">
