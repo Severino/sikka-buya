@@ -153,12 +153,12 @@ const routes = [
             links: [
               {
                 title: 'routes.Catalog Ruler Explorer',
-                image: "/img/button-images/person-catalog-preview.jpg",
+                image: "/img/button-images/catalog-person-tree-preview.png",
                 to: { name: "Catalog Ruler Explorer" }
               },
               {
                 title: "routes.Catalog Search",
-                image: "/img/button-images/catalog-search-preview.jpg",
+                image: "/img/button-images/catalog-search-preview.png",
                 to: { name: "Catalog Search" }
               }
             ]
