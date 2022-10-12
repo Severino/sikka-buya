@@ -470,7 +470,6 @@ export default {
     },
     changeFilterMode(name) {
       let newMode = this.filterMode[name] === 'AND' ? 'OR' : 'AND';
-      console.log(this.filterMode[name], newMode);
       this.filterMode[name] = newMode;
       this.search();
     },
@@ -496,7 +495,6 @@ export default {
       return group.filter((item) => this.exclude.indexOf(item.value) === -1);
     },
     getMode(name) {
-      console.log(this.filterMode[name]);
       return this.filterMode[name];
     },
   },

@@ -1022,8 +1022,6 @@ COUNT(*) as total
         targetFilters.forEach(filterName => {
 
             if (Object.hasOwnProperty.bind(filter)(filterName)) {
-                console.log(filterName)
-
                 if (activeFilter != null) throw new Error(`Too many ${name} filter. Only use one!`)
                 activeFilter = filterName
             }
