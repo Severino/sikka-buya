@@ -3,8 +3,9 @@
     <input type="hidden" class="data-select-id" :value="idValue" />
     <input
       class="name-field"
+      ref="nameField"
       @input="input"
-      @focus="focus"
+      @focus="activateList"
       @blur="hideList"
       :placeholder="placeholder"
       v-model="value[attribute]"
@@ -77,7 +78,7 @@ export default {
     value: {
       type: Object,
       validator: function (obj) {
-        return obj.id == null || !isNaN(parseInt(obj.id));
+        return obj && (obj.id == null || !isNaN(parseInt(obj.id)));
       },
     },
     error: String,
@@ -152,6 +153,9 @@ export default {
       this.checkMatch(value);
       this.$emit('input', value);
     },
+    focus() {
+      this.$refs.nameField.focus();
+    },
     checkMatch: async function (value) {
       await this.searchEntry(value[this.attribute]);
       for (let entry of this.searchResults.values()) {
@@ -163,17 +167,19 @@ export default {
         }
       }
     },
-    focus: async function () {
+    activateList: async function () {
       await this.checkMatch(this.value);
       this.showList();
     },
     showList: function () {
       if (this.hideTimeout) clearTimeout(this.hideTimeout);
       this.listVisible = true;
+      this.$emit('dynamic-change');
     },
     hideList: function () {
       this.hideTimeout = setTimeout(() => {
         this.listVisible = false;
+        this.$emit('blur');
 
         // if (!this.value.id) {
         //   const obj = { id: null };
@@ -344,6 +350,7 @@ export default {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   //   border: 1px solid gray;
+  transition: opacity 0.2s;
 }
 
 .id-field {
@@ -365,7 +372,6 @@ button {
   padding-left: 0;
   list-style-type: none;
   background-color: white;
-  border: 1px solid whitesmoke;
   width: 100%;
   // padding: 10px;
   box-sizing: border-box;
@@ -375,17 +381,24 @@ button {
 
   box-shadow: 1px 2px 3px rgba($color: #000000, $alpha: 0.2);
 
+  border: $border;
+  border-top-width: 0;
+  border-bottom-right-radius: $border-radius;
+  border-bottom-left-radius: $border-radius;
+  transform: translateY(-2px);
+
   li {
+    font-size: $small-font;
     border-bottom: 1px solid whitesmoke;
-    padding: 10px;
+    padding: $small-padding 2 * $small-padding;
 
     &.non-selectable {
       background-color: whitesmoke;
     }
 
     &:not(.non-selectable):hover {
-      color: whitesmoke;
-      background-color: $primary-color;
+      // color: whitesmoke;
+      background-color: $dark-white;
       cursor: pointer;
     }
   }

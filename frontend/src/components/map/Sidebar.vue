@@ -3,9 +3,11 @@
     <header class="title underlined-header">
       <h3>{{ title }}</h3>
     </header>
-    <scroll-view class="body">
-      <slot />
-    </scroll-view>
+    <div class="body">
+      <scroll-view ref="scrollview">
+        <slot />
+      </scroll-view>
+    </div>
   </div>
 </template>
 
@@ -18,6 +20,11 @@ export default {
     side: {
       type: String,
       default: 'left',
+    },
+  },
+  methods: {
+    recalculate() {
+      this.$refs.scrollview.recalculate();
     },
   },
   computed: {
@@ -46,7 +53,8 @@ export default {
   // }
 
   .body {
-    flex: 1;
+    flex-grow: 1;
+    overflow: auto;
   }
 }
 

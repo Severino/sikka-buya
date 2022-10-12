@@ -8,7 +8,7 @@ class QueryBuilder {
     }
 
     addWhere(str) {
-        this.where.push(str)
+        this.where.push(`(${str})`)
     }
 
     addJoin(str) {

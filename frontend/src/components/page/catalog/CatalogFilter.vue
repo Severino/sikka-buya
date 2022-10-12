@@ -68,8 +68,30 @@
           :text="input.text"
           :displayTextCallback="input.displayTextCallback"
           :disableRemoveButton="true"
+          :mode="getMode(input.value)"
           @select="(el) => selectFilter(input.value, el)"
           @remove="(el) => removeFilter(input.value, el)"
+          @change-mode="() => changeFilterMode(input.value)"
+          @dynamic-change="() => $emit('dynamic-change')"
+        />
+      </labeled-input-container>
+      <labeled-input-container
+        v-else-if="input.type === 'multi-select-2d'"
+        :label="input.label"
+        :class="[input.value]"
+        :key="input.value"
+        class="multi-select-wrapper"
+      >
+        <multi-data-select-2-d
+          :active="filters[input.value]"
+          :input="input"
+          :mode="getMode(input.value)"
+          @add="() => addToFilterList(input.value)"
+          @select="(value, idx) => selectFilter(input.value, value, idx)"
+          @remove="(el, idx) => removeFilter(input.value, el, idx)"
+          @dynamic-change="() => $emit('dynamic-change')"
+          @remove-group="(idx) => removeFilterGroup(input.value, idx)"
+          @change-mode="() => changeFilterMode(input.value)"
         />
       </labeled-input-container>
       <error-box
@@ -83,7 +105,7 @@
 
 <script>
 import MultiDataSelect from '../../forms/MultiDataSelect.vue';
-import Filter from '../../../models/Filter';
+import Filter, { FilterList } from '../../../models/Filter';
 import LabeledInputContainer from '../../LabeledInputContainer.vue';
 import Sorter from '../../../utils/Sorter';
 import ThreeWayToggle from '../../forms/ThreeWayToggle.vue';
@@ -92,12 +114,18 @@ import { RequestGuard } from '../../../utils/Async';
 import Type from '../../../utils/Type';
 import PageInfo, { Pagination } from '../../../models/pageinfo';
 import ErrorBox from '../system/ErrorBox.vue';
+import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
 
 const searchRequestGuard = new RequestGuard();
 
 function addType(arr, typeName) {
   arr.forEach((obj) => (obj.type = typeName));
 }
+
+const mode = {
+  and: 'AND',
+  or: 'OR',
+};
 
 const textFilters = [
   {
@@ -164,21 +192,18 @@ let unfilteredMultiSelectFilters = [
     label: 'Material',
     value: 'material',
     order: 0,
+    mode: mode.or,
   },
   {
     label: 'Prägeort',
     value: 'mint',
     order: -5,
+    mode: mode.or,
   },
   {
     label: 'Nominal',
     value: 'nominal',
     order: 3,
-  },
-  {
-    label: 'Münzzeichen/Einzelworte',
-    value: 'coinMark',
-    order: 5,
   },
   {
     label: 'Kalif',
@@ -206,11 +231,13 @@ let unfilteredMultiSelectFilters = [
     label: 'Herrschertitel',
     value: 'title',
     order: 7,
+    mode: mode.and,
   },
   {
     label: 'Ehrennamen',
     value: 'honorific',
     order: 8,
+    mode: mode.and,
   },
   {
     label: 'Herrscher',
@@ -226,6 +253,15 @@ let unfilteredMultiSelectFilters = [
   },
 ];
 addType(unfilteredMultiSelectFilters, 'multi-select');
+
+const unfilteredMultiDataSelect2D = [
+  {
+    label: 'Münzzeichen/Einzelworte',
+    value: 'coinMark',
+    order: 5,
+  },
+];
+addType(unfilteredMultiDataSelect2D, 'multi-select-2d');
 
 unfilteredMultiSelectFilters = unfilteredMultiSelectFilters.sort(
   Sorter.stringPropAlphabetically('label')
@@ -245,10 +281,21 @@ let filterMethods = {};
   });
 });
 
+let filterMode = {};
+
 unfilteredMultiSelectFilters.forEach((item) => {
   const filter = new Filter(item.value);
-  filterData = Object.assign(filterData, filter.mapData());
+  filterData = Object.assign(filterData, filter.mapData(item.defaultValue));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
+  filterMode[item.value] = item.mode ? item.mode : mode.and;
+  item.filter = filter;
+});
+
+unfilteredMultiDataSelect2D.forEach((item) => {
+  const filter = new FilterList(item.value);
+  filterData = Object.assign(filterData, filter.mapData([[]]));
+  filterMethods = Object.assign(filterMethods, filter.mapMethods());
+  filterMode[item.value] = item.mode ? item.mode : mode.and;
   item.filter = filter;
 });
 
@@ -256,6 +303,7 @@ const inputs = [
   ...unfilteredNumberFilters,
   ...unfilteredButtonGroupFilters,
   ...unfilteredMultiSelectFilters,
+  ...unfilteredMultiDataSelect2D,
   ...unfilteredThreeWayFilters,
   ...textFilters,
 ].sort((a, b) => {
@@ -271,6 +319,7 @@ export default {
     ThreeWayToggle,
     ButtonGroup,
     ErrorBox,
+    MultiDataSelect2D,
   },
   props: {
     pageInfo: Object,
@@ -293,6 +342,9 @@ export default {
       types: [],
       filters: {
         ...filterData,
+      },
+      filterMode: {
+        ...filterMode,
       },
       watching: true,
     };
@@ -339,6 +391,30 @@ export default {
               filters[item.value] = filters[item.value].map((item) => item.id);
           });
 
+          Object.values(unfilteredMultiSelectFilters).forEach(
+            ({ value: name }) => {
+              if (this.filterMode?.[name] === 'AND') {
+                filters[name + '_and'] = filters[name];
+                delete filters[name];
+              }
+            }
+          );
+
+          Object.values(unfilteredMultiDataSelect2D).forEach(
+            ({ value: name }) => {
+              if (this.filterMode?.[name] === 'AND') {
+                filters[name + '_or_and'] = filters[name].map((arr) =>
+                  arr.map((el) => el.id)
+                );
+              } else {
+                filters[name + '_and_or'] = filters[name].map((arr) =>
+                  arr.map((el) => el.id)
+                );
+              }
+              delete filters[name];
+            }
+          );
+
           let { types, pageInfo } = await Type.filteredQuery({
             pagination: Pagination.fromPageInfo(this.pageInfo),
             filters,
@@ -363,19 +439,44 @@ export default {
       });
 
       [...unfilteredMultiSelectFilters].forEach((filter) => {
-        const emptyObj = Filter.unsetFilter(filter.value);
+        const emptyObj = Filter.mapData(filter.value, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
         }
       });
     },
-    selectFilter(name, target) {
-      const methodName = Filter.selectMethodName(name);
-      return this[methodName](target);
+    _getMethodFromFilter(methodName, inputName, idx = null) {
+      const filterClass = idx == null ? Filter : FilterList;
+      return filterClass[methodName](inputName);
     },
-    removeFilter(name, target) {
-      const methodName = Filter.removeMethodName(name);
-      return this[methodName](target);
+    selectFilter(name, target, idx = null) {
+      const methodName = this._getMethodFromFilter(
+        'selectMethodName',
+        name,
+        idx
+      );
+      return this[methodName](target, idx);
+    },
+    removeFilter(name, target, idx = null) {
+      const methodName = this._getMethodFromFilter(
+        'removeMethodName',
+        name,
+        idx
+      );
+      return this[methodName](target, idx);
+    },
+    removeFilterGroup(name, idx) {
+      this.filters[name].splice(idx, 1);
+    },
+    changeFilterMode(name) {
+      let newMode = this.filterMode[name] === 'AND' ? 'OR' : 'AND';
+      console.log(this.filterMode[name], newMode);
+      this.filterMode[name] = newMode;
+      this.search();
+    },
+    addToFilterList(name) {
+      const methodName = FilterList.pushMethodName(name);
+      return this[methodName]();
     },
     searchVariableName(value) {
       return Filter.searchVariableName(value);
@@ -393,6 +494,10 @@ export default {
     },
     excludeItem(group) {
       return group.filter((item) => this.exclude.indexOf(item.value) === -1);
+    },
+    getMode(name) {
+      console.log(this.filterMode[name]);
+      return this.filterMode[name];
     },
   },
   computed: {
@@ -428,6 +533,9 @@ export default {
     },
     multiSelectFilters() {
       return this.excludeItem(unfilteredMultiSelectFilters);
+    },
+    multiDataSelect2D() {
+      return this.excludeItem(unfilteredMultiDataSelect2D);
     },
   },
 };

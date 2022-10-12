@@ -57,11 +57,12 @@
       </timeline>
     </div>
 
-    <Sidebar title="Filter" side="right">
+    <Sidebar title="Filter" side="right" ref="catalogSidebar">
       <div class="padding-box">
         <catalog-filter
           ref="catalogFilter"
           @update="dataUpdated"
+          @dynamic-change="recalculateCatalogSidebar"
           :pageInfo="pageInfo"
           :exclude="[
             'mint',
@@ -114,7 +115,6 @@ import CatalogFilter from '../page/catalog/CatalogFilter.vue';
 import Checkbox from '../forms/Checkbox.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import MintList from '../MintList.vue';
-import ScrollView from '../layout/ScrollView.vue';
 import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
 import Timeline from './control/Timeline.vue';
@@ -145,7 +145,6 @@ export default {
     LabeledInputContainer,
     MapSettingsBox,
     MintList,
-    ScrollView,
     Sidebar,
     Slider,
     Timeline,
@@ -307,6 +306,9 @@ export default {
     this.updateTimeline();
   },
   methods: {
+    recalculateCatalogSidebar() {
+      this.$refs.catalogSidebar.recalculate();
+    },
     requestSlide({ slideshow, index } = {}) {
       slideshow.createSlide(this.options, index);
     },
@@ -445,18 +447,18 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.active-list {
-  display: flex;
-  flex-wrap: wrap;
+// .active-list {
+//   display: flex;
+//   flex-wrap: wrap;
 
-  button {
-    margin: $small-padding/2;
-    font-size: $small-font;
-    border-radius: $border-radius;
-    padding: $small-padding/2 $small-padding;
-    background-color: $primary-color;
-    color: white;
-    font-weight: bold;
-  }
-}
+//   button {
+//     margin: $small-padding/2;
+//     font-size: $small-font;
+//     border-radius: $border-radius;
+//     padding: $small-padding/2 $small-padding;
+//     background-color: $primary-color;
+//     color: white;
+//     font-weight: bold;
+//   }
+// }
 </style>

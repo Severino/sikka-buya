@@ -471,26 +471,32 @@ input ModTypeFilter {
 }
 
 input TypeFilter {
-  plain_text: String
-  projectId: String
-  treadwellId: String
-  donativ: Boolean
-  procedure: String
+  caliph: [ID]
+  coinMark: [ID]
+  coinMark_and_or: [[ID]]
+  coinMark_and: [ID]
+  coinMark_or_and: [[ID]]
   cursiveScript: Boolean
-  excludeFromTypeCatalogue: Boolean
+  donativ: Boolean
   excludeFromMapApp: Boolean
+  excludeFromTypeCatalogue: Boolean
+  honorific: [ID]
+  honorific_and: [ID]
+  material: [ID]
+  mint: [ID]
+  mintUncertain: Boolean
+  nominal: [ID]
+  otherPerson: [ID]
+  otherPerson_and: [ID]
+  plain_text: String
+  procedure: String
+  projectId: String
+  ruler: [ID]
+  title: [ID]
+  title_and: [ID]
+  treadwellId: String
   yearOfMint: String
   yearUncertain: Boolean
-  mintUncertain: Boolean
-  mint: [ID]
-  ruler: [ID]
-  caliph: [ID]
-  otherPerson: [ID]
-  nominal: [ID]
-  material: [ID]
-  coinMark: [ID]
-  title: [ID]
-  honorific: [ID]
 }
 
 type PageInfo {

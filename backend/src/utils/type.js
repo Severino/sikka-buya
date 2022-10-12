@@ -514,24 +514,11 @@ class Type {
 
         const queryBuilder = new QueryBuilder()
 
-        if (Object.hasOwnProperty.bind(filter)("coinMark")) {
-            if (Array.isArray(filter.coinMark) && filter.coinMark.length > 0) {
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT tcm.type,
-                    COALESCE(ARRAY_AGG(id) FILTER(
-                        WHERE id IS NOT NULL), '{}') as coin_marks
-                 FROM type_coin_marks tcm
-                 LEFT JOIN coin_marks cm ON tcm.coin_mark = cm.id
-                 GROUP BY tcm.type) agg_coin_marks ON agg_coin_marks.type = t.id`)
 
-                queryBuilder.addSelect(`
-                 COALESCE(agg_coin_marks.titles, '{}') as coin_marks
-                 `)
-
-                queryBuilder.addWhere(pgp.as.format(`$[coin_marks]:: int[] && agg_coin_marks.coin_marks`, { coin_marks: filter.coinMark }))
-            }
-            delete filter.coinMark
-        }
+        this._processComplexCoinMark(queryBuilder, filter)
+        this._processComplexHonorificsFilter(queryBuilder, filter)
+        this._processComplexOtherPersonFilter(queryBuilder, filter)
+        this._processComplexTitleFilter(queryBuilder, filter)
 
         if (Object.hasOwnProperty.bind(filter)("completed")) {
             if (filter.completed != null) {
@@ -569,59 +556,6 @@ class Type {
             delete filter["plain_text"]
         }
 
-
-        if (Object.hasOwnProperty.bind(filter)("title")) {
-            if (Array.isArray(filter.title) && filter.title.length > 0) {
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT o.type,
-                        COALESCE(ARRAY_AGG(title_id) FILTER (WHERE title_id IS NOT NULL ), '{}') as titles
-                 FROM overlord o
-                 LEFT JOIN overlord_titles ot ON o.id = ot.overlord_id
-                 GROUP BY o.type) type_overlord_titles ON type_overlord_titles.type = t.id`)
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT i.type,
-                        COALESCE(ARRAY_AGG(title) FILTER (WHERE title IS NOT NULL ), '{}') as titles
-                 FROM issuer i
-                 LEFT JOIN issuer_titles it ON i.id = it.issuer
-                 GROUP BY i.type) type_issuer_titles ON type_issuer_titles.type = t.id`)
-
-                queryBuilder.addSelect(`
-                 COALESCE(type_overlord_titles.titles, type_issuer_titles.titles, '{}') as titles
-                 `)
-
-                queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles)`, { titles: filter.title }))
-            }
-            delete filter.title
-        }
-
-        if (Object.hasOwnProperty.bind(filter)("honorific")) {
-            if (Array.isArray(filter.honorific) && filter.honorific.length > 0) {
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT o.type,
-                        COALESCE(ARRAY_AGG(honorific_id) FILTER (WHERE honorific_id IS NOT NULL ), '{}') as honorifics
-                 FROM overlord o
-                 LEFT JOIN overlord_honorifics oh ON o.id = oh.overlord_id
-                 GROUP BY o.type) type_overlord_honorifics ON type_overlord_honorifics.type = t.id`)
-
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT i.type,
-                        COALESCE(ARRAY_AGG(honorific) FILTER (WHERE honorific IS NOT NULL ), '{}') as honorifics
-                 FROM issuer i
-                 LEFT JOIN issuer_honorifics ih ON i.id = ih.issuer
-                 GROUP BY i.type) type_issuer_honorifics ON type_issuer_honorifics.type = t.id`)
-
-                queryBuilder.addSelect(`
-                 COALESCE(type_overlord_honorifics.honorifics, type_issuer_honorifics.honorifics , '{}') as honorifics
-                 `)
-
-                queryBuilder.addWhere(pgp.as.format(`($[honorifics]:: int[] && type_overlord_honorifics.honorifics OR $[honorifics]:: int[] && type_issuer_honorifics.honorifics)`, { honorifics: filter.honorific }))
-            }
-            delete filter.honorific
-        }
-
         if (Object.hasOwnProperty.bind(filter)("ruler")) {
             if (Array.isArray(filter.ruler) && filter.ruler.length > 0) {
                 queryBuilder.addSelect(`(issuers || overlords) as rulers`)
@@ -647,23 +581,6 @@ class Type {
             }
             delete filter.ruler
         }
-
-        if (Object.hasOwnProperty.bind(filter)("otherPerson")) {
-            queryBuilder.addSelect(`other_`)
-            queryBuilder.addJoin(`LEFT JOIN(
-                            SELECT
-                    op.type,
-                            COALESCE(array_agg(op.person)) as other_person
-                FROM
-                    other_person op
-                GROUP BY
-                    op.type
-                        ) other_person_query ON other_person_query.type = t.id`)
-
-            queryBuilder.addWhere(pgp.as.format(`(other_person && $[otherPerson]:: int[])`, { otherPerson: filter.otherPerson }))
-            delete filter.otherPerson
-        }
-
 
         return queryBuilder
     }
@@ -1088,6 +1005,201 @@ COUNT(*) as total
         return results.map(res => res.piece)
     }
 
+    /**
+     * Limit the filter arguments you can use to a single option.
+     * This is good for properties, that you only want to filter once,
+     * and if the user requests multiple filters of the same 
+     * property, an error is thrown. 
+     * 
+     * E.g. when using the coin_mark and coin_mark_and filters.
+     * 
+     * @param {[string]} targetFilters - set of properties that are checkt for concurrency
+     * @param {string} name - human readable name of the property to display the error (lower case)
+     * @returns name of the active filter element, if no error was thrown
+     */
+    static _filterGate(filter, targetFilters, name) {
+        let activeFilter = null
+        targetFilters.forEach(filterName => {
+
+            if (Object.hasOwnProperty.bind(filter)(filterName)) {
+                console.log(filterName)
+
+                if (activeFilter != null) throw new Error(`Too many ${name} filter. Only use one!`)
+                activeFilter = filterName
+            }
+        })
+        return activeFilter
+    }
+
+    static _processComplexCoinMark(queryBuilder, filter) {
+
+        let activeCoinMarkFilter = this._filterGate(filter, ["coinMark_and_or", "coinMark", "coinMark_and", "coinMark_or_and"], "coin mark")
+
+        // If a coinmark filter is applied, add the array object to the query:
+        if (activeCoinMarkFilter != null) {
+
+            queryBuilder.addJoin(`LEFT JOIN
+            (SELECT tcm.type,
+                COALESCE(ARRAY_AGG(id) FILTER(
+                    WHERE id IS NOT NULL), '{}') as coin_marks
+             FROM type_coin_marks tcm
+             LEFT JOIN coin_marks cm ON tcm.coin_mark = cm.id
+             GROUP BY tcm.type) agg_coin_marks ON agg_coin_marks.type = t.id`)
+
+            queryBuilder.addSelect(`
+             COALESCE(agg_coin_marks.titles, '{}') as coin_marks
+             `)
+
+
+
+
+
+            function _nonArrayError() {
+                if (Array.isArray(filter[activeCoinMarkFilter]) && Array.isArray(filter[activeCoinMarkFilter])) {
+                    throw new Error("Coin mark needs to be an non-empty array")
+                }
+            }
+
+            if (activeCoinMarkFilter === "coinMark_and_or") {
+                let nonEmptyArrays = filter[activeCoinMarkFilter].filter(el => el.length > 0)
+                if (nonEmptyArrays.length > 0) {
+                    let clauses = []
+                    nonEmptyArrays.forEach(arr => {
+                        clauses.push(pgp.as.format(`($[arr]:: int[] <@ agg_coin_marks.coin_marks)`, { arr }))
+                    })
+
+                    queryBuilder.addWhere(clauses.join(" OR "))
+                }
+            }
+
+            if (activeCoinMarkFilter === "coinMark_or_and") {
+                let nonEmptyArrays = filter[activeCoinMarkFilter].filter(el => el.length > 0)
+                if (nonEmptyArrays.length > 0) {
+                    let clauses = []
+                    nonEmptyArrays.forEach(arr => {
+                        clauses.push(pgp.as.format(`($[arr]:: int[] && agg_coin_marks.coin_marks)`, { arr }))
+                    })
+
+                    queryBuilder.addWhere(clauses.join(" AND "))
+                }
+            }
+
+            if (["coinMark", "coinMark_and"].indexOf(activeCoinMarkFilter) != -1) {
+                _nonArrayError()
+                if (activeCoinMarkFilter === "coinMark")
+                    queryBuilder.addWhere(pgp.as.format(`$[coin_marks]:: int[] && agg_coin_marks.coin_marks`, { coin_marks: filter[activeCoinMarkFilter] }))
+
+                if (activeCoinMarkFilter === "coinMark_and")
+                    queryBuilder.addWhere(pgp.as.format(`$[coin_marks]:: int[] <@ agg_coin_marks.coin_marks`, { coin_marks: filter[activeCoinMarkFilter] }))
+            }
+
+
+            delete filter[activeCoinMarkFilter]
+        }
+    }
+
+    static _processComplexTitleFilter(queryBuilder, filter) {
+
+        const activeTitleFilter = this._filterGate(filter, ["title", "title_and"], 'title')
+
+        if (Object.hasOwnProperty.bind(filter)(activeTitleFilter)) {
+            if (filter?.[activeTitleFilter] && Array.isArray(filter[activeTitleFilter]) && filter[activeTitleFilter].length > 0) {
+
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT o.type,
+                        COALESCE(ARRAY_AGG(title_id) FILTER (WHERE title_id IS NOT NULL ), '{}') as titles
+                 FROM overlord o
+                 LEFT JOIN overlord_titles ot ON o.id = ot.overlord_id
+                 GROUP BY o.type) type_overlord_titles ON type_overlord_titles.type = t.id`)
+
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT i.type,
+                        COALESCE(ARRAY_AGG(title) FILTER (WHERE title IS NOT NULL ), '{}') as titles
+                 FROM issuer i
+                 LEFT JOIN issuer_titles it ON i.id = it.issuer
+                 GROUP BY i.type) type_issuer_titles ON type_issuer_titles.type = t.id`)
+
+                queryBuilder.addSelect(`
+                 COALESCE(type_overlord_titles.titles, type_issuer_titles.titles, '{}') as titles
+                 `)
+
+                if (activeTitleFilter === "title")
+                    queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles)`, { titles: filter[activeTitleFilter] }))
+                else if (activeTitleFilter === "title_and") {
+                    queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] <@ type_overlord_titles.titles OR $[titles]:: int[] <@ type_issuer_titles.titles)`, { titles: filter[activeTitleFilter] }))
+                }
+
+            }
+
+
+            delete filter[activeTitleFilter]
+        }
+    }
+
+    static _processComplexHonorificsFilter(queryBuilder, filter) {
+        const activeTitleFilter = this._filterGate(filter, ["honorific", "honorific_and"], 'honorific')
+
+        if (Object.hasOwnProperty.bind(filter)(activeTitleFilter)) {
+            if (Array.isArray(filter.honorific) && filter.honorific.length > 0) {
+
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT o.type,
+                        COALESCE(ARRAY_AGG(honorific_id) FILTER (WHERE honorific_id IS NOT NULL ), '{}') as honorifics
+                 FROM overlord o
+                 LEFT JOIN overlord_honorifics oh ON o.id = oh.overlord_id
+                 GROUP BY o.type) type_overlord_honorifics ON type_overlord_honorifics.type = t.id`)
+
+
+                queryBuilder.addJoin(`LEFT JOIN
+                (SELECT i.type,
+                        COALESCE(ARRAY_AGG(honorific) FILTER (WHERE honorific IS NOT NULL ), '{}') as honorifics
+                 FROM issuer i
+                 LEFT JOIN issuer_honorifics ih ON i.id = ih.issuer
+                 GROUP BY i.type) type_issuer_honorifics ON type_issuer_honorifics.type = t.id`)
+
+                queryBuilder.addSelect(`
+                 COALESCE(type_overlord_honorifics.honorifics, type_issuer_honorifics.honorifics , '{}') as honorifics
+                 `)
+
+                if (activeTitleFilter === "honorific")
+                    queryBuilder.addWhere(pgp.as.format(`($[honorifics]:: int[] && type_overlord_honorifics.honorifics OR $[honorifics]:: int[] && type_issuer_honorifics.honorifics)`, { honorifics: filter[activeTitleFilter] }))
+                else if (activeTitleFilter === "honorific_and") {
+                    let honorificFilterGroups = filter[activeTitleFilter].filter(arr => arr?.length > 0)
+                    queryBuilder.addWhere(pgp.as.format(`($[honorifics]:: int[] <@ type_overlord_honorifics.honorifics OR $[honorifics]:: int[] <@ type_issuer_honorifics.honorifics)`, { honorifics: honorificFilterGroups }))
+                }
+
+            }
+        }
+    }
+
+    static _processComplexOtherPersonFilter(queryBuilder, filter) {
+
+        const activePersonFilter = this._filterGate(filter, ["otherPerson", "otherPerson_and"], 'other person')
+
+        if (Object.hasOwnProperty.bind(filter)(activePersonFilter)) {
+
+            if (!(Array.isArray(filter[activePersonFilter]) && filter[activePersonFilter].length > 0)) {
+                throw new Error(`Filter "${activePersonFilter}" needs to be an array with at least 1 element.`)
+            }
+
+            queryBuilder.addJoin(`LEFT JOIN(
+                            SELECT
+                    op.type,
+                            COALESCE(array_agg(op.person)) as other_person
+                FROM
+                    other_person op
+                GROUP BY
+                    op.type
+                        ) other_person_query ON other_person_query.type = t.id`)
+
+            if (activePersonFilter === "otherPerson_and") {
+                queryBuilder.addWhere(pgp.as.format(`(other_person @> $[otherPerson]:: int[])`, { otherPerson: filter[activePersonFilter] }))
+            } else {
+                queryBuilder.addWhere(pgp.as.format(`(other_person && $[otherPerson]:: int[])`, { otherPerson: filter[activePersonFilter] }))
+            }
+            delete filter[activePersonFilter]
+        }
+    }
 }
 
 
