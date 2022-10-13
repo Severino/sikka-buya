@@ -2,6 +2,8 @@
   <div class="multi-data-select">
     <div class="content">
       <div class="active-list">
+        <div class="data-select-wrapper placeholder"></div>
+
         <template v-for="el of active">
           <!-- <span
             v-if="idx > 0"
@@ -15,53 +17,68 @@
             <CloseThickIcon class="closeButton" :size="10" />
           </button>
         </template>
-        <multi-data-select-add-button
+        <!-- <multi-data-select-add-button
           id="add-element-button"
           @click.native="showDataSelect()"
-        />
+        /> -->
       </div>
     </div>
 
-    <div class="mode-indicator" v-if="mode" @click="() => $emit('change-mode')">
+    <div
+      class="mode-indicator"
+      :class="{ interactive: allowModeChange }"
+      v-if="mode"
+      @click="changeMode"
+    >
       {{ mode }}
     </div>
 
-    <data-select-field
-      :value="value"
-      @blur="hideDataSelect"
-      @input="(val) => $emit('input', val)"
-      @select="select"
-      @dynamic-change="() => $emit('dynamic-change')"
-      :error="error"
-      :queryParams="queryParams"
-      :additionalParameters="additionalParameters"
-      :table="table"
-      :attribute="attribute"
-      :required="required"
-      :text="text"
-      :displayTextCallback="displayTextCallback"
-      :query="query"
-      :queryCommand="queryCommand"
-      :msg="msg"
-      :tooltip="tooltip"
-      :placeholder="placeholder"
-      :unselectable="true"
-      :disableRemoveButton="disableRemoveButton"
-      :style="dataSelectStyles"
-      ref="dataSelect"
-    />
+    <div
+      class="data-select-wrapper"
+      @click="showDataSelect"
+      ref="dataSelectWrapper"
+    >
+      <div class="icon"><PlusIcon :size="18" /></div>
+
+      <data-select-field
+        :value="value"
+        @blur="hideDataSelect"
+        @input="(val) => $emit('input', val)"
+        @select="select"
+        @dynamic-change="() => $emit('dynamic-change')"
+        :error="error"
+        :queryParams="queryParams"
+        :additionalParameters="additionalParameters"
+        :table="table"
+        :attribute="attribute"
+        :required="required"
+        :text="text"
+        :displayTextCallback="displayTextCallback"
+        :query="query"
+        :queryCommand="queryCommand"
+        :msg="msg"
+        :tooltip="tooltip"
+        :placeholder="placeholder"
+        :unselectable="true"
+        :disableRemoveButton="disableRemoveButton"
+        :style="dataSelectStyles"
+        ref="dataSelect"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import DataSelectField from './DataSelectField.vue';
 import CloseThickIcon from 'vue-material-design-icons/CloseThick.vue';
+import PlusIcon from 'vue-material-design-icons/Plus.vue';
 
 import MultiDataSelectAddButton from './MultiDataSelectAddButton.vue';
 
 export default {
   components: {
     CloseThickIcon,
+    PlusIcon,
     DataSelectField,
     MultiDataSelectAddButton,
   },
@@ -99,12 +116,13 @@ export default {
     queryCommand: String,
     msg: String,
     tooltip: String,
-    placeholder: String,
+    placeholder: { type: String, default: 'Suche...' },
     disableRemoveButton: {
       type: Boolean,
       default: false,
     },
     mode: String,
+    allowModeChange: Boolean,
   },
   data() {
     return {
@@ -116,6 +134,9 @@ export default {
     this.resetValue();
   },
   methods: {
+    changeMode() {
+      if (this.allowModeChange) this.$emit('change-mode');
+    },
     resetValue() {
       this.value = { id: null, [this.attribute]: '' };
     },
@@ -124,11 +145,15 @@ export default {
       this.$emit('select', val);
     },
     showDataSelect() {
-      this.dataSelectVisible = true;
-      this.$nextTick(() => this.$refs.dataSelect.focus());
+      this.$refs.dataSelectWrapper.classList.add('active');
+      setTimeout(() => {
+        this.dataSelectVisible = true;
+        this.$nextTick(() => this.$refs.dataSelect.focus());
+      }, 400);
     },
     hideDataSelect() {
       this.dataSelectVisible = false;
+      this.$refs.dataSelectWrapper.classList.remove('active');
     },
   },
   computed: {
@@ -148,7 +173,7 @@ export default {
 </script>
 
 <style lang="scss">
-$min-height: 20px;
+$min-height: 24px;
 .multi-data-select {
   display: flex;
   position: relative;
@@ -191,9 +216,16 @@ $min-height: 20px;
     width: 100%;
 
     .name-field {
-      border-radius: $border-radius;
-      background-color: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(4px);
+      padding-left: 24px;
+      background-color: transparent;
+
+      &:hover {
+        background-color: transparent;
+      }
+
+      &:active {
+        background-color: transparent;
+      }
     }
   }
 
@@ -230,18 +262,66 @@ $min-height: 20px;
 }
 
 .mode-indicator {
-  background-color: $gray;
-  padding: $small-padding;
-  margin-left: $small-padding;
-  min-width: 32px;
-  justify-content: center;
-
   display: flex;
   align-items: center;
-  color: $white;
-  cursor: pointer;
-
+  padding: $small-padding;
+  margin-left: $small-padding;
   border-top-right-radius: $border-radius;
   border-bottom-right-radius: $border-radius;
+  color: $gray;
+
+  &.interactive {
+    background-color: $gray;
+
+    min-width: 32px;
+    justify-content: center;
+
+    color: $white;
+    cursor: pointer;
+    @include interactive();
+    @include mouseeffects();
+  }
+}
+
+.data-select-wrapper {
+  position: absolute;
+  $max-size: 28px;
+  $size: 20px;
+  $offset: ($max-size - $size) / 2;
+  height: $size;
+  width: $size;
+  top: $offset;
+  left: $offset;
+  border-radius: $border-radius;
+  background-color: white;
+  border: $border;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s;
+
+  .icon {
+    color: gray;
+    margin-left: 1px;
+    opacity: 1;
+    // transition: opacity 0.3;
+  }
+
+  &.placeholder {
+    position: static;
+    visibility: hidden;
+  }
+
+  &.active {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 31px;
+    transform: translate(-2px, -2px);
+
+    z-index: 1;
+    .icon {
+      opacity: 0.5;
+    }
+  }
 }
 </style>

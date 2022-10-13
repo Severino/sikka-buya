@@ -10,6 +10,17 @@
   }
 }
 
+@mixin mouseeffects($additional_selector: "") {
+  &:hover#{$additional_selector} {
+    filter: brightness(95%);
+  }
+
+  &:active#{$additional_selector} {
+    filter: brightness(90%);
+  }
+
+}
+
 @mixin input {
   padding: $padding/2 $padding;
   color: $gray;
@@ -20,15 +31,7 @@
 
   transition: background-color 0.2s, color 0.2s;
 
-  &:hover:not(.disable-input) {
-    filter: brightness(95%);
-  }
-
-  &:active:not(.disable-input) {
-    filter: brightness(90%);
-
-  }
-
+  @include mouseeffects(":not(.disable-input)");
   @include focus();
 }
 

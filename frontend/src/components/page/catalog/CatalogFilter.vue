@@ -58,17 +58,18 @@
         class="multi-select-wrapper"
       >
         <multi-data-select
-          :table="input.value"
-          v-model="filters[searchVariableName(input.value)]"
           :active="filters[input.value]"
-          :attribute="input.attribute"
-          :queryParams="input.queryParams"
-          :queryCommand="input.queryCommand"
           :additionalParameters="input.additionalParameters"
-          :text="input.text"
-          :displayTextCallback="input.displayTextCallback"
+          :allowModeChange="input.allowModeChange"
+          :attribute="input.attribute"
           :disableRemoveButton="true"
+          :displayTextCallback="input.displayTextCallback"
           :mode="getMode(input.value)"
+          :queryCommand="input.queryCommand"
+          :queryParams="input.queryParams"
+          :table="input.value"
+          :text="input.text"
+          v-model="filters[searchVariableName(input.value)]"
           @select="(el) => selectFilter(input.value, el)"
           @remove="(el) => removeFilter(input.value, el)"
           @change-mode="() => changeFilterMode(input.value)"
@@ -204,6 +205,7 @@ let unfilteredMultiSelectFilters = [
     label: 'Nominal',
     value: 'nominal',
     order: 3,
+    mode: mode.or,
   },
   {
     label: 'Kalif',
@@ -226,18 +228,21 @@ let unfilteredMultiSelectFilters = [
       )})`;
     },
     order: 6,
+    allowModeChange: true,
   },
   {
     label: 'Herrschertitel',
     value: 'title',
     order: 7,
     mode: mode.and,
+    allowModeChange: true,
   },
   {
     label: 'Ehrennamen',
     value: 'honorific',
     order: 8,
     mode: mode.and,
+    allowModeChange: true,
   },
   {
     label: 'Herrscher',
@@ -250,6 +255,7 @@ let unfilteredMultiSelectFilters = [
       return txt;
     },
     order: 5.5,
+    allowModeChange: true,
   },
 ];
 addType(unfilteredMultiSelectFilters, 'multi-select');
@@ -384,25 +390,27 @@ export default {
         this.overwriteFilters
       );
 
-      searchRequestGuard.exec(
-        async ({ filters, multiSelectFilters } = {}) => {
-          multiSelectFilters.forEach((item) => {
-            if (filters[item.value])
-              filters[item.value] = filters[item.value].map((item) => item.id);
-          });
+      console.log(this.activeFilters);
 
-          Object.values(unfilteredMultiSelectFilters).forEach(
-            ({ value: name }) => {
+      searchRequestGuard.exec(
+        async ({ filters, multiSelectFilters, multiSelectFilters2D } = {}) => {
+          multiSelectFilters.forEach(({ value: name }) => {
+            if (filters[name]) {
+              filters[name] = filters[name].map((item) => item.id);
+
               if (this.filterMode?.[name] === 'AND') {
                 filters[name + '_and'] = filters[name];
                 delete filters[name];
               }
             }
-          );
+          });
 
-          Object.values(unfilteredMultiDataSelect2D).forEach(
-            ({ value: name }) => {
+          multiSelectFilters2D.forEach(({ value: name }) => {
+            console.log(filters[name]);
+
+            if (filters[name]) {
               if (this.filterMode?.[name] === 'AND') {
+                console.log(filters[name]);
                 filters[name + '_or_and'] = filters[name].map((arr) =>
                   arr.map((el) => el.id)
                 );
@@ -411,9 +419,10 @@ export default {
                   arr.map((el) => el.id)
                 );
               }
+
               delete filters[name];
             }
-          );
+          });
 
           let { types, pageInfo } = await Type.filteredQuery({
             pagination: Pagination.fromPageInfo(this.pageInfo),
@@ -423,7 +432,11 @@ export default {
 
           this.$emit('update', { types, pageInfo });
         },
-        { filters, multiSelectFilters: this.multiSelectFilters }
+        {
+          filters,
+          multiSelectFilters: this.multiSelectFilters,
+          multiSelectFilters2D: this.multiSelectFilters2D,
+        }
       );
     },
     watch() {
@@ -439,6 +452,13 @@ export default {
       });
 
       [...unfilteredMultiSelectFilters].forEach((filter) => {
+        const emptyObj = Filter.mapData(filter.value, filter.defaultValue);
+        for (let [key, val] of Object.entries(emptyObj)) {
+          this.$set(this.filters, key, val);
+        }
+      });
+
+      [...unfilteredMultiDataSelect2D].forEach((filter) => {
         const emptyObj = Filter.mapData(filter.value, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
@@ -506,8 +526,15 @@ export default {
 
           if (val === null) return false;
           if (typeof val === 'object') {
+            if (name === 'coinMark') console.log('HEY', val);
+
             if (Array.isArray(val)) {
-              return val.length !== 0;
+              if (val.length == 0) return false;
+              else if (
+                val.every((el) => Array.isArray(el) && el.length === 0)
+              ) {
+                return false;
+              }
             } else {
               return val.id && val.id !== null;
             }
@@ -516,8 +543,9 @@ export default {
               case 'string':
                 return val != '';
             }
-            return true;
           }
+
+          return true;
         })
         .reduce((obj, [name, val]) => {
           obj[name] = val;
@@ -532,7 +560,7 @@ export default {
     multiSelectFilters() {
       return this.excludeItem(unfilteredMultiSelectFilters);
     },
-    multiDataSelect2D() {
+    multiSelectFilters2D() {
       return this.excludeItem(unfilteredMultiDataSelect2D);
     },
   },
