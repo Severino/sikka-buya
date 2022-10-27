@@ -13,18 +13,19 @@
         </Button>
       </div>
       <multi-data-select
-        :key="`mda-${input.name}-(${idx})`"
-        :table="input.value"
-        :input="(...args) => search(...args, idx)"
         :active="values"
-        :attribute="input.attribute"
-        :queryParams="input.queryParams"
-        :queryCommand="input.queryCommand"
         :additionalParameters="input.additionalParameters"
-        :text="input.text"
-        :displayTextCallback="input.displayTextCallback"
+        :allowModeChange="true"
+        :attribute="input.attribute"
         :disableRemoveButton="true"
+        :displayTextCallback="input.displayTextCallback"
+        :input="(...args) => search(...args, idx)"
+        :key="`mda-${input.name}-(${idx})`"
         :mode="childModeSign"
+        :queryCommand="input.queryCommand"
+        :queryParams="input.queryParams"
+        :table="input.value"
+        :text="input.text"
         @select="(value) => $emit('select', value, idx)"
         @remove="(el) => $emit('remove', el, idx)"
         @change-mode="changeMode"
@@ -67,7 +68,7 @@ export default {
   },
   computed: {
     childModeSign() {
-      return this.mode === 'AND' ? 'OR' : 'AND';
+      return this.mode === 'and' ? 'or' : 'and';
     },
   },
 };

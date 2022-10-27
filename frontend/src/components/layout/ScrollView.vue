@@ -1,11 +1,10 @@
 <template>
-  <div class="scroll">
+  <simplebar class="scroll" data-simplebar-auto-hide="false">
     <slot />
-  </div>
+  </simplebar>
 </template>
 
 <script>
-import SimpleBar from 'simplebar';
 import simplebar from 'simplebar-vue';
 
 import 'simplebar/dist/simplebar.min.css';
@@ -23,7 +22,7 @@ export default {
 <style lang="scss" scoped>
 .scroll {
   height: 100%;
-  overflow-x: hidden;
+  // overflow-x: hidden;
   overflow-y: auto;
 }
 </style>

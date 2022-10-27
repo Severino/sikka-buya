@@ -56,6 +56,15 @@ export default class TimelineChart extends Chart {
         return x
     }
 
+    drawRangeRectOnCanvas(data, y, height, fillStyle = 'red') {
+        let ctx = this.getContext()
+        ctx.fillStyle = fillStyle
+        data.forEach(range => {
+            let width = this.x(range[1], "end") - this.x(range[0], "start")
+            ctx.fillRect(this.x(range[0], "start"), 0, width, height)
+        })
+    }
+
     drawRangeLineOnCanvas(data, y, lineOptions) {
         let ctx = this.getContext()
         Object.assign(ctx, lineOptions)
@@ -81,32 +90,6 @@ export default class TimelineChart extends Chart {
         ctx.beginPath();
 
         let curveMax = max;
-
-
-
-        // const prev = null
-        // const toRemove = false
-        // for(let i = data.length; i >= 0; i--){
-        //     const cur = data[i]
-
-        //     removeLast = toRemove
-        //     toRemove = (prev && prev.y === cur.y && prev.x - cur.x === 1)
-
-        //     if(removeLast && toRemove){
-        //         data.splice(i+1, 1)
-        //     }
-
-        //     prev = cur
-        // }
-
-        // if (!curveMax) {
-        //     curveMax = -Infinity
-        //     data.forEach(point => {
-        //         curveMax = point.y > curveMax ? point.y : curveMax
-        //     })
-        // }
-
-
         let yStep = (this.canvas.height - (lineOptions.lineWidth || 1) - 10) / (curveMax > 0 ? curveMax : 20);
         data = data.sort((a, b) => a.x - b.x)
         let last = null;

@@ -124,8 +124,8 @@ function addType(arr, typeName) {
 }
 
 const mode = {
-  and: 'AND',
-  or: 'OR',
+  and: 'and',
+  or: 'or',
 };
 
 const textFilters = [
@@ -210,6 +210,7 @@ let unfilteredMultiSelectFilters = [
   {
     label: 'Kalif',
     value: 'caliph',
+    mode: mode.or,
     attribute: 'shortName',
     queryParams: ['id', 'shortName'],
     order: 5.8,
@@ -218,6 +219,7 @@ let unfilteredMultiSelectFilters = [
     label: 'sonstige Personen',
     value: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
+
     queryParams: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
     additionalParameters: {
       exclude: ['caliph', 'heir'],
@@ -390,8 +392,6 @@ export default {
         this.overwriteFilters
       );
 
-      console.log(this.activeFilters);
-
       searchRequestGuard.exec(
         async ({ filters, multiSelectFilters, multiSelectFilters2D } = {}) => {
           multiSelectFilters.forEach(({ value: name }) => {
@@ -406,11 +406,8 @@ export default {
           });
 
           multiSelectFilters2D.forEach(({ value: name }) => {
-            console.log(filters[name]);
-
             if (filters[name]) {
               if (this.filterMode?.[name] === 'AND') {
-                console.log(filters[name]);
                 filters[name + '_or_and'] = filters[name].map((arr) =>
                   arr.map((el) => el.id)
                 );
@@ -459,7 +456,7 @@ export default {
       });
 
       [...unfilteredMultiDataSelect2D].forEach((filter) => {
-        const emptyObj = Filter.mapData(filter.value, filter.defaultValue);
+        const emptyObj = FilterList.mapData(filter.value, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
         }
@@ -526,8 +523,6 @@ export default {
 
           if (val === null) return false;
           if (typeof val === 'object') {
-            if (name === 'coinMark') console.log('HEY', val);
-
             if (Array.isArray(val)) {
               if (val.length == 0) return false;
               else if (

@@ -25,26 +25,20 @@ module.exports = (on, config) => {
   // `config` is the resolved Cypress config
 
   on('task', {
-    async ResetDatabase() {
-      axios.post("http://localhost:4000/test-database", {
+    ResetDatabase() {
+      return axios.post("http://localhost:4000/test-database", {
         method: "ResetDatabase"
       })
-
-      return true
     },
-    async MountMinimalDatabase() {
-      await axios.post("http://localhost:4000/test-database", {
+    MountMinimalDatabase() {
+      return axios.post("http://localhost:4000/test-database", {
         method: "MountMinimalDatabase"
       })
-
-      return true
     },
-    async MountMinimalDatabaseWithCreatedType() {
-      await axios.post("http://localhost:4000/test-database", {
+    MountMinimalDatabaseWithCreatedType() {
+      return axios.post("http://localhost:4000/test-database", {
         method: "MountMinimalDatabaseWithCreatedType"
       })
-
-      return true
     }
   })
 }

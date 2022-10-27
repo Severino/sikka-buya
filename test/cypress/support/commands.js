@@ -29,6 +29,9 @@ Cypress.Commands.add('login', (email, password) => {
             }}`
         }
     }).then(response => {
+
+        console.log(response)
+
         let { user, token } = response?.body?.data?.login
 
         if (!token) throw new Error("Could not login!")
@@ -211,6 +214,40 @@ Cypress.Commands.add("clearRemovableInput", (selector) => {
     cy.get(selector + " input").should("have.value", "")
 })
 
+
+Cypress.Commands.add("inputArrayCloseTo", (selector, target, offset = 0.05) => {
+    cy.get(selector).should(($el) => {
+        let arr = []
+        try {
+            console.log($el)
+            arr = JSON.parse($el[0].value)
+        } catch (e) { console.log(e) }
+        target.forEach((val, idx) => {
+            expect(val).to.be.closeTo(arr[idx], offset)
+        })
+    })
+})
+
+Cypress.Commands.add("multiInputArrayCloseTo", (selector, target, offset = 0.05) => {
+    cy.get(selector).should(($el) => {
+
+        expect($el).not.to.have.value(undefined)
+
+        let array;
+        try {
+            array = JSON.parse($el[0].value)
+        } catch (e) {
+            console.error(e)
+        }
+        expect(array).to.not.be.undefined
+        expect(array).to.have.same.length(target.length)
+        target.forEach((arr, pos) => {
+            arr.forEach((val, idx) => {
+                expect(val).to.be.closeTo(array[pos][idx], offset)
+            })
+        })
+    })
+})
 
 
 //

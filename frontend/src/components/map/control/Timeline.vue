@@ -5,9 +5,9 @@
         <div class="left">
           <div
             class="button icon-button"
-            @click="() => (toolboxOpen = !toolboxOpen)"
+            @click="() => (slideshow.active = !slideshow.active)"
           >
-            <PlusIcon v-if="!toolboxOpen" />
+            <PlusIcon v-if="!slideshow.active" />
             <MinusIcon v-else />
           </div>
 
@@ -47,7 +47,11 @@
         </div>
       </header>
 
-      <slideshow v-if="toolboxOpen" ref="slideshow" />
+      <slideshow
+        v-if="slideshow.active"
+        :storagePrefix="timelineName"
+        ref="slideshow"
+      />
     </div>
 
     <!-- <button class="play-btn" @click="play">
@@ -115,6 +119,10 @@ import Button from '../../layout/buttons/Button.vue';
 import PopupActivator from '../../Popup/PopupActivator.vue';
 import CopyField from '../../forms/CopyField.vue';
 import Slideshow from './Slides/Slideshow.vue';
+import Settings from '../../../settings';
+
+let slideshowSettings = new Settings(window, 'Slideshow');
+const slideshow = slideshowSettings.load();
 
 export default {
   components: {
@@ -144,6 +152,7 @@ export default {
       default: true,
       type: Boolean,
     },
+    timelineName: String,
     allowToggle: {
       default: false,
       type: Boolean,
@@ -156,8 +165,16 @@ export default {
   data() {
     return {
       playInterval: null,
-      toolboxOpen: false,
+      slideshow,
     };
+  },
+  watch: {
+    slideshow: {
+      handler() {
+        slideshowSettings.save();
+      },
+      deep: true,
+    },
   },
   computed: {
     playing() {
@@ -245,10 +262,6 @@ export default {
   .slider {
     border: 0;
   }
-  .slide.active {
-    border-radius: 3px;
-    outline: 1px solid $primary-color;
-  }
 }
 </style>
 
@@ -271,6 +284,10 @@ export default {
   }
 }
 .timeline-container {
+  button {
+    border-radius: 0;
+  }
+
   button:first-child {
     border-top-left-radius: $border-radius;
     border-bottom-left-radius: $border-radius;

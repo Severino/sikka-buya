@@ -47,6 +47,7 @@
         :allowToggle="true"
         :timelineActive="timelineActive"
         :shareLink="shareLink"
+        timelineName="additional-map"
         @input="timelineChanged"
         @change="timelineChanged"
         @toggle="timelineToggled"
@@ -300,7 +301,14 @@ export default {
       }
     });
 
-    if (this.$route.query.year === 'null') this.timelineActive = false;
+    if (this.$route.query.year) {
+      if (this.$route.query.year === 'null') this.timelineActive = false;
+    } else {
+      this.timelineActive =
+        JSON.parse(
+          window.localStorage.getItem('material-map-timeline-active')
+        ) || false;
+    }
 
     await this.initTimeline(433);
     this.updateTimeline();
@@ -309,17 +317,22 @@ export default {
     recalculateCatalogSidebar() {
       this.$refs.catalogSidebar.recalculate();
     },
-    requestSlide({ slideshow, index } = {}) {
-      slideshow.createSlide(this.options, index);
+    requestSlideOptions({ slideshow, index, overwrite } = {}) {
+      slideshow.createSlide(this.options, index, overwrite);
     },
     applySlide(options = {}) {
-      if (this.map) {
-        options.zoom = this.map.getZoom();
-        const latlng = this.map.getCenter();
-        options.location = [latlng.lat, latlng.lng];
+      if (options.zoom && options.location) {
+        this.map.flyTo(options.location, options.zoom);
       }
 
-      if (options.year) this.timelineChanged(options.year);
+      if (options.year) {
+        if (options.year === 'null') {
+          this.timelineActive = false;
+        } else {
+          this.timelineActive = true;
+          this.timeChanged(options.year);
+        }
+      }
 
       if (options.selectedMints)
         this.mintSelectionChanged(options.selectedMints);
@@ -376,7 +389,7 @@ export default {
     },
     timelineToggled: async function () {
       this.timelineActive = !this.timelineActive;
-      localStorage.setItem('map-timeline-active', this.timelineActive);
+      localStorage.setItem('material-map-timeline-active', this.timelineActive);
 
       const year = this.timelineActive ? this.timeline.value : 'null';
       URLParams.update({ year });

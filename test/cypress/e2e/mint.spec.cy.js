@@ -84,9 +84,9 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.get("#mint-location input").should("have.value", "[30.02, 50.93]")
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
             cy.get("#mint-location-uncertain label").click()
-            cy.get("#mint-location input").should("have.value", "[30.02, 50.93]")
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
 
             cy.get("#mint-uncertain-location-input .leaflet-container").click(10, 10, {
                 ctrlKey: true
@@ -97,7 +97,8 @@ describe("Testing Mints", function () {
             }).click(100, 10, {
                 ctrlKey: true
             })
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[38.68, 31.16] [35.52, 31.16] [35.52, 35.11] [38.68, 35.11]")
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], 0.05)
+
 
             cy.get("#mint-notes").type("This will be cancelled soon!")
 
@@ -122,9 +123,11 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.get("#mint-location input").should("have.value", "[30.02, 50.93]")
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
+
             cy.get("#mint-location-uncertain label").click()
-            cy.get("#mint-location input").should("have.value", "[30.02, 50.93]")
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
+
 
             cy.get("#mint-uncertain-location-input .leaflet-container").click(10, 10, {
                 ctrlKey: true
@@ -135,7 +138,8 @@ describe("Testing Mints", function () {
             }).click(100, 10, {
                 ctrlKey: true
             })
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[38.68, 31.16] [35.52, 31.16] [35.52, 35.11] [38.68, 35.11]")
+
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], 0.05)
 
             cy.get("#mint-notes").type("Newly created mint!")
 
@@ -159,7 +163,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-province .data-select-id").should("have.value", 10)
 
             cy.get("#mint-location-uncertain input").should("be.checked")
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[38.68, 31.16] [35.52, 31.16] [35.52, 35.11] [38.68, 35.11]")
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], 0.05)
 
             cy.get("#mint-notes").should("have.value", "Newly created mint!")
         })
@@ -209,7 +213,7 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[37.99, 32.04] [37.29, 35.11] [33.71, 33.35]")
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], 0.05)
 
             cy.get("#mint-notes").type("Oh we changed the notes completely!")
 
@@ -233,7 +237,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-province .data-select-id").should("have.value", 10)
 
             cy.get("#mint-location-uncertain input").should("be.checked")
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[38.68, 31.16] [35.52, 31.16] [35.52, 35.11] [38.68, 35.11]")
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], 0.05)
 
             cy.get("#mint-notes").should("have.value", "Newly created mint!")
         })
@@ -260,7 +264,7 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[37.99, 32.04] [37.29, 35.11] [33.71, 33.35]")
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], 0.05)
 
             cy.get("#mint-notes").clear().type("Oh we changed the notes completely!")
 
@@ -285,7 +289,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-province .data-select-id").should("have.value", 1)
 
             cy.get("#mint-location-uncertain input").should("be.checked")
-            cy.get("#mint-uncertain-location-input input").should("have.value", "[37.99, 32.04] [37.29, 35.11] [33.71, 33.35]")
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], 0.05)
 
             cy.get("#mint-notes").should("have.value", "Oh we changed the notes completely!")
 

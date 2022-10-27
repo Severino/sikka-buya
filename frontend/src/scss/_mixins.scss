@@ -63,6 +63,12 @@
   padding: $size 1.5 * $size;
 }
 
+@mixin media-min-desktop {
+  @media only screen and (min-width: 1024px) {
+    @content;
+  }
+}
+
 @mixin media-tablet {
 
   /* Portrait and Landscape */

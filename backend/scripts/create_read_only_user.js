@@ -1,3 +1,4 @@
+const Async = require('../../frontend/src/utils/Async')
 const { WriteableDatabase } = require("../src/utils/database")
 
 
@@ -9,19 +10,13 @@ async function hasReadOnlyUser() {
 async function dropReadOnlyUser() {
     const { username } = requireEnv({ username: "DB_READ_ONLY_USER" })
 
-    WriteableDatabase.tx(t => {
+    return WriteableDatabase.tx(async t => {
+        await t.any(`REASSIGN OWNED BY $[username:name] TO postgres`, { username })
+        await t.any(`DROP OWNED BY $[username:name]`, { username })
 
-        const txs = []
-
-        txs.push(t.any(`REASSIGN OWNED BY $[username:name] TO postgres`, { username }))
-        txs.push(t.any(`DROP OWNED BY $[username:name]`, { username }))
-
-        txs.push(t.any(`REVOKE ALL PRIVILEGES ON SCHEMA public FROM $[username:name]`, { username }))
-        txs.push(t.any(`DROP ROLE $[username:name]`, { username }))
-
-        return t.batch(txs)
+        await t.any(`REVOKE ALL PRIVILEGES ON SCHEMA public FROM $[username:name]`, { username })
+        await t.any(`DROP ROLE $[username:name]`, { username })
     })
-    return "Dropped successfully"
 }
 
 function requireEnv(mapping) {
@@ -73,10 +68,8 @@ async function createReadOnlyUser() {
 
     return new Promise((resolve, reject) => {
 
-        WriteableDatabase.tx(t => {
-            const txs = []
-
-            txs.push(t.any(`
+        WriteableDatabase.tx(async t => {
+            await t.any(`
             CREATE ROLE $[username:name] 
                 WITH LOGIN PASSWORD $[password] 
             NOSUPERUSER
@@ -85,28 +78,47 @@ async function createReadOnlyUser() {
             NOCREATEROLE
             NOREPLICATION
             VALID UNTIL 'infinity'`,
-                { username, password }))
+                { username, password })
 
-            txs.push(t.any(`GRANT CONNECT ON DATABASE $[dbName:name] TO $[username:name]`, { dbName, username }))
-            txs.push(t.any(`GRANT USAGE ON SCHEMA public TO $[username:name]`, { username }))
-            txs.push(t.any(`GRANT SELECT ON ALL TABLES IN SCHEMA public TO $[username:name]`, { username }))
-            txs.push(t.any(`GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO $[username:name]`, { username }))
-            txs.push(t.any(`ALTER DEFAULT PRIVILEGES 
-            FOR USER $[superUser:name]
-            IN SCHEMA public
-            GRANT SELECT ON TABLES TO $[readOnlyUser:name]`, { readOnlyUser: username, superUser }))
-
-            return t.batch(txs)
+            await grantPersmissionsToReadOnlyUser(t)
 
         }).then(() => resolve("Success")).catch((e) => {
             reject(`Could not create Role ${username}: ${e}`)
         })
     })
+}
 
+async function grantPersmissionsToReadOnlyUser(t = null) {
+    const { username, superUser, dbName } = requireEnv({ username: "DB_READ_ONLY_USER", superUser: "DB_USER", dbName: "DB_NAME" })
+
+    async function applyPermissions(t) {
+        await t.any(`GRANT CONNECT ON DATABASE $[dbName:name] TO $[username:name]`, { dbName, username })
+        await t.any(`GRANT USAGE ON SCHEMA public TO $[username:name]`, { username })
+        await t.any(`GRANT SELECT ON ALL TABLES IN SCHEMA public TO $[username:name]`, { username })
+        await t.any(`GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO $[username:name]`, { username })
+        await t.any(`ALTER DEFAULT PRIVILEGES 
+    FOR USER $[superUser:name]
+    IN SCHEMA public
+    GRANT SELECT ON TABLES TO $[readOnlyUser:name]`, { readOnlyUser: username, superUser })
+    }
+
+    if (!t) {
+        return WriteableDatabase.tx(async t => {
+            await t.any(`GRANT CONNECT ON DATABASE $[dbName:name] TO $[username:name]`, { dbName, username })
+            await t.any(`GRANT USAGE ON SCHEMA public TO $[username:name]`, { username })
+            await t.any(`GRANT SELECT ON ALL TABLES IN SCHEMA public TO $[username:name]`, { username })
+            await t.any(`GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO $[username:name]`, { username })
+            await t.any(`ALTER DEFAULT PRIVILEGES 
+            FOR USER $[superUser:name]
+            IN SCHEMA public
+            GRANT SELECT ON TABLES TO $[readOnlyUser:name]`, { readOnlyUser: username, superUser })
+        })
+    } else
+        return applyPermissions(t)
 }
 
 
-module.exports = { createReadOnlyUser, dropReadOnlyUser, hasReadOnlyUser, createWritableUser }
+module.exports = { createReadOnlyUser, dropReadOnlyUser, hasReadOnlyUser, createWritableUser, grantPersmissionsToReadOnlyUser }
 
 
 async function main() {
@@ -115,7 +127,7 @@ async function main() {
         await dropReadOnlyUser()
     }
 
-    createReadOnlyUser().then((res) => console.log(`Script finished with result: ${res}`)).catch(console.error)
+    createReadOnlyUser().then((res) => console.log(`Script finished with result: ${res} `)).catch(console.error)
 }
 
 if (require.main === module) {

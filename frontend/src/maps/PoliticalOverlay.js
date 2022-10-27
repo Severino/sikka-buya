@@ -31,9 +31,9 @@ export default class PoliticalOverlay extends Overlay {
 
     // We want to show the 'unselected' mints still visible in the 
     // list. So we don't filter out the other mints.
-    if (filters.mint) {
-      delete filters.mint
-    }
+    // if (filters.mint) {
+    //   delete filters.mint
+    // }
 
     const pagination = {
       page: 0,
@@ -118,6 +118,7 @@ export default class PoliticalOverlay extends Overlay {
                     }
                   }
                     excludeFromTypeCatalogue
+                    excludeFromMapApp
                   }
                   }
                 
@@ -151,7 +152,6 @@ export default class PoliticalOverlay extends Overlay {
 
     // Sort the types by mints
     data.types.forEach(type => {
-
       if (!type.mint.location)
         unlocatedTypes.push(type)
 
@@ -181,6 +181,8 @@ export default class PoliticalOverlay extends Overlay {
 
         rulersOnType.forEach(person => {
           rulers[person.id] = person
+          if (person.shortName == "Sanad ad-Daula")
+            console.log(type)
         })
       }
 
@@ -252,8 +254,8 @@ export default class PoliticalOverlay extends Overlay {
         let heirColor = (heir.color) ? heir.color : Color.MissingColor
 
         if (selectedRulers.length > 0) {
-          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.InactiveColor
-          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.InactiveColor
+          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor(caliphColor)
+          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor(heirColor)
         }
 
         const stripes = new L.StripePattern({

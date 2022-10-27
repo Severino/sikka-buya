@@ -9,7 +9,7 @@
       :class="removing ? 'removing' : ''"
       @click="triggerRemove"
     >
-      <Minus />
+      <Minus size="16" />
     </button>
   </div>
 </template>
@@ -71,15 +71,18 @@ button {
   justify-content: center;
   align-items: center;
 
-  $size: 38px;
+  $size: 24px;
   width: $size;
   height: $size;
   border-color: #cccccc;
 
   transition: background-color 0.2s;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
 
   .material-design-icon {
-    margin-top: 4px;
+    margin-top: 1px;
   }
 
   background-color: #bdbdbd;

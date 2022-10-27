@@ -30,7 +30,7 @@
       v-if="mode"
       @click="changeMode"
     >
-      {{ mode }}
+      {{ $t('general.' + mode) }}
     </div>
 
     <div
@@ -259,6 +259,7 @@ $min-height: 24px;
   font-size: $xtra-small-font;
   font-weight: bold;
   user-select: none;
+  text-transform: uppercase;
 }
 
 .mode-indicator {
@@ -271,7 +272,7 @@ $min-height: 24px;
   color: $gray;
 
   &.interactive {
-    background-color: $gray;
+    background-color: $dark-primary-color;
 
     min-width: 32px;
     justify-content: center;

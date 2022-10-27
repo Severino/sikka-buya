@@ -28,6 +28,9 @@ const DefaultSettings = {
         active: true,
         value: 333
     },
+    Slideshow: {
+        active: false
+    },
     MintLocationMarker: {
         radius: 6,
         stroke: true,
@@ -138,6 +141,10 @@ export default class Settings {
                 console.warn(e)
             }
         })
+    }
+
+    update(data) {
+        Object.assign(this.settings, data)
     }
 
     save() {

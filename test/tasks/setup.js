@@ -1,6 +1,7 @@
 const { join: joinPath } = require("path");
-const { createReadOnlyUser, hasReadOnlyUser, dropReadOnlyUser } = require('../../backend/scripts/create_read_only_user');
+const { createReadOnlyUser, hasReadOnlyUser, dropReadOnlyUser, grantPersmissionsToReadOnlyUser } = require('../../backend/scripts/create_read_only_user');
 const { WriteableDatabase, QueryFile, QueryFileMap, getQueryFile, addQueryFile } = require('../../backend/src/utils/database');
+const Async = require('../../frontend/src/utils/Async');
 const { readdir } = require('fs').promises;
 
 
@@ -37,39 +38,45 @@ async function dropReadOnlyUserIfNecessary() {
 }
 
 async function createTestDatabase() {
-    await SuperDatabase.one("CREATE DATABASE $1:name", WriteableDatabase.$cn.database)
+    await SuperDatabase.none("CREATE DATABASE $1:name", WriteableDatabase.$cn.database)
 }
 
 async function resetTestDatabase(backupFile) {
-
     if (!resetLock) {
         resetLock = true
         try {
+
+            // If the public schema got deleted for some reason, we need to recreate it.
+            await WriteableDatabase.none("CREATE SCHEMA IF NOT EXISTS public")
+
             await createTestDatabaseIfNecessary()
 
-            await dropReadOnlyUserIfNecessary()
+            try {
+                await createReadOnlyUserIfNecessary()
+            } catch (e) {
+                console.log(e)
+            }
 
-            // Taken from Thirumal:
-            // https://dba.stackexchange.com/questions/154061/delete-all-data-in-postgres-database
-            //
-            // I would like to put it into the 'createTestDatabaseIfNecessary' method. But somehow that
-            // doesn't work.
-            await WriteableDatabase.manyOrNone(`
-        DROP SCHEMA public CASCADE;
-        CREATE SCHEMA public;
-        GRANT ALL ON SCHEMA public TO postgres;
-        GRANT ALL ON SCHEMA public TO public;
-        `)
+            await WriteableDatabase.tx(async t => {
 
+                await t.none("DROP SCHEMA IF EXISTS public CASCADE")
+                await t.none("CREATE SCHEMA IF NOT EXISTS public")
+                await t.none("GRANT ALL ON SCHEMA public TO postgres")
+                await t.none("GRANT ALL ON SCHEMA public TO public")
+            })
 
 
             const migrationPath = joinPath(__dirname, "..", "..", "backend")
             backupFilePath = backupFile || joinPath(migrationPath, "schema.sql")
             await applySchemaFile(WriteableDatabase, backupFilePath)
 
+            try {
+                await grantPersmissionsToReadOnlyUser()
+            } catch (e) {
+                console.log(e)
+            }
 
-            await createReadOnlyUserIfNecessary()
-
+            await Async.sleep(1500)
             resetLock = false
         } catch (e) {
             resetLock = false

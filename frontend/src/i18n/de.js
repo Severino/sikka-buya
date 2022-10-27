@@ -21,7 +21,9 @@ const general = {
         "Entfernen",
     user:
         "Nutzer | Nutzer",
-    yes: "ja"
+    yes: "ja",
+    or: "oder",
+    and: "und"
 }
 
 const editor = {

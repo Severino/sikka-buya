@@ -215,8 +215,7 @@ export default {
 }
 
 .formatted-text-area {
-
-  
+  min-height: 1.5rem;
 
   [dir='ltr'],
   [dir='rtl'] {
@@ -258,7 +257,6 @@ export default {
       right: 0;
     }
   }
-
 }
 </style>
 
@@ -290,13 +288,12 @@ export default {
 .formatted-text-area {
   @include input();
   font-size: 1.3em;
-  min-height: 1em;
+  min-height: 3rem;
 
   span {
     display: block;
   }
 
-  
   padding-right: 50px;
 }
 </style>

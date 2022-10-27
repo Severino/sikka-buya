@@ -1,29 +1,30 @@
 <template>
-  <div class="ruler-list">
-    <multi-select-list>
-      <ruler-list-section
-        v-if="
-          Array.isArray(selectedUnavailable) && selectedUnavailable.length > 0
-        "
-        :items="selectedUnavailable"
-        :selectedIds="selectedIds"
-        :styler="unavailableSelectedStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)"
-      />
-      <ruler-list-section
-        :items="items"
-        :selectedIds="selectedIds"
-        :styler="availableStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)"
-      />
-      <ruler-list-section
-        :items="unavailable"
-        :selectedIds="selectedIds"
-        :styler="unavailableSelectedStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)"
-      />
-    </multi-select-list>
-  </div>
+  <ul
+    class="ruler-list-section"
+    v-if="Array.isArray(items) && items.length > 0"
+  >
+    <MultiSelectListItem
+      v-for="item of items"
+      :key="'ruler-' + item.id"
+      :selected="isSelected(item)"
+      @checkbox-selected="() => $emit('selection-changed', item)"
+      @click.native="selectionChanged([item.id])"
+      :style="styler(item)"
+    >
+      <template v-slot:before>
+        <div
+          class="color-indicator"
+          :class="{ 'color-indicator-selected': isSelected(item) }"
+        ></div>
+      </template>
+      <span
+        >{{ getRulerName(item) }}
+        <span v-if="getDynasty(item)" class="dynasty">{{
+          getDynasty(item)
+        }}</span></span
+      >
+    </MultiSelectListItem>
+  </ul>
 </template>
 
 <script>
@@ -31,28 +32,25 @@ import MultiSelectList from './MultiSelectList.vue';
 import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
 import Person from '../utils/Person';
-import RulerListSection from './RulerListSection.vue';
 export default {
   props: {
-    selectedUnavailable: {
+    items: {
       type: Array,
       validator: (items) => {
         return items.every((item) => item && item.hasOwnProperty('id'));
       },
     },
-    unavailable: {
-      type: Array,
-      validator: (items) => {
-        return items.every((item) => item && item.hasOwnProperty('id'));
-      },
+    selected: Array,
+    styler: {
+      type: Function,
+      default: () => {},
     },
   },
-  mixins: [MultiSelectListMixin],
   components: {
     MultiSelectList,
     MultiSelectListItem,
-    RulerListSection,
   },
+  mixins: [MultiSelectListMixin],
   methods: {
     getDynasty(item) {
       if (item?.dynasty?.name && item?.dynasty?.id != 1) {
@@ -61,14 +59,6 @@ export default {
     },
     getRulerName(ruler) {
       return Person.getName(ruler);
-    },
-    availableStyler(item) {
-      return { color: item.color, borderColor: item.color };
-    },
-    unavailableSelectedStyler(item) {
-      const baseStyle = this.availableStyler(item);
-      baseStyle.opacity = 0.5;
-      return baseStyle;
     },
   },
 };

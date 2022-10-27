@@ -1,5 +1,10 @@
 <template>
   <div class="political-map ui">
+    <div class="debug-window" v-if="showDebugWindow">
+      <h3>Debug-Window</h3>
+      <pre>{{ selectedUnavailableRulers }}</pre>
+    </div>
+
     <Sidebar title="Prägeorte">
       <mint-list
         :items="mintsList"
@@ -67,6 +72,7 @@
         :value="raw_timeline.value"
         :valid="timelineValid"
         :shareLink="shareLink"
+        timelineName="political-map"
         @input="timelineChanged"
         @change="timelineChanged"
       >
@@ -79,6 +85,7 @@
     <Sidebar title="Herrscher" side="right">
       <ruler-list
         :selectedUnavailable="selectedUnavailableRulers"
+        :unavailable="unavailableRulers"
         :items="availableRulers"
         :selectedIds="selectedRulers"
         @selectionChanged="rulerSelectionChanged"
@@ -92,6 +99,7 @@
 import TimelineChart from '../../models/timeline/TimelineChart.js';
 import Range from '../../models/timeline/range.js';
 import Sequence from '../../models/timeline/sequence.js';
+import Pattern from '../../models/draw/pattern';
 
 //Utils
 import Sort from '../../utils/Sorter';
@@ -126,6 +134,7 @@ import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
 import URLParams from '../../utils/URLParams.js';
+import Color from '../../utils/Color.js';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -135,6 +144,9 @@ let selectedRulers;
 try {
   const json = localStorage.getItem('map-rulers');
   selectedRulers = JSON.parse(json);
+  selectedRulers = selectedRulers.filter(
+    (item) => item != null && !isNaN(item)
+  );
 } catch (e) {
   console.warn(
     'Could not load selected rulers. This is normal on first start of the app.'
@@ -160,6 +172,7 @@ export default {
   },
   data: function () {
     return {
+      showDebugWindow: false,
       availableRulers: [],
       data: null,
       mints: [],
@@ -170,6 +183,7 @@ export default {
       rulerListStyles: [],
       rulers: [],
       selectedRulers,
+      unavailableRulers: [],
       selectedUnavailableRulers: [],
       unlocatedTypes: [],
       timelineChart: null,
@@ -341,23 +355,29 @@ export default {
     window.removeEventListener('resize', this.updateCanvas);
   },
   methods: {
-    requestSlide({ slideshow, index }) {
+    requestSlideOptions({ slideshow, index }) {
       slideshow.createSlide(this.options, index);
     },
     createSlide() {},
     async drawTimeline() {
       this.timelineChart.clear();
       if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
-        await this.drawRulersOntoTimeline(true);
-        await this.drawMintCountOntoTimeline();
+        const ranges = await this.drawRulersOntoTimeline(true);
+        await this.drawMintCountOntoTimeline(ranges.length > 0 ? ranges : null);
       } else if (this.selectedMints.length > 0)
         await this.drawMintCountOntoTimeline();
       else if (this.selectedRulers.length > 0)
         await this.drawRulersOntoTimeline();
     },
-    async drawRulersOntoTimeline(drawAsLines = false) {
+    async drawRulersOntoTimeline(drawAsHorizontals = false) {
       const result = await Query.raw(
         `{
+        timelineRuledBy(rulers: [${this.selectedRulers.join(
+          ','
+        )}], mints: [${this.selectedMints.join(',')}]){
+            ruler {color},
+            data
+        }
  ruledMintCount(rulers: [${this.selectedRulers.join(
    ','
  )}], mints: [${this.selectedMints.join(',')}]){
@@ -366,23 +386,53 @@ export default {
 }
 }`
       );
+
       const rulerPointArrays = result.data.data.ruledMintCount;
       this.timelineChart.updateTimeline(this.raw_timeline);
 
-      if (drawAsLines) {
-        let yPos = 25;
-        const height = 5;
-        const padding = Math.ceil(height / 2);
+      const timelineRuledBy = result.data.data.timelineRuledBy;
 
-        rulerPointArrays.forEach((rulerObj) => {
-          const rulerRanges = Range.fromSequence(rulerObj.data, (obj) => obj.x);
-          this.timelineChart.drawRangeLineOnCanvas(rulerRanges, yPos, {
-            lineCap: 'butt',
-            lineWidth: height,
-            strokeStyle: rulerObj.ruler.color,
+      if (this.selectedRulers.length > 1)
+        this.drawStripedAndBlock(timelineRuledBy);
+
+      let ranges = [];
+
+      if (drawAsHorizontals) {
+        const rulerLines = () => {
+          const lineHeight = 5;
+          const padding = Math.ceil(lineHeight / 2);
+          let allSelectedRulerRanges = [];
+
+          rulerPointArrays.forEach((rulerObj) => {
+            let rulerYearArr = rulerObj.data.slice().map((obj) => obj.x);
+            const rulerRangeArr = Range.fromNumberSequence(rulerYearArr);
+            allSelectedRulerRanges.push({
+              ruler: rulerObj.ruler,
+              range: rulerRangeArr.slice(),
+            });
           });
-          yPos += height + padding;
-        });
+
+          allSelectedRulerRanges.sort((a, b) => {
+            return (
+              Range.getWidthFromRanges(b.range) -
+              Range.getWidthFromRanges(a.range)
+            );
+          });
+
+          let yPos = 0;
+          allSelectedRulerRanges.forEach((rangeObj) => {
+            yPos += lineHeight + padding;
+            this.timelineChart.drawRangeLineOnCanvas(rangeObj.range, yPos, {
+              lineCap: 'butt',
+              lineWidth: lineHeight,
+              strokeStyle: rangeObj.ruler.color,
+            });
+          });
+
+          return allSelectedRulerRanges;
+        };
+
+        ranges = Range.union(rulerLines().map((el) => el.range));
       } else {
         let max = 0;
         Object.values(rulerPointArrays).forEach(({ ruler, data }) => {
@@ -408,6 +458,25 @@ export default {
           );
         });
       }
+
+      return ranges;
+    },
+    drawStripedAndBlock(timelineRuledBy) {
+      const height = this.$refs.timeline.$el.offsetHeight;
+      const colors = timelineRuledBy.ruler.map((ruler) =>
+        Color.hexToRGBA(ruler.color, 0.1)
+      );
+      const points = timelineRuledBy.data || [];
+
+      var fill =
+        colors.length > 1
+          ? this.timelineChart
+              .getContext()
+              .createPattern(Pattern.createLinePattern(colors, 10), 'repeat')
+          : 'rgba(0,0,0,0.1)';
+
+      const combinedRanges = Range.fromNumberSequence(points);
+      this.timelineChart.drawRangeRectOnCanvas(combinedRanges, 0, height, fill);
     },
     updateCanvas() {
       this.timelineChart.updateSize();
@@ -444,9 +513,9 @@ export default {
       }
     },
     applySlide(options = {}) {
-      if (options.zoom && options.location)
+      if (options.zoom && options.location) {
         this.map.panTo(options.location, options.zoom);
-
+      }
       if (options.selectedRulers) {
         this.selectedRulers = options.selectedRulers.slice();
       }
@@ -455,7 +524,7 @@ export default {
         this.mintSelectionChanged(options.selectedMints.slice());
       }
 
-      if (options.year) {
+      if (options.year && options.year != 'null') {
         this.timeChanged(options.year);
       }
     },
@@ -472,7 +541,14 @@ export default {
       this.selectedUnavailableRulers = [];
       selectedRulers.forEach((selectedRuler) => {
         if (!this.rulers[selectedRuler]) {
-          this.selectedUnavailableRulers.push(this.persons[selectedRuler]);
+          const person = this.persons[selectedRuler];
+          if (person)
+            this.selectedUnavailableRulers.push(this.persons[selectedRuler]);
+          else
+            throw new Error(
+              'Invalid user in selected ruler list!',
+              selectedRuler
+            );
         }
       });
       this.selectedUnavailableRulers.sort(
@@ -509,7 +585,7 @@ export default {
         this.drawTimeline();
       }
     },
-    async drawMintCountOntoTimeline() {
+    async drawMintCountOntoTimeline(ranges) {
       await Query.raw(
         `{
  typeCountOfMints(ids: [${this.selectedMints.join(',')}]){
@@ -527,14 +603,18 @@ export default {
             (obj) => {
               return obj.data;
             }
-          );
+          ).map((obj) => obj.x);
 
-          const mintRanges = Range.fromSequence(sequence, (obj) => obj.x);
-          const height = 20;
+          let mintRanges = Range.fromNumberSequence(sequence);
+
+          if (ranges)
+            mintRanges = Range.overlappingRanges([mintRanges, ranges]);
+
+          const height = this.$refs.timeline.$el.offsetHeight;
           this.timelineChart.drawRangeLineOnCanvas(mintRanges, height / 2, {
             lineCap: 'butt',
             lineWidth: height,
-            strokeStyle: '#ccc',
+            strokeStyle: 'rgba(0,0,0,0.1)',
           });
         })
         .catch(console.error);
@@ -544,6 +624,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.debug-window {
+  padding: $padding;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  background-color: white;
+  border: 1px solid $yellow;
+  min-width: 200px;
+  min-height: 100px;
+  z-index: 1000000;
+}
+
 .unlocated-mints {
   position: absolute;
   left: $padding * 2;

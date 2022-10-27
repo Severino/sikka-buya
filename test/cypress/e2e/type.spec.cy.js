@@ -549,11 +549,16 @@ describe("Testing Type", function () {
 
     describe("Create Type", function () {
 
-        this.beforeAll(() => {
+        this.beforeAll(function () {
             cy.task("MountMinimalDatabase")
-            cy.wait(100)
+            // TODO: Check if a lower wait also works.
+            //       This was used to tackle an error that was 
+            //      Potentinally resolved
+            cy.wait(3000)
+            cy.fixture("users/admin").then(user => {
+                cy.login(user.email, user.password)
+            })
         })
-
 
         it("Can reach create page", function () {
             cy.visit("/editor/type")

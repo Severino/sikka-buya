@@ -7,6 +7,8 @@ describe("Testing Coin Marks", function () {
         })
     })
 
+
+
     this.beforeEach(function () {
         cy.restoreLocalStorage()
     })

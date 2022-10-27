@@ -39,7 +39,9 @@ export function dataFromRulers(rulers, selected = []) {
         const ruler = rulers
 
         sel = true
+        let fillColor
         if (ruler.group) {
+            fillColor = ruler.styles.fillPattern
             for (let ruler of Object.values(ruler.items)) {
                 if (selected.length > 0) {
                     sel = selected.indexOf(ruler.id) !== -1
@@ -50,10 +52,9 @@ export function dataFromRulers(rulers, selected = []) {
             if (selected.length > 0) {
                 sel = selected.indexOf(ruler.id) !== -1
             }
+
+            fillColor = (sel) ? ruler.color : Color.getInactiveColor(ruler.color)
         }
-
-
-        let fillColor = !sel ? Color.InactiveColor : ruler.color || Color.Debug
 
         data = Object.assign({
             fillColor,
@@ -63,10 +64,6 @@ export function dataFromRulers(rulers, selected = []) {
         }, ruler.styles, {
             data: ruler,
         })
-
-        if (!sel && data?.fillPattern) {
-            data.fillPattern = null
-        }
     }
 
     return { data, selected: sel }

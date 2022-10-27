@@ -294,6 +294,7 @@ type Query {
     evalFilters: EvalFilter
   ): ModCoinTypePagination
 
+  timelineRuledBy(rulers:[ID]!, mints:[ID]): RulerIntArray
   ruledMintCount(rulers: [ID]!,mints: [ID]): [RulerPointArray]
   typeCountOfMints(ids: [ID]): [MintPointArray]
 
@@ -336,6 +337,11 @@ type Query {
 type MintPointArray {
   mint: Mint
   data: [Point]
+}
+
+type RulerIntArray {
+  ruler: [Person],
+  data: [Int]
 }
 
 type RulerPointArray {
@@ -492,6 +498,7 @@ input TypeFilter {
   procedure: String
   projectId: String
   ruler: [ID]
+  ruler_and: [ID]
   title: [ID]
   title_and: [ID]
   treadwellId: String

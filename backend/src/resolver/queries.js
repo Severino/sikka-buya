@@ -317,6 +317,65 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
 
         return mintArray
     },
+    async timelineRuledBy(_, {
+        rulers = [],
+        mints = []
+    } = {}) {
+
+        rulers.forEach((value, index) => {
+            rulers[index] = parseInt(value)
+            if (isNaN(rulers[index])) {
+                throw new Error("Only integer values are allowed!")
+            }
+        })
+
+        mints.forEach((value, index) => {
+            mints[index] = parseInt(value)
+            if (isNaN(mints[index])) {
+                throw new Error("Only integer values are allowed!")
+            }
+        })
+
+        /* 
+                Its not great to manually join the values, but we have the type guard of graphql,
+                so it should be fine.
+            
+                Other workarounds did not work, and wouldn't be much safer, anyways.
+                */
+        const result = await Database.manyOrNone(`
+        WITH arrays as (
+            SELECT type.id, project_id, mint, year_of_mint,exclude_from_map_app,
+                        array_remove(ARRAY[caliph], null) ||
+                        array_remove(ARRAY_AGG( ov.person ),null)  ||
+                        array_remove(ARRAY_AGG( i.person ),null) as rulers  FROM type
+        LEFT JOIN overlord ov ON ov.type = type.id 
+        LEFT JOIN issuer i ON i.type = type.id 
+        GROUP BY project_id, type.id, type.caliph, type.mint
+        )  
+        SELECT  DISTINCT(year_of_mint) from arrays
+        WHERE 
+        year_of_mint != ''
+        AND exclude_from_map_app=False
+        AND ARRAY[${rulers.join(",")}] <@ rulers
+        ${(mints.length > 0) ? "AND mint IN ($[mints:csv]) " : ""}
+        ORDER BY year_of_mint`, {
+            mints
+        })
+
+        const rulerResult = await Database.manyOrNone(`SELECT  * from person
+        LEFT JOIN person_color pc ON pc.person = person.id 
+        WHERE id IN ($[rulers:csv])`, { rulers })
+
+        return {
+            ruler: rulerResult,
+            data: result.map(res => {
+                const num = Number(res.year_of_mint)
+                if (num === 0)
+                    console.log(num, res.year_of_mint)
+                return num
+            }).filter(year => !isNaN(year))
+        }
+    },
     async ruledMintCount(_, {
         rulers = [],
         mints = []

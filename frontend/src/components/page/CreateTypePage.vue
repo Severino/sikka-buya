@@ -1060,7 +1060,7 @@ export default {
 
 .coin-side-field > *,
 .loading-area > * {
-  margin-bottom: $padding * 2;
+  margin-bottom: $padding;
 }
 
 .invalid-error {

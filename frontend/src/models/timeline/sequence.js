@@ -5,6 +5,6 @@ export default class Sequence {
             const arr = callback(obj)
             sequence.push(...arr)
         })
-        return sequence.sort((a, b) => a.x - b.x)
+        return sequence
     }
 }

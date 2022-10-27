@@ -6,10 +6,10 @@
         <template v-for="(slide, idx) of slides">
           <slide
             :key="`slide-${idx}`"
+            :number="idx + 1"
             :name="getName(slide, idx)"
             :class="{ active: idx === currentSlide }"
             @select="setSlide(idx)"
-            @delete="removeSlide(idx)"
           />
           <new-slide
             :key="`new-slide-${idx}`"
@@ -20,13 +20,22 @@
     </scroll-view>
     <div class="tool-bar">
       <div class="button icon-button" @click="prevSlide">
-        <PrevIcon />
+        <PrevIcon :size="iconSize" />
+      </div>
+      <div class="button icon-button" @click="requestSlide(currentSlide, true)">
+        <SyncIcon :size="iconSize" />
+        <div class="text">Überschreiben</div>
       </div>
       <div class="button icon-button" @click="requestSlide()">
-        <CameraOutlineIcon />
+        <CameraOutlineIcon :size="iconSize" />
+        <div class="text">Aufnehmen {{ currentSlide }}</div>
+      </div>
+      <div class="button icon-button" @click="removeSlide()">
+        <DeleteIcon :size="iconSize" />
+        <div class="text">Löschen</div>
       </div>
       <div class="button icon-button" @click="nextSlide">
-        <NextIcon />
+        <NextIcon :size="iconSize" />
       </div>
     </div>
   </div>
@@ -36,9 +45,13 @@
 import NewSlide from './NewSlide.vue';
 import Slide from './Slide.vue';
 import CameraOutlineIcon from 'vue-material-design-icons/CameraOutline.vue';
-import NextIcon from 'vue-material-design-icons/SkipNextCircleOutline.vue';
-import PrevIcon from 'vue-material-design-icons/SkipPreviousCircleOutline.vue';
+import NextIcon from 'vue-material-design-icons/SkipNext.vue';
+import PrevIcon from 'vue-material-design-icons/SkipPrevious.vue';
 import ScrollView from '../../../layout/ScrollView.vue';
+import SyncIcon from 'vue-material-design-icons/Sync.vue';
+import DeleteIcon from 'vue-material-design-icons/Delete.vue';
+
+const storagePostFix = '-slideshow';
 
 export default {
   components: {
@@ -48,24 +61,44 @@ export default {
     NextIcon,
     PrevIcon,
     ScrollView,
+    DeleteIcon,
+    SyncIcon,
+  },
+  props: {
+    storagePrefix: String,
   },
   data() {
     return {
       slides: [],
       slideId: 0,
-      selectedSlide: -1,
       currentSlide: 0,
+      iconSize: 18,
     };
   },
   mounted() {
     this.scrollContent.addEventListener('wheel', this.scroll);
+
+    if (this.storagePrefix) {
+      try {
+        this.slides =
+          JSON.parse(window.localStorage.getItem(this.storageName)) || [];
+      } catch (e) {
+        console.warn(
+          'Could not load slideshow from localStorage. This warning is normal when no slideshow was saved.'
+        );
+      }
+    }
   },
   unmounted() {
     this.scrollContent.removeEventListener('wheel', this.scroll);
   },
   methods: {
-    getName(slide, idx) {
-      return slide?.options?.year?.toString() || slide?.name || idx.toString();
+    getName(slide) {
+      if (slide?.options?.year) {
+        return slide.options.year === 'null' ? null : slide.options.year;
+      } else {
+        return null;
+      }
     },
     scroll(evt) {
       evt.preventDefault();
@@ -75,17 +108,28 @@ export default {
       const scrollLeft = this.scrollContent.scrollLeft;
       this.scrollContent.scrollLeft = scrollLeft + scroll * sensitivity;
     },
-    requestSlide(index) {
-      this.$root.$emit('request-slide', { slideshow: this, index });
+    requestSlide(index, overwrite) {
+      this.$root.$emit('request-slide-options', {
+        slideshow: this,
+        index,
+        overwrite,
+      });
     },
-    createSlide(options, index = null) {
+    createSlide(options, index = null, overwrite = false) {
       const slide = {
-        name: (this.slideId++).toString(),
+        name: null,
         options,
       };
 
       if (index == null) this.slides.push(slide);
-      else this.slides.splice(index, 0, slide);
+      else {
+        const deleteCount = overwrite ? 1 : 0;
+        this.slides.splice(index, deleteCount, slide);
+      }
+
+      this.currentSlide = index == null ? this.slides.length - 1 : index;
+
+      this.slideChanged();
     },
     nextSlide() {
       const length = this.slides.length;
@@ -118,12 +162,26 @@ export default {
       this.updateSlide();
     },
     removeSlide(index) {
+      if (index == null) index = this.currentSlide;
+      if (index === this.slides.length - 1) {
+        this.currentSlide = this.slides.length - 2;
+      }
+
       this.slides.splice(index, 1);
+      this.slideChanged();
+    },
+    slideChanged() {
+      if (this.storagePrefix) {
+        localStorage.setItem(this.storageName, JSON.stringify(this.slides));
+      }
     },
   },
   computed: {
     scrollContent() {
       return this.$refs.slideshow.querySelector('.simplebar-content-wrapper');
+    },
+    storageName() {
+      return this.storagePrefix + storagePostFix;
     },
   },
 };
@@ -140,8 +198,8 @@ export default {
   background-color: whitesmoke;
   border-radius: $border-radius;
   display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
   border: $border;
   display: flex;
   flex-direction: column;
@@ -171,6 +229,16 @@ export default {
   background-color: $white;
   > * {
     flex: 1;
+  }
+}
+
+.icon-button .text {
+  display: none;
+}
+
+@include media-min-desktop() {
+  .icon-button .text {
+    display: inline;
   }
 }
 

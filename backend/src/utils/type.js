@@ -513,12 +513,12 @@ class Type {
     static complexFilters(filter) {
 
         const queryBuilder = new QueryBuilder()
-
-
         this._processComplexCoinMark(queryBuilder, filter)
         this._processComplexHonorificsFilter(queryBuilder, filter)
         this._processComplexOtherPersonFilter(queryBuilder, filter)
         this._processComplexTitleFilter(queryBuilder, filter)
+        this._processComplexRulerFilter(queryBuilder, filter)
+
 
         if (Object.hasOwnProperty.bind(filter)("completed")) {
             if (filter.completed != null) {
@@ -556,31 +556,7 @@ class Type {
             delete filter["plain_text"]
         }
 
-        if (Object.hasOwnProperty.bind(filter)("ruler")) {
-            if (Array.isArray(filter.ruler) && filter.ruler.length > 0) {
-                queryBuilder.addSelect(`(issuers || overlords) as rulers`)
-                queryBuilder.addJoin(`LEFT JOIN(
-                            SELECT
-                        o.type,
-                            COALESCE(array_agg(o.person)) as overlords
-                    FROM
-                        overlord o
-                    GROUP BY
-                        o.type
-                        ) overlord_query ON overlord_query.type = t.id
-                LEFT JOIN(
-                            SELECT
-                        i.type,
-                            COALESCE(array_agg(i.person)) as issuers
-                    FROM
-                        issuer i
-                    GROUP BY
-                        i.type
-                        ) issuer_query ON issuer_query.type = t.id`)
-                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) && $[ruler]:: int[])`, { ruler: filter.ruler }))
-            }
-            delete filter.ruler
-        }
+
 
         return queryBuilder
     }
@@ -1196,6 +1172,44 @@ COUNT(*) as total
                 queryBuilder.addWhere(pgp.as.format(`(other_person && $[otherPerson]:: int[])`, { otherPerson: filter[activePersonFilter] }))
             }
             delete filter[activePersonFilter]
+        }
+    }
+
+    static _processComplexRulerFilter(queryBuilder, filter) {
+
+        const activeRulerFilter = this._filterGate(filter, ["ruler", "ruler_and"], 'ruler')
+
+        if (Object.hasOwnProperty.bind(filter)(activeRulerFilter)) {
+            if (Array.isArray(filter[activeRulerFilter]) && filter[activeRulerFilter].length > 0) {
+                queryBuilder.addSelect(`(issuers || overlords) as rulers`)
+                queryBuilder.addJoin(`LEFT JOIN(
+                            SELECT
+                        o.type,
+                            COALESCE(array_agg(o.person)) as overlords
+                    FROM
+                        overlord o
+                    GROUP BY
+                        o.type
+                        ) overlord_query ON overlord_query.type = t.id
+                LEFT JOIN(
+                            SELECT
+                        i.type,
+                            COALESCE(array_agg(i.person)) as issuers
+                    FROM
+                        issuer i
+                    GROUP BY
+                        i.type
+                        ) issuer_query ON issuer_query.type = t.id`)
+
+                if (activeRulerFilter === "ruler_and") {
+                    queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) @> $[ruler]:: int[])`, { ruler: filter[activeRulerFilter] }))
+
+                } else {
+                    queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) && $[ruler]:: int[])`, { ruler: filter[activeRulerFilter] }))
+                }
+            }
+
+            delete filter[activeRulerFilter]
         }
     }
 }

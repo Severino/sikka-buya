@@ -45,7 +45,7 @@
             v-for="item of group.items"
             :key="'ruler-' + item.id"
             :selected="isSelected(item)"
-            @checkboxSelected="checkboxSelected(item)"
+            @checkbox-selected="checkboxSelected(item)"
             @click.native="selectionChanged([item.id])"
             :class="{ available: item.available }"
             :style="{ color: item.color, borderColor: item.color }"

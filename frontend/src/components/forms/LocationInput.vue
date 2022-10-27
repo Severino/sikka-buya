@@ -407,6 +407,15 @@ export default {
         }
       }
     },
+    createStringArray(arr) {
+      const values = [];
+      let str = '[';
+      arr.forEach((val, idx) => {
+        values.push(val.toFixed(2));
+      });
+      str += values.join(', ');
+      return str + ']';
+    },
   },
   computed: {
     isPolygon: function () {
@@ -440,18 +449,17 @@ export default {
     },
     polygonString: function () {
       if (this.coordinates == null) return '';
-      return this.coordinates.reduce((acc, value) => {
-        return `${acc === '' ? '' : acc + ' '}[${value[0].toFixed(
-          2
-        )}, ${value[1].toFixed(2)}]`;
-      }, '');
+      return JSON.stringify(this.coordinates, (key, arr) => {
+        const childArrays = [];
+        arr.forEach((coordinates, pos) => {
+          childArrays.push(this.createStringArray(coordinates));
+        });
+        return `[${childArrays.join(', ')}]`;
+      }).slice(1, -1); // The slice returns the " at start and end of string
     },
     pointString: function () {
       if (this.coordinates == null || this.coordinates.length < 2) return '';
-      else
-        return `[${this.coordinates[0].toFixed(
-          2
-        )}, ${this.coordinates[1].toFixed(2)}]`;
+      else return this.createStringArray(this.coordinates);
     },
   },
 };
