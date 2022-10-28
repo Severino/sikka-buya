@@ -501,6 +501,7 @@ class Type {
 ; `
 
         const result = await Database.manyOrNone(query)
+
         let fields = graphqlFields(info)
 
         for (let [idx, type] of result.entries()) {

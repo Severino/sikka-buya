@@ -139,16 +139,15 @@ const textFilters = [
     value: 'treadwellId',
     order: -9,
   },
-];
-addType(textFilters, 'text');
-
-const unfilteredNumberFilters = [
   {
     label: 'Prägejahr',
     value: 'yearOfMint',
     order: -3,
   },
 ];
+addType(textFilters, 'text');
+
+const unfilteredNumberFilters = [];
 addType(unfilteredNumberFilters, 'number');
 
 const unfilteredButtonGroupFilters = [
