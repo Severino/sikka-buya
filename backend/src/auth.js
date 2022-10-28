@@ -44,21 +44,22 @@ class Auth {
 
         try {
             let user = await Database.oneOrNone("SELECT * FROM app_user WHERE email=$1", email)
-            let result = await Auth.checkPassword(password, user.password)
-
-            if (result) {
-                return {
-                    success: true,
-                    message: "Successfully authenticated.",
-                    token: this.sign({
-                        superUser: user.super,
-                        id: user.id,
-                        email: user.email
-                    }),
-                    user: {
-                        id: user.id,
-                        email: user.email,
-                        super: user.super
+            if (user && user.password) {
+                let result = await Auth.checkPassword(password, user.password)
+                if (result) {
+                    return {
+                        success: true,
+                        message: "Successfully authenticated.",
+                        token: this.sign({
+                            superUser: user.super,
+                            id: user.id,
+                            email: user.email
+                        }),
+                        user: {
+                            id: user.id,
+                            email: user.email,
+                            super: user.super
+                        }
                     }
                 }
             }
