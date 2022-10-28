@@ -111,6 +111,7 @@ export default {
 }
 
 .popup-anchor:not(.no-shadow) {
+  background-color: red;
   filter: drop-shadow($strong-shadow);
 }
 
@@ -145,7 +146,7 @@ $color: $white;
   content: '';
   width: 15px;
   height: 15px;
-  transform: translateX(-1px) translateY(-120%) rotate(45deg);
+  transform: translateX(-50%) translateY(-120%) rotate(45deg);
   display: block;
   position: absolute;
   top: 0;

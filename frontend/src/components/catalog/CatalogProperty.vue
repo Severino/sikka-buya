@@ -11,10 +11,10 @@
         ref="popupButton"
         @click.stop.prevent="togglePopup()"
       >
-        <InfoIcon />
-        <popup :active="popupOpened" @close="closePopup" @click.stop.prevent>
-          {{ info }}
-        </popup>
+        <popup-activator>
+          <InfoIcon />
+          <template v-slot:popup>{{ info }}</template>
+        </popup-activator>
       </div>
     </header>
 
@@ -28,12 +28,14 @@
 <script>
 import InfoIcon from 'vue-material-design-icons/InformationOutline.vue';
 import Popup from '../Popup/Popup.vue';
+import PopupActivator from '../Popup/PopupActivator.vue';
 
 export default {
   name: 'CatalogProperty',
   components: {
     InfoIcon,
     Popup,
+    PopupActivator,
   },
   data() {
     return {
@@ -61,8 +63,11 @@ header {
   display: flex;
   align-items: center;
 
-  .material-design-icon {
+  .popup-activator {
     margin-left: $padding;
+  }
+
+  .material-design-icon {
     $size: $regular-font;
     width: $size;
     height: $size;

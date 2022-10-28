@@ -182,7 +182,6 @@ import Gift from 'vue-material-design-icons/GiftOutline';
 import Italic from 'vue-material-design-icons/FormatItalic.vue';
 import CatalogProperty from '../catalog/CatalogProperty.vue';
 import Row from '../layout/Row.vue';
-import Tag from '../Tag.vue';
 import Web from '../../utils/Web';
 
 import EditIcon from 'vue-material-design-icons/Pen.vue';
@@ -210,7 +209,6 @@ export default {
     Italic,
     CatalogProperty,
     Row,
-    Tag,
     Button,
     PersonView,
     PersonList,
