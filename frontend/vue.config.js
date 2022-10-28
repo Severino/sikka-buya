@@ -17,8 +17,7 @@ module.exports = {
             sass: {
                 additionalData: `
                 @use "sass:math";
-        @import "@/scss/_variables.scss";
-        @import "@/scss/_mixins.scss";
+        @import "@/scss/_import.scss";
         `
             }
         }

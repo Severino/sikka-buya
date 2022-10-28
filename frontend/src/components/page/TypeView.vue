@@ -30,7 +30,7 @@
       </button>
     </router-link>
 
-    <div class="property gm2">
+    <div class="property gm2" id="mint-container">
       <catalog-property :label="mapText('mint')">
         <div style="display: flex">
           {{ printMintProperty() }}
@@ -50,6 +50,11 @@
           >
         </div>
       </catalog-property>
+      <div class="property">
+        <catalog-property label="Prägeort wie auf Münze">
+          {{ printTypeProperty('mintAsOnCoin') }}
+        </catalog-property>
+      </div>
     </div>
 
     <div class="property gm2">
@@ -57,19 +62,16 @@
         {{ printYearProperty() }}
       </catalog-property>
     </div>
-    <div class="property gm2">
-      <catalog-property label="Prägeort wie auf Münze">
-        {{ printTypeProperty('mintAsOnCoin') }}
-      </catalog-property>
-    </div>
-    <div
-      class="property gm2 gm4 gd4"
-      v-for="(val, idx) of ['material', 'nominal']"
-      v-bind:key="`property-${val}-${idx}`"
-    >
-      <catalog-property :label="mapText(val)">
-        {{ printTypeProperty(val, 'name') }}</catalog-property
+
+    <div class="force-grid grid-col-2 property gm2">
+      <div
+        v-for="(val, idx) of ['material', 'nominal']"
+        v-bind:key="`property-${val}-${idx}`"
       >
+        <catalog-property :label="mapText(val)">
+          {{ printTypeProperty(val, 'name') }}</catalog-property
+        >
+      </div>
     </div>
 
     <div class="person-container gm1">
@@ -410,18 +412,16 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.type-view .coin-side .nameerty-label {
-  text-align: center;
-  margin: 0 auto;
-}
-</style>
 
 <style lang="scss">
 .type-view {
   ul {
     margin: 0;
   }
+}
+.type-view .coin-side .nameerty-label {
+  text-align: center;
+  margin: 0 auto;
 }
 </style>
 
@@ -432,6 +432,15 @@ $columns: 4;
   display: grid;
   gap: $padding;
   grid-template-columns: repeat($columns, 1fr);
+}
+
+#mint-container {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-row: span 2;
+
+  align-items: stretch;
+  // background-color: $white;
 }
 
 h1 {
@@ -504,7 +513,7 @@ header {
     width: $size;
     height: $size;
     color: $white;
-    border-radius: $size/2;
+    border-radius: math.div($size, 2);
     box-shadow: $shadow;
   }
 }

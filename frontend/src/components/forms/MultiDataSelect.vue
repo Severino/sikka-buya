@@ -182,7 +182,7 @@ $min-height: 24px;
   min-height: $min-height;
 
   button:not(.add-button) {
-    margin: $small-padding/2;
+    margin: math.div($small-padding, 2);
     font-size: $small-font;
     border-radius: $border-radius;
     // border: none;
@@ -288,7 +288,7 @@ $min-height: 24px;
   position: absolute;
   $max-size: 28px;
   $size: 20px;
-  $offset: ($max-size - $size) / 2;
+  $offset: math.div(($max-size - $size), 2);
   height: $size;
   width: $size;
   top: $offset;
