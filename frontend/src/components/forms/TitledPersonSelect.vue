@@ -172,8 +172,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/scss/_import.scss';
-
 // .titled-person-select .title-row {
 //   // margin-left: 10px;
 // }
@@ -184,8 +182,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .icon {
   background-color: $gray;
   // padding: $padding;

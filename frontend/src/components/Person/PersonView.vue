@@ -79,7 +79,7 @@ export default {
 .heir-grid {
   border: 1px dotted $primary-color;
   padding: $small-padding $padding;
-  margin: $padding/2 $padding;
+  margin: math.div($padding, 2) $padding;
 }
 
 .caliph-group {

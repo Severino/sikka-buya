@@ -53,7 +53,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/scss/_import.scss';
 .list-container {
   box-sizing: border-box;
 
@@ -117,8 +116,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .list {
   position: relative;
   display: flex;

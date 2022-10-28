@@ -64,8 +64,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .info {
   color: white;
   background-color: gray;

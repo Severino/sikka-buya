@@ -297,7 +297,7 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
 .person-explorer-person-view {
   button,
   .button {
-    padding: $padding/2 $padding;
+    padding: math.div($padding, 2) $padding;
   }
 
   .active {

@@ -178,7 +178,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
 .list {
   display: flex;
   flex-direction: column;

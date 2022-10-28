@@ -64,6 +64,7 @@ class Auth {
             }
         } catch (e) {
             /*Wrong user was passed. Thats fine! */
+            console.error(e)
         }
 
         return {

@@ -261,8 +261,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .toolbar {
   background-color: $gray;
   margin-bottom: 0 !important;

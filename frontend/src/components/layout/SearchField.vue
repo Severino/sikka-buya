@@ -110,7 +110,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
 .search {
   display: flex;
   position: relative;

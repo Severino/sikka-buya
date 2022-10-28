@@ -52,8 +52,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../scss/_import.scss';
-
 header {
   display: flex;
   align-items: center;

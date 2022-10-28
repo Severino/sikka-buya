@@ -22,8 +22,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .back-header {
   width: 100%;
   left: 0;

@@ -50,8 +50,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 // label {
 //   display: inline;
 // }

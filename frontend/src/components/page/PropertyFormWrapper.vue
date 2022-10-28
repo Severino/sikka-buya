@@ -67,8 +67,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 form {
   display: flex;
   flex-direction: column;

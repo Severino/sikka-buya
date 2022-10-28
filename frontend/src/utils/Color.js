@@ -1,4 +1,3 @@
-const maxRGB = 255;
 export default class Color {
 
     static _hexColorGuard(hex) {
@@ -25,14 +24,15 @@ export default class Color {
         return colors
     }
 
-    static hexBrighten(hex, ratio) {
+    static hexBrighten(hex, ratio, targetColor = "#ffffff") {
         if (isNaN(ratio) || ratio > 1 || ratio < 0) throw new Error("Ratio outside scope. Must be inbetween 0 and 1 (both inclusive).")
 
         const colors = this.hexToRGB(hex)
+        targetColor = this.hexToRGB(targetColor)
 
         for (let i in colors) {
             let col = colors[i]
-            colors[i] += (maxRGB - col) * ratio
+            colors[i] += (targetColor[i] - col) * ratio
         }
         return this.rgbToHEX(colors)
     }
@@ -50,11 +50,12 @@ export default class Color {
         return Color.Debug
     }
 
-    static getInactiveColor(color = null) {
+    static getInactiveColor(color = null, intensity = 0.85) {
+        const inactiveColor = "#dddddd"
         if (color == null)
             return "#dddddd"
         else
-            return this.hexBrighten(color, 0.7)
+            return this.hexBrighten(color, intensity, inactiveColor)
     }
 
     static get White() {

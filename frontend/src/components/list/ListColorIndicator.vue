@@ -25,7 +25,7 @@ export default {
   height: $size;
   border: $border;
   box-sizing: border-box;
-  border-radius: $size/2;
+  border-radius: math.div($size, 2);
   margin-right: 20px;
 }
 </style>

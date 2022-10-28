@@ -36,6 +36,16 @@
             :max="overlaySettings.maxRadiusMaximum"
           />
         </labeled-input-container>
+        <labeled-input-container label="Farbintensität f. inaktive Herrscher">
+          <slider
+            name="unselectedColorIntensity"
+            :value="overlaySettings.unselectedColorIntensity"
+            @input="overlaySettingsChanged"
+            :step="0.05"
+            :min="overlaySettings.unselectedColorIntensityMin"
+            :max="overlaySettings.unselectedColorIntensityMax"
+          />
+        </labeled-input-container>
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center">
@@ -299,7 +309,6 @@ export default {
         settings[key] = value;
       });
       this.overlaySettings = Object.assign(this.overlaySettings, settings);
-
       this.repaint();
     });
 
@@ -464,7 +473,7 @@ export default {
     drawStripedAndBlock(timelineRuledBy) {
       const height = this.$refs.timeline.$el.offsetHeight;
       const colors = timelineRuledBy.ruler.map((ruler) =>
-        Color.hexToRGBA(ruler.color, 0.1)
+        Color.hexToRGBA(ruler.color, 0.25)
       );
       const points = timelineRuledBy.data || [];
 
@@ -614,7 +623,7 @@ export default {
           this.timelineChart.drawRangeLineOnCanvas(mintRanges, height / 2, {
             lineCap: 'butt',
             lineWidth: height,
-            strokeStyle: 'rgba(0,0,0,0.1)',
+            strokeStyle: 'rgba(0,0,0,0.05)',
           });
         })
         .catch(console.error);

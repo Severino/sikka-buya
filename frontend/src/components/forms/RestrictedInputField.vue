@@ -43,8 +43,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .restricted-input {
   position: relative;
   display: flex;

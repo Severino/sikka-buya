@@ -125,7 +125,6 @@ a {
   @include resetLinkStyle();
 }
 
-@import '@/scss/_import.scss';
 header {
   display: flex;
   justify-content: space-between;

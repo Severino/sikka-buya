@@ -85,7 +85,7 @@ export default {
 <style lang="scss">
 .coin-side-field {
   > * {
-    margin-bottom: $padding / 2;
+    margin-bottom: math.div($padding, 2);
   }
 
   header {

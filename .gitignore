@@ -9,3 +9,5 @@ test/token.txt
 
 test/cypress/screenshots/**
 test/_excluded_data/**
+
+**/*.ignore

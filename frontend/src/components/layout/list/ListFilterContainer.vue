@@ -47,8 +47,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../../../scss/_import.scss';
-
 .list-filter-container {
   border: 1px solid #ccc;
   border-radius: 3px;
@@ -58,7 +56,7 @@ export default {
   cursor: pointer;
   user-select: none;
   font-size: $small-font;
-  padding: $padding/3 $padding;
+  padding: math.div($padding, 3) $padding;
   text-align: center;
   background-color: $primary-color;
   color: whitesmoke;

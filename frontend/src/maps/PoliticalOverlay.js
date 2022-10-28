@@ -254,8 +254,8 @@ export default class PoliticalOverlay extends Overlay {
         let heirColor = (heir.color) ? heir.color : Color.MissingColor
 
         if (selectedRulers.length > 0) {
-          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor(caliphColor)
-          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor(heirColor)
+          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor(caliphColor, this.settings.settings.unselectedColorIntensity)
+          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor(heirColor, this.settings.settings.unselectedColorIntensity)
         }
 
         const stripes = new L.StripePattern({
@@ -293,8 +293,11 @@ export default class PoliticalOverlay extends Overlay {
 
     const { data, selected } = coinsToRulerData(
       feature.data.types,
-      selections.selectedRulers,
-      this.heirStripes
+      {
+        selected: selections.selectedRulers,
+        patterns: this.heirStripes,
+        options: this.settings.settings
+      }
     );
 
     const selectionsActive = selections?.selectedMints?.length > 0

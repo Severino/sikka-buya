@@ -289,7 +289,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
     },
     typeCountOfMints: async function (_, args) {
         const ids = args.ids
-        if (ids.length > process.env.MAX_SEARCH) throw new Error(`Too many ids requested.`)
+        // if (ids.length > process.env.MAX_SEARCH) throw new Error(`Too many ids requested.`)
 
         const mintArray = []
 

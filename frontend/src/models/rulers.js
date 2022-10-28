@@ -24,14 +24,14 @@ export function rulersFromCoin(coin, patterns) {
     return rulers;
 }
 
-export function dataFromRulers(rulers, selected = []) {
+export function dataFromRulers(rulers, { selected = [], options = {} }) {
     let data = rulers
     let sel = false
 
     if (Array.isArray(rulers)) {
         data = []
         rulers.forEach(ruler => {
-            const { data: subdata, selected: anyIsSelected } = dataFromRulers(ruler, selected)
+            const { data: subdata, selected: anyIsSelected } = dataFromRulers(ruler, { selected, options })
             if (anyIsSelected) sel = true
             data.push(subdata)
         })
@@ -52,8 +52,7 @@ export function dataFromRulers(rulers, selected = []) {
             if (selected.length > 0) {
                 sel = selected.indexOf(ruler.id) !== -1
             }
-
-            fillColor = (sel) ? ruler.color : Color.getInactiveColor(ruler.color)
+            fillColor = (sel) ? ruler.color : Color.getInactiveColor(ruler.color, options.unselectedColorIntensity || 0.85)
         }
 
         data = Object.assign({
@@ -69,13 +68,13 @@ export function dataFromRulers(rulers, selected = []) {
     return { data, selected: sel }
 }
 
-export function coinsToRulerData(coins, selected = [], patterns = {}) {
+export function coinsToRulerData(coins, { selected = [], patterns = {}, options = {} }) {
     let data = []
     let sel = false
 
     coins.forEach(coin => {
         const rulers = rulersFromCoin(coin, patterns)
-        let { data: rulerData, selected: sel2 } = dataFromRulers(rulers, selected)
+        let { data: rulerData, selected: sel2 } = dataFromRulers(rulers, { selected, options })
         sel = sel2
         data.push({
             groupData: coin,

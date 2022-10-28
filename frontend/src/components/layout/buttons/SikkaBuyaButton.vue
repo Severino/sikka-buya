@@ -20,7 +20,7 @@ export default {
 $height: 26px;
 .sikka-buya-button {
   height: $height;
-  border-radius: $height/2;
+  border-radius: math.div($height, 2);
   color: $black;
   border-color: $primary-color;
   padding-right: $padding * 3;

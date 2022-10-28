@@ -131,8 +131,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 $size: 40px;
 $trash-size: 10px;
 
