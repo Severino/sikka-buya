@@ -27,19 +27,22 @@ export default class MaterialOverlay extends Overlay {
     }
 
     toMapObject(data) {
-        const mints = data.reduce((prev, type) => {
+        const mints = data.types.reduce((prev, type) => {
             const mint = type.mint;
-            if (!prev[mint.id]) {
-                prev[mint.id] = mint.location;
-                prev[mint.id].data = {
-                    mint,
-                    types: [],
-                    materialStats: new MaterialStats(),
-                };
-            }
 
-            prev[mint.id].data.materialStats.add(type.material);
-            prev[mint.id].data.types.push(type);
+            if (mint.id) {
+                if (!prev[mint.id]) {
+                    prev[mint.id] = mint.location || {};
+                    prev[mint.id].data = {
+                        mint,
+                        types: [],
+                        materialStats: new MaterialStats(),
+                    };
+                }
+
+                prev[mint.id].data.materialStats.add(type.material);
+                prev[mint.id].data.types.push(type);
+            }
             return prev;
         }, {});
 

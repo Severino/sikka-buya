@@ -10,11 +10,15 @@ export default {
         }
     },
     mounted() {
+
+        this.load()
+
         this.timeBuffer = new RequestBuffer(100)
     },
     methods: {
         toggleTimeline() {
             this.timelineActive = !this.timelineActive
+            this.save()
         },
         timeChanged: async function (val) {
             this.timeBuffer.update(val, () => {
@@ -25,29 +29,36 @@ export default {
                  * timelineUpdated.
                  */
                 this.timelineUpdated();
-
-                URLParams.update({ year: val })
-                try {
-                    localStorage.setItem('map-timeline', val);
-                } catch (e) {
-                    console.warn(e);
-                }
+                this.save()
             })
 
         },
-        initTimeline: async function (value) {
+        load(options = {
+            year: 433,
+            timelineActive: true
+        }) {
 
-            let storageValue = value
+            const optionsString = localStorage.getItem('map-timeline')
+
             try {
-                let parsed = parseInt(localStorage.getItem('map-timeline'))
-                if (!isNaN(parsed)) storageValue = parsed
+                let loadedOptions = JSON.parse(optionsString)
+                Object.assign(options, loadedOptions)
             } catch (e) {
                 console.warn(e)
             }
 
-            value = this.$route.query.year && !isNaN(parseInt(this.$route.query.year))
-                ? parseInt(this.$route.query.year)
-                : storageValue;
+            this.raw_timeline.value = URLParams.getInteger('year', options.year)
+            this.timelineActive = URLParams.getBoolean('timelineActive', options.timelineActive)
+
+        },
+        save() {
+            const option = { year: this.raw_timeline.value, timelineActive: this.timelineActive }
+            URLParams.update(option)
+            localStorage.setItem('map-timeline', JSON.stringify(option));
+        },
+        initTimeline: async function (value) {
+
+            this.load()
 
             try {
                 let result = await Query.raw(

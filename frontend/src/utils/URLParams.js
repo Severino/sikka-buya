@@ -49,4 +49,45 @@ export default class URLParams {
 
         return url
     }
+
+    /**
+     * All params in the URL string are strings.
+     * So there are a few methods to get the respective
+     * data type from the string directly.
+     * 
+     * If either the parameter is not found or 
+     * a conversion is not possible, a default value is returned.
+     */
+    static getInteger(key, defaultValue) {
+        let value = defaultValue
+        let url = new URL(window.location)
+        const queryParam = url.searchParams.get(key)
+        let integer = parseInt(queryParam)
+        if (queryParam && !isNaN(integer)) {
+            value = integer
+        }
+        return value
+
+    }
+
+    /**
+    * All params in the URL string are strings.
+    * So there are a few methods to get the respective
+    * data type from the string directly.
+    * 
+    * If either the parameter is not found or 
+    * a conversion is not possible, a default value is returned.
+    */
+    static getBoolean(key, defaultValue) {
+        let value = defaultValue
+        let url = new URL(window.location)
+        const queryParam = url.searchParams.get(key)
+
+        if (queryParam !== undefined) {
+            if (queryParam === "true") value = true
+            else if (queryParam === "false") value = false
+        }
+
+        return value
+    }
 }

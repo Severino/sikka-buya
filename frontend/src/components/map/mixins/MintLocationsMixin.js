@@ -71,10 +71,7 @@ export function mintLocationsMixin({
                 this.mints = {};
                 mints
                     .filter((mint) => mint.location != null)
-                    .forEach((mint) => {
-                        mint.location = JSON.parse(mint.location);
-                        this.mints[mint.id] = mint;
-                    });
+
                 this.updateMintLocations()
 
             },

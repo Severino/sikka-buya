@@ -17,15 +17,17 @@ export default class Overlay {
         this._onApplyData = onApplyData
     }
 
-    /** Fetches the data from the server. */
-    async fetch() {
-        console.error("Error in Overlay: Abstract method not overloaded: fetch().")
-    }
+
 
     async guardedFetch(filters) {
         return this.fetchGuard.exec(async (filters) => {
             return this.fetch(filters)
         }, filters)
+    }
+
+    /** Fetches the data from the server. */
+    async fetch() {
+        console.error("Error in Overlay: Abstract method not overloaded: fetch().")
     }
 
     /**
@@ -79,13 +81,17 @@ export default class Overlay {
         return el
     }
 
+    clrarLayer() {
+        if (this.layer)
+            this.layer.remove()
+    }
+
     async repaint({
         selections = {},
         markerOptions = {},
     } = {}) {
 
-        if (this.layer)
-            this.layer.remove()
+        this.clearLayer()
 
         const { geoJSON = [], patterns = [] } = this.toMapObject(this.data, selections)
         if (this._onGeoJSONTransform)

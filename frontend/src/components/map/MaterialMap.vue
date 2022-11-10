@@ -243,21 +243,21 @@ export default {
     });
 
     this.overlay = new MaterialOverlay(this.featureGroup, settings, {
-      onApplyData: (data) => {
-        const validTypes = [];
-        data.types.forEach((type) => {
-          if (type?.mint?.location) {
-            try {
-              type.mint.location = JSON.parse(type.mint.location);
-              validTypes.push(type);
-            } catch (e) {
-              console.warn(`Could not parse all mints: ${type.mint.name}`, e);
-            }
-          }
-        });
+      // onApplyData: (data) => {
+      //   const validTypes = [];
+      //   data.types.forEach((type) => {
+      //     if (type?.mint?.location) {
+      //       try {
+      //         type.mint.location = JSON.parse(type.mint.location);
+      //         validTypes.push(type);
+      //       } catch (e) {
+      //         console.warn(`Could not parse all mints: ${type.mint.name}`, e);
+      //       }
+      //     }
+      //   });
 
-        return validTypes;
-      },
+      //   return validTypes;
+      // },
       onGeoJSONTransform: (features) => {
         features.forEach((feature) => {
           feature.data.types.forEach((type) => {
