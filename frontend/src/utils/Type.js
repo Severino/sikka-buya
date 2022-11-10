@@ -2,6 +2,8 @@ import Query from '../database/query';
 
 export default class Type {
 
+
+
   static async filteredQuery({
     filters = {},
     pagination = { count: 20, page: 0 },

@@ -131,9 +131,9 @@ class Mint {
     static extractLocation(mint) {
         let location = mint.location
         mint.location = { type: "empty", coordinates: [] }
-        if (location) {
-            try { mint.location = JSON.parse(mint.location) } catch (e) { console.error(e) }
-        }
+        // if (location) {
+        //     try { mint.location = JSON.parse(mint.location) } catch (e) { console.error(e) }
+        // }
 
         let uncertainLocation = mint.uncertain_area
         mint.uncertainLocation = { type: "empty", coordinates: [] }

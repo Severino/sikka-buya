@@ -370,11 +370,51 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
             ruler: rulerResult,
             data: result.map(res => {
                 const num = Number(res.year_of_mint)
-                if (num === 0)
-                    console.log(num, res.year_of_mint)
                 return num
             }).filter(year => !isNaN(year))
         }
+    },
+    async getPersonMints() {
+        const results = await Database.manyOrNone(`
+        WITH issuers AS (
+            SELECT type, person.id as id, jsonb_build_object('id', person.id, 'shortName', person.short_name, 'name', person.name, 'color', person_color.color, 'dynasty', dynastyObject.json) as json FROM issuer 
+            LEFT JOIN person ON person.id = issuer.person
+            LEFT JOIN person_color ON person_color.person = person.id
+            LEFT JOIN (SELECT id, jsonb_build_object('id', dynasty.id, 'name', dynasty.name) as json FROM dynasty) as dynastyObject ON dynastyObject.id = person.dynasty    
+            ORDER BY short_name
+            ), overlords AS (
+                SELECT type, person.id as id, jsonb_build_object('id', person.id, 'shortName', person.short_name, 'name', person.name,'color', person_color.color, 'dynasty', dynastyObject.json) as json FROM overlord 
+                LEFT JOIN person ON person.id = overlord.person
+                LEFT JOIN person_color ON person_color.person = person.id
+                LEFT JOIN (SELECT id, jsonb_build_object('id', dynasty.id, 'name', dynasty.name) as json FROM dynasty) as dynastyObject ON dynastyObject.id = person.dynasty    
+                ORDER BY short_name
+                )
+            SELECT 
+                to_json(mint.*) as mint,
+                coalesce(jsonb_agg(distinct overlords.json) filter (where overlords.json is not null) ,'[]')as overlords,
+                coalesce(jsonb_agg(distinct issuers.json) filter (where issuers.json is not null) ,'[]')as issuers,
+                coalesce(jsonb_agg(distinct caliphObject.json) filter (where caliphObject.json is not null) ,'[]')as caliphs
+
+            FROM type
+            LEFT JOIN overlords ON overlords.type = type.id
+            LEFT JOIN issuers ON issuers.type = type.id
+            LEFT JOIN mint ON mint.id = type.mint
+            LEFT JOIN 
+                (
+                    SELECT person.id as id, jsonb_build_object('id', person.id, 'shortName', person.short_name, 'name', person.name,'color', person_color.color, 'dynasty', dynastyObject.json) as json 
+                FROM person 
+                LEFT JOIN person_color ON person_color.person = person.id
+                LEFT JOIN (SELECT id, jsonb_build_object('id', dynasty.id, 'name', dynasty.name) as json FROM dynasty) as dynastyObject ON dynastyObject.id = person.dynasty    
+                ORDER BY short_name
+                ) as caliphObject ON caliphObject.id = type.caliph
+
+            WHERE exclude_from_map_app = false
+            GROUP BY type.mint, mint.*
+            ;
+            `)
+
+
+        return results
     },
     async ruledMintCount(_, {
         rulers = [],

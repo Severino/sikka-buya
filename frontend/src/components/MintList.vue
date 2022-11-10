@@ -27,18 +27,12 @@
           /> -->
           <div class="fill"></div>
 
-          <div
-            @click.prevent.stop="selectAllInGroup(group)"
-            :class="{ disabled: allSelected(group) }"
-          >
-            <select-all-icon :size="18" />
-          </div>
-          <div
-            @click.prevent.stop="removeAllFromGroup(group)"
-            :class="{ disabled: !noneSelected(group) }"
-          >
-            <select-remove-icon :size="18" />
-          </div>
+          <list-selection-tools
+            @select-all="selectAllInGroup(group)"
+            @unselect-all="removeAllFromGroup(group)"
+            :allSelected="allSelected(group)"
+            :noneSelected="noneSelected(group)"
+          />
         </template>
         <ul>
           <MultiSelectListItem
@@ -66,8 +60,7 @@ import Collapsible from './layout/Collapsible.vue';
 import Sort from '../utils/Sorter';
 import Checkbox from './forms/Checkbox.vue';
 
-import SelectAllIcon from 'vue-material-design-icons/SelectAll.vue';
-import SelectRemoveIcon from 'vue-material-design-icons/SelectOff.vue';
+import ListSelectionTools from './interactive/ListSelectionTools.vue';
 
 export default {
   components: {
@@ -75,8 +68,8 @@ export default {
     MultiSelectListItem,
     Collapsible,
     Checkbox,
-    SelectAllIcon,
-    SelectRemoveIcon,
+
+    ListSelectionTools,
   },
   mixins: [MultiSelectListMixin],
   methods: {

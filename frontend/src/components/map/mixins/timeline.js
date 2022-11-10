@@ -5,6 +5,7 @@ import URLParams from '../../../utils/URLParams';
 export default {
     data: function () {
         return {
+            timelineActive: false,
             raw_timeline: { from: 0, to: 100, value: 0 }, timeBuffer: null
         }
     },
@@ -12,6 +13,9 @@ export default {
         this.timeBuffer = new RequestBuffer(100)
     },
     methods: {
+        toggleTimeline() {
+            this.timelineActive = !this.timelineActive
+        },
         timeChanged: async function (val) {
             this.timeBuffer.update(val, () => {
                 this.raw_timeline.value = val;

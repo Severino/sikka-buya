@@ -469,6 +469,8 @@ class Type {
             ON cm.type = type.id
          */
 
+        pagination.count = (pagination.count < process.env.MAX_SEARCH) ? pagination.count : process.env.MAX_SEARCH
+
         const queryBuilder = this.complexFilters(filters)
         const conditions = this.objectToConditions(filters)
         const joinClause = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
@@ -498,6 +500,7 @@ class Type {
         ${whereClause}
         ORDER BY t.project_id ASC
         ${pageInfo.toQuery()}
+        
 ; `
 
         const result = await Database.manyOrNone(query)

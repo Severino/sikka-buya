@@ -1,4 +1,5 @@
 scalar Void
+scalar GeoJSON
 
 type AuthResponse {
   success: Boolean
@@ -166,7 +167,7 @@ type CoinMark {
 type Mint {
   id: ID
   name: String
-  location: String
+  location: GeoJSON
   uncertain: Boolean
   uncertainArea: String
   province: Name
@@ -280,6 +281,8 @@ type Query {
   mintMaterials: [MintMaterials]
   getMaterialColor(id: ID!): String
 
+  getPersonMints: [MintPersons]
+
   province: [Name]
   searchProvince(text: String): [Name]
   getProvince(id: ID!): Name
@@ -332,6 +335,13 @@ type Query {
     text: String
     pagination: Pagination
   ): PaginationTypeTextSearch
+}
+
+type MintPersons {
+  mint: Mint,
+  caliphs:[Person],
+  issuers: [Person],
+  overlords: [Person]
 }
 
 type MintPointArray {

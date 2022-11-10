@@ -65,7 +65,6 @@ export function concentricCircles(latlng, data, {
             const graphics = L.semiCircleMarker(latlng, circleMarkerOptions)
             concentricCircles.push(graphics)
             assignPopup(graphics, { data: null, groupData: slice.groupData, openPopup })
-
         }
     })
 

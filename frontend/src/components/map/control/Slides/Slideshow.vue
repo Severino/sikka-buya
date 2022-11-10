@@ -28,7 +28,7 @@
       </div>
       <div class="button icon-button" @click="requestSlide()">
         <CameraOutlineIcon :size="iconSize" />
-        <div class="text">Aufnehmen {{ currentSlide }}</div>
+        <div class="text">Aufnehmen</div>
       </div>
       <div class="button icon-button" @click="removeSlide()">
         <DeleteIcon :size="iconSize" />
@@ -220,7 +220,7 @@ export default {
   padding-bottom: 2 * $padding;
 
   > * {
-    margin-right: $padding/2;
+    margin-right: math.div($padding, 2);
   }
 }
 

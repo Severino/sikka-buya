@@ -2,6 +2,9 @@
   <div class="side-bar" :class="getSideClass">
     <header class="title underlined-header">
       <h3>{{ title }}</h3>
+      <div class="tools">
+        <slot name="tools" />
+      </div>
     </header>
     <div class="body">
       <scroll-view ref="scrollview">

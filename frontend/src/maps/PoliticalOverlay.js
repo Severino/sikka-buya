@@ -7,6 +7,7 @@ import { rulerPopup } from '../models/map/political';
 import { concentricCircles } from '../maps/graphics/ConcentricCircles';
 import Color from '../utils/Color';
 import { MintLocationMarker } from '../models/mintlocation';
+import { ringsFromPersonMint } from './graphics/RulerRings';
 
 
 export default class PoliticalOverlay extends Overlay {
@@ -21,6 +22,8 @@ export default class PoliticalOverlay extends Overlay {
     })
     this.heirStripes = {}
   }
+
+
 
 
   async fetch(filters) {
@@ -42,7 +45,7 @@ export default class PoliticalOverlay extends Overlay {
 
 
     const result = await Query.raw(
-      `query ($pagination: Pagination, $filters: TypeFilter) {
+      `query  ${(filters.yearOfMint === null ? "" : "($filters: TypeFilter, $pagination: Pagination)")} {
       
                 person {
                   id
@@ -54,75 +57,14 @@ export default class PoliticalOverlay extends Overlay {
                     name
                   }
                 }
-                  ${Mint.mintGraphQL()}    
+                  ${Mint.mintGraphQL()}  
+                  ${filters.yearOfMint === null ?
+        this.personMintsQuery()
+        : this.typeQuery()
+      }  
+                  
   
-                  coinType(pagination: $pagination, filters: $filters){
-                    types{
-                    id
-                    projectId
-                    material {name}
-                    donativ
-                    procedure
-                    nominal {name}
-                    mintAsOnCoin
-                    caliph {
-                      name,
-                      shortName
-                      id
-                      color
-                      dynasty{
-                        id,name
-                      }
-                    }
-                    mint {
-                      id
-                      name
-                      location
-                      uncertain
-                      province {
-                        id
-                        name
-                      }
-                    },
-                    issuers {
-                      id
-                      name
-                      shortName
-                      color
-                      dynasty{
-                        id,name
-                      }
-                    }
-                    overlords {
-                      id
-                      name
-                      shortName
-                      rank
-                      color
-                      dynasty{
-                        id,name
-                      }
-                    }
-                    otherPersons {
-                    id
-                    shortName
-                    name
-                    color
-                    role {
-                      id
-                      name
-                    }
-                    dynasty {
-                      id
-                      name
-                    }
-                  }
-                    excludeFromTypeCatalogue
-                    excludeFromMapApp
-                  }
-                  }
-                
-              }`,
+    }`,
       {
         pagination,
         filters
@@ -131,27 +73,14 @@ export default class PoliticalOverlay extends Overlay {
     return result.data.data
   }
 
-  transform(data) {
-    data.types = data.coinType.types
-    delete data.coinType
 
+  transformCoinType(data, mintMap) {
     let availableMints = {}
     let rulers = {}
-
-    let mintMap = {}
-    let mints = data.mint.filter((mint) => {
-      return (mint?.province?.id)
-    }).map(mint => {
-      mintMap[mint.id] = mint
-      if (!mint.data) mint.data = {}
-      mint.data.types = []
-      return mint
-    })
-
     const unlocatedTypes = []
 
     // Sort the types by mints
-    data.types.forEach(type => {
+    data.forEach(type => {
       if (!type.mint.location)
         unlocatedTypes.push(type)
 
@@ -181,24 +110,88 @@ export default class PoliticalOverlay extends Overlay {
 
         rulersOnType.forEach(person => {
           rulers[person.id] = person
-          if (person.shortName == "Sanad ad-Daula")
-            console.log(type)
         })
       }
 
     })
 
+
+    return {
+      availableMints,
+      rulers,
+      unlocatedTypes,
+      types: data
+    }
+  }
+
+  transformPersonMints(data, mintMap) {
+    let availableMints = {}
+    let rulers = {}
+
+    data.forEach(pm => {
+      if (pm.mint && (pm => pm.caliph.length > 0 || pm.issuers.length > 0 || pm.overlords.length > 0)) {
+
+        mintMap[pm.mint.id].data.personMints = pm
+        availableMints[pm.mint.id] = mintMap[pm.mint.id]
+          ;[...pm.caliphs, ...pm.issuers, ...pm.overlords].forEach(person => {
+            rulers[person.id] = person
+          })
+      }
+    })
+
+
+    return {
+      availableMints,
+      rulers,
+      personMints: data
+    }
+  }
+
+  transformMints(data) {
+    let mintMap = {}
+    let mints = data.filter((mint) => {
+      return (mint?.province?.id)
+    }).map(mint => {
+      mintMap[mint.id] = mint
+      if (!mint.data) mint.data = {}
+      mint.data.types = []
+      mint.data.personMints = []
+      return mint
+    })
+    return { mints, mintMap }
+  }
+
+  transformPersons(data) {
+    return data.reduce((obj, person) => {
+      obj[person.id] = person
+      return obj
+    }, {})
+  }
+
+  transform(data) {
+    let { mints, mintMap } = this.transformMints(data.mint)
+    let persons = this.transformPersons(data.person)
+
+    let types = [], personMints = [], unlocatedTypes = [], availableMints = {}, rulers = {}
+    if (data.coinType) {
+      this.mode = "year"
+      data.types = data.coinType.types
+      delete data.coinType
+        ; ({ types, unlocatedTypes, availableMints, rulers } = this.transformCoinType(data.types, mintMap))
+    } else if (data.getPersonMints) {
+      this.mode = "no_year"
+        ; ({ personMints, rulers, availableMints } = this.transformPersonMints(data.getPersonMints, mintMap))
+    } else {
+      throw new Error("Invalid response: require coinType or getPersonMints.")
+    }
+
     let unavailableMints = [];
     for (let mint of Object.values(data.mint)) {
       if (!availableMints[mint.id]) {
         unavailableMints.push(mint);
+
       }
     }
-
-    const persons = data.person.reduce((obj, person) => {
-      obj[person.id] = person
-      return obj
-    }, {})
 
     return {
       mints,
@@ -207,35 +200,38 @@ export default class PoliticalOverlay extends Overlay {
       rulers,
       persons,
       unlocatedTypes,
-      types: data.types
+      types,
+      personMints
     }
   }
 
   toMapObject(data, selection) {
     const geoJSON = []
-
     let patterns = this._buildHeirStripes(data, selection)
     //Build mint map and parse GeoJSON
     Object.values(data.mints).forEach(mint => {
 
       if (mint.location && mint.id) {
-        const types = mint.data.types
         try {
-          let locationData = JSON.parse(mint.location)
-          locationData.data = {
+
+          let types = mint?.data?.types || []
+          let personMints = mint?.data?.personMints || []
+
+          mint.location.data = {
             types,
+            personMints,
             mint
           }
 
           //We sort the locationsdata so that the concentric circles
           // will be drawn on top of the locations markers.
           if (types.length > 0) {
-            geoJSON.push(locationData)
+            geoJSON.push(mint.location)
           } else {
-            geoJSON.unshift(locationData)
+            geoJSON.unshift(mint.location)
           }
 
-        } catch (e) { console.error("Could not parse locaton", e) /* If location is invalid, we don't care.*/ }
+        } catch (e) { console.error("Could not parse location", e) /* If location is invalid, we don't care.*/ }
       }
     })
 
@@ -286,8 +282,7 @@ export default class PoliticalOverlay extends Overlay {
   }
 
 
-  createMarker(latlng, feature, {
-    markerOptions = {},
+  createMintTypesMarker(latlng, feature, {
     selections = {}
   } = {}) {
 
@@ -333,21 +328,136 @@ export default class PoliticalOverlay extends Overlay {
     }
 
     layer.selected = selected;
+
+    return layer
+  }
+
+  createMintAllRulersMarker(latlng, feature, {
+    selections = {}
+  } = {}) {
+    let layer;
+    let innerRadius = this.settings.settings.maxRadius / 5
+    let spacing = this.settings.settings.maxRadius / 50
+    if (selections.selectedMints.length === 0 || selections.selectedMints.indexOf(feature.data.mint.id) != -1) {
+      layer = ringsFromPersonMint(latlng, feature, selections, {
+        innerRadius,
+        radius: this.settings.settings.maxRadius,
+        spacing
+      })
+      this.createMintLocationMarker(latlng, feature, { size: innerRadius - spacing }).addTo(layer)
+    } else
+      layer = this.createMintLocationMarker(latlng, feature, { size: innerRadius - spacing })
+
+    return layer
+  }
+
+
+  createMarker(latlng, feature, {
+    selections = {}
+  } = {}) {
+
+    let layer;
+    if (this.mode === "year") {
+      layer = this.createMintTypesMarker(...arguments)
+    } else if (this.mode === "no_year") {
+      layer = this.createMintAllRulersMarker(...arguments)
+    } else {
+      throw new Error(`Marker mode is not implemented: ${this.mode}`)
+    }
+
     layer.on('mouseover', () => {
       layer.bringToFront()
     });
     layer.on('click', () => {
       layer.bringToFront()
     });
+
     return layer
   }
 
-  createMintLocationMarker(latlng, feature) {
+  createMintLocationMarker(latlng, feature, options) {
     const mint = feature.data.mint
     const mlm = new MintLocationMarker(mint)
-    const marker = mlm.create(latlng)
+    const marker = mlm.create(latlng, options)
     marker.bindPopup(Mint.popupMintHeader(mint, ["underlined-header"]))
     return marker
+  }
+
+  personMintsQuery() {
+    return `getPersonMints {
+        mint {id, name, location}
+        caliphs {id shortName name color dynasty {id name}}
+        issuers {id shortName name color dynasty {id name}}
+        overlords {id shortName name color dynasty {id name}}
+      }`
+  }
+
+  typeQuery() {
+    return `coinType(pagination: $pagination, filters: $filters){
+      types{
+      id
+      projectId
+      material {name}
+      donativ
+      procedure
+      nominal {name}
+      mintAsOnCoin
+      caliph {
+        name,
+        shortName
+        id
+        color
+        dynasty{
+          id,name
+        }
+      }
+      mint {
+        id
+        name
+        location
+        uncertain
+        province {
+          id
+          name
+        }
+      },
+      issuers {
+        id
+        name
+        shortName
+        color
+        dynasty{
+          id,name
+        }
+      }
+      overlords {
+        id
+        name
+        shortName
+        rank
+        color
+        dynasty{
+          id,name
+        }
+      }
+      otherPersons {
+      id
+      shortName
+      name
+      color
+      role {
+        id
+        name
+      }
+      dynasty {
+        id
+        name
+      }
+    }
+      excludeFromTypeCatalogue
+      excludeFromMapApp
+    }
+    }`
   }
 }
 

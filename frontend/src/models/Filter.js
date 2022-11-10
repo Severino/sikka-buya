@@ -54,7 +54,6 @@ export default class Filter {
     selectFilter() {
         const name = this.name
         return function (target) {
-            console.log(target, this.filters[name])
             if (!this["has" + StringUtils.capitalize(name) + "Filter"](target)) {
                 target.id = parseInt(target.id)
                 this.filters[name].push(target);

@@ -6,6 +6,15 @@
     </div>
 
     <Sidebar title="Prägeorte">
+      <template v-slot:tools>
+        <list-selection-tools
+          @select-all="selectAllMints"
+          @unselect-all="unselectAllMints"
+          :allSelected="allMintsSelected"
+          :noneSelected="mintsSelected"
+        />
+      </template>
+
       <mint-list
         :items="mintsList"
         :selectedIds="selectedMints"
@@ -82,9 +91,12 @@
         :value="raw_timeline.value"
         :valid="timelineValid"
         :shareLink="shareLink"
+        :allowToggle="true"
+        :timelineActive="timelineActive"
         timelineName="political-map"
         @input="timelineChanged"
         @change="timelineChanged"
+        @toggle="toggleTimeline"
       >
         <template #background>
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
@@ -128,6 +140,7 @@ import slideshow from '../mixins/slideshow';
 // Components
 import Checkbox from '../forms/Checkbox.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
+import ListSelectionTools from '../interactive/ListSelectionTools.vue';
 import MapSettingsBox from '../MapSettingsBox.vue';
 import MintList from '../MintList.vue';
 import MultiSelectList from '../MultiSelectList.vue';
@@ -170,6 +183,7 @@ export default {
   components: {
     Checkbox,
     LabeledInputContainer,
+    ListSelectionTools,
     MapSettingsBox,
     MintList,
     MultiSelectList,
@@ -212,6 +226,13 @@ export default {
     }),
   ],
   computed: {
+    mintsSelected() {
+      return this.selectedMints.length !== 0;
+    },
+    allMintsSelected() {
+      console.log(this.selectedMints.length, this.mints.length);
+      return this.selectedMints.length === this.mints.length;
+    },
     options() {
       const options = {};
       if (this.map) {
@@ -235,7 +256,7 @@ export default {
     },
     filters() {
       return {
-        yearOfMint: this.timeline.value.toString(),
+        yearOfMint: this.timelineActive ? this.timeline.value.toString() : null,
         mint: this.selectedMints,
       };
     },
@@ -258,10 +279,13 @@ export default {
         ...this.availableMints.map((mint) => addAvailability(mint, true)),
         ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
       ];
+      console.log(sorted);
 
       sorted = sorted
         .filter((mint) => mint?.province?.id)
         .sort(Sorter.stringPropAlphabetically('name'));
+      console.log(sorted);
+
       return sorted;
     },
     filteredUnlocatedTypes() {
@@ -286,7 +310,10 @@ export default {
 
         if (!mintMap[mintId]) {
           mintMap[mintId] = {
-            mint: mintId === 0 ? { id: 0, name: 'Ohne Münzstätte' } : type.mint,
+            mint:
+              mintId === 0
+                ? { id: 0, name: 'ohne Münzstättenangabe' }
+                : type.mint,
             types: [],
           };
         }
@@ -364,19 +391,27 @@ export default {
     window.removeEventListener('resize', this.updateCanvas);
   },
   methods: {
+    toggleTimeline() {
+      timeline.methods.toggleTimeline.call(this);
+      this.update();
+    },
     requestSlideOptions({ slideshow, index }) {
       slideshow.createSlide(this.options, index);
     },
     createSlide() {},
     async drawTimeline() {
       this.timelineChart.clear();
-      if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
-        const ranges = await this.drawRulersOntoTimeline(true);
-        await this.drawMintCountOntoTimeline(ranges.length > 0 ? ranges : null);
-      } else if (this.selectedMints.length > 0)
-        await this.drawMintCountOntoTimeline();
-      else if (this.selectedRulers.length > 0)
-        await this.drawRulersOntoTimeline();
+      if (this.timelineActive) {
+        if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
+          const ranges = await this.drawRulersOntoTimeline(true);
+          await this.drawMintCountOntoTimeline(
+            ranges.length > 0 ? ranges : null
+          );
+        } else if (this.selectedMints.length > 0)
+          await this.drawMintCountOntoTimeline();
+        else if (this.selectedRulers.length > 0)
+          await this.drawRulersOntoTimeline();
+      }
     },
     async drawRulersOntoTimeline(drawAsHorizontals = false) {
       const result = await Query.raw(
@@ -507,11 +542,6 @@ export default {
         filters: this.filters,
         selections: this.selections,
       });
-
-      // this.updateMintLocationMarker();
-      // this.updateAvailableMints();
-      // this.updateAvailableRulers();
-      // this.$emit('timeline-updated', this.value);
     },
     repaint() {
       if (this.overlay) {
@@ -521,9 +551,15 @@ export default {
         });
       }
     },
+    selectAllMints() {
+      this.mintSelectionChanged(this.mints.map((mint) => mint.id));
+    },
+    unselectAllMints() {
+      this.mintSelectionChanged([]);
+    },
     applySlide(options = {}) {
       if (options.zoom && options.location) {
-        this.map.panTo(options.location, options.zoom);
+        this.map.flyTo(options.location, options.zoom);
       }
       if (options.selectedRulers) {
         this.selectedRulers = options.selectedRulers.slice();
@@ -571,7 +607,6 @@ export default {
       this.rulerSelectionChanged([], preventUpdate);
     },
     getRulerColor(ruler) {
-      // return '#333333';
       return ruler.color || '#ff00ff';
     },
     updateAvailableMints() {},

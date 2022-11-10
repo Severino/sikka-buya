@@ -17,7 +17,7 @@
 
 <script>
 import Settings from '../../settings';
-require('leaflet-semicircle');
+require('leaflet-semirings');
 require('../../plugins/leaflet-svg-icon');
 
 import URLParams from '../../utils/URLParams';
@@ -180,11 +180,13 @@ export default {
   grid-row: 1 / span 3;
 
   .title {
-    color: $gray;
+    display: flex;
 
     h3 {
+      color: $gray;
       font-size: 1em;
       margin-bottom: 0;
+      margin-right: auto;
     }
   }
 

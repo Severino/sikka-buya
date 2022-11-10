@@ -1,5 +1,8 @@
+const { GraphQLScalarType, GraphQLError } = require('graphql')
+const { GeoJSON } = require('./src/models/geojson.js')
 const Mutation = require('./src/resolver/mutations.js')
 const Query = require('./src/resolver/queries.js')
+const fs = require("fs")
 
 async function start({
     expressPort,
@@ -21,7 +24,7 @@ async function start({
     const { graphqlHTTP } = require("express-graphql")
     const { loadSchemaSync } = require('@graphql-tools/load');
     const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader');
-    const { addResolversToSchema } = require('graphql-tools');
+    const { addResolversToSchema, makeExecutableSchema } = require('graphql-tools');
 
     /**
      * Custom GraphQL Extensions
@@ -32,12 +35,6 @@ async function start({
     const MaterialResolver = require("./src/resolver/materialresolver.js");
 
 
-    /**
-     * Custom Utility Packages
-     */
-    const SQLUtils = require("./src/utils/sql.js");
-    const Type = require("./src/utils/type.js");
-    const Auth = require("./src/auth.js");
 
 
     return new Promise(resolve => {
@@ -82,25 +79,39 @@ async function start({
         }
 
 
+
+
         /**
          * The schema file describes the requests a user can query 
          * to the graphql interface. 
          */
-        const schemaFile = loadSchemaSync(path.join(__dirname, "./src/graphql/schema.graphql"), { loaders: [new GraphQLFileLoader()] })
 
         resolverClasses.forEach((resolverClass) => {
             Object.assign(resolvers.Query, resolverClass.resolvers.Query)
             Object.assign(resolvers.Mutation, resolverClass.resolvers.Mutation)
         })
 
-
+        let geoJSONScalar = GeoJSON.scalarType
+        console.dir(geoJSONScalar)
         /**
          * The loaded schema is combined with the resolvers.
          */
-        const schema = addResolversToSchema({
-            schema: schemaFile, resolvers: {
+        // const schema = addResolversToSchema({
+        //     schema: schemaFile, resolvers: {
+        //         Query: Object.assign({}, resolvers.Query),
+        //         Mutation: Object.assign({}, resolvers.Mutation),
+        //         GeoJSON
+        //     }
+        // })
+        const typeDefs = fs.readFileSync(path.join(__dirname, "./src/graphql/schema.graphql"), { encoding: 'utf8', flag: 'r' })
+
+
+        const schema = makeExecutableSchema({
+            typeDefs,
+            resolvers: {
                 Query: Object.assign({}, resolvers.Query),
-                Mutation: Object.assign({}, resolvers.Mutation)
+                Mutation: Object.assign({}, resolvers.Mutation),
+                GeoJSON: geoJSONScalar
             }
         })
 
