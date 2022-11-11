@@ -11,21 +11,6 @@ import Color from '../utils/Color'
 export default class MaterialOverlay extends Overlay {
 
 
-
-    transform(data) {
-        const types = data.types.filter((type) => {
-            if (!type?.mint?.location) return false;
-            try {
-                type.mint.location = JSON.parse(type.mint.location);
-                return true;
-            } catch (e) {
-                return false;
-            }
-        });
-
-        return types
-    }
-
     toMapObject(data) {
         const mints = data.types.reduce((prev, type) => {
             const mint = type.mint;

@@ -2,6 +2,42 @@ import Query from '../../../database/query';
 import RequestBuffer from '../../../models/request-buffer';
 import URLParams from '../../../utils/URLParams';
 
+/**
+ * The methods inside the object get merged with 
+ * the implementing component.
+ * 
+ * To prevent giving internal methods a weird
+ * prefix and harming readablilty, we just 
+ * put them outside the object making them private.
+ * 
+ * Note: You must call the function with `method.call(this)` 
+ * if you want to have access to `this`. 
+ */
+function save() {
+    const option = { year: this.raw_timeline.value, timelineActive: this.timelineActive }
+    URLParams.update(option)
+    localStorage.setItem('map-timeline', JSON.stringify(option));
+}
+
+function load(options = {
+    year: 433,
+    timelineActive: true
+}) {
+    const optionsString = localStorage.getItem('map-timeline')
+
+    try {
+        let loadedOptions = JSON.parse(optionsString)
+        Object.assign(options, loadedOptions)
+    } catch (e) {
+        console.warn(e)
+    }
+
+    this.raw_timeline.value = URLParams.getInteger('year', options.year)
+    this.timelineActive = URLParams.getBoolean('timelineActive', options.timelineActive)
+}
+
+
+
 export default {
     data: function () {
         return {
@@ -10,15 +46,12 @@ export default {
         }
     },
     mounted() {
-
-        this.load()
-
         this.timeBuffer = new RequestBuffer(100)
     },
     methods: {
         toggleTimeline() {
             this.timelineActive = !this.timelineActive
-            this.save()
+            save.call(this)
         },
         timeChanged: async function (val) {
             this.timeBuffer.update(val, () => {
@@ -29,36 +62,12 @@ export default {
                  * timelineUpdated.
                  */
                 this.timelineUpdated();
-                this.save()
+                save.call(this)
             })
 
         },
-        load(options = {
-            year: 433,
-            timelineActive: true
-        }) {
-
-            const optionsString = localStorage.getItem('map-timeline')
-
-            try {
-                let loadedOptions = JSON.parse(optionsString)
-                Object.assign(options, loadedOptions)
-            } catch (e) {
-                console.warn(e)
-            }
-
-            this.raw_timeline.value = URLParams.getInteger('year', options.year)
-            this.timelineActive = URLParams.getBoolean('timelineActive', options.timelineActive)
-
-        },
-        save() {
-            const option = { year: this.raw_timeline.value, timelineActive: this.timelineActive }
-            URLParams.update(option)
-            localStorage.setItem('map-timeline', JSON.stringify(option));
-        },
         initTimeline: async function (value) {
-
-            this.load()
+            load.call(this)
 
             try {
                 let result = await Query.raw(

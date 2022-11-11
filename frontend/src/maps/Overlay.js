@@ -81,7 +81,7 @@ export default class Overlay {
         return el
     }
 
-    clrarLayer() {
+    clearLayer() {
         if (this.layer)
             this.layer.remove()
     }

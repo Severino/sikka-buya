@@ -329,7 +329,11 @@ export default {
     MultiDataSelect2D,
   },
   props: {
+    forceAll: Boolean,
     pageInfo: Object,
+    additionalQuery: {
+      type: String,
+    },
     typeBody: {
       type: String,
       defaultValue: 'id projectId',
@@ -420,11 +424,32 @@ export default {
             }
           });
 
-          let { types, pageInfo } = await Type.filteredQuery({
-            pagination: Pagination.fromPageInfo(this.pageInfo),
-            filters,
-            typeBody: this.typeBody,
-          });
+          let types = [],
+            pageInfo = this.pageInfo;
+
+          if (this.forceAll) {
+            while (
+              pageInfo.total === undefined ||
+              pageInfo.page * (pageInfo.count + 1) < pageInfo.total
+            ) {
+              let { types: nextTypes, pageInfo: nextPageInfo } =
+                await Type.filteredQuery({
+                  pagination: Pagination.fromPageInfo(pageInfo),
+                  filters,
+                  typeBody: this.typeBody,
+                });
+
+              pageInfo = nextPageInfo;
+              pageInfo.page++;
+              types.push(...nextTypes);
+            }
+          } else {
+            ({ types, pageInfo } = await Type.filteredQuery({
+              pagination: Pagination.fromPageInfo(this.pageInfo),
+              filters,
+              typeBody: this.typeBody,
+            }));
+          }
 
           this.$emit('update', { types, pageInfo });
         },

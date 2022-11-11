@@ -9,7 +9,7 @@
       <template v-slot:tools>
         <list-selection-tools
           @select-all="selectAllMints"
-          @unselect-all="unselectAllMints"
+          @unselect-all="clearMintSelection"
           :allSelected="allMintsSelected"
           :noneSelected="mintsSelected"
         />
@@ -226,13 +226,6 @@ export default {
     }),
   ],
   computed: {
-    mintsSelected() {
-      return this.selectedMints.length !== 0;
-    },
-    allMintsSelected() {
-      console.log(this.selectedMints.length, this.mints.length);
-      return this.selectedMints.length === this.mints.length;
-    },
     options() {
       const options = {};
       if (this.map) {
@@ -550,12 +543,6 @@ export default {
           selections: this.selections,
         });
       }
-    },
-    selectAllMints() {
-      this.mintSelectionChanged(this.mints.map((mint) => mint.id));
-    },
-    unselectAllMints() {
-      this.mintSelectionChanged([]);
     },
     applySlide(options = {}) {
       if (options.zoom && options.location) {

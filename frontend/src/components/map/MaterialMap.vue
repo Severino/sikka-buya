@@ -1,8 +1,17 @@
 <template>
   <div class="material-map ui">
     <Sidebar title="Prägeorte">
+      <template v-slot:tools>
+        <list-selection-tools
+          @select-all="selectAllMints"
+          @unselect-all="clearMintSelection"
+          :allSelected="allMintsSelected"
+          :noneSelected="mintsSelected"
+        />
+      </template>
+
       <mint-list
-        :items="mintsList"
+        :items="mintList"
         :selectedIds="selectedMints"
         @selectionChanged="
           (val) => mintSelectionChanged(val, { preventUpdate: true })
@@ -64,6 +73,7 @@
           ref="catalogFilter"
           @update="dataUpdated"
           @dynamic-change="recalculateCatalogSidebar"
+          :forceAll="true"
           :pageInfo="pageInfo"
           :exclude="[
             'mint',
@@ -130,6 +140,7 @@ import Settings from '../../settings';
 import Sorter from '../../utils/Sorter';
 import URLParams from '../../utils/URLParams';
 import slideshow from '../mixins/slideshow';
+import ListSelectionTools from '../interactive/ListSelectionTools.vue';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -149,6 +160,7 @@ export default {
     Sidebar,
     Slider,
     Timeline,
+    ListSelectionTools,
   },
   data: function () {
     return {
@@ -167,7 +179,6 @@ export default {
       },
       pageInfo: { page: 0, count: 100000 },
       painter: null,
-      timelineActive: true,
     };
   },
   mixins: [
@@ -212,7 +223,7 @@ export default {
       return URLParams.apply(options).href;
     },
 
-    mintsList() {
+    mintList() {
       function addAvailability(mint, available) {
         mint.available = available;
         return mint;
@@ -271,8 +282,7 @@ export default {
     });
   },
   mounted: async function () {
-    this.fetchMints();
-
+    await this.fetchMints();
     if (this.$route.query['selectedMints']) {
       try {
         let parsed = JSON.parse(this.$route.query['selectedMints']);
@@ -353,8 +363,9 @@ export default {
       const catalogFilters = Object.entries(
         this.$refs.catalogFilter.activeFilters
       ).filter(([key, val]) => {
-        if (['excludeFromMapApp', 'mint'].indexOf(key) != -1) return false;
-        else if (key === 'yearOfMint') {
+        if (['excludeFromMapApp', 'mint'].indexOf(key) != -1) {
+          return false;
+        } else if (key === 'yearOfMint') {
           return false;
         }
 
@@ -388,11 +399,7 @@ export default {
       return old !== this.overwriteFilters.yearOfMint;
     },
     timelineToggled: async function () {
-      this.timelineActive = !this.timelineActive;
-      localStorage.setItem('material-map-timeline-active', this.timelineActive);
-
-      const year = this.timelineActive ? this.timeline.value : 'null';
-      URLParams.update({ year });
+      timeline.methods.toggleTimeline.call(this);
 
       this.updateYearOverwrite(
         this.timelineActive ? this.timeline.value : null

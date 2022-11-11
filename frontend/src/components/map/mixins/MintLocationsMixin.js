@@ -8,6 +8,11 @@ import URLParams from '../../../utils/URLParams';
 
 const selectedMintStorageName = "active-mints"
 
+function applyQuery(mintArray) {
+    this.mints = mintArray.filter((mint) => mint.location != null);
+    this.updateMintLocations()
+}
+
 export function loadSelectedMints() {
     let selectedMints = []
     try {
@@ -56,24 +61,16 @@ export function mintLocationsMixin({
             this.mintLocation = new MintLocation({ markerOptions: mintMarkerOptions, popup: this.mintLocationPopup });
         },
         methods: {
+
             mintLocationPopup(feature) {
                 return Mint.popupMintHeader(feature.mint, ["underlined-header", "black"])
             },
             async fetchMints() {
                 const result = await this.queryMints()
-                this.applyQuery(result.data.data.mint)
+                applyQuery.call(this, result.data.data.mint)
             },
             async queryMints() {
                 return Query.raw(`{${this.mintGraphQL}}`);
-            },
-            applyQuery(mintArray) {
-                let mints = mintArray.filter((mint) => mint.location != null);
-                this.mints = {};
-                mints
-                    .filter((mint) => mint.location != null)
-
-                this.updateMintLocations()
-
             },
             updateMintLocations() {
                 if (showMarkers)
@@ -140,8 +137,17 @@ export function mintLocationsMixin({
             clearMintSelection({ preventUpdate = false } = {}) {
                 this.mintSelectionChanged([], { preventUpdate });
             },
+            selectAllMints() {
+                this.mintSelectionChanged(this.mints.map((mint) => mint.id));
+            }
         },
         computed: {
+            mintsSelected() {
+                return this.selectedMints.length !== 0;
+            },
+            allMintsSelected() {
+                return this.selectedMints.length === this.mints.length;
+            },
             mintGraphQL() {
                 return `mint {
                 id
