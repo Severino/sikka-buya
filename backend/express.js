@@ -57,6 +57,7 @@ async function start({
          */
         const resolverClasses = [
             new Resolver("coinMark", { tableName: "coin_marks" }),
+            new Resolver("coinVerse", { tableName: "coin_verse" }),
             new MaterialResolver(),
             new MintResolver(),
             new Resolver("title"),

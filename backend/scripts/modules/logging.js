@@ -13,11 +13,11 @@ function error(...msg) {
 }
 
 function success(...msg) {
-    this.log(chalk.bold.green(...msg))
+    log(chalk.bold.green(...msg))
 }
 
 function notice(...msg) {
-    this.log(chalk.bold.blue(...msg))
+    log(chalk.bold.blue(...msg))
 }
 
 

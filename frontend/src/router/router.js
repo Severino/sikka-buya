@@ -45,6 +45,7 @@ import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
+import CoinVerseOverview from "@/components/page/CoinVerseOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import FixDiff from "@/components/page/FixDiff.vue"
@@ -60,6 +61,7 @@ import MaterialOverview from "@/components/page/MaterialOverview"
 import TypeOverview from "@/components/page/TypeOverview.vue"
 
 import CoinMarkForm from "@/components/page/property/CoinMarkForm"
+import CoinVerseForm from "@/components/page/property/CoinVerseForm"
 import HonorificForm from "@/components/page/property/HonorificForm"
 import DynastyForm from "@/components/page/property/DynastyForm"
 import MaterialForm from "@/components/page/property/MaterialForm"
@@ -282,6 +284,10 @@ const routes = [
             path: "coin_mark",
             name: "CoinMarkOverview",
             component: CoinMarkOverview
+          }, {
+            path: "coin_verse",
+            name: "CoinVerseOverview",
+            component: CoinVerseOverview
           },
           {
             path: "person",
@@ -315,6 +321,15 @@ const routes = [
             path: "coin_mark/:id",
             name: "EditCoinMark",
             component: CoinMarkForm
+          },
+          {
+            path: "coin_verse/create",
+            name: "CreateCoinMark",
+            component: CoinVerseForm
+          }, {
+            path: "coin_verse/:id",
+            name: "EditCoinMark",
+            component: CoinVerseForm
           }, {
             path: "material/create",
             name: "CreateMaterial",

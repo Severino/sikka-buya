@@ -83,6 +83,38 @@ const SuperUserMutations = {
 
 
 const UserMutations = {
+    async moveCoinTypeToCoinVerse(_, { id } = {}) {
+        await WriteableDatabase.tx(async t => {
+            let res = await t.oneOrNone(`SELECT * FROM coin_marks WHERE id=$1`, id)
+            if (!(res && res.name)) throw new Error("Coin mark does not exist!")
+            let { id: verseId } = await t.one(`INSERT INTO coin_verse (name) VALUES ($1) RETURNING id`, res.name)
+            let rows = await t.manyOrNone(`SELECT type FROM type_coin_marks WHERE coin_mark=$1`, id)
+            rows = rows.map(obj => {
+                obj.coin_verse = verseId
+                return obj
+            })
+            let query = pgp.helpers.insert(rows, ["type", "coin_verse"], 'type_coin_verse')
+            await t.any(query)
+            await t.any(`DELETE FROM type_coin_marks WHERE coin_mark=$1`, id)
+            await t.none(`DELETE FROM coin_marks WHERE id=$1`, id)
+        })
+    },
+    async moveCoinVerseToCoinType(_, { id } = {}) {
+        await WriteableDatabase.tx(async t => {
+            let res = await t.oneOrNone(`SELECT * FROM coin_verse WHERE id=$1`, id)
+            if (!(res && res.name)) throw new Error("Coin verse does not exist!")
+            let { id: verseId } = await t.one(`INSERT INTO coin_marks (name) VALUES ($1) RETURNING id`, res.name)
+            let rows = await t.manyOrNone(`SELECT type FROM type_coin_verse WHERE coin_verse=$1`, id)
+            rows = rows.map(obj => {
+                obj.coin_mark = verseId
+                return obj
+            })
+            let query = pgp.helpers.insert(rows, ["type", "coin_mark"], 'type_coin_marks')
+            await t.any(query)
+            await t.any(`DELETE FROM type_coin_verse WHERE coin_verse=$1`, id)
+            await t.none(`DELETE FROM coin_verse WHERE id=$1`, id)
+        })
+    },
     async changePersonExplorerOrder(_, args) {
         return WriteableDatabase.none("INSERT INTO person_explorer_custom_sorting (person, position) VALUES ($[person], $[position]) ON CONFLICT (person) DO UPDATE SET position=$[position]", args)
     },

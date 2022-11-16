@@ -3,7 +3,7 @@
     <router-link
       v-if="to"
       :to="to"
-      class="list-item-row"
+      class="list-item-row interactive"
       :class="{ ['disable-input']: disable }"
       @click.prevent="click"
     >
@@ -54,14 +54,18 @@ a {
 }
 
 .list-item-row {
-  @include input();
-  @include interactive();
+  &.interactive {
+    @include input();
+    @include interactive();
+  }
+
+  background-color: $white;
+
   border-radius: 0;
-  padding: $padding;
 
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
 }
 
 .removeBtn {

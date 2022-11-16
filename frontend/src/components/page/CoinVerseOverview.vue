@@ -1,14 +1,15 @@
 <template>
   <Overview
-    createPage="CreateCoinMark"
-    property="coin_mark"
-    overrideProperty="coinmark"
-    query="coinMark"
-    :tools="['move_to_verses']"
+    createPage="CreateCoinVerse"
+    property="coin_verse"
+    overrideProperty="coinverse"
+    query="coinVerse"
+    :tools="tools"
     @tool="toolRequested"
     ref="overview"
   />
 </template>
+
 
 <script>
 import Query from '../../database/query';
@@ -20,16 +21,16 @@ export default {
   },
   data() {
     return {
-      tools: ['move_to_verses'],
+      tools: ['move_to_coin_mark'],
     };
   },
   methods: {
     async toolRequested(name, options) {
-      if (name === 'move_to_verses') {
+      if (name === 'move_to_coin_mark') {
         if (options.id) {
           await Query.raw(
             `mutation {
-              moveCoinTypeToCoinVerse(id: ${options.id})
+              moveCoinVerseToCoinType(id: ${options.id})
           }`
           );
           this.$refs.overview.list();

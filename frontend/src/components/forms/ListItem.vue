@@ -1,7 +1,7 @@
 <template>
   <div class="list-item">
     <div class="slot">
-      <slot></slot>
+      <slot />
     </div>
     <button
       type="button"
@@ -27,6 +27,7 @@ export default {
       default: null,
       required: true,
     },
+    tools: Array,
   },
   data: function () {
     return {

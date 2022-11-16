@@ -38,7 +38,12 @@ const editor = {
     assist_tools:
         "Hilfsprogramme",
     compare_last_cleanup:
-        "Vergleiche Letzte Bereinigung"
+        "Vergleiche Letzte Bereinigung",
+    move_to_verses:
+        "nach Vers verschieben",
+    move_to_coin_mark:
+        "nach Einzelwort verschieben",
+
 }
 
 
@@ -55,6 +60,8 @@ const property = {
         "Umschrift | Umschriften",
     coin_mark:
         "Mzz. und Einzelworte",
+    coin_verse:
+        "Koranverse und anderes",
     cursive_script:
         "kursive Schriftart",
     completed:

@@ -14,10 +14,6 @@ type User {
   super: Boolean
 }
 
-type Name {
-  id: ID
-  name: String
-}
 
 type Material {
   id: ID
@@ -78,7 +74,7 @@ type CoinType {
   avers: CoinSideInformation
   reverse: CoinSideInformation
   cursiveScript: Boolean
-  coinMarks: [CoinMark]
+  coinMarks: [Name]
   literature: String
   pieces: [String]
   specials: String
@@ -112,7 +108,7 @@ type ModCoinType {
   avers: CoinSideInformation
   reverse: CoinSideInformation
   cursiveScript: Boolean
-  coinMarks: [CoinMark]
+  coinMarks: [Name]
   literature: String
   pieces: [String]
   specials: String
@@ -159,7 +155,7 @@ input CoinTypeInput {
   mintUncertain: Boolean
 }
 
-type CoinMark {
+type Name {
   id: ID
   name: String
 }
@@ -221,9 +217,9 @@ type Query {
   environment: String
 
   # Tested in 004_coin_mark
-  coinMark: [CoinMark]
-  searchCoinMark(text: String): [CoinMark]!
-  getCoinMark(id: ID!): CoinMark
+  coinMark: [Name]
+  searchCoinMark(text: String): [Name]!
+  getCoinMark(id: ID!): Name
 
   # Tested in 005_nominal
   nominal: [Name]!
@@ -277,6 +273,11 @@ type Query {
   getCoinType(id: ID!): CoinType
 
   # TODO: missing Tests ---------------------------------------------
+
+  # Tested in 004_coin_mark
+  coinVerse: [Name]
+  searchCoinVerse(text: String): [Name]!
+  getCoinVerse(id: ID!): Name
 
   mintMaterials: [MintMaterials]
   getMaterialColor(id: ID!): String
@@ -433,6 +434,13 @@ type Mutation {
   deleteCoinType(id: ID): Void
 
   # TODO: missing Tests ---------------------------------------------
+
+  # Tested in 031_coin_verse
+  addCoinVerse(name: String!): Void
+  updateCoinVerse(id: ID!, name: String!): Void
+  deleteCoinVerse(id: ID): Void
+  moveCoinTypeToCoinVerse(id:ID):Void
+  moveCoinVerseToCoinType(id:ID):Void
 
   deleteUser(id: ID): Void
 

@@ -76,6 +76,7 @@ export default {
       let props = [
         'honorific',
         'coin_mark',
+        'coin_verse',
         'material',
         'mint',
         'nominal',

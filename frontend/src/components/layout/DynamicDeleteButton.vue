@@ -3,7 +3,7 @@
     class="dynamic-delete-button"
     :class="{ highlighted, active, removing }"
     @click.stop.prevent.capture
-    @mouseover.stop
+    @mouseover.stop.prevent.capture
     @mouseenter.stop="highlight"
     @mouseleave.stop="cancel"
     @mousecancel.stop="cancel"

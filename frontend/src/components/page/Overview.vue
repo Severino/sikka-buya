@@ -17,7 +17,6 @@
     </header>
 
     <SearchField v-model="textFilter" :asyncSearch="search" />
-
     <List
       @remove="remove"
       :error="listError"
@@ -30,13 +29,22 @@
         v-bind:key="item.key"
         :disable="deleteButtonActive"
         :id="item.id"
-        :to="{
-          path: `${item.id}`,
-          append: true,
-        }"
       >
         <slot name="list-item-before" :item="item" />
-        <ListItemCell>{{ item.name }}</ListItemCell>
+
+        <ListItemCell
+          :to="{
+            path: `${item.id}`,
+            append: true,
+          }"
+          >{{ item.name }}</ListItemCell
+        >
+        <Button
+          v-for="tool in tools"
+          :key="'tool-' + tool"
+          @click="() => $emit('tool', tool, { id: item.id })"
+          >{{ $t('editor.' + tool) }}</Button
+        >
         <DynamicDeleteButton
           @delete="deleteButtonRemove(item.id)"
           @open="deleteButtonEnable()"
@@ -61,6 +69,7 @@ import ListItem from '../layout/ListItem.vue';
 import { camelCase } from 'change-case';
 
 import DeleteButtonMixin from '../mixins/deletebutton';
+import Button from '../layout/buttons/Button.vue';
 
 export default {
   name: 'OverviewPage',
@@ -72,6 +81,7 @@ export default {
     ListItemIdField,
     ListItem,
     ListItemCell,
+    Button,
   },
   mixins: [DeleteButtonMixin],
   created: function () {
@@ -80,6 +90,7 @@ export default {
   props: {
     query: String,
     createPage: String,
+    tools: Array,
     parameters: { type: Array, default: () => [] },
     propertyName: String,
     property: {
