@@ -323,7 +323,7 @@ const routes = [
             component: CoinMarkForm
           },
           {
-            path: "coin_verse/create",
+            path: "coinVerse/create",
             name: "CreateCoinMark",
             component: CoinVerseForm
           }, {

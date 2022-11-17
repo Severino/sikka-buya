@@ -14,7 +14,6 @@ const { JSDOM } = require("jsdom");
 const QueryBuilder = require('./querybuilder')
 
 
-let i = 0;
 class Type {
 
     static async list() {
@@ -31,20 +30,33 @@ class Type {
         data.id = id
         data = await this.postProcessUpsert(data)
 
+
+        console.log("verses", data.coinVerses)
+
         return WriteableDatabase.tx(async t => {
             await t.none(`
         UPDATE type 
         SET
-            project_id = $[projectId],
-            treadwell_id = $[treadwellId],
+            caliph = $[caliph],
+            cursive_script = $[cursiveScript],
+            donativ = $[donativ],
+            exclude_from_map_app=$[excludeFromMapApp],
+            exclude_from_type_catalogue=$[excludeFromTypeCatalogue],
+            internal_notes = $[internalNotes],
+            literature = $[literature],
             material = $[material],
             mint = $[mint],
             mint_as_on_coin = $[mintAsOnCoin],
+            mint_uncertain = $[mintUncertain],
             nominal = $[nominal],
-            year_of_mint = $[yearOfMint],
-            donativ = $[donativ],
             procedure = $[procedure],
-            caliph = $[caliph],
+            project_id = $[projectId],
+            purity = $[purity],
+            small=$[small],
+            specials=$[specials],
+            treadwell_id = $[treadwellId],
+            year_of_mint = $[yearOfMint],
+            year_uncertain = $[yearUncertain],
             front_side_field_text = $[front_side_field_text],
             front_side_inner_inscript = $[front_side_inner_inscript],
             front_side_intermediate_inscript = $[front_side_intermediate_inscript],
@@ -55,14 +67,6 @@ class Type {
             back_side_intermediate_inscript = $[back_side_intermediate_inscript],
             back_side_outer_inscript = $[back_side_outer_inscript],
             back_side_misc = $[back_side_misc],
-            cursive_script = $[cursiveScript],
-            literature = $[literature],
-            specials=$[specials],
-            exclude_from_type_catalogue=$[excludeFromTypeCatalogue],
-            exclude_from_map_app=$[excludeFromMapApp],
-            internal_notes = $[internalNotes],
-            year_uncertain = $[yearUncertain],
-            mint_uncertain = $[mintUncertain],
             plain_text = $[plainText],
             search_vectors = to_tsvector('german', plain_text)
             WHERE id = $[id] 
@@ -74,12 +78,15 @@ class Type {
             await t.none("DELETE FROM other_person WHERE type=$1", id)
             await t.none("DELETE FROM piece WHERE type=$1", id)
             await t.none("DELETE FROM type_coin_marks WHERE type=$1", id)
+            await t.none("DELETE FROM type_coin_verse WHERE type=$1", id)
+
 
             await this.addOverlords(t, data, id)
             await this.addIssuers(t, data, id)
             await this.addOtherPersons(t, data, id)
             await this.addPieces(t, data, id)
             await this.addCoinMarks(t, data, id)
+            await this.addCoinVerses(t, data, id)
 
             return id
         })
@@ -260,6 +267,8 @@ class Type {
                         donativ,
                         procedure,
                         caliph,
+                        purity,
+                        small,
                         front_side_field_text,
                         front_side_inner_inscript,
                         front_side_intermediate_inscript,
@@ -291,6 +300,8 @@ class Type {
                         $[donativ],
                         $[procedure],
                         $[caliph],
+                        $[purity],
+                        $[small],
                         $[front_side_field_text],
                         $[front_side_inner_inscript],
                         $[front_side_intermediate_inscript],
@@ -319,15 +330,23 @@ class Type {
             await this.addOtherPersons(t, data, type)
             await this.addPieces(t, data, type)
             await this.addCoinMarks(t, data, type)
+            await this.addCoinVerses(t, data, type)
             return type
         })
     }
 
     static async addCoinMarks(t, data, type) {
-
         data.coinMarks = data.coinMarks.filter(coinMark => coinMark != null)
         for (let coinMark of data.coinMarks.values()) {
             await t.none("INSERT INTO type_coin_marks (coin_mark, type) VALUES ($1,$2)", [coinMark, type])
+        }
+    }
+
+    static async addCoinVerses(t, data, type) {
+        console.log(Object.keys(data))
+        data.coinVerses = data.coinVerses.filter(coinVerse => coinVerse != null)
+        for (let coinVerse of data.coinVerses.values()) {
+            await t.none("INSERT INTO type_coin_verse (coin_verse, type) VALUES ($1,$2)", [coinVerse, type])
         }
     }
 
@@ -473,17 +492,18 @@ class Type {
 
         const queryBuilder = this.complexFilters(filters)
         const conditions = this.objectToConditions(filters)
-        const joinClause = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
-        const whereClause = this.buildWhereFilter([...conditions, ...queryBuilder.where])
         const pageInfo = new PageInfo(pagination)
 
 
+        const SELECT = [this.rows, ...additionalRows].join(",")
+        const JOINS = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
+        const WHERE = this.buildWhereFilter([...conditions, ...queryBuilder.where])
 
         const totalQuery = `
         SELECT count(*)
         FROM type t 
-        ${joinClause}
-        ${whereClause}
+        ${JOINS}
+        ${WHERE}
         `
 
         const total = await Database.one(totalQuery)
@@ -491,13 +511,10 @@ class Type {
 
         const query = `
         SELECT 
-        ${[this.rows,
-            ...additionalRows
-            ].join(",")
-            }
+        ${SELECT}
         FROM type t 
-        ${joinClause}
-        ${whereClause}
+        ${JOINS}
+        ${WHERE}
         ORDER BY t.project_id ASC
         ${pageInfo.toQuery()}
         
@@ -506,11 +523,9 @@ class Type {
         const result = await Database.manyOrNone(query)
 
         let fields = graphqlFields(info)
-
         for (let [idx, type] of result.entries()) {
             result[idx] = await this.postprocessType(type, fields.types)
         }
-
         return { types: result, pageInfo }
     }
 
@@ -518,6 +533,7 @@ class Type {
 
         const queryBuilder = new QueryBuilder()
         this._processComplexCoinMark(queryBuilder, filter)
+        this._processComplexCoinVerse(queryBuilder, filter)
         this._processComplexHonorificsFilter(queryBuilder, filter)
         this._processComplexOtherPersonFilter(queryBuilder, filter)
         this._processComplexTitleFilter(queryBuilder, filter)
@@ -583,26 +599,27 @@ class Type {
 
 
         const test_query = `
-SELECT
-COUNT(*) as total     
+        SELECT
+        COUNT(*) as total     
         FROM type t
-        ${this.joins}
-                , websearch_to_tsquery($[text]) as keywords
-        ${whereClause}
-; `
+        ${this.joins},
+        websearch_to_tsquery($[text]) as keywords
+        ${whereClause}; 
+        `
+
         const { total } = await Database.one(test_query, Object.assign(filters, { text }))
         pagination.updateTotal(total)
 
         const query = `
             SELECT 
-        ${this.rows}, ts_headline(plain_text, keywords, 'MaxFragments=10, HighlightALL=true') as preview        
-        FROM type t
-        ${this.joins}
-        , websearch_to_tsquery($[text]) as keywords 
-        ${whereClause} 
-        ORDER BY t.project_id ASC
-        ${pagination.toQuery()}
-            ; `
+            ${this.rows}, ts_headline(plain_text, keywords, 'MaxFragments=10, HighlightALL=true') as preview        
+            FROM type t
+            ${this.joins}
+            , websearch_to_tsquery($[text]) as keywords 
+            ${whereClause} 
+            ORDER BY t.project_id ASC
+            ${pagination.toQuery()}
+        ; `
 
 
         const result = await Database.manyOrNone(query, { text })
@@ -672,19 +689,19 @@ COUNT(*) as total
     static get rows() {
         return ` t.*,
                 ${Material.query()}
-    ${Material.colorQuery()},
-        ${Mint.query()}
-        plain_text,
-            province.id AS mint_province_id,
+                ${Material.colorQuery()},
+                ${Mint.query()}
+                ${Nominal.query()}
+                plain_text,
+                province.id AS mint_province_id,
                 province.name AS mint_province_name,
-                    ${Nominal.query()}
-            exclude_from_type_catalogue,
+                exclude_from_type_catalogue,
                 exclude_from_map_app,
                 internal_notes,
                 year_uncertain,
                 mint_uncertain as guessed_mint,
                 p.id AS caliph_id,
-                    pc.color AS caliph_color`
+                pc.color AS caliph_color`
     }
 
     static get joins() {
@@ -701,7 +718,7 @@ COUNT(*) as total
         ON t.caliph = p.id
         LEFT JOIN person_color pc
         ON p.id = pc.person
-                `
+        `
     }
 
     static async postprocessType(type, fields) {
@@ -739,6 +756,7 @@ COUNT(*) as total
                 "avers",
                 "reverse",
                 "coinMarks",
+                "coinVerse",
                 "pieces",
                 "caliph",
                 "otherPersons",
@@ -759,6 +777,9 @@ COUNT(*) as total
                 // Arrays
                 case "coinMarks":
                     type.coinMarks = await Type.getCoinMarks(type.id)
+                    break
+                case "coinVerses":
+                    type.coinVerses = await Type.getCoinVerses(type.id)
                     break
                 case "pieces":
                     type.pieces = await Type.getPieces(type.id)
@@ -812,45 +833,6 @@ COUNT(*) as total
             year_uncertain: "yearUncertain"
         }
     }
-
-
-    // static async getOverlord(id) {
-
-    //     const request = await Database.one(`
-    //         SELECT O.ID,
-    //         	O.RANK,
-    //         	O.TYPE,
-    //         	P.ID AS PERSON_ID,
-    //         	P.NAME AS PERSON_NAME,
-    //         	P.ROLE AS PERSON_ROLE,
-    //         	T.TITLE_NAMES,
-    //         	T.TITLE_IDS,
-    //         	H.HONORIFIC_NAMES,
-    //         	H.HONORIFIC_IDS
-    //         FROM OVERLORD O JOIN
-    //         				(SELECT OT.OVERLORD_ID AS ID,
-
-    //         				ARRAY_AGG(T.NAME) AS TITLE_NAMES,
-    //         				ARRAY_AGG(T.ID) AS TITLE_IDS
-    //         					FROM OVERLORD_TITLES OT
-    //         					JOIN TITLE T ON T.ID = OT.TITLE_ID
-    //         					GROUP BY OT.OVERLORD_ID) T USING(ID) JOIN
-    //         				(SELECT OH.OVERLORD_ID AS ID,
-
-    //         				ARRAY_AGG(H.NAME) AS HONORIFIC_NAMES,
-    //         				ARRAY_AGG(H.ID) AS HONORIFIC_IDS
-    //         					FROM OVERLORD_HONORIFICS OH
-    //         					JOIN HONORIFIC H ON H.ID = OH.HONORIFIC_ID
-    //         					GROUP BY OH.OVERLORD_ID) H USING(ID)
-    //         INNER JOIN PERSON P ON O.PERSON = P.ID
-    //         WHERE O.id = 726
-    //         `, id)
-
-    //     Overlord.extract(request)
-
-    //     return Promise.resolve(request)
-    // }
-
 
     static async getOverlordsByType(type_id) {
 
@@ -947,6 +929,15 @@ COUNT(*) as total
             `, type_id)
     }
 
+    static async getCoinVerses(type_id) {
+        return await Database.manyOrNone(`
+        SELECT cv.* FROM type_coin_verse tcv
+        LEFT JOIN coin_verse cv
+            ON tcv.coin_verse = cv.id
+			WHERE tcv.type = $1
+            `, type_id)
+    }
+
     static async getOtherPersonsByType(type_id) {
         let result = await Database.manyOrNone(`
         SELECT 
@@ -1000,7 +991,6 @@ COUNT(*) as total
     static _filterGate(filter, targetFilters, name) {
         let activeFilter = null
         targetFilters.forEach(filterName => {
-
             if (Object.hasOwnProperty.bind(filter)(filterName)) {
                 if (activeFilter != null) throw new Error(`Too many ${name} filter. Only use one!`)
                 activeFilter = filterName
@@ -1028,12 +1018,8 @@ COUNT(*) as total
              COALESCE(agg_coin_marks.titles, '{}') as coin_marks
              `)
 
-
-
-
-
             function _nonArrayError() {
-                if (Array.isArray(filter[activeCoinMarkFilter]) && Array.isArray(filter[activeCoinMarkFilter])) {
+                if (!Array.isArray(filter[activeCoinMarkFilter]) && filter[activeCoinMarkFilter].length > 0) {
                     throw new Error("Coin mark needs to be an non-empty array")
                 }
             }
@@ -1073,6 +1059,70 @@ COUNT(*) as total
 
 
             delete filter[activeCoinMarkFilter]
+        }
+    }
+
+
+    static _processComplexCoinVerse(queryBuilder, filter) {
+
+        let activeCoinVerseFilter = this._filterGate(filter, ["coinVerse_and_or", "coinVerse", "coinVerse_and", "coinVerse_or_and"], "coin verse")
+
+        // If a coinverse filter is applied, add the array object to the query:
+        if (activeCoinVerseFilter != null) {
+
+            queryBuilder.addJoin(`LEFT JOIN
+            (SELECT tcv.type,
+                COALESCE(ARRAY_AGG(id) FILTER(
+                    WHERE id IS NOT NULL), '{}') as coin_verse
+             FROM type_coin_verse tcv
+             LEFT JOIN coin_verse cm ON tcv.coin_verse = cm.id
+             GROUP BY tcv.type) agg_coin_verse ON agg_coin_verse.type = t.id`)
+
+            queryBuilder.addSelect(`
+             COALESCE(agg_coin_verse.titles, '{}') as coin_verse
+             `)
+
+            function _nonArrayError() {
+                if (!Array.isArray(filter[activeCoinVerseFilter]) && filter[activeCoinVerseFilter].length > 0) {
+                    throw new Error("Coin verse needs to be an non-empty array")
+                }
+            }
+
+            if (activeCoinVerseFilter === "coinVerse_and_or") {
+                let nonEmptyArrays = filter[activeCoinVerseFilter].filter(el => el.length > 0)
+                if (nonEmptyArrays.length > 0) {
+                    let clauses = []
+                    nonEmptyArrays.forEach(arr => {
+                        clauses.push(pgp.as.format(`($[arr]:: int[] <@ agg_coin_verse.coin_verse)`, { arr }))
+                    })
+
+                    queryBuilder.addWhere(clauses.join(" OR "))
+                }
+            }
+
+            if (activeCoinVerseFilter === "coinVerse_or_and") {
+                let nonEmptyArrays = filter[activeCoinVerseFilter].filter(el => el.length > 0)
+                if (nonEmptyArrays.length > 0) {
+                    let clauses = []
+                    nonEmptyArrays.forEach(arr => {
+                        clauses.push(pgp.as.format(`($[arr]:: int[] && agg_coin_verse.coin_verse)`, { arr }))
+                    })
+
+                    queryBuilder.addWhere(clauses.join(" AND "))
+                }
+            }
+
+            if (["coinVerse", "coinVerse_and"].indexOf(activeCoinVerseFilter) != -1) {
+                _nonArrayError()
+                if (activeCoinVerseFilter === "coinVerse")
+                    queryBuilder.addWhere(pgp.as.format(`$[coin_verse]:: int[] && agg_coin_verse.coin_verse`, { coin_verse: filter[activeCoinVerseFilter] }))
+
+                if (activeCoinVerseFilter === "coinVerse_and")
+                    queryBuilder.addWhere(pgp.as.format(`$[coin_verse]:: int[] <@ agg_coin_verse.coin_verse`, { coin_verse: filter[activeCoinVerseFilter] }))
+            }
+
+
+            delete filter[activeCoinVerseFilter]
         }
     }
 

@@ -64,6 +64,16 @@
             attribute="name"
           />
         </LabeledInputContainer>
+        <LabeledInputContainer :label="$tc('property.purity')">
+          <removable-input-field
+            id="type-purity"
+            type="number"
+            step="0.01"
+            v-model="coin.purity"
+            table="Nominal"
+            attribute="name"
+          />
+        </LabeledInputContainer>
       </Row>
       <Row>
         <LabeledInputContainer :label="$t('property.mint_year')">
@@ -88,7 +98,16 @@
           :label="$tc('property.donativ')"
         />
 
-        <LabeledInputContainer :label="$tc('property.procedure')">
+        <Checkbox
+          id="type-small"
+          v-model="coin.small"
+          :label="$tc('property.small')"
+        />
+
+        <LabeledInputContainer
+          :label="$tc('property.procedure')"
+          id="type-procedure-container"
+        >
           <ButtonGroup
             id="type-procedure"
             :labels="productionLabels"
@@ -256,6 +275,34 @@
           />
           <div v-if="coinmark.error" class="error invalid-error">
             {{ coinmark.error }}
+          </div>
+        </ListItem>
+      </List>
+
+      <List
+        :title="$t('property.coin_verse')"
+        @add="addCoinVerse"
+        class="coin-verse-list"
+        id="type-coin-verse-list"
+        v-if="coin.coinVerses"
+      >
+        <div v-if="coin.coinVerses.length == 0" class="info">
+          {{ $t('warning.list_is_empty') }}
+        </div>
+        <ListItem
+          v-for="(coinverse, idx) in coin.coinVerses"
+          :key="coinverse.key"
+          :object="coinverse"
+          @remove="removeCoinVerse(idx)"
+        >
+          <DataSelectField
+            type="text"
+            table="CoinVerse"
+            attribute="name"
+            v-model="coin.coinVerses[idx]"
+          />
+          <div v-if="coinverse.error" class="error invalid-error">
+            {{ coinverse.error }}
           </div>
         </ListItem>
       </List>
@@ -580,7 +627,10 @@ export default {
         },
         cursiveScript: false,
         coinMarks: [],
+        coinVerses: [],
         pieces: [],
+        purity: null,
+        small: false,
         specials: '',
         excludeFromTypeCatalogue: false,
         excludeFromMapApp: false,
@@ -692,8 +742,18 @@ export default {
         name: '',
       });
     },
+    addCoinVerse() {
+      this.coin.coinVerses.push({
+        key: 'coin-verse-' + this.key++,
+        id: null,
+        name: '',
+      });
+    },
     removeCoinMark(index) {
       this.coin.coinMarks.splice(index, 1);
+    },
+    removeCoinVerse(index) {
+      this.coin.coinVerses.splice(index, 1);
     },
     addPiece() {
       this.coin.pieces.push({
@@ -948,6 +1008,8 @@ export default {
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
         yearOfMint: data.yearOfMint,
         donativ: data.donativ,
+        purity: data.purity,
+        small: data.small,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
@@ -970,6 +1032,8 @@ export default {
         reverse: data.reverse,
         cursiveScript: data.cursiveScript,
         coinMarks: data.coinMarks.map((coinMark) => coinMark.id),
+        coinVerses: data.coinVerses.map((coinVerse) => coinVerse.id),
+
         literature: data.literature,
         pieces: data.pieces.map((piece) => {
           return piece.value;
@@ -995,6 +1059,8 @@ export default {
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
         yearOfMint: data.yearOfMint,
         donativ: data.donativ,
+        purity: data.purity,
+        small: data.small,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
@@ -1017,6 +1083,7 @@ export default {
         reverse: data.reverse,
         cursiveScript: data.cursiveScript,
         coinMarks: data.coinMarks.map((coinMark) => coinMark.id),
+        coinVerses: data.coinVerses.map((coinVerse) => coinVerse.id),
         literature: data.literature,
         pieces: data.pieces.map((piece) => {
           return piece.value;
@@ -1041,6 +1108,10 @@ export default {
 
 <style lang="scss">
 .types-page {
+  #type-procedure-container {
+    flex: 2;
+  }
+
   #type-pieces-list {
     .list-container button {
       padding: 0 10px;

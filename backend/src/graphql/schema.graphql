@@ -56,33 +56,36 @@ type ModCoinTypePagination {
 }
 
 type CoinType {
+  avers: CoinSideInformation
+  caliph: Person
+  coinMarks: [Name]
+  coinVerses: [Name]
+  cursiveScript: Boolean
+  donativ: Boolean
+  excludeFromMapApp: Boolean
+  excludeFromTypeCatalogue: Boolean
   id: ID
-  plain_text: String
-  projectId: String
-  treadwellId: String
+  internalNotes: String
+  issuers: [TitledPerson]
+  literature: String
+  material: Material
   mint: Mint
   mintAsOnCoin: String
-  material: Material
-  nominal: Name
-  yearOfMint: String
-  donativ: Boolean
-  procedure: String
-  issuers: [TitledPerson]
-  overlords: [Overlord]
-  otherPersons: [Person]
-  caliph: Person
-  avers: CoinSideInformation
-  reverse: CoinSideInformation
-  cursiveScript: Boolean
-  coinMarks: [Name]
-  literature: String
-  pieces: [String]
-  specials: String
-  excludeFromTypeCatalogue: Boolean
-  excludeFromMapApp: Boolean
-  internalNotes: String
-  yearUncertain: Boolean
   mintUncertain: Boolean
+  nominal: Name
+  otherPersons: [Person]
+  overlords: [Overlord]
+  pieces: [String]
+  plain_text: String
+  procedure: String
+  projectId: String
+  purity: Float 
+  reverse: CoinSideInformation
+  small: Boolean
+  specials: String
+  treadwellId: String
+  yearOfMint: String
+  yearUncertain: Boolean
 }
 
 type MintMaterials {
@@ -127,32 +130,35 @@ type ModReview {
 }
 
 input CoinTypeInput {
+  avers: CoinSideInformationInput
+  caliph: ID = null
+  coinMarks: [ID] = []
+  coinVerses: [ID] = []
+  cursiveScript: Boolean = false
+  donativ: Boolean = false
+  excludeFromMapApp: Boolean
+  excludeFromTypeCatalogue: Boolean
   id: ID = null
-  projectId: String = ""
-  treadwellId: String = ""
+  internalNotes: String
+  issuers: [TitledPersonInput] = []
+  literature: String = ""
+  material: ID = null
   mint: ID = null
   mintAsOnCoin: String = ""
-  material: ID = null
-  nominal: ID = null
-  yearOfMint: String = ""
-  donativ: Boolean = false
-  procedure: String = ""
-  issuers: [TitledPersonInput] = []
-  overlords: [OverlordInput] = []
-  otherPersons: [ID] = []
-  caliph: ID = null
-  avers: CoinSideInformationInput
-  reverse: CoinSideInformationInput
-  cursiveScript: Boolean = false
-  coinMarks: [ID] = []
-  literature: String = ""
-  pieces: [String] = []
-  specials: String = ""
-  excludeFromTypeCatalogue: Boolean
-  excludeFromMapApp: Boolean
-  internalNotes: String
-  yearUncertain: Boolean
   mintUncertain: Boolean
+  nominal: ID = null
+  otherPersons: [ID] = []
+  overlords: [OverlordInput] = []
+  pieces: [String] = []
+  procedure: String = ""
+  projectId: String = ""
+  purity: Float = null
+  reverse: CoinSideInformationInput
+  specials: String = ""
+  small: Boolean = false
+  treadwellId: String = ""
+  yearOfMint: String = ""
+  yearUncertain: Boolean
 }
 
 type Name {
@@ -500,6 +506,12 @@ input TypeFilter {
   coinMark_and_or: [[ID]]
   coinMark_and: [ID]
   coinMark_or_and: [[ID]]
+
+  coinVerse: [ID]
+  coinVerse_and_or: [[ID]]
+  coinVerse_and: [ID]
+  coinVerse_or_and: [[ID]]
+
   cursiveScript: Boolean
   donativ: Boolean
   excludeFromMapApp: Boolean

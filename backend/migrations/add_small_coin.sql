@@ -1,4 +1,1 @@
-CREATE TABLE coin_small_coin (
-    type integer UNIQUE,
-    value boolean
-)
+ALTER TABLE type ADD COLUMN small BOOLEAN NOT NULL DEFAULT false;

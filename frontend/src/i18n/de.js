@@ -121,6 +121,7 @@ const property = {
         pressed:
             "geprägt",
     },
+    purity: "Feingehalt",
     province: "Region | Regionen",
     reviewed: "Erledigt",
     role:
@@ -134,6 +135,8 @@ const property = {
     },
     specialities_and_variants:
         "Besonderheiten / Varianten",
+    small:
+        "Kleine Münze",
     title:
         "Titel",
     type_id:

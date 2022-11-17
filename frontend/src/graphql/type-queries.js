@@ -19,6 +19,7 @@ export class TypeQueries {
             $reverse:CoinSideInformationInput,
             $cursiveScript:Boolean,
             $coinMarks:[ID],
+            $coinVerses:[ID],
             $literature:String,
             $pieces:[String],
             $specials:String,
@@ -26,7 +27,9 @@ export class TypeQueries {
             $excludeFromMapApp: Boolean,
             $internalNotes: String,
             $yearUncertain:Boolean,
-            $mintUncertain:Boolean
+            $mintUncertain:Boolean,
+            $purity: Float,
+            $small:Boolean
             ){
         addCoinType(data: {
             projectId: $projectId,
@@ -46,6 +49,7 @@ export class TypeQueries {
             reverse: $reverse,
             cursiveScript: $cursiveScript,
             coinMarks: $coinMarks,
+            coinVerses: $coinVerses,
             literature: $literature,
             pieces: $pieces,
             specials: $specials,
@@ -53,7 +57,9 @@ export class TypeQueries {
             excludeFromMapApp:$excludeFromMapApp,
             internalNotes:$internalNotes,
             yearUncertain: $yearUncertain,
-            mintUncertain: $mintUncertain
+            mintUncertain: $mintUncertain,
+            purity: $purity,
+            small: $small
          })
          }
    `;
@@ -72,6 +78,7 @@ export class TypeQueries {
           $yearOfMint:String,
           $donativ:Boolean,
           $procedure:String,
+          $purity: Float,
           $issuers:[TitledPersonInput],
           $otherPersons:[ID],
           $overlords:[OverlordInput],
@@ -80,6 +87,7 @@ export class TypeQueries {
           $reverse:CoinSideInformationInput,
           $cursiveScript:Boolean,
           $coinMarks:[ID],
+          $coinVerses:[ID],
           $literature:String,
           $pieces:[String],
           $specials:String,
@@ -88,6 +96,7 @@ export class TypeQueries {
           $internalNotes: String,
           $yearUncertain:Boolean,
           $mintUncertain:Boolean
+          $small:Boolean
         ){
         updateCoinType(id: $id, data: {
             projectId: $projectId,
@@ -107,6 +116,7 @@ export class TypeQueries {
             reverse: $reverse,
             cursiveScript: $cursiveScript,
             coinMarks: $coinMarks,
+            coinVerses: $coinVerses,
             literature: $literature,
             pieces: $pieces,
             specials: $specials,
@@ -114,7 +124,9 @@ export class TypeQueries {
             excludeFromMapApp: $excludeFromMapApp
             internalNotes: $internalNotes,
             yearUncertain: $yearUncertain,
-            mintUncertain: $mintUncertain
+            mintUncertain: $mintUncertain,
+            small: $small,
+            purity: $purity
          })
          }
    `
@@ -205,6 +217,10 @@ export class TypeQueries {
                   id
                   name
                 }
+                coinVerses {
+                  id
+                  name
+                }
                 literature
                 pieces
                 specials
@@ -213,6 +229,8 @@ export class TypeQueries {
                 internalNotes
                 mintUncertain
                 yearUncertain
+                small
+                purity
         }
       }`
     }
