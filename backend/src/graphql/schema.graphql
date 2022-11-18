@@ -23,9 +23,9 @@ type Material {
 
 input MintInput {
   name: String
-  location: String
+  location: GeoJSON
   uncertain: Boolean
-  uncertainArea: String
+  uncertainArea: GeoJSON
   province: ID
 }
 
@@ -171,7 +171,7 @@ type Mint {
   name: String
   location: GeoJSON
   uncertain: Boolean
-  uncertainArea: String
+  uncertainArea: GeoJSON
   province: Name
 }
 

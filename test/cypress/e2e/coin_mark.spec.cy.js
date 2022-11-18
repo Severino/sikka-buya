@@ -1,7 +1,6 @@
 describe("Testing Coin Marks", function () {
 
     this.beforeAll(function () {
-        console.log("MOUNT!")
         cy.task("MountMinimalDatabase").then(() => {
             cy.fixture("users/admin").then(user => {
                 cy.login(user.email, user.password)

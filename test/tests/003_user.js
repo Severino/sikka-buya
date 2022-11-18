@@ -105,21 +105,8 @@ describe(`User management`, function () {
 
 
     it(`Invited user can log in`, async function () {
-        const result = await graphql(`{ login(
-            email: "${User1.email}",
-            password: "${User1.password}"
-          ){
-              success
-              message
-              token
-              user {
-                  id
-                  email
-                  super
-              }
-            }
-          }`)
 
+        const result = await User1.login()
         expect(result.data.data.login.token).is.not.null
         User1.authenticate(result.data.data.login.token)
     })

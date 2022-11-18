@@ -205,7 +205,9 @@ const UserMutations = {
 
 const Mutations = Object.assign({},
     UnguardedMutations,
-    guard(UserMutations, (_, __, context) => Auth.requireAuthContext(context)),
+    guard(UserMutations, (_, __, context) => {
+        return Auth.requireAuthContext(context)
+    }),
     guard(SuperUserMutations, (_, __, context) => Auth.requireSuperUser(context))
 )
 

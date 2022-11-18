@@ -272,12 +272,10 @@ export default {
         ...this.availableMints.map((mint) => addAvailability(mint, true)),
         ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
       ];
-      console.log(sorted);
 
       sorted = sorted
         .filter((mint) => mint?.province?.id)
         .sort(Sorter.stringPropAlphabetically('name'));
-      console.log(sorted);
 
       return sorted;
     },

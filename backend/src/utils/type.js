@@ -30,9 +30,6 @@ class Type {
         data.id = id
         data = await this.postProcessUpsert(data)
 
-
-        console.log("verses", data.coinVerses)
-
         return WriteableDatabase.tx(async t => {
             await t.none(`
         UPDATE type 
@@ -343,7 +340,6 @@ class Type {
     }
 
     static async addCoinVerses(t, data, type) {
-        console.log(Object.keys(data))
         data.coinVerses = data.coinVerses.filter(coinVerse => coinVerse != null)
         for (let coinVerse of data.coinVerses.values()) {
             await t.none("INSERT INTO type_coin_verse (coin_verse, type) VALUES ($1,$2)", [coinVerse, type])

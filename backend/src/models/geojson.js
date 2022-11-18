@@ -1,9 +1,10 @@
-const { GraphQLError, GraphQLScalarType } = require('graphql')
+const { GraphQLError, GraphQLScalarType, Kind } = require('graphql')
 
 class GeoJSON {
 
     //All implemented GeoJSON types: https://www.rfc-editor.org/rfc/rfc7946 
     static types = ['point', 'polygon']
+    static fields = ['type', 'coordinates']
 
     static get scalarType() {
         return new GraphQLScalarType({
@@ -14,25 +15,65 @@ class GeoJSON {
                 return value
             },
             parseValue(value) {
-                const json = JSON.parse(value)
-
-                if (!json.type) {
+                if (!value.type) {
                     throw new GraphQLError(`GeoJSON requires a type!`)
-                } else if (GeoJSON.types.indexOf(json.type) === -1) {
-                    throw new GraphQLError(`GeoJSON type "${json.type}" is either not valid or not implemented!`)
-                } else {
-                    switch (json.type.toLowerCase()) {
-                        case GeoJsonPoint.type:
-                            return GeoJsonPoint.parseValue(value)
-                        default:
-                            throw new GraphQLError(`GeoJSON type was not correctly implemented: ${json.type}`)
-                    }
                 }
 
+                let type = value.type.toLowerCase()
 
+                if (GeoJSON.types.indexOf(type) === -1) {
+                    throw new GraphQLError(`GeoJSON type "${type}" is either not valid or not implemented!`)
+                } else {
+                    switch (type) {
+                        case GeoJsonPoint.type:
+                            return value
+                        default:
+                            throw new GraphQLError(`GeoJSON type was not correctly implemented: ${type}`)
+                    }
+                }
             },
             parseLiteral(ast) {
-                return ast.value
+
+                let parsedLiteral = null
+                function recurseArrayValue(field, debug = false) {
+                    let value = field.value
+                    switch (value.kind) {
+                        case Kind.LIST:
+                            let arr = []
+                            value.values.forEach(child => {
+                                arr.push(recurseArrayValue(child))
+                            })
+                            return arr
+                        default:
+                            return value.value
+                    }
+
+
+                }
+
+                if (ast.kind === Kind.OBJECT) {
+                    let fields = ast.fields
+                    parsedLiteral = {}
+
+                    if (fields.length != 2) throw new Error(`GeoJSON needs exactly two fields: type and coordinates! Found ${fields.length}`)
+
+                    fields.forEach(field => {
+                        let name = field.name.value
+
+                        if (GeoJSON.fields.indexOf(name) === -1) {
+                            throw new Error(`Invalid key in GeoJSON: ${name}`)
+                        }
+
+                        let value = recurseArrayValue(field, name === "coordinates")
+                        parsedLiteral[name] = value
+                    })
+
+
+                }
+
+                console.log(parsedLiteral.coordinates)
+
+                return parsedLiteral
             }
         })
     }

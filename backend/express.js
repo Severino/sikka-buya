@@ -93,26 +93,17 @@ async function start({
         })
 
         let geoJSONScalar = GeoJSON.scalarType
-        console.dir(geoJSONScalar)
-        /**
-         * The loaded schema is combined with the resolvers.
-         */
-        // const schema = addResolversToSchema({
-        //     schema: schemaFile, resolvers: {
-        //         Query: Object.assign({}, resolvers.Query),
-        //         Mutation: Object.assign({}, resolvers.Mutation),
-        //         GeoJSON
-        //     }
-        // })
+
+
         const typeDefs = fs.readFileSync(path.join(__dirname, "./src/graphql/schema.graphql"), { encoding: 'utf8', flag: 'r' })
 
 
         const schema = makeExecutableSchema({
             typeDefs,
             resolvers: {
+                GeoJSON: geoJSONScalar,
                 Query: Object.assign({}, resolvers.Query),
                 Mutation: Object.assign({}, resolvers.Mutation),
-                GeoJSON: geoJSONScalar
             }
         })
 
