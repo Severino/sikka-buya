@@ -102,8 +102,6 @@ class GeoJSON {
                         throw new Error(`Coordinates validation for type "${parsedLiteral.type}" is not implemented!`)
                 }
 
-                console.log(parsedLiteral.coordinates)
-
                 return parsedLiteral
             }
         })
