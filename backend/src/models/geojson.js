@@ -33,19 +33,20 @@ class GeoJSON {
                 }
             },
             parseLiteral(ast) {
-
                 let parsedLiteral = null
-                function recurseArrayValue(field, debug = false) {
-                    let value = field.value
-                    switch (value.kind) {
+
+                function recurseArrayValue(astNode, debug = false) {
+                    switch (astNode.kind) {
                         case Kind.LIST:
                             let arr = []
-                            value.values.forEach(child => {
+                            astNode.values.forEach(child => {
                                 arr.push(recurseArrayValue(child))
                             })
                             return arr
+                        case Kind.FLOAT: return parseFloat(astNode.value)
+                        case Kind.INT: return parseInt(astNode.value)
                         default:
-                            return value.value
+                            return astNode.value
                     }
 
 
@@ -64,11 +65,41 @@ class GeoJSON {
                             throw new Error(`Invalid key in GeoJSON: ${name}`)
                         }
 
-                        let value = recurseArrayValue(field, name === "coordinates")
+                        let value;
+                        if (name === "coordinates") {
+                            let coordinatesValueNode = field.value
+                            if (coordinatesValueNode.kind !== Kind.LIST) {
+                                throw new Error(`Coordinates needs to be an array, got ${coordinatesValueNode.kind}`)
+                            }
+                            value = recurseArrayValue(coordinatesValueNode, name === "coordinates")
+                        } else { // if field is "type"
+                            let typeValueNode = field.value
+                            if (typeValueNode.kind != Kind.STRING) throw new Error(`Expected type value to be 'string', got: ${typeValueNode.kind}`)
+                            let type = typeValueNode.value.toLowerCase()
+                            if (GeoJSON.types.indexOf(type) === -1) throw new Error(`Invalid or not implemented type: ${type}`)
+                            value = type
+                        }
+
                         parsedLiteral[name] = value
                     })
 
 
+                }
+
+                let err = `The coordinates field of a GeoJSON object of type '${parsedLiteral.type}' needs to be`
+                switch (parsedLiteral.type) {
+                    case "point":
+                        if (!(Array.isArray(parsedLiteral.coordinates) && parsedLiteral.coordinates.length === 2 && parsedLiteral.coordinates.every(value => !isNaN(value))))
+                            throw new Error(`${err} an array of exactly length 2 with numbers as values.`)
+                        break
+                    case "polygon":
+                        if (!(Array.isArray(parsedLiteral.coordinates) && parsedLiteral.coordinates.length > 0 && parsedLiteral.coordinates.every(arr => {
+                            return Array.isArray(arr) && arr.length > 3 && arr[0].every((value, index) => value === arr[arr.length - 1][index])
+                        })))
+                            throw new Error(`${err} an array of arrays with at least 1 element. All arrays need to have four or more items, where the first and last are the same coordinate.`)
+                        break
+                    default:
+                        throw new Error(`Coordinates validation for type "${parsedLiteral.type}" is not implemented!`)
                 }
 
                 console.log(parsedLiteral.coordinates)
@@ -79,64 +110,7 @@ class GeoJSON {
     }
 }
 
-class GeoJsonObject {
-    static validateJSON(string) {
-        let value = null
-        try {
-            let result = JSON.parse(string)
-            let err = []
-            if (!result.type) {
-                err.push(`type`)
-            }
-
-            if (!result.coordinates) {
-                err.push(`coordinates`)
-            }
-
-            if (err.length > 0) {
-                throw new GraphQLError(`Incomplete GeoJSON, it's missing the attribute(s): ${err.join(", ")}`)
-            } else {
-                value = result
-            }
-        } catch (e) {
-            throw new GraphQLError(`Could not parse GeoJSON string.`)
-        }
-
-        return val
-    }
-
-    static throwInvalidTypeError(expected, actual) {
-        throw new GraphQLError(`Types doesn't match: expected ${expected}, but got ${actual}`)
-    }
-    static throwInvalideCoordinatesError(type, msg) {
-        throw new GraphQLError(`Provided coordinates are invalid for type ${type}: ${msg}`)
-    }
-}
-
-class GeoJsonPoint extends GeoJsonObject {
-
-    static type = 'point'
-
-    static parseValue(string) {
-        let result = null
-        let json = this.validateJSON(string)
-        if (json) {
-            let { type, coordinates } = json
-            if (type != this.type) this.throwInvalidTypeError(this.type, type)
-            else if (!this.evaluateCoordinates(coordinates)) {
-                this.throwInvalideCoordinatesError(this.type, `Coordinates needs to be an array of excactly two numbers!`)
-            }
-        }
-        return result
-    }
-
-    static evaluateCoordinates(coordinates) {
-        return (Array.isArray(coordinates) && Array.length === 2 && coordinates.every(val => !isNaN(val)))
-    }
-}
 
 module.exports = {
-    GeoJSON,
-    GeoJsonObject,
-    GeoJsonPoint,
+    GeoJSON
 }
