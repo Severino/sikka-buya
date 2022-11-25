@@ -152,7 +152,7 @@ export default {
           margin-right: $padding;
           width: $size;
           height: $size;
-          border-radius: $size/2;
+          border-radius: math.div($size, 2);
           background-color: $primary-color;
         }
       }

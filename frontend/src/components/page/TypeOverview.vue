@@ -511,7 +511,7 @@ export default {
 
 <style lang="scss">
 .type-overview .labeled-property .label {
-  margin-bottom: $padding/2;
+  margin-bottom: math.div($padding, 2);
 }
 
 .type-overview .list-item-row {

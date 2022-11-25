@@ -45,13 +45,14 @@
         />
       </div>
 
-      <div v-if="mint.uncertain">
+      <div v-show="mint.uncertain">
         <label for="location">Geschätzte Verortung</label>
         <location-input
           id="mint-uncertain-location-input"
           type="polygon"
           :coordinates="mint.uncertainArea.coordinates"
           @update="updateUncertainArea"
+          ref="uncertainLocation"
         />
       </div>
 
@@ -109,20 +110,6 @@ export default {
           this.disabled = false;
           let data = result.data.data.getMint;
           this.note = result.data.data.getNote;
-          let locations = ['location', 'uncertainArea'];
-
-          locations.forEach((locationProperty) => {
-            if (data[locationProperty]) {
-              try {
-                data[locationProperty] = JSON.parse(data[locationProperty]);
-              } catch (e) {
-                console.error(
-                  `Could not parse ${locationProperty}. This should never happen, contact a developer!`
-                );
-                data[locationProperty] = null;
-              }
-            }
-          });
 
           if (!data.location) {
             data.location = {
@@ -158,10 +145,13 @@ export default {
     isUpdate() {
       return !!this.mint?.id && this.mint.id > 0;
     },
+    error() {
+      return this.errors.join(' ');
+    },
   },
   methods: {
     submit: async function () {
-      this.error = '';
+      this.errors = [];
 
       // There is one array missing in the input field.
       let { type, coordinates } = this.mint.uncertainArea;
@@ -172,17 +162,44 @@ export default {
         this.mint.location.coordinates == null ||
         this.mint.location.coordinates.length < 2
           ? null
-          : `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`;
+          : this.mint.location;
 
       const uncertainArea =
         !this.mint.uncertainArea ||
         this.mint.uncertainArea?.type == 'empty' ||
         this.mint.uncertainArea?.coordinates == null
           ? null
-          : `${JSON.stringify({
+          : {
               type,
               coordinates: [coordinates],
-            }).replace(/"/g, "'")}`;
+            };
+      if (uncertainArea && uncertainArea.type === 'polygon') {
+        const lastIndex = uncertainArea.coordinates.length - 1;
+        if (uncertainArea.coordinates.length > 0) {
+          let polygon = uncertainArea.coordinates[0];
+
+          if (Array.isArray(polygon) && polygon.length > 0) {
+            // The GeoJSON specification requires the first and last value to be the same
+            // This will be enforced here.
+            if (
+              !polygon.every((val, idx) => {
+                return val === uncertainArea.coordinates[0][lastIndex][idx];
+              })
+            )
+              uncertainArea.coordinates[0].push(
+                uncertainArea.coordinates[0][0]
+              );
+
+            console.log(polygon);
+            if (polygon.length < 4) {
+              // It is three points, as we add the last one if the first and last are not the same.
+              this.errors.push('A polygon needs at least 3 points!');
+            }
+          }
+        } else {
+          this.errors.push('Uncertain area needs coordinates!');
+        }
+      }
 
       let data = {
         uncertain: this.mint.uncertain,
@@ -194,7 +211,13 @@ export default {
 
       let id;
       if (this.mint.id == -1) {
-        id = await this.query('addMint', data);
+        try {
+          console.log(data);
+          id = await this.query('addMint', data, true);
+        } catch (e) {
+          console.error(e);
+          this.error += e;
+        }
       } else {
         id = this.mint.id;
         data.id = id;
@@ -204,9 +227,9 @@ export default {
         mutation UpdateMint(
             $id:ID!,
             $name:String,
-            $location:String,
+            $location:GeoJSON,
             $uncertain:Boolean,
-            $uncertainArea:String,
+            $uncertainArea:GeoJSON,
             $province:ID,
           ){
             updateMint(  
@@ -220,22 +243,27 @@ export default {
             })
           }
   `,
-          data
+          data,
+          true
         ).catch((err) => {
-          this.error = this.$t(err);
-          console.error(err);
+          this.errors.push(err);
         });
       }
 
-      const query = `mutation UpdateNote($note:String, $id:ID!) {
+      if (id) {
+        const query = `mutation UpdateNote($note:String, $id:ID!) {
         updateNote(text: $note, property:"mint", propertyId: $id)
         }`;
 
-      await Query.raw(query, { note: this.note, id }).catch(
-        (e) => (this.error += e)
-      );
-
-      if (!this.error) {
+        try {
+          await Query.raw(query, { note: this.note, id });
+        } catch (e) {
+          this.errors.push(e);
+        }
+      } else {
+        this.errors.push(`Id could not be determined! Notes cant be updated.`);
+      }
+      if (this.errors.length === 0) {
         this.$router.push({
           name: 'Property',
           params: { property: 'mint' },
@@ -250,12 +278,17 @@ export default {
       const query = `mutation {
         ${name}(data: ${body}) 
         }`;
-      let result = await Query.raw(query).catch((err) => {
+
+      let result = {};
+      try {
+        let response = await Query.raw(query);
+        result = response?.data.data[name];
+      } catch (err) {
         this.error = this.$t(err);
         console.error(err);
-      });
+      }
 
-      return result?.data.data[name];
+      return result;
     },
     cancel: function () {
       this.$router.push({ path: '/mint' });
@@ -269,7 +302,7 @@ export default {
   },
   data: function () {
     return {
-      error: '',
+      errors: [],
       loading: true,
       radius: 1000,
       disabled: true,
@@ -292,6 +325,22 @@ export default {
         },
       },
     };
+  },
+  watch: {
+    'mint.uncertain'(newValue) {
+      if (newValue) {
+        this.$nextTick(() => {
+          // When the map is hidden, it will have the wrong size set
+          // therefore we need to make the ap aware of the visibility change
+          // by calling the following function.
+          //
+          // v-if would work as expected out of the box, but would result in other
+          // issues
+          if (this.$refs.uncertainLocation)
+            this.$refs.uncertainLocation.sizeChanged();
+        });
+      }
+    },
   },
 };
 </script>

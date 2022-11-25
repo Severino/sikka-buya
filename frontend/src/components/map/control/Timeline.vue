@@ -350,7 +350,7 @@ export default {
   $size: 75px;
   width: $size;
   height: $size;
-  border-radius: $size/2;
+  border-radius: math.div($size, 2);
 }
 
 .tool-box-drawer {

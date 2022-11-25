@@ -146,7 +146,7 @@ $caretWidth: 5px;
     -webkit-appearance: none;
   }
 
-  padding: 0 $caretWidth/2;
+  padding: 0 math.div($caretWidth, 2);
 
   .slider-background {
     position: absolute;

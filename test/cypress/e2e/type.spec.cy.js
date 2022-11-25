@@ -70,145 +70,145 @@ describe("Testing Type", function () {
         cy.restoreLocalStorage()
     })
 
-    it("Item in editor list", function () {
-        cy.visit('/editor')
-        cy.get("a").contains("Typ")
-    })
+    // it("Item in editor list", function () {
+    //     cy.visit('/editor')
+    //     cy.get("a").contains("Typ")
+    // })
 
-    it("Navigate to List", function () {
-        cy.get("a").contains("Typ").click()
-        cy.location("pathname").should((pathname) => {
-            expect(pathname).to.eq("/editor/type")
-        })
+    // it("Navigate to List", function () {
+    //     cy.get("a").contains("Typ").click()
+    //     cy.location("pathname").should((pathname) => {
+    //         expect(pathname).to.eq("/editor/type")
+    //     })
 
-        cy.get(".list-item").contains('Šīr389')
-    })
+    //     cy.get(".list-item").contains('Šīr389')
+    // })
 
-    it("Type list is showing", function () {
-        cy.visit('/editor/type')
-        cy.get(".list").children().should("have.length", 1)
-    })
+    // it("Type list is showing", function () {
+    //     cy.visit('/editor/type')
+    //     cy.get(".list").children().should("have.length", 1)
+    // })
 
-    it("List item is visible", function () {
-        cy.visit('/editor/type')
-        cy.get(".list-item").contains('Šīr389').should("be.visible")
-    })
+    // it("List item is visible", function () {
+    //     cy.visit('/editor/type')
+    //     cy.get(".list-item").contains('Šīr389').should("be.visible")
+    // })
 
 
-    describe("Done Button", function () {
+    // describe("Done Button", function () {
 
-        it("Can click button", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .done-button")
-            completeButton.click()
-            completeButton.find(".active").should("exist")
-        })
+    //     it("Can click button", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .done-button")
+    //         completeButton.click()
+    //         completeButton.find(".active").should("exist")
+    //     })
 
-        it("Other not active", function () {
-            const completeButton = cy.get("#list-item-type-4 .reviewed-button")
-            completeButton.find(".active").should("not.exist")
-        })
+    //     it("Other not active", function () {
+    //         const completeButton = cy.get("#list-item-type-4 .reviewed-button")
+    //         completeButton.find(".active").should("not.exist")
+    //     })
 
-        it("Still active on reload", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .done-button")
-            completeButton.find(".active").should("exist")
-        })
+    //     it("Still active on reload", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .done-button")
+    //         completeButton.find(".active").should("exist")
+    //     })
 
-        it("Can disable button", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .done-button")
-            completeButton.click()
-            completeButton.find(".active").should("not.exist")
-        })
+    //     it("Can disable button", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .done-button")
+    //         completeButton.click()
+    //         completeButton.find(".active").should("not.exist")
+    //     })
 
-        it("Still inactive on reload", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .done-button")
-            completeButton.find(".active").should("not.exist")
-        })
+    //     it("Still inactive on reload", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .done-button")
+    //         completeButton.find(".active").should("not.exist")
+    //     })
 
-    })
+    // })
 
-    describe("Reviewed Button", function () {
+    // describe("Reviewed Button", function () {
 
-        it("Can click button", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .reviewed-button")
-            completeButton.click()
-            completeButton.find(".active").should("exist")
-        })
+    //     it("Can click button", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .reviewed-button")
+    //         completeButton.click()
+    //         completeButton.find(".active").should("exist")
+    //     })
 
-        it("Other not active", function () {
-            const completeButton = cy.get("#list-item-type-4 .done-button")
-            completeButton.find(".active").should("not.exist")
-        })
+    //     it("Other not active", function () {
+    //         const completeButton = cy.get("#list-item-type-4 .done-button")
+    //         completeButton.find(".active").should("not.exist")
+    //     })
 
-        it("Still active on reload", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .reviewed-button")
-            completeButton.find(".active").should("exist")
-        })
+    //     it("Still active on reload", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .reviewed-button")
+    //         completeButton.find(".active").should("exist")
+    //     })
 
-        it("Can disable  button", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .reviewed-button")
-            completeButton.click()
-            completeButton.find(".active").should("not.exist")
-        })
+    //     it("Can disable  button", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .reviewed-button")
+    //         completeButton.click()
+    //         completeButton.find(".active").should("not.exist")
+    //     })
 
-        it("Still inactive on reload", function () {
-            cy.visit('/editor/type')
-            const completeButton = cy.get("#list-item-type-4 .reviewed-button")
-            completeButton.find(".active").should("not.exist")
-        })
+    //     it("Still inactive on reload", function () {
+    //         cy.visit('/editor/type')
+    //         const completeButton = cy.get("#list-item-type-4 .reviewed-button")
+    //         completeButton.find(".active").should("not.exist")
+    //     })
 
-    })
+    // })
 
 
 
     describe("Edit Type", function () {
 
-        it("Access edit page", function () {
-            cy.visit('/editor/type/edit/4')
-            cy.get("#type-project-id").should("have.value", "Šīr389")
-            cy.location("pathname").should((pathname) => {
-                expect(pathname).to.eq("/editor/type/edit/4")
-            })
-        })
+        // it("Access edit page", function () {
+        //     cy.visit('/editor/type/edit/4')
+        //     cy.get("#type-project-id").should("have.value", "Šīr389")
+        //     cy.location("pathname").should((pathname) => {
+        //         expect(pathname).to.eq("/editor/type/edit/4")
+        //     })
+        // })
 
-        it("Cannot edit with wrong id", function () {
-            cy.visit('/editor/type/edit/8')
-            cy.get("#type-id").should("be.empty")
-            cy.get(".global.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
-        })
-
-
-        it("Correct id set for update", function () {
-            cy.visit('/editor/type/edit/4')
-            cy.get("#type-id").should("have.value", 4)
-        })
+        // it("Cannot edit with wrong id", function () {
+        //     cy.visit('/editor/type/edit/8')
+        //     cy.get("#type-id").should("be.empty")
+        //     cy.get(".global.error").should("not.be.empty")
+        //     cy.get("button").contains("senden").should("have.attr", "disabled")
+        // })
 
 
-        it("Can cancel update", function () {
-            cy.visit("/editor/type/edit/4")
-
-            //We use a different name to not be in conflict with the created one
-            cy.get("#type-project-id").clear().type("Fārs365Gb")
-
-            cy.get("#type-main-cancel-button").click()
-            cy.get(".confirmation").should("be.visible")
-            cy.get(".confirmation .ok.button").click()
-
-            cy.location("pathname").should((pathname) => {
-                expect(pathname).to.eq("/editor/type")
-            })
+        // it("Correct id set for update", function () {
+        //     cy.visit('/editor/type/edit/4')
+        //     cy.get("#type-id").should("have.value", 4)
+        // })
 
 
-            cy.get(".list-item").children().should("have.length", 1)
-            cy.get(".list-item").contains("Šīr389")
-        })
+        // it("Can cancel update", function () {
+        //     cy.visit("/editor/type/edit/4")
+
+        //     //We use a different name to not be in conflict with the created one
+        //     cy.get("#type-project-id").clear().type("Fārs365Gb")
+
+        //     cy.get("#type-main-cancel-button").click()
+        //     cy.get(".confirmation").should("be.visible")
+        //     cy.get(".confirmation .ok.button").click()
+
+        //     cy.location("pathname").should((pathname) => {
+        //         expect(pathname).to.eq("/editor/type")
+        //     })
+
+
+        //     cy.get(".list-item").children().should("have.length", 1)
+        //     cy.get(".list-item").contains("Šīr389")
+        // })
 
 
 
@@ -230,8 +230,11 @@ describe("Testing Type", function () {
             cy.selectFromDataSelect("#type-material-data-field", "Gold", "go")
 
             cy.selectFromDataSelect("#type-nominal-data-field", "Ruknī-Dinar", "ni")
+            cy.get("#type-purity input").clear().type("200")
             cy.get("#type-year-of-type-field input").clear().type("365")
             cy.get("#type-year-uncertain label").click()
+            cy.get("#type-small label").click()
+
             cy.get("#type-donativ label").click()
             cy.get("#type-procedure").contains("gegossen").click()
 
@@ -339,6 +342,12 @@ describe("Testing Type", function () {
             cy.selectFromDataSelect("#type-coin-mark-list > .list-container > .list-item:nth-child(2) .data-select", "drei Punkte (∴)", "dre")
 
 
+            cy.get("#type-coin-verse-list .list-add-button-below").click().click()
+
+            cy.selectFromDataSelect("#type-coin-verse-list > .list-container > .list-item:nth-child(1) .data-select", "Koran 30:4‒5", "ko")
+            cy.selectFromDataSelect("#type-coin-verse-list > .list-container > .list-item:nth-child(2) .data-select", "محمد رسول الله")
+
+
 
 
             cy.get("#type-pieces-list > .list-container > .list-item:nth-child(1) .pieces-input").clear().type("https://www.fint-ikmk.uni-tuebingen.de/ikmk/object?lang=de&id=ID92")
@@ -382,11 +391,16 @@ describe("Testing Type", function () {
 
             cy.checkDataSelect("#type-material-data-field", "Gold", 1)
             cy.checkDataSelect("#type-nominal-data-field", "Ruknī-Dinar", 2)
+            cy.get("#type-purity input").should("have.value", "200")
+
+
+
             cy.get("#type-year-of-type-field input").should("have.value", "365")
             cy.get("#type-year-uncertain input[type=checkbox]").should("not.be.checked")
 
             // This differs from the created type as this type has it checked in the beginning:
             cy.get("#type-donativ input[type=checkbox]").should("not.be.checked")
+            cy.get("#type-small  input[type=checkbox]").should("be.checked")
             cy.get("#type-procedure").contains("gegossen").parent(".radio-button").find("input[type=radio]").should("be.checked")
 
 

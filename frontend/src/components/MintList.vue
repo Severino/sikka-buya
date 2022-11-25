@@ -139,7 +139,7 @@ export default {
     header {
       h4 {
         margin: $small-padding 0;
-        padding: $padding/2 $padding;
+        padding: math.div($padding, 2) $padding;
       }
     }
   }

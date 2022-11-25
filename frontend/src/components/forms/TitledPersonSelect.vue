@@ -19,7 +19,7 @@
         <ListItem
           class="list-item"
           v-for="(title, title_index) in this.titles"
-          :key="`title-${title.key}`"
+          :key="`title-${title_index}`"
           @remove="removeTitle(title_index)"
           :object="title"
         >
@@ -43,7 +43,7 @@
         <ListItem
           class="list-item"
           v-for="(honorific, honorific_index) in honorifics"
-          :key="`honorific-${honorific.key}`"
+          :key="`honorific-${honorific_index}`"
           @remove="removeHonorific(honorific_index)"
           :object="honorific"
         >

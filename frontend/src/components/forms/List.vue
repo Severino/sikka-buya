@@ -65,7 +65,7 @@ export default {
   }
 
   > * {
-    margin-bottom: $padding/2;
+    margin-bottom: math.div($padding, 2);
   }
 
   &:not(:empty) {

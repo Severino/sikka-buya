@@ -72,7 +72,7 @@ export default {
   min-width: 32px;
   padding: 0;
   > * {
-    padding: $padding/2 $padding;
+    padding: math.div($padding, 2) $padding;
   }
 }
 </style>

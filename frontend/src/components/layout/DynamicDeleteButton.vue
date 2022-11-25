@@ -166,7 +166,7 @@ svg {
 
   width: $size;
   height: $size;
-  border-radius: $size/2;
+  border-radius: math.div($size, 2);
   box-shadow: $shadow;
 
   transition: all $transition-time;
@@ -192,10 +192,10 @@ svg {
   top: 50%;
   transform: translateY(-50%);
 
-  right: ($size/2);
-  left: ($size/2);
+  right: (div($size, 2));
+  left: (div($size, 2));
   height: $trash-size;
-  border-radius: $trash-size/2;
+  border-radius: math.div($trash-size, 2);
 }
 
 .trash {
@@ -203,7 +203,7 @@ svg {
   right: 0;
   width: $trash-size;
   height: $trash-size;
-  border-radius: $trash-size/2;
+  border-radius: math.div($trash-size, 2);
   background-color: $red;
   transform: scale(1);
   opacity: 1;

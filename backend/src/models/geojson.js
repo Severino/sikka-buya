@@ -1,7 +1,6 @@
 const { GraphQLError, GraphQLScalarType, Kind } = require('graphql')
 
 class GeoJSON {
-
     //All implemented GeoJSON types: https://www.rfc-editor.org/rfc/rfc7946 
     static types = ['point', 'polygon']
     static fields = ['type', 'coordinates']
@@ -25,7 +24,8 @@ class GeoJSON {
                     throw new GraphQLError(`GeoJSON type "${type}" is either not valid or not implemented!`)
                 } else {
                     switch (type) {
-                        case GeoJsonPoint.type:
+                        case GeoJsonPointFeature.type:
+                        case GeoJsonPolygonFeature.type:
                             return value
                         default:
                             throw new GraphQLError(`GeoJSON type was not correctly implemented: ${type}`)
@@ -105,6 +105,33 @@ class GeoJSON {
                 return parsedLiteral
             }
         })
+    }
+}
+
+
+class GeoJsonFeature {
+    static get type() {
+        throw new Error("Abstract getter not implemented: type.")
+    }
+
+    static is(obj) {
+        if (obj?.type && obj.type.toLowerCase() === this.type) {
+            return true
+        }
+        return false
+    }
+}
+
+
+class GeoJsonPointFeature extends GeoJsonFeature {
+    static get type() {
+        return "point"
+    }
+}
+
+class GeoJsonPolygonFeature extends GeoJsonFeature {
+    static get type() {
+        return "polygon"
     }
 }
 

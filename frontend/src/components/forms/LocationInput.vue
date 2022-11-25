@@ -94,15 +94,20 @@ export default {
    * Therefore we may access the mounted map here.
    */
   mounted: function () {
-    this.$refs.input.addEventListener('paste', async (evt) => {
-      let paste = (evt.clipboardData || window.clipboardData).getData('text');
-      this.paste(paste);
-    });
+    console.log(this.$refs);
+    this.$refs.input.addEventListener('paste', this.pasteEvtListener);
 
     this.enableMap();
     this.updateMarker();
   },
+  unmounted: function () {
+    this.$refs.input.removeEventListener('paste', this.pasteEvtListener);
+  },
   methods: {
+    async pasteEvtListener(evt) {
+      let paste = (evt.clipboardData || window.clipboardData).getData('text');
+      this.paste(paste);
+    },
     pasteEvt: async function () {
       this.$refs.input.focus();
       let text = await navigator.clipboard.readText();
@@ -415,6 +420,9 @@ export default {
       });
       str += values.join(', ');
       return str + ']';
+    },
+    sizeChanged() {
+      this.$refs.map.map.invalidateSize();
     },
   },
   computed: {

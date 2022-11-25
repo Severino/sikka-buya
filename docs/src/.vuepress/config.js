@@ -75,6 +75,11 @@ module.exports = {
           title: "Database",
           collapsable: false,
           path: '/docs/database/'
+        },
+        {
+          title: "Testing",
+          collapsable: false,
+          path: '/docs/testing/'
         }
       ]
 

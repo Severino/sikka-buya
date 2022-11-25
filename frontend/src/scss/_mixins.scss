@@ -18,11 +18,10 @@
   &:active#{$additional_selector} {
     filter: brightness(90%);
   }
-
 }
 
 @mixin input {
-  padding: $padding/2 $padding;
+  padding: math.div($padding, 2) $padding;
   color: $gray;
   border: 1px solid rgb(204, 204, 204);
   border-radius: 3px;
@@ -70,7 +69,6 @@
 }
 
 @mixin media-tablet {
-
   /* Portrait and Landscape */
   @media only screen and (max-width: 1024px) {
     @content;
@@ -95,7 +93,6 @@
 }
 
 @mixin allHeadings {
-
   h1,
   h2,
   h3,

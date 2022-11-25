@@ -239,7 +239,7 @@ a {
       background-color: lighten($primary-color, 10);
     }
 
-    padding: $padding/2 $padding;
+    padding: math.div($padding, 2) $padding;
     @include interactive();
   }
 

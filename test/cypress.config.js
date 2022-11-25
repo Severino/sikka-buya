@@ -28,6 +28,13 @@ module.exports = {
           })
 
           return true
+        },
+        async MountMinimalDatabaseWithCreatedMint() {
+          await axios.post("http://localhost:4000/test-database", {
+            method: "MountMinimalDatabaseWithCreatedMint"
+          })
+
+          return true
         }
       })
     },

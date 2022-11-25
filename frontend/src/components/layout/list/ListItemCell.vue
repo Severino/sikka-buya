@@ -1,12 +1,12 @@
 <template>
-  <span class="list-item-cell">
+  <div class="list-item-cell">
     <router-link v-if="to" :to="to" class="text">
       <slot />
     </router-link>
     <div class="text" v-else>
       <slot />
     </div>
-  </span>
+  </div>
 </template>
 
 <script>
@@ -29,10 +29,22 @@ export default {
 
 <style lang="scss" scoped>
 .list-item-cell {
-  @include input;
-  @include interactive;
+  // @include interactive;
   flex: 1;
-  align-items: center;
+
   display: flex;
+  align-content: center;
+
+  a {
+    @include interactive;
+    flex: 1;
+    color: $black;
+    display: flex;
+    align-items: center;
+  }
+
+  a:hover {
+    background-color: #eee;
+  }
 }
 </style>

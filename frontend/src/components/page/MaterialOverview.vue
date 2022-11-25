@@ -1,18 +1,30 @@
 <template>
   <overview property="material" :parameters="['color']">
     <template #list-item-before="prop">
-      <list-color-indicator :item="prop.item" />
+      <div class="color-indicator-container">
+        <list-color-indicator :item="prop.item" />
+      </div>
     </template>
   </overview>
 </template>
 
 <script>
+import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListColorIndicator from '../list/ListColorIndicator.vue';
 import Overview from './Overview.vue';
 export default {
-  components: { Overview, ListColorIndicator },
+  components: { Overview, ListColorIndicator, ListItemCell },
 };
 </script>
 
-<style>
+<style lang="scss">
+.color-indicator-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .color-indicator {
+    margin: 0 $padding;
+  }
+}
 </style>

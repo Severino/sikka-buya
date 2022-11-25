@@ -103,7 +103,7 @@ export default {
 
   > * {
     font-size: $xtra-small-font;
-    padding: $padding/2 2 * $padding;
+    padding: math.div($padding, 2) 2 * $padding;
   }
 }
 

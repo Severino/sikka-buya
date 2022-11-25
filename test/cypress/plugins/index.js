@@ -39,6 +39,11 @@ module.exports = (on, config) => {
       return axios.post("http://localhost:4000/test-database", {
         method: "MountMinimalDatabaseWithCreatedType"
       })
+    },
+    MountMinimalDatabaseWithCreatedMint() {
+      return axios.post("http://localhost:4000/test-database", {
+        method: "MountMinimalDatabaseWithCreatedMint"
+      })
     }
   })
 }

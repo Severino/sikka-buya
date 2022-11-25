@@ -21,7 +21,7 @@ export default {
 <style lang="scss" scoped>
 $side-pad: $padding * 4;
 
-$top-bottom-spacing: $side-pad/2;
+$top-bottom-spacing: math.div($side-pad, 2);
 
 header {
   > * {
@@ -30,7 +30,7 @@ header {
 }
 
 .body {
-  // padding: 0 $side-pad $side-pad/2 $side-pad;
+  // padding: 0 $side-pad math.div($side-pad, 2) $side-pad;
 
   :first-child {
     margin-top: 0;

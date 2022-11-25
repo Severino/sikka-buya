@@ -48,6 +48,9 @@ a {
 }
 
 .list-item:not(:last-of-type) {
+  &:not(:last-of-type) {
+    border-bottom: #eee 1px solid;
+  }
   .list-item-row {
     border-bottom-width: 0;
   }
@@ -66,6 +69,12 @@ a {
   position: relative;
   display: flex;
   align-items: stretch;
+}
+
+.list-item {
+  .list-item-row {
+    border-radius: 0;
+  }
 }
 
 .removeBtn {

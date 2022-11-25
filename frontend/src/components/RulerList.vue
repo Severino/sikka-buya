@@ -92,7 +92,7 @@ export default {
 
   .color-indicator {
     $size: 1em;
-    width: $size/3;
+    width: math.div($size, 3);
     height: $size;
     border-radius: $border-radius;
     border: 3px solid currentColor;

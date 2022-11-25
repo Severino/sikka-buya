@@ -52,7 +52,7 @@ export default {
   flex-direction: column;
 
   // > * {
-  //   padding: $padding/2 $padding;
+  //   padding: math.div($padding, 2) $padding;
   // }
 
   .body {
