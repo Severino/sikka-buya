@@ -142,7 +142,7 @@ describe("Testing Role", function () {
 
         it("List is in alphabetical order", function () {
             cy.visit("/editor/role")
-            cy.get('.list-item .cell')
+            cy.get('.list-item .list-item-cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
                     return arr

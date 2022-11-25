@@ -91,7 +91,6 @@ async function main() {
             message = "Ressource is locked!"
         }
 
-
         res.status(status).end(JSON.stringify({ status, message }))
     }
 

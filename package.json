@@ -47,6 +47,7 @@
         "grunt-mocha": "^1.1.0",
         "grunt-mocha-test": "^0.13.3",
         "mocha": "^9.0.3",
+        "recursive-diff": "^1.0.8",
         "wait-on": "^6.0.1"
     }
 }

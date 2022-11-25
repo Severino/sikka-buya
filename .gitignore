@@ -2,6 +2,7 @@
 **/.env 
 
 test/token.txt
+test/api-test-log.txt
 
 **/videos/**
 

@@ -136,7 +136,7 @@ describe(`Mint Queries`, function () {
     })
 
     it("Add", async function () {
-        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, {}, User1.token, true)
+        let promise = graphql(`mutation{addMint(data: ${TEST_DATA_BODY})}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
 
     })

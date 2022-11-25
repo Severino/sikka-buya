@@ -567,6 +567,7 @@ export default {
               : { id: null, name: '' };
             type.nominal = type.nominal ? type.nominal : { id: null, name: '' };
             type.caliph = type.caliph ? type.caliph : { id: null, name: '' };
+            type.purity = type.purity ? type.purity.toString() : '';
 
             Object.assign(this.$data.coin, type);
             this.initFormattedFields();
@@ -629,7 +630,7 @@ export default {
         coinMarks: [],
         coinVerses: [],
         pieces: [],
-        purity: null,
+        purity: '',
         small: false,
         specials: '',
         excludeFromTypeCatalogue: false,
@@ -962,11 +963,14 @@ export default {
 
         return;
       } else {
-        const submitData = this.$data.coin;
+        const submitData = JSON.parse(JSON.stringify(this.$data.coin));
 
         submitData.internalNotes = this.$refs.internalNotesField.getContent();
         submitData.literature = this.$refs.literatureField.getContent();
         submitData.specials = this.$refs.specialsField.getContent();
+
+        const purity = parseFloat(submitData.purity);
+        submitData.purity = isNaN(purity) ? null : purity;
 
         submitData.avers = Object.assign(
           submitData.avers,
@@ -1008,7 +1012,7 @@ export default {
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
         yearOfMint: data.yearOfMint,
         donativ: data.donativ,
-        purity: data.purity,
+        purity: data.purity === '' ? null : data.purity,
         small: data.small,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
@@ -1059,7 +1063,7 @@ export default {
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
         yearOfMint: data.yearOfMint,
         donativ: data.donativ,
-        purity: data.purity,
+        purity: data.purity === '' ? null : data.purity,
         small: data.small,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {

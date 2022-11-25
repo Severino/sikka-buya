@@ -112,6 +112,36 @@ ALTER SEQUENCE public.coin_marks_id_seq OWNED BY public.coin_marks.id;
 
 
 --
+-- Name: coin_verse; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.coin_verse (
+    id integer NOT NULL,
+    name text
+);
+
+
+--
+-- Name: coin_verse_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.coin_verse_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: coin_verse_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.coin_verse_id_seq OWNED BY public.coin_verse.id;
+
+
+--
 -- Name: comment; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -676,7 +706,9 @@ CREATE TABLE public.type (
     mint_uncertain boolean,
     year_uncertain boolean,
     plain_text text,
-    search_vectors tsvector
+    search_vectors tsvector,
+    purity numeric(8,4),
+    small boolean DEFAULT false NOT NULL
 );
 
 
@@ -687,6 +719,16 @@ CREATE TABLE public.type (
 CREATE TABLE public.type_coin_marks (
     type integer,
     coin_mark integer
+);
+
+
+--
+-- Name: type_coin_verse; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.type_coin_verse (
+    type integer,
+    coin_verse integer
 );
 
 
@@ -740,6 +782,13 @@ ALTER TABLE ONLY public.app_user ALTER COLUMN id SET DEFAULT nextval('public.app
 --
 
 ALTER TABLE ONLY public.coin_marks ALTER COLUMN id SET DEFAULT nextval('public.coin_marks_id_seq'::regclass);
+
+
+--
+-- Name: coin_verse id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.coin_verse ALTER COLUMN id SET DEFAULT nextval('public.coin_verse_id_seq'::regclass);
 
 
 --
@@ -877,6 +926,14 @@ ALTER TABLE ONLY public.app_user
 
 ALTER TABLE ONLY public.coin_marks
     ADD CONSTRAINT coin_marks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: coin_verse coin_verse_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.coin_verse
+    ADD CONSTRAINT coin_verse_pkey PRIMARY KEY (id);
 
 
 --
@@ -1276,6 +1333,22 @@ ALTER TABLE ONLY public.person
 
 ALTER TABLE ONLY public.piece
     ADD CONSTRAINT piece_type_fk FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: type_coin_verse type_coin_verse_coin_verse_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.type_coin_verse
+    ADD CONSTRAINT type_coin_verse_coin_verse_fkey FOREIGN KEY (coin_verse) REFERENCES public.coin_verse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: type_coin_verse type_coin_verse_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.type_coin_verse
+    ADD CONSTRAINT type_coin_verse_type_fkey FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --

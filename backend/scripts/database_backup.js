@@ -41,48 +41,56 @@ function constructFileName(prefix, ext) {
 }
 
 function dump(name, ext, options) {
-    const fileName = constructFileName(name, ext)
-    const command = `pg_dump --username ${process.env.DB_USER} --no-password ${options} --file ${fileName} ${process.env.DB_NAME} --exclude-table-data app_user`
+    const fileName = constructFileName(`${process.env.DB_NAME}_${name}`, ext)
+    const command = `pg_dump --username ${process.env.DB_USER} --no-privileges --exclude-table-data app_user --no-password ${options}  --file ${fileName} ${process.env.DB_NAME} `
     execute(command).then(() => {
         console.log(`Successfully exported ${name} to: ${fileName}`)
         process.exit()
     }).catch(err => {
-        console.error(`Command encountered errors.`)
+        console.error(`Command encountered errors: ${err}`)
         process.exit()
     })
 }
 
-const modes = {
-    "schema": function () {
-        dump("schema", "sql", "--no-owner --schema-only")
-    },
-    "data": function () {
-        dump("data", "dump", "--format=custom --data-only")
-    },
-    "default": function () {
-        dump("database", "dump", "--format=custom")
-    }
-}
-
-const mapping = {
-    "--schema": modes["schema"],
-    "-s": modes["schema"],
-    "--data": modes["data"],
-    "-d": modes["data"]
-}
-
-
 let args = process.argv.slice(2)
-args = args.filter((mode) => {
-    const exists = Object.keys(mapping).indexOf(mode) !== -1
-    if (!exists) console.warn(`Mode ${mode} is not supported and will be ignored!`)
-    return exists
-})
-
-if (args.length === 0) {
-    modes["default"]()
-} else {
-    if (args.length > 1) console.warn(`Only one mode is supported! ${args[0]} will be used.Others are ignored!`)
-    mapping[args[0]]()
+const options = {
+    mode: "both",
+    owner: false,
+    format: "custom",
+    inserts: false
 }
+
+args = args.forEach(element => {
+    let [key, value] = element.split("=")
+    if (key && value) {
+        key = key.replace("--", "")
+        options[key] = value
+    } else throw new Error(`Argument needs a value: ${element}`)
+});
+
+let additionalOptions = []
+
+let name = (options.mode === "data") ? "data" : (options.mode === "schema") ? "schema" : "both"
+let ext = (options.format === "custom") ? "dump" : "sql"
+
+if (!options.owner) {
+    additionalOptions.push("--no-owner")
+}
+
+if (options.mode === "schema")
+    additionalOptions.push("--schema-only")
+else if (options.mode === "data")
+    additionalOptions.push("--data-only")
+
+if (options.format === "custom") {
+    additionalOptions.push("--format=custom")
+}
+
+if (options.inserts) {
+    additionalOptions.push("--inserts")
+}
+
+
+dump(name, ext, additionalOptions.join(" "))
+
 

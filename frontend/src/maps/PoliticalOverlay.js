@@ -129,6 +129,7 @@ export default class PoliticalOverlay extends Overlay {
     let rulers = {}
 
     data.forEach(pm => {
+
       if (pm.mint && (pm => pm.caliph.length > 0 || pm.issuers.length > 0 || pm.overlords.length > 0)) {
 
         mintMap[pm.mint.id].data.personMints = pm
@@ -138,7 +139,6 @@ export default class PoliticalOverlay extends Overlay {
           })
       }
     })
-
 
     return {
       availableMints,
@@ -155,7 +155,11 @@ export default class PoliticalOverlay extends Overlay {
       mintMap[mint.id] = mint
       if (!mint.data) mint.data = {}
       mint.data.types = []
-      mint.data.personMints = []
+      mint.data.personMints = {
+        issuers: [],
+        overlords: [],
+        caliphs: []
+      }
       return mint
     })
     return { mints, mintMap }
@@ -189,9 +193,9 @@ export default class PoliticalOverlay extends Overlay {
     for (let mint of Object.values(data.mint)) {
       if (!availableMints[mint.id]) {
         unavailableMints.push(mint);
-
       }
     }
+
 
     return {
       mints,
@@ -214,8 +218,13 @@ export default class PoliticalOverlay extends Overlay {
       if (mint.location && mint.id) {
         try {
 
+          if (!mint?.data?.personMints?.caliphs)
+            console.log(mint)
+
+
           let types = mint?.data?.types || []
           let personMints = mint?.data?.personMints || []
+
 
           mint.location.data = {
             types,
@@ -337,12 +346,15 @@ export default class PoliticalOverlay extends Overlay {
   } = {}) {
     let layer;
     let innerRadius = this.settings.settings.maxRadius / 5
-    let spacing = this.settings.settings.maxRadius / 50
+    let spacing = this.settings.settings.maxRadius / 15
+    let stroke = this.settings.settings.maxRadius / 10
     if (selections.selectedMints.length === 0 || selections.selectedMints.indexOf(feature.data.mint.id) != -1) {
+
       layer = ringsFromPersonMint(latlng, feature, selections, {
         innerRadius,
         radius: this.settings.settings.maxRadius,
-        spacing
+        spacing,
+        stroke
       })
       this.createMintLocationMarker(latlng, feature, { size: innerRadius - spacing }).addTo(layer)
     } else
@@ -355,6 +367,8 @@ export default class PoliticalOverlay extends Overlay {
   createMarker(latlng, feature, {
     selections = {}
   } = {}) {
+
+    console.log(feature)
 
     let layer;
     if (this.mode === "year") {

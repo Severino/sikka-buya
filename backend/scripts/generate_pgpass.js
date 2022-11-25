@@ -9,7 +9,9 @@ const fs = require("fs").promises
 const util = require("util")
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const question = util.promisify(rl.question).bind(rl)
-const os = require("os")
+const os = require("os");
+
+let envFiles = ["../.env", "../../test/.env"]
 
 const fileExists = async function (file) {
     return new Promise((resolve) => {
@@ -20,38 +22,43 @@ const fileExists = async function (file) {
 }
 
 async function main() {
-    const envFile = path.join(__dirname, "..", ".env")
-    const result = await fileExists(envFile)
-    let confirm = await question(`This script will expose the database data stored in the envFile (${envFile}) and store it in a .pgpass file in the user's home directory.\nAre you sure you want to continue? [y/n]`)
+    let confirm = await question(`This script will expose the database data stored in the envFiles (${envFiles.join(", ")}) and store it in a .pgpass file in the user's home directory.\nAre you sure you want to continue? [y/n]`)
+    envFiles = envFiles.map(file => path.join(__dirname, file))
 
-    // confirm = confirm.toLowerCase()
-    if (!(confirm === "y" || confirm === "yes")) {
-        throw new Error(`User aborted the operation.`)
-    }
-    if (!result) throw new Error(`Make sure to setup an .env file at ${envFile}`)
+    let pg_pass_lines = []
+    for (let envFile of envFiles) {
+        const result = await fileExists(envFile)
 
-    const fileText = await fs.readFile(envFile, { encoding: "utf-8" })
-    const lines = fileText.split(os.EOL)
-    const config = {
-        DB_USER: null,
-        DB_HOST: null,
-        DB_NAME: null,
-        DB_PASSWORD: null,
-        DB_PORT: null,
-    }
-
-    lines.forEach(line => {
-        parts = line.split("=")
-        if (parts.length >= 2) {
-            const name = parts[0].trim()
-            const val = parts[1].trim()
-            if (config[name] !== undefined) {
-                config[name] = val
-            }
+        // confirm = confirm.toLowerCase()
+        if (!(confirm === "y" || confirm === "yes")) {
+            throw new Error(`User aborted the operation.`)
         }
-    })
+        if (!result) throw new Error(`Make sure to setup an .env file at ${envFile}`)
 
-    const pgpass = [config.DB_HOST, config.DB_PORT, config.DB_NAME, config.DB_USER, config.DB_PASSWORD].join(":")
+        const fileText = await fs.readFile(envFile, { encoding: "utf-8" })
+        const lines = fileText.split(os.EOL)
+        const config = {
+            DB_USER: null,
+            DB_HOST: null,
+            DB_NAME: null,
+            DB_PASSWORD: null,
+            DB_PORT: null,
+        }
+
+        lines.forEach(line => {
+            parts = line.split("=")
+            if (parts.length >= 2) {
+                const name = parts[0].trim()
+                const val = parts[1].trim()
+                if (config[name] !== undefined) {
+                    config[name] = val
+                }
+            }
+        })
+
+        pg_pass_lines.push([config.DB_HOST, config.DB_PORT, config.DB_NAME, config.DB_USER, config.DB_PASSWORD].join(":"))
+    }
+
 
     let pgPassPath = null
     switch (os.platform()) {
@@ -64,7 +71,7 @@ async function main() {
             throw new Error(`You are on a unsupported platform!`)
     }
 
-    await fs.writeFile(pgPassPath, pgpass)
+    await fs.writeFile(pgPassPath, pg_pass_lines.join(os.EOL))
     console.log(`Successfully wrote the pgpass file to '${pgPassPath}'.`)
 }
 

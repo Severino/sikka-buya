@@ -37,8 +37,9 @@ export default class Query {
         return this.raw(string, variables)
     }
 
-    static async raw(query, variables = {}, debugging =) {
-        // console.log(query, JSON.stringify(variables))
+    static async raw(query, variables = {}, debug = false) {
+        if (debug)
+            console.log(query, JSON.stringify(variables))
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')

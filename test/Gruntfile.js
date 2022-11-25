@@ -13,7 +13,9 @@ module.exports = function (grunt) {
         mochaTest: {
             options: {
                 noFail: true,
-                showDiff: true
+                showDiff: true,
+                truncateThreshold: 0,
+                captureFile: "api-test-log.txt"
             },
             test: {
                 src: ["./tests/**/*.js"]

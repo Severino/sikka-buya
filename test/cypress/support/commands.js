@@ -30,8 +30,6 @@ Cypress.Commands.add('login', (email, password) => {
         }
     }).then(response => {
 
-        console.log(response)
-
         let { user, token } = response?.body?.data?.login
 
         if (!token) throw new Error("Could not login!")

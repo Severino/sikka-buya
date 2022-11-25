@@ -56,7 +56,6 @@ class Mint {
     }
 
     static async search(text) {
-        console.log(text)
         if (text == '' || text) {
             let p = await Database.manyOrNone(`
         SELECT 

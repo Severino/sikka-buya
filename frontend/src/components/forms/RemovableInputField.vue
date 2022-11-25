@@ -2,7 +2,7 @@
   <div class="removable-input">
     <input type="text" :value="value" @input="input" />
     <div class="button remove-button">
-      <Close @click="remove" />
+      <Close @click="remove" :size="16" />
     </div>
   </div>
 </template>

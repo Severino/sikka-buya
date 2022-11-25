@@ -9,7 +9,7 @@
       :class="removing ? 'removing' : ''"
       @click="triggerRemove"
     >
-      <Minus size="16" />
+      <Minus :size="16" />
     </button>
   </div>
 </template>

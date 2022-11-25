@@ -23,28 +23,30 @@ describe("Testing Coin Verse", function () {
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/coin_verse")
         })
-        cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-        cy.get(".list-item").contains("drei Punkte (∴)")
     })
 
     it("List is showing", function () {
         cy.visit('/editor/coin_verse')
-        cy.get(".list").children().should("have.length", 2)
+        cy.get(".list").children().should("have.length", 3)
     })
 
     it("List item is visible", function () {
         cy.visit('/editor/coin_verse')
-        cy.get(".list-item").contains("drei Punkte (∴)").should("be.visible")
+        cy.get(".list-item").contains('Koran 9:33').should("be.visible")
+        cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+        cy.get(".list-item").contains('Koran 30:4‒5').should("be.visible")
     })
 
     it("Can filter", function () {
         cy.visit('/editor/coin_verse')
-        cy.get("input[type=search]").type("(∴")
-        cy.get(".list-item").contains("drei Punkte (∴)")
-        cy.get(".list").children().should("have.length", 1)
+        cy.get("input[type=search]").type("ko")
+        cy.get(".list").children().should("have.length", 2)
+        cy.get(".list-item").contains('Koran 9:33').should("be.visible")
+        cy.get(".list-item").contains('Koran 30:4‒5').should("be.visible")
+
     })
 
-    describe("Create Coin mark", function () {
+    describe("Create Coin verse", function () {
 
         it("Can reach create page", function () {
             cy.visit("/editor/coin_verse")
@@ -52,46 +54,51 @@ describe("Testing Coin Verse", function () {
             cy.location("pathname").should((pathname) => {
                 expect(pathname).to.eq("/editor/coin_verse/create")
             })
-            cy.get("#coin-mark-name").should("have.value", "")
+            cy.get("#coin-verse-name").should("have.value", "")
         })
 
 
         it("Can cancel create", function () {
             cy.visit("/editor/coin_verse/create")
-            cy.get("#coin-mark-name").type("xxxxx")
+            cy.get("#coin-verse-name").type("xxxxx")
             cy.get("#cancel-button").click()
             cy.location("pathname").should((pathname) => {
                 expect(pathname).to.eq("/editor/coin_verse")
             })
-            cy.get(".list-item").contains("drei Punkte (∴)")
-            cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-            cy.get(".list-item").children().should("have.length", 2)
+
+            cy.get(".list-item").children().should("have.length", 3)
+            cy.get(".list-item").contains('Koran 9:33').should("be.visible")
+            cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+            cy.get(".list-item").contains('Koran 30:4‒5').should("be.visible")
         })
 
         it("Can create new", function () {
             cy.visit("/editor/coin_verse/create")
-            cy.get("#coin-mark-name").type("mīm+dāl")
+            cy.get("#coin-verse-name").type("Koran 22:1-9")
             cy.get("#submit-button").click()
             cy.location("pathname").should((pathname) => {
                 expect(pathname).to.eq("/editor/coin_verse")
             })
-            cy.get(".list-item").contains("drei Punkte (∴)")
-            cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-            cy.get(".list-item").contains("mīm+dāl")
-            cy.get(".list-item").children().should("have.length", 3)
+
+            cy.get(".list-item").children().should("have.length", 4)
+            cy.get(".list-item").contains('Koran 9:33').should("be.visible")
+            cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+            cy.get(".list-item").contains('Koran 30:4‒5').should("be.visible")
+            cy.get(".list-item").contains('Koran 22:1-9').should("be.visible")
+
         })
 
     })
 
-    describe("Edit Coin mark", function () {
+    describe("Edit Coin verse", function () {
 
         it("Access edit page", function () {
             cy.visit('/editor/coin_verse')
-            cy.get(".list-item").contains("mīm+dāl").click()
+            cy.get(".list-item").contains("Koran 9:33").click()
             cy.location("pathname").should((pathname) => {
-                expect(pathname).to.eq("/editor/coin_verse/3")
+                expect(pathname).to.eq("/editor/coin_verse/1")
             })
-            cy.get("#coin-mark-name").should("have.value", "mīm+dāl")
+            cy.get("#coin-verse-name").should("have.value", "Koran 9:33")
         })
 
         it("Cannot edit with wrong id", function () {
@@ -102,63 +109,69 @@ describe("Testing Coin Verse", function () {
 
 
         it("Correct id set for update", function () {
-            cy.visit('/editor/coin_verse/3')
-            cy.get("#coin-mark-id").should("have.value", 3)
+            cy.visit('/editor/coin_verse/1')
+            cy.get("#coin-verse-id").should("have.value", 1)
         })
 
 
         it("Can cancel update", function () {
-            cy.visit('/editor/coin_verse/3')
-            cy.get("#coin-mark-name").clear().type("xxxxxxxx")
+            cy.visit('/editor/coin_verse/1')
+            cy.get("#coin-verse-name").clear().type("xxxxxxxx")
             cy.get("#cancel-button").click()
-            cy.get(".list-item").contains("drei Punkte (∴)")
-            cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-            cy.get(".list-item").contains("mīm+dāl")
-            cy.get(".list-item").children().should("have.length", 3)
+
+            cy.get(".list-item").children().should("have.length", 4)
+            cy.get(".list-item").contains('Koran 9:33').should("be.visible")
+            cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+            cy.get(".list-item").contains('Koran 30:4‒5').should("be.visible")
+            cy.get(".list-item").contains('Koran 22:1-9').should("be.visible")
         })
 
         it("Can update", function () {
-            cy.visit('/editor/coin_verse/3')
-            cy.get("#coin-mark-name").clear().type("ḫamsa")
+            cy.visit('/editor/coin_verse/1')
+            cy.get("#coin-verse-name").clear().type("Koran 9:40")
             cy.get("#submit-button").click()
-            cy.get(".list-item").contains("drei Punkte (∴)")
-            cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-            cy.get(".list-item").contains("ḫamsa")
-            cy.get(".list").children().should("have.length", 3)
+
+            cy.get(".list-item").children().should("have.length", 4)
+            cy.get(".list-item").contains('Koran 9:40').should("be.visible")
+            cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+            cy.get(".list-item").contains('Koran 30:4‒5').should("be.visible")
+            cy.get(".list-item").contains('Koran 22:1-9').should("be.visible")
         })
 
     })
 
 
     describe("List Order", function () {
-
         it("List is in alphabetical order", function () {
             cy.visit("/editor/coin_verse")
-            cy.get('.list-item .cell')
+            cy.get('.list-item .list-item-cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
                     return arr
                 })
-                .should('deep.eq', ["bāʾ/tāʾ/ṯāʾ", "drei Punkte (∴)", "ḫamsa"])
+                .should('deep.eq', ['Koran 22:1-9', 'Koran 30:4‒5', 'Koran 9:40', 'محمد رسول الله',])
         })
     })
 
-    describe("Delete Coin mark", function () {
+    describe("Delete Coin verse", function () {
 
         it("Delete", function () {
             cy.visit("/editor/coin_verse")
-            cy.triggerDeleteButton(".list-item:nth-child(3) .dynamic-delete-button")
-            cy.get(".list-item").contains("drei Punkte (∴)")
-            cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-            cy.get(".list-item").contains("ḫamsa").should("not.exist")
-
+            cy.triggerDeleteButton(".list-item:nth-child(2) .dynamic-delete-button")
+            cy.get(".list-item").children().should("have.length", 3)
+            cy.get(".list-item").contains('Koran 9:40').should("be.visible")
+            cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+            cy.get(".list-item").contains('Koran 22:1-9').should("be.visible")
+            cy.get(".list-item").contains('Koran 30:4‒5').should("not.exist")
         })
 
         it("Still Deleted On Reload", function () {
             cy.visit("/editor/coin_verse")
-            cy.get(".list-item").contains("drei Punkte (∴)")
-            cy.get(".list-item").contains("bāʾ/tāʾ/ṯāʾ")
-            cy.get(".list-item").contains("ḫamsa").should("not.exist")
+            cy.get(".list-item").children().should("have.length", 3)
+            cy.get(".list-item").contains('Koran 9:40').should("be.visible")
+            cy.get(".list-item").contains('محمد رسول الله').should("be.visible")
+            cy.get(".list-item").contains('Koran 22:1-9').should("be.visible")
+            cy.get(".list-item").contains('Koran 30:4‒5').should("not.exist")
         })
     })
 })

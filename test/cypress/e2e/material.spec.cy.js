@@ -118,7 +118,7 @@ describe("Testing Materials", function () {
             cy.get("button").contains("senden").click()
             cy.get(".list-item").contains("Gold")
             cy.get(".list-item").contains("Silber")
-            cy.get(".list-item").contains("Blassgold").parent(".list-item").find(".color-indicator").should("have.css", "background-color", "rgb(0, 204, 255)")
+            cy.get(".list-item").contains("Blassgold").parents(".list-item-row").find(".color-indicator").should("have.css", "background-color", "rgb(0, 204, 255)")
             cy.get(".list").children().should("have.length", 3)
         })
 
@@ -127,7 +127,7 @@ describe("Testing Materials", function () {
     describe("List Order", function () {
         it("List is in alphabetical order", function () {
             cy.visit("/editor/material")
-            cy.get('.list-item .cell')
+            cy.get('.list-item .list-item-cell')
                 .then($items => {
                     const arr = $items.map((_, html) => Cypress.$(html).text()).get()
                     return arr

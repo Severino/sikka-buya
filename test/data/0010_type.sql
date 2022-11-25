@@ -3,9 +3,11 @@ INSERT INTO
         project_id,
         treadwell_id,
         material,
+        purity,
         mint,
         mint_as_on_coin,
         nominal,
+        small,
         procedure,
         year_of_mint,
         donativ,
@@ -33,11 +35,13 @@ VALUES
         'GD89',
         1,
         /*Gold*/
+        700,
         1,
         /*Berlin*/
         'Börlin',
         2,
         /*1 Mark*/
+        true,
         'pressed',
         1989,
         true,
@@ -65,11 +69,13 @@ VALUES
         'FR1789',
         4,
         /*Silber*/
+        null,
         2,
         /*Paris*/
         'Paris',
         3,
         /*1 Taler*/
+        false,
         'cast',
         1789,
         true,
