@@ -130,17 +130,20 @@ export default class PoliticalOverlay extends Overlay {
 
     data.forEach(pm => {
 
-      if (!mintMap[pm.mint.id]) {
-        console.error("Excluded mint from person mints: ", pm.mint)
-      }
+      if (pm.mint && pm.mint.id) {
 
-      if (pm.mint && mintMap[pm.mint.id] && (pm => pm.caliph.length > 0 || pm.issuers.length > 0 || pm.overlords.length > 0)) {
+        if (!mintMap[pm.mint.id]) {
+          console.warn("Excluded mint from person mints: ", pm.mint)
+        } else if (pm.mint && (pm => pm.caliph.length > 0 || pm.issuers.length > 0 || pm.overlords.length > 0)) {
 
-        mintMap[pm.mint.id].data.personMints = pm
-        availableMints[pm.mint.id] = mintMap[pm.mint.id]
-          ;[...pm.caliphs, ...pm.issuers, ...pm.overlords].forEach(person => {
-            rulers[person.id] = person
-          })
+          mintMap[pm.mint.id].data.personMints = pm
+          availableMints[pm.mint.id] = mintMap[pm.mint.id]
+            ;[...pm.caliphs, ...pm.issuers, ...pm.overlords].forEach(person => {
+              rulers[person.id] = person
+            })
+        }
+      } else {
+        console.warn("Excluded attribute 'personMint' for not having a valid mint object: ", pm)
       }
     })
 
@@ -371,8 +374,6 @@ export default class PoliticalOverlay extends Overlay {
   createMarker(latlng, feature, {
     selections = {}
   } = {}) {
-
-    console.log(feature)
 
     let layer;
     if (this.mode === "year") {

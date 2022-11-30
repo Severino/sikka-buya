@@ -408,11 +408,10 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                 ORDER BY short_name
                 ) as caliphObject ON caliphObject.id = type.caliph
 
-            WHERE exclude_from_map_app = false
+            WHERE exclude_from_map_app = false AND type.mint IS NOT NULL
             GROUP BY type.mint, mint.*
             ;
             `)
-
 
         return results
     },
