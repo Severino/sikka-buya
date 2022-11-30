@@ -130,7 +130,11 @@ export default class PoliticalOverlay extends Overlay {
 
     data.forEach(pm => {
 
-      if (pm.mint && (pm => pm.caliph.length > 0 || pm.issuers.length > 0 || pm.overlords.length > 0)) {
+      if (!mintMap[pm.mint.id]) {
+        console.error("Excluded mint from person mints: ", pm.mint)
+      }
+
+      if (pm.mint && mintMap[pm.mint.id] && (pm => pm.caliph.length > 0 || pm.issuers.length > 0 || pm.overlords.length > 0)) {
 
         mintMap[pm.mint.id].data.personMints = pm
         availableMints[pm.mint.id] = mintMap[pm.mint.id]
