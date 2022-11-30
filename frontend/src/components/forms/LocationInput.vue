@@ -12,7 +12,7 @@
         <label for="input">{{ type.toUpperCase() }}</label>
         <input
           ref="input"
-          id="input"
+          class="location-input-field"
           type="text"
           :value="coordinateString"
           @input="resetInputText()"
@@ -20,12 +20,22 @@
         <Button class="ghost-btn" @click="pasteEvt"><ContentPaste /></Button>
       </div>
 
-      <button type="button" @click.prevent.stop="clearData()">
+      <button
+        type="button"
+        class="delete-btn"
+        @click.prevent.stop="clearData()"
+      >
         <Close />
       </button>
     </div>
     <div class="map">
-      <map-view ref="map" height="500px" tabindex="0" />
+      <map-view
+        ref="map"
+        height="500px"
+        :location="[29.99300228455108, 50.96557617187501]"
+        :zoom="5"
+        tabindex="0"
+      />
       <div class="legend">
         <ul>
           <li><b>STRG + Linksklick:</b> Punkt setzen</li>
@@ -54,10 +64,6 @@ export default {
   props: {
     type: String,
     radius: Number,
-    circleZoomFactor: {
-      type: Number,
-      default: 100,
-    },
     coordinates: {
       type: Array,
     },
@@ -88,15 +94,20 @@ export default {
    * Therefore we may access the mounted map here.
    */
   mounted: function () {
-    this.$refs.input.addEventListener('paste', async (evt) => {
-      let paste = (evt.clipboardData || window.clipboardData).getData('text');
-      this.paste(paste);
-    });
+    console.log(this.$refs);
+    this.$refs.input.addEventListener('paste', this.pasteEvtListener);
 
     this.enableMap();
     this.updateMarker();
   },
+  unmounted: function () {
+    this.$refs.input.removeEventListener('paste', this.pasteEvtListener);
+  },
   methods: {
+    async pasteEvtListener(evt) {
+      let paste = (evt.clipboardData || window.clipboardData).getData('text');
+      this.paste(paste);
+    },
     pasteEvt: async function () {
       this.$refs.input.focus();
       let text = await navigator.clipboard.readText();
@@ -401,6 +412,18 @@ export default {
         }
       }
     },
+    createStringArray(arr) {
+      const values = [];
+      let str = '[';
+      arr.forEach((val, idx) => {
+        values.push(val.toFixed(2));
+      });
+      str += values.join(', ');
+      return str + ']';
+    },
+    sizeChanged() {
+      this.$refs.map.map.invalidateSize();
+    },
   },
   computed: {
     isPolygon: function () {
@@ -434,16 +457,17 @@ export default {
     },
     polygonString: function () {
       if (this.coordinates == null) return '';
-      return this.coordinates.reduce((acc, value) => {
-        return `${acc} [${value[0].toFixed(2)}, ${value[1].toFixed(2)}]`;
-      }, '');
+      return JSON.stringify(this.coordinates, (key, arr) => {
+        const childArrays = [];
+        arr.forEach((coordinates, pos) => {
+          childArrays.push(this.createStringArray(coordinates));
+        });
+        return `[${childArrays.join(', ')}]`;
+      }).slice(1, -1); // The slice returns the " at start and end of string
     },
     pointString: function () {
       if (this.coordinates == null || this.coordinates.length < 2) return '';
-      else
-        return `[${this.coordinates[0].toFixed(
-          2
-        )}, ${this.coordinates[1].toFixed(2)}]`;
+      else return this.createStringArray(this.coordinates);
     },
   },
 };

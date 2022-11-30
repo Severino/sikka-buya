@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 57 57" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <style>
+    <!-- Here we adjust the color when the browser is in dark-mode -->
+		#inner-circle {
+			fill: rgb(47,47,47);
+		}
+		@media ( prefers-color-scheme: dark ) {
+			#inner-circle {
+				fill: #fafafa;
+			}
+		}
+	</style>
+    <g transform="matrix(1,0,0,1,0,-71)">
+        <g id="sikka-buya-icon-only" transform="matrix(1,0,0,1,-0.0916848,-0.355432)">
+            <rect x="0.092" y="71.355" width="56.394" height="56.394" style="fill:none;"/>
+            <clipPath id="_clip1">
+                <rect x="0.092" y="71.355" width="56.394" height="56.394"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <g>
+                    <g transform="matrix(0.197609,0,0,0.19761,-530.618,-48.6751)">
+                        <circle id="inner-circle" cx="2828.34" cy="750.1" r="28.121" />
+                    </g>
+                    <g id="Conc-Circ-Reg" transform="matrix(1.18181,0,0,1.88046,-554.735,-76.3684)">
+                        <g transform="matrix(0.848319,0,0,0.533143,-1905.93,-306.361)">
+                            <path d="M2828.34,721.979C2843.87,721.979 2856.47,734.58 2856.47,750.1C2856.47,765.621 2843.87,778.222 2828.34,778.222C2812.82,778.222 2800.22,765.621 2800.22,750.1C2800.22,734.58 2812.82,721.979 2828.34,721.979ZM2828.34,727.603C2840.76,727.603 2850.84,737.684 2850.84,750.1C2850.84,762.517 2840.76,772.597 2828.34,772.597C2815.93,772.597 2805.85,762.517 2805.85,750.1C2805.85,737.684 2815.93,727.603 2828.34,727.603Z" style="fill:rgb(50,120,50);"/>
+                        </g>
+                        <g transform="matrix(0.507764,0,0,0.319114,-942.722,-145.818)" >
+                            <path d="M2828.34,721.979C2843.87,721.979 2856.47,734.58 2856.47,750.1C2856.47,765.621 2843.87,778.222 2828.34,778.222C2812.82,778.222 2800.22,765.621 2800.22,750.1C2800.22,734.58 2812.82,721.979 2828.34,721.979ZM2828.34,731.394C2838.67,731.394 2847.05,739.776 2847.05,750.1C2847.05,760.424 2838.67,768.806 2828.34,768.806C2818.02,768.806 2809.64,760.424 2809.64,750.1C2809.64,739.776 2818.02,731.394 2828.34,731.394Z" style="fill:rgb(72,172,72);"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

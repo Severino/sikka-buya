@@ -1,7 +1,6 @@
 require('dotenv').config()
-const start = require('../backend/express')
-const applyDummyData = require('./tasks/applyDummyData')
-const setupDatabase = require('./tasks/testDatabase')
+const runBackendServer = require('./scripts/run_backend_server');
+const { setupTestDatabase } = require('./tasks/setup')
 
 module.exports = function (grunt) {
 
@@ -14,7 +13,9 @@ module.exports = function (grunt) {
         mochaTest: {
             options: {
                 noFail: true,
-                showDiff: true
+                showDiff: true,
+                truncateThreshold: 0,
+                captureFile: "api-test-log.txt"
             },
             test: {
                 src: ["./tests/**/*.js"]
@@ -32,14 +33,24 @@ module.exports = function (grunt) {
     })
 
     grunt.registerTask('test', [
-        'setup-test'
+        'setup-and-test'
     ])
 
-    grunt.registerTask('setup-test', [
+    grunt.registerTask('setup', [
         // Creates a test database as defined in .env
         'setup-test-database',
         // The backend server must run to handle GraphQL requests
         'run-backend-server',
+    ])
+
+    grunt.registerTask('setup-and-keepalive', [
+        'setup',
+        //// You may want to keep the server alive after the tests, to run some manual queries on the test database.
+        'keepalive'
+    ])
+
+    grunt.registerTask('setup-and-test', [
+        'setup',
         // Run all mocha tests.
         'run-mocha',
         //// You may want to keep the server alive after the tests, to run some manual queries on the test database.
@@ -52,10 +63,9 @@ module.exports = function (grunt) {
 
     grunt.registerTask('setup-test-database', function () {
         let done = this.async()
-        setupDatabase().then(db => {
-            applyDummyData(db).then(done)
-        })
+        setupTestDatabase().then(done)
     })
+
 
     grunt.registerTask('backend', [
         'run-backend-server',
@@ -69,16 +79,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('run-backend-server', function () {
         let done = this.async()
-        start({
-            dbUser: process.env.user,
-            dbPassword: process.env.password,
-            dbPort: process.env.port,
-            dbHost: process.env.host,
-            dbName: process.env.database,
-            expressPort: 4000,
-            jwtSecret: "totally_save_test_secret",
-            testEnvironment: true
-        }).then(done)
+        runBackendServer().then(done)
     })
 
     /** 

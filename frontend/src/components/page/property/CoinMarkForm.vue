@@ -8,9 +8,11 @@
       property="coinmark"
       overwriteRoute="CoinMarkOverview"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="value.id" type="hidden" />
+      <input id="coin-mark-id" v-model="value.id" type="hidden" />
       <input
+        id="coin-mark-name"
         type="text"
         v-model="value.name"
         :placeholder="$tc('attribute.name')"
@@ -42,6 +44,7 @@ export default {
         .then((result) => {
           const data = result.data.data.getCoinMark;
           this.value = data;
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -51,6 +54,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -59,16 +63,11 @@ export default {
       let query;
       if (this.value.id && this.value.id >= 0) {
         query = `mutation{
-        updateCoinMark(data:{
-          id: ${this.value.id}
-          name: "${this.value.name}"
-        })
+        updateCoinMark(id: ${this.value.id}, name: "${this.value.name}")
         }`;
       } else {
         query = `mutation{
-        addCoinMark(data:{
-          name: "${this.value.name}"
-        })
+        addCoinMark(name: "${this.value.name}")
         }`;
       }
 
@@ -92,6 +91,7 @@ export default {
       error: '',
       loading: true,
       value: { id: -1, name: '' },
+      disabled: true,
     };
   },
 };

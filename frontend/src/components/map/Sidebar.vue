@@ -1,16 +1,23 @@
 <template>
   <div class="side-bar" :class="getSideClass">
-    <header>
+    <header class="title underlined-header">
       <h3>{{ title }}</h3>
+      <div class="tools">
+        <slot name="tools" />
+      </div>
     </header>
     <div class="body">
-      <slot />
+      <scroll-view ref="scrollview">
+        <slot />
+      </scroll-view>
     </div>
   </div>
 </template>
 
 <script>
+import ScrollView from '../layout/ScrollView.vue';
 export default {
+  components: { ScrollView },
   props: {
     title: String,
     side: {
@@ -18,13 +25,14 @@ export default {
       default: 'left',
     },
   },
+  methods: {
+    recalculate() {
+      this.$refs.scrollview.recalculate();
+    },
+  },
   computed: {
     getSideClass: function () {
-      if (this.side == 'left') {
-        return 'side-bar-left';
-      } else {
-        return 'side-bar-right';
-      }
+      return this.side == 'left' ? 'side-bar-left' : 'side-bar-right';
     },
   },
 };
@@ -34,27 +42,26 @@ export default {
 .side-bar {
   box-sizing: border-box;
   background-color: rgba($color: $white, $alpha: 0.8);
-  padding: 20px;
+
   top: 0px;
   height: 100%;
-  overflow-y: auto;
+  backdrop-filter: blur(3px);
+  -moz-backdrop-filter: blur(3px);
 
-  // min-width: 200px;
-  // width: 20vw;
-  // max-width: 400px;
+  display: flex;
+  flex-direction: column;
+
+  // > * {
+  //   padding: math.div($padding, 2) $padding;
+  // }
+
+  .body {
+    flex-grow: 1;
+    overflow: auto;
+  }
 }
 
-header {
-  border-bottom: 1px solid $black;
-  margin-top: -20px;
-  margin-left: -20px;
-  margin-right: -20px;
-  margin-bottom: 20px;
-  padding: 0 20px;
-  padding-top: 10px;
-  h3 {
-    // color: $white;
-    margin-top: 10px;
-  }
+.title h3 {
+  margin-top: 0;
 }
 </style>

@@ -8,6 +8,10 @@
 
 <script>
 var L = require('leaflet');
+require('leaflet.pattern');
+
+import Simplebar from 'simplebar';
+
 import('/node_modules/leaflet/dist/leaflet.css');
 
 import LeafletSmoothZoom from '../../vendor/leafletsmoothzoom';
@@ -17,12 +21,25 @@ export default {
   name: 'MapView',
   props: {
     height: String,
+    location: {
+      type: Array,
+      required: true,
+    },
+    zoom: {
+      type: Number,
+      required: true,
+    },
   },
   data: function () {
     return {
       map: null,
       ready: false,
     };
+  },
+  computed: {
+    L() {
+      return L;
+    },
   },
   mounted: function () {
     const minBoundingPoint = L.latLng(10, 10);
@@ -65,6 +82,9 @@ export default {
     });
     // Initialize the map
     var map = L.map('map_' + this._uid, {
+      center: this.location,
+      zoom: this.zoom,
+      minZoom: 3,
       maxBounds: mapBoundaries,
       zoomControl: false,
       scrollWheelZoom: false, // disable original zoom function
@@ -72,8 +92,28 @@ export default {
       smoothSensitivity: 1, // zoom speed. default is 1
     });
 
-    // Set the position and zoom level of the map
-    map.setView([33.284619968887675, 49.921875], 5);
+    window.map = map;
+
+    map.on('popupopen', function (e) {
+      const _container = e.popup._container;
+      const target = _container.querySelector('[make-simplebar]');
+
+      if (!target) {
+        console.warn(`No simplebar wrapper was found on the popup`);
+      } else {
+        const targetHTML = target.innerHTML;
+        target.innerHTML = '';
+
+        let wrapper = document.createElement('div');
+        wrapper.innerHTML = targetHTML;
+        wrapper.style.overflow = 'visible';
+        wrapper.classList.add(...target.className.split(' '));
+
+        const simplebar = new Simplebar(target, { autoHide: false });
+        const content = simplebar.getContentElement();
+        content.appendChild(wrapper);
+      }
+    });
 
     if (this.height) {
       this.$refs.map.style.height = this.height;
@@ -88,6 +128,8 @@ export default {
           'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       }
     ).addTo(map);
+
+    map.attributionControl.setPrefix('Build with Leaflet');
 
     this.$data.map = map;
     this.ready = true;

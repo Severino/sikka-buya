@@ -3,12 +3,7 @@
     <div class="content-wrapper">
       <div class="brand">
         <router-link :to="{ name: 'Home' }">
-          <img
-            v-if="minimized"
-            src="@/assets/images/sikka-buya-no-logo.png"
-            alt=""
-          />
-          <img v-else src="@/assets/images/sikka-buya.png" alt="" />
+          <img src="/img/logos/sikka-buya-logo.svg" alt="" />
         </router-link>
       </div>
       <div class="nav-menu" :class="{ active: active }">
@@ -18,7 +13,7 @@
               v-for="(item, index) in visibleItems"
               :key="`nav-item-${index}`"
             >
-              <router-link :to="item.target">{{ item.name }}</router-link>
+              <router-link :to="item.target">{{ $t(item.name) }}</router-link>
             </li>
           </ul>
         </nav>
@@ -27,11 +22,13 @@
           <div class="languages">DE</div>
         </div>
 
-        <div v-if="loggedIn" class="user">
+        <div v-if="loggedIn" class="user" id="user-toolbar">
           <router-link :to="{ name: 'Editor' }">
-            <AccountCircle />
+            <AccountShield :size="18" />
           </router-link>
-          <div @click="logout">{{ $t('system.logout') }}</div>
+          <div id="nav-logout-button" @click="logout">
+            {{ $t('system.logout') }}
+          </div>
         </div>
         <div class="nav-toggle" @click="toggleMenu()">
           <Close v-if="active" />
@@ -43,7 +40,7 @@
 </template>
 
 <script>
-import AccountCircle from 'vue-material-design-icons/AccountCircle';
+import AccountShield from 'vue-material-design-icons/ShieldAccount';
 
 import Menu from 'vue-material-design-icons/Menu';
 import Close from 'vue-material-design-icons/Close';
@@ -53,7 +50,7 @@ import Auth from '../utils/Auth';
 export default {
   name: 'Navigation',
   components: {
-    AccountCircle,
+    AccountShield,
     Menu,
     Close,
   },
@@ -63,9 +60,9 @@ export default {
       minimized: false,
       items: [
         // { name: "Home", target: "undefined" },
-        { name: 'Karte', target: { name: 'MapPage' }, auth: true },
-        { name: 'Typekatalog', target: { name: 'Catalog' }, auth: true },
-        { name: 'Analytics', target: { name: 'Analytics' }, auth: true },
+        { name: 'routes.Map', target: { name: 'Map Landing' }, auth: true },
+        { name: 'routes.Catalog', target: { name: 'Catalog' }, auth: true },
+        { name: 'routes.Analytics', target: { name: 'Analytics' }, auth: true },
       ],
     };
   },
@@ -108,6 +105,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+#nav-logout-button {
+  text-transform: capitalize;
+}
+
 header {
   // position: sticky;
   background-color: $white;
@@ -131,6 +132,11 @@ header {
     img {
       margin-top: 5px;
       height: 30px;
+    }
+
+    .content-wrapper {
+      width: auto;
+      justify-content: space-between;
     }
 
     .content-wrapper > * {
@@ -190,11 +196,17 @@ ul {
   a {
     padding: 0;
   }
+  img {
+    height: 32px;
+  }
 }
 
 a {
+  color: $black;
+  font-weight: normal;
+
   padding: $padding;
-  text-transform: uppercase;
+  // text-transform: uppercase;
   display: block;
 
   @include media_phone {
@@ -227,7 +239,7 @@ a {
       background-color: lighten($primary-color, 10);
     }
 
-    padding: $padding/2 $padding;
+    padding: math.div($padding, 2) $padding;
     @include interactive();
   }
 

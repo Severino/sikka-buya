@@ -2,25 +2,28 @@
   <div class="coin-side-field">
     <Heading v-if="title">{{ title }}</Heading>
     <LabeledInputContainer :label="prefix + $tc('property.field_text')">
-      <SimpleFormattedField ref="fieldTextField" />
+      <SimpleFormattedField class="field-text" ref="fieldTextField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.inner_inscript')">
-      <SimpleFormattedField ref="innerInscriptField" />
+      <SimpleFormattedField class="inner-inscript" ref="innerInscriptField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer
       :label="prefix + $t('property.intermediate_inscript')"
     >
-      <SimpleFormattedField ref="intermediateInscriptField" />
+      <SimpleFormattedField
+        class="intermediate-inscript"
+        ref="intermediateInscriptField"
+      />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.outer_inscript')">
-      <SimpleFormattedField ref="outerInscriptField" />
+      <SimpleFormattedField class="outer-inscript" ref="outerInscriptField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.misc')">
-      <SimpleFormattedField ref="miscField" />
+      <SimpleFormattedField class="misc" ref="miscField" />
     </LabeledInputContainer>
   </div>
 </template>
@@ -34,17 +37,17 @@ import SimpleFormattedField from '../SimpleFormattedField.vue';
 export default {
   components: { LabeledInputContainer, Heading, SimpleFormattedField },
   name: 'CoinSideField',
-  data: function() {
+  data: function () {
     return {};
   },
   props: {
     title: {
-      type: String
+      type: String,
     },
     prefix: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   methods: {
     setFieldContent({
@@ -52,7 +55,7 @@ export default {
       innerInscript = '',
       intermediateInscript = '',
       outerInscript = '',
-      misc = ''
+      misc = '',
     } = {}) {
       function centerWhenEmpty(text) {
         return text || "<div style='text-align: center;'><br></div>";
@@ -72,12 +75,26 @@ export default {
         innerInscript: this.$refs.innerInscriptField.getContent(),
         intermediateInscript: this.$refs.intermediateInscriptField.getContent(),
         outerInscript: this.$refs.outerInscriptField.getContent(),
-        misc: this.$refs.miscField.getContent()
+        misc: this.$refs.miscField.getContent(),
       };
-    }
-  }
+    },
+  },
 };
 </script>
+
+<style lang="scss">
+.coin-side-field {
+  > * {
+    margin-bottom: math.div($padding, 2);
+  }
+
+  header {
+    > * {
+      margin: auto;
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 label {

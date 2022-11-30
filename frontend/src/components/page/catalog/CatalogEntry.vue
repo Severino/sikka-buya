@@ -1,20 +1,26 @@
 <template>
   <div class="catalog-entry">
-    <type-view :type="type" />
+    <type-view v-if="!loading" :type="type" />
+    <div class="center-frame" v-else>
+      <loading-spinner :size="100" />
+    </div>
   </div>
 </template>
 
 <script>
 import Query from '../../../database/query';
+import LoadingSpinner from '../../misc/LoadingSpinner.vue';
 import TypeView from '../TypeView.vue';
 
 export default {
   components: {
     TypeView,
+    LoadingSpinner,
   },
   name: 'CatalogEntry',
   data: function () {
     return {
+      loading: true,
       type: {
         id: null,
         projectId: '',
@@ -45,7 +51,6 @@ export default {
           misc: '',
         },
         cursiveScript: false,
-        coinMarks: [],
         pieces: [],
         specials: '',
       },
@@ -67,7 +72,8 @@ export default {
                 treadwellId
                 mint {
                   id,
-                  name
+                  name,
+                  location
                 }
                 mintAsOnCoin
                 mintUncertain
@@ -142,10 +148,6 @@ export default {
                   misc
                 }
                 cursiveScript
-                coinMarks {
-                  id
-                  name
-                }
                 literature
                 pieces
                 specials
@@ -157,9 +159,37 @@ export default {
       `
     )
       .then((result) => {
-        Object.assign(this.$data.type, result.data.data.getCoinType);
+        const data = result.data.data.getCoinType;
+        if (data.mint.location) {
+          try {
+            data.mint.location = JSON.parse(data.mint.location);
+          } catch (e) {
+            data.mint.location = undefined;
+          }
+        }
+
+        Object.assign(this.$data.type, data);
+        this.loading = false;
       })
       .catch(console.error);
   },
 };
 </script>
+
+<style lang="scss" scoped>
+.catalog-entry {
+  padding-bottom: 200px;
+}
+
+.center-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

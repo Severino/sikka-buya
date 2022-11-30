@@ -7,10 +7,13 @@
       property="mint"
       :title="$tc('property.mint')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="mint.id" type="hidden" />
+      <input id="mint-id" v-model="mint.id" type="hidden" />
+      <label for="mint-name">Name</label>
       <input
         type="text"
+        id="mint-name"
         v-model="mint.name"
         :placeholder="$tc('attribute.name')"
         autofocus
@@ -22,12 +25,13 @@
           table="Province"
           attribute="name"
           v-model="mint.province"
+          id="mint-province"
         />
       </labeled-input-container>
 
       <label for="location">Location</label>
       <location-input
-        id="location"
+        id="mint-location"
         type="point"
         :coordinates="mint.location.coordinates"
         @update="updateLocation"
@@ -35,25 +39,26 @@
 
       <div id="uncertain-row">
         <Checkbox
-          id="location_uncertain"
+          id="mint-location-uncertain"
           v-model="mint.uncertain"
           :label="$t('property.uncertain_location') + '(?)'"
         />
       </div>
 
-      <div v-if="mint.uncertain">
+      <div v-show="mint.uncertain">
         <label for="location">Geschätzte Verortung</label>
         <location-input
+          id="mint-uncertain-location-input"
           type="polygon"
           :coordinates="mint.uncertainArea.coordinates"
           @update="updateUncertainArea"
+          ref="uncertainLocation"
         />
       </div>
 
       <labeled-input-container label="Notizen">
         <textarea
-          name=""
-          id=""
+          id="mint-notes"
           cols="30"
           rows="10"
           maxlength="1300"
@@ -102,24 +107,9 @@ export default {
       `
       )
         .then((result) => {
+          this.disabled = false;
           let data = result.data.data.getMint;
-
           this.note = result.data.data.getNote;
-
-          let locations = ['location', 'uncertainArea'];
-
-          locations.forEach((locationProperty) => {
-            if (data[locationProperty]) {
-              try {
-                data[locationProperty] = JSON.parse(data[locationProperty]);
-              } catch (e) {
-                console.error(
-                  `Could not parse ${locationProperty}. This should never happen, contact a developer!`
-                );
-                data[locationProperty] = null;
-              }
-            }
-          });
 
           if (!data.location) {
             data.location = {
@@ -147,6 +137,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -154,10 +145,13 @@ export default {
     isUpdate() {
       return !!this.mint?.id && this.mint.id > 0;
     },
+    error() {
+      return this.errors.join(' ');
+    },
   },
   methods: {
     submit: async function () {
-      this.error = '';
+      this.errors = [];
 
       // There is one array missing in the input field.
       let { type, coordinates } = this.mint.uncertainArea;
@@ -168,17 +162,44 @@ export default {
         this.mint.location.coordinates == null ||
         this.mint.location.coordinates.length < 2
           ? null
-          : `${JSON.stringify(this.mint.location).replace(/"/g, "'")}`;
+          : this.mint.location;
 
       const uncertainArea =
         !this.mint.uncertainArea ||
         this.mint.uncertainArea?.type == 'empty' ||
         this.mint.uncertainArea?.coordinates == null
           ? null
-          : `${JSON.stringify({
+          : {
               type,
               coordinates: [coordinates],
-            }).replace(/"/g, "'")}`;
+            };
+      if (uncertainArea && uncertainArea.type === 'polygon') {
+        const lastIndex = uncertainArea.coordinates.length - 1;
+        if (uncertainArea.coordinates.length > 0) {
+          let polygon = uncertainArea.coordinates[0];
+
+          if (Array.isArray(polygon) && polygon.length > 0) {
+            // The GeoJSON specification requires the first and last value to be the same
+            // This will be enforced here.
+            if (
+              !polygon.every((val, idx) => {
+                return val === uncertainArea.coordinates[0][lastIndex][idx];
+              })
+            )
+              uncertainArea.coordinates[0].push(
+                uncertainArea.coordinates[0][0]
+              );
+
+            console.log(polygon);
+            if (polygon.length < 4) {
+              // It is three points, as we add the last one if the first and last are not the same.
+              this.errors.push('A polygon needs at least 3 points!');
+            }
+          }
+        } else {
+          this.errors.push('Uncertain area needs coordinates!');
+        }
+      }
 
       let data = {
         uncertain: this.mint.uncertain,
@@ -190,21 +211,59 @@ export default {
 
       let id;
       if (this.mint.id == -1) {
-        id = await this.query('addMint', data);
+        try {
+          console.log(data);
+          id = await this.query('addMint', data, true);
+        } catch (e) {
+          console.error(e);
+          this.error += e;
+        }
       } else {
-        data.id = this.mint.id;
-        id = await this.query('updateMint', data);
+        id = this.mint.id;
+        data.id = id;
+
+        await Query.raw(
+          `
+        mutation UpdateMint(
+            $id:ID!,
+            $name:String,
+            $location:GeoJSON,
+            $uncertain:Boolean,
+            $uncertainArea:GeoJSON,
+            $province:ID,
+          ){
+            updateMint(  
+            id: $id,
+            data: {
+              name:$name,
+            location:$location,
+            uncertain:$uncertain,
+            uncertainArea:$uncertainArea,
+            province:$province,
+            })
+          }
+  `,
+          data,
+          true
+        ).catch((err) => {
+          this.errors.push(err);
+        });
       }
 
-      const query = `mutation UpdateNote($note:String, $id:ID!) {
+      if (id) {
+        const query = `mutation UpdateNote($note:String, $id:ID!) {
         updateNote(text: $note, property:"mint", propertyId: $id)
         }`;
 
-      await Query.raw(query, { note: this.note, id }).catch(
-        (e) => (this.error += e)
-      );
-
-      if (!this.error) {
+        try {
+          await Query.raw(query, { note: this.note, id });
+        } catch (e) {
+          this.errors.push(e);
+        }
+      } else {
+        this.errors.push(`Id could not be determined! Notes cant be updated.`);
+      }
+      if (this.errors.length === 0) {
         this.$router.push({
           name: 'Property',
           params: { property: 'mint' },
@@ -219,12 +278,17 @@ export default {
       const query = `mutation {
         ${name}(data: ${body}) 
         }`;
-      let result = await Query.raw(query).catch((err) => {
+
+      let result = {};
+      try {
+        let response = await Query.raw(query);
+        result = response?.data.data[name];
+      } catch (err) {
         this.error = this.$t(err);
         console.error(err);
-      });
+      }
 
-      return result?.data.data[name];
+      return result;
     },
     cancel: function () {
       this.$router.push({ path: '/mint' });
@@ -238,9 +302,10 @@ export default {
   },
   data: function () {
     return {
-      error: '',
+      errors: [],
       loading: true,
       radius: 1000,
+      disabled: true,
       note: '',
       mint: {
         id: -1,
@@ -260,6 +325,22 @@ export default {
         },
       },
     };
+  },
+  watch: {
+    'mint.uncertain'(newValue) {
+      if (newValue) {
+        this.$nextTick(() => {
+          // When the map is hidden, it will have the wrong size set
+          // therefore we need to make the ap aware of the visibility change
+          // by calling the following function.
+          //
+          // v-if would work as expected out of the box, but would result in other
+          // issues
+          if (this.$refs.uncertainLocation)
+            this.$refs.uncertainLocation.sizeChanged();
+        });
+      }
+    },
   },
 };
 </script>

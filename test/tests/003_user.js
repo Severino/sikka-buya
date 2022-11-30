@@ -6,28 +6,20 @@ const expect = chai.expect
 const AuthResponse = require('../helpers/authresponse')
 
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
+const { User1, User2, SuperUser } = require('../mockdata/users')
 
 describe(`User management`, function () {
 
-    it(`Super user must be set, or nothing works.`, function () {
-        expect(TestUser.hasSuperUser()).to.be.true
-    })
-
-    it(`Has a regular user`, function () {
-        expect(TestUser.hasUser()).to.be.true
-    })
-
     it(`Regular user is not logged in.`, function () {
-        expect(TestUser.users[0].isLoggedIn()).to.be.false
+        expect(User1.isLoggedIn()).to.be.false
     })
 
     it(`Unregistered user cannot login`, async function () {
-        const user = TestUser.users[0]
-        const result = await graphql(`{ login(data: {
+        const user = User1
+        const result = await graphql(`{ login(
             email: "${user.email}",
             password: "${user.password}"
-          }){
+          ){
               success
               message
               token
@@ -47,11 +39,10 @@ describe(`User management`, function () {
 
 
     it(`Super user can log in`, async function () {
-        const superUser = TestUser.superUser
-        const result = await graphql(`{ login(data: {
-            email: "${superUser.email}",
-            password: "${superUser.password}"
-          }){
+        const result = await graphql(`{ login(
+            email: "${SuperUser.email}",
+            password: "${SuperUser.password}"
+          ){
               success
               message
               token
@@ -64,11 +55,11 @@ describe(`User management`, function () {
           }`)
 
         expect(result.data.data.login.token).is.not.null
-        superUser.authenticate(result.data.data.login.token)
+        SuperUser.authenticate(result.data.data.login.token)
     })
 
     it(`Uninvited user cannot accept an invite`, async function () {
-        const user = TestUser.users[0]
+        const user = User1
         const response = graphql(`mutation{ acceptInvite(
             email: "${user.email}",
             password: "${user.password}"
@@ -80,13 +71,9 @@ describe(`User management`, function () {
     })
 
     it(`Uninvited user cannot send an invite`, async function () {
-
-        const otherUser = new TestUser("sergent.pepper@lonelyheartsclubband.uk", "ringo")
-        TestUser.addUser(otherUser)
-
         const response = graphql(`
             mutation {
-                inviteUser(email: "${otherUser.email}" )
+                inviteUser(email: "${User2.email}" )
             }
         `)
 
@@ -95,22 +82,21 @@ describe(`User management`, function () {
     })
 
     it(`Super user can invite new users`, async function () {
-        const user = TestUser.users[0]
         const response = graphql(`
             mutation {
-                inviteUser(email: "${user.email}" )
+                inviteUser(email: "${User1.email}" )
             }
-        `, {}, TestUser.superUser.token)
+        `, {}, SuperUser.token)
+
 
         await expect(response).to.be.fulfilled
     })
 
 
     it(`User can accept invite`, async function () {
-        const user = TestUser.users[0]
         const response = graphql(`mutation{ acceptInvite(
-            email: "${user.email}",
-            password: "${user.password}"
+            email: "${User1.email}",
+            password: "${User1.password}"
           )
           }`)
 
@@ -119,24 +105,10 @@ describe(`User management`, function () {
 
 
     it(`Invited user can log in`, async function () {
-        const user = TestUser.users[0]
-        const result = await graphql(`{ login(data: {
-            email: "${user.email}",
-            password: "${user.password}"
-          }){
-              success
-              message
-              token
-              user {
-                  id
-                  email
-                  super
-              }
-            }
-          }`)
 
+        const result = await User1.login()
         expect(result.data.data.login.token).is.not.null
-        user.authenticate(result.data.data.login.token)
+        User1.authenticate(result.data.data.login.token)
     })
 
 
@@ -146,15 +118,13 @@ describe(`User management`, function () {
     })
 
     it(`Regular user cannot view users list`, async function () {
-        const user = TestUser.users[0]
-        const result = graphql(`{users{id, super, email}}`, {}, user.token)
+        const result = graphql(`{users{id, super, email}}`, {}, User1.token)
         expect(result).to.be.rejectedWith(["401"])
     })
 
 
     it(`Super user can view users list`, async function () {
-        const user = TestUser.superUser
-        const result = graphql(`{users{id, super, email}}`, {}, user.token)
+        const result = graphql(`{users{id, super, email}}`, {}, SuperUser.token)
         expect(result).to.be.fulfilled
     })
 

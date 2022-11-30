@@ -2,43 +2,52 @@
   <div class="person-form">
     <PropertyFormWrapper
       @submit="submit"
-      @cancel="cancel"
       property="person"
       :loading="loading"
       :title="$tc('property.person')"
       :error="error"
+      :disabled="disabled"
+      overwriteRoute="PersonOverview"
     >
-      <input v-model="person.id" type="hidden" />
+      <input id="person-id" v-model="person.id" type="hidden" />
 
+      <label for="person-name">Name</label>
       <input
         type="text"
+        id="person-name"
         v-model="person.name"
         :placeholder="$tc('attribute.name')"
         autofocus
         required
       />
 
+      <label for="person-short-name">Kurzname</label>
       <input
+        id="person-short-name"
         type="text"
         v-model="person.shortName"
         :placeholder="$tc('attribute.shortName')"
       />
 
+      <label for="person-role">Rolle</label>
       <DataSelectField
+        id="person-role"
         v-model="person.role"
         table="person_role"
         attribute="name"
         queryCommand="searchRole"
       />
+
+      <label for="person-dynasty">Dynastie</label>
       <DataSelectField
+        id="person-dynasty"
         v-model="person.dynasty"
         table="dynasty"
         attribute="name"
       />
 
-      <labeled-input-container label="Farbe auf Karte">
-        <input type="color" v-model="person.color" />
-      </labeled-input-container>
+      <label for="person-color">Farbe</label>
+      <color-input id="person-color" v-model="person.color" />
     </PropertyFormWrapper>
   </div>
 </template>
@@ -48,17 +57,22 @@ import Query from '../../../database/query.js';
 import PropertyFormWrapper from '../PropertyFormWrapper.vue';
 import DataSelectField from '@/components/forms/DataSelectField.vue';
 import LabeledInputContainer from '@/components/LabeledInputContainer.vue';
-
+import ColorInput from '@/components/forms/ColorInput.vue';
 export default {
-  components: { PropertyFormWrapper, DataSelectField, LabeledInputContainer },
+  components: {
+    PropertyFormWrapper,
+    DataSelectField,
+    LabeledInputContainer,
+    ColorInput,
+  },
   name: 'PersonForm',
-  created: function () {
+  mounted: function () {
     let id = +this.$route.params.id;
 
     if (!isNaN(id)) {
       Query.raw(
         `
-      query ($id : Int!){
+      query ($id : ID!){
         getPerson(id: $id){
           id
           name
@@ -80,7 +94,9 @@ export default {
       )
         .then((result) => {
           this.person = result.data.data.getPerson;
+          if (this.person.color === null) this.person.color = '#ffffff';
           if (this.person.role == null) this.person.role = ' ';
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -90,6 +106,7 @@ export default {
           this.$data.loading = false;
         });
     } else {
+      this.disabled = false;
       this.$data.loading = false;
     }
   },
@@ -137,10 +154,7 @@ export default {
 
       Query.raw(query, variables)
         .then((result) => {
-          this.$router.push({
-            name: 'Property',
-            params: { property: 'person' },
-          });
+          this.$router.push({ name: 'PersonOverview' });
         })
         .catch((err) => {
           this.error = this.$t('error.could_not_update_element');
@@ -148,13 +162,14 @@ export default {
         });
     },
     cancel: function () {
-      this.$router.push({ path: '/person' });
+      this.$router.push({ name: 'PersonOverview' });
     },
   },
   data: function () {
     return {
       error: '',
       loading: true,
+      disabled: true,
       person: {
         id: -1,
         name: '',

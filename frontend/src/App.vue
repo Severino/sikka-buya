@@ -1,10 +1,21 @@
 <template>
-  <div id="app">
-    <modal :active="loginActive" @close="closeLoginForm">
+  <div id="app" ref="app">
+    <modal :active="$store.state.showLoginForm" @close="closeLoginForm">
       <login-form @login="closeLoginForm" />
       {{ getCount }}
     </modal>
+
     <router-view></router-view>
+
+    <div class="error-popup error" :class="{ show: $store.getters.hasErrors }">
+      <div
+        class="error-message"
+        v-for="(error, idx) of $store.getters.errors"
+        :key="`error-${idx}`"
+      >
+        {{ error }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -14,7 +25,6 @@ import ButtonGroup from './components/forms/ButtonGroup.vue';
 import Modal from './components/layout/Modal.vue';
 import Auth from './utils/Auth';
 import PopupHandler from './popup';
-import Query from './database/query';
 
 export default {
   components: { ButtonGroup, LoginForm, Modal },
@@ -26,8 +36,13 @@ export default {
     };
   },
   created: async function () {
-    let user = await Auth.init();
-    this.$store.commit('login', user);
+    try {
+      let user = await Auth.init();
+      this.$store.commit('login', user);
+    } catch (e) {
+      //Fail silently
+      console.log('Not authenticated');
+    }
 
     this.popupHandler = new PopupHandler(this);
     this.popupHandler.init(document.body);
@@ -36,24 +51,37 @@ export default {
     this.popupHandler.cleanup();
   },
   mounted: function () {
-    const lang = window.localStorage.getItem('language', this.$i18n.locale);
+    /**
+     * Disables the default zoom behaviour of the browser.
+     */
+    this.$refs.app.addEventListener('wheel', (event) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+      }
+    });
+
+    let lang;
+    try {
+      lang = window.localStorage.getItem('language', this.$i18n.locale);
+    } catch (e) {
+      console.warn(e);
+    }
+
     if (lang) {
       this.languageChanged(lang);
     } else {
       this.languageChanged('de');
     }
-
-    // Query.raw('environment')
-    //   .then((env) => {
-    //     window.sikkaEnvironment = env;
-    //   })
-    //   .catch((e) => (window.sikkaEnvironment = null));
   },
   methods: {
     languageChanged: function (lang) {
       this.language = lang;
       this.$i18n.locale = lang;
-      window.localStorage.setItem('language', this.$i18n.locale);
+      try {
+        window.localStorage.setItem('language', this.$i18n.locale);
+      } catch (e) {
+        console.warn(e);
+      }
     },
     goHome: function () {
       if (this.$router.route != '/') this.$router.push('/');
@@ -62,14 +90,8 @@ export default {
       this.$store.commit('closeLoginForm');
       this.$store.commit('increment');
     },
-    plusOne: function () {
-      this.$store.commit('increment');
-    },
   },
   computed: {
-    loginActive() {
-      return this.$store.state.showLoginForm;
-    },
     getCount() {
       return this.$store.state.test;
     },
@@ -92,6 +114,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+p {
+  line-height: 1.5rem;
 }
 
 button,
@@ -137,16 +163,39 @@ input[type='color'] {
   align-items: center;
 }
 
+.padding-box {
+  padding: $padding;
+}
+
+@include allHeadings {
+  font-family: 'Arimo';
+}
+
 h1 {
   font-weight: bold;
-  font-size: 3rem;
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  // font-weight: bold;
+  margin-block-end: 1rem;
+}
+
+h6 {
+  font-size: 1rem;
+  color: $gray;
+
+  margin-block-start: 1.5rem;
+  margin-block-end: 1rem;
 }
 
 .subtitle {
   display: block;
-  color: $gray;
+  color: $black;
+  border-color: $black !important;
   font-size: $regular-font;
-  font-weight: bold;
+  // font-weight: bold;
 }
 
 .hero {
@@ -204,9 +253,47 @@ button[type='submit'] {
 
 .button,
 button {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   @include input;
   @include interactive();
+
+  border-radius: 3px;
+
+  > .material-design-icon:not(:last-child) {
+    width: 1.3em;
+    margin-right: $padding;
+  }
+
+  &.rounded {
+    border-radius: 0.5em;
+  }
+
+  &.small-button {
+    font-size: $small-font;
+    padding: 0 $small-padding * 2;
+  }
+
+  &[disabled] {
+    color: $light-gray;
+
+    background-color: $gray;
+    cursor: not-allowed;
+    &:hover,
+    &:active {
+      color: $light-gray;
+      background-color: $gray;
+    }
+  }
+}
+
+.disabled {
+  color: $light-gray;
+}
+
+.button.small-button {
+  font-size: $small-font;
 }
 
 .button.ghost-btn {
@@ -244,6 +331,7 @@ li {
 
 .label,
 label {
+  color: $gray;
   font-weight: bold;
   font-size: $regular-font;
   display: block;
@@ -290,11 +378,7 @@ label {
 }
 
 a {
-  text-decoration: none;
-
-  &:visited {
-    color: unset;
-  }
+  @include linkStyle();
 }
 
 .icon-button {
@@ -302,9 +386,50 @@ a {
   display: flex;
   align-items: center;
 
-  :first-child {
+  :first-child:not(:last-child) {
     margin-right: $padding;
   }
+}
+
+.tooltip-container {
+  position: relative;
+}
+
+.div-icon-button {
+  cursor: pointer;
+  position: relative;
+  &:hover {
+    background-color: $dark-white;
+  }
+}
+
+.div-icon-button + .tooltip {
+  opacity: 0;
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  min-width: 150px;
+  transform: translate(-50%, -100%);
+  padding: $small-padding;
+  border-radius: $small-border-radius;
+  background-color: white;
+  transition: all $transition-time;
+}
+
+.div-icon-button:hover + .tooltip {
+  opacity: 1;
+}
+
+.div-icon {
+  background-color: $white;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: bold;
+  border-radius: 10px;
 }
 
 .button-list {
@@ -314,37 +439,113 @@ a {
 }
 
 .error {
-  font-size: 0.8rem;
-  padding: 20px;
-  background-color: rgb(255, 92, 92);
-  border: 1px solid rgb(192, 68, 68);
+  font-weight: bold;
+  color: $red;
 }
 
 .material-design-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  // width: 22px;
-  // height: 22px;
 }
 
-input:read-only {
-  background-color: whitesmoke;
+.grid {
+  display: grid;
+  gap: $padding;
 }
 
-// section {
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-// }
-// .box {
-//   max-width: 100%;
-//   background-color: $white;
-//   @include box-padding($big-padding);
-// }
+.col-1-2 {
+  grid-template-columns: 1fr 2fr;
+}
+
+@mixin grid-even-columns {
+  @for $i from 2 through 6 {
+    .col-#{$i} {
+      grid-template-columns: repeat($i, 1fr);
+    }
+  }
+}
+
+@include grid-even-columns();
+
+.center {
+  align-self: center;
+}
+
+.error-popup.show {
+  bottom: $padding;
+  transform: translateX(-50%) translateY(0);
+}
+
+.error-popup {
+  position: fixed;
+  width: 720px;
+  bottom: 0;
+
+  background-color: $red;
+  color: $white;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  padding: $padding;
+  border-radius: $small-border-radius;
+
+  transition: all $transition-time;
+
+  > * {
+    margin-top: $big-padding;
+    margin-bottom: $big-padding;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.hint {
+  // font-weight: bold;
+  font-style: italic;
+  color: $light-gray;
+}
+
+.note {
+  display: block;
+  font-size: $small-font;
+  color: $primary-color;
+  font-style: italic;
+}
+
+.map-page .top-right-toobar {
+  margin: $padding;
+  display: inline-block;
+}
+
+.popup-content {
+  padding-bottom: 10px;
+}
+
+.grayedOut {
+  opacity: 0.3;
+  background-color: gray;
+}
+
+.unavailable {
+  color: gray;
+}
+.gray-heading {
+  color: $gray;
+  margin: 0;
+}
+
+.underlined-header {
+  padding: $padding $big-padding;
+  border-bottom: $border;
+}
+
+.black {
+  color: $black;
+}
 </style>

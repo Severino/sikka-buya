@@ -1,23 +1,31 @@
 <template>
   <div class="map-page">
-    <!-- <div id="map-select">
-      <router-link :to="{ name: 'PoliticalMap' }" class="button"
-        >Politics</router-link
+    <div class="map-view-container">
+      <map-view
+        class="mapview"
+        :location="mapSettings.location"
+        :zoom="mapSettings.zoom"
+        ref="map"
+        @mapReady="mapChanged"
       >
-      <router-link :to="{ name: 'DominionMap' }" class="button"
-        >Dominion</router-link
-      >
-    </div> -->
-    <map-view class="mapview" ref="map" @mapReady="mapChanged"> </map-view>
+      </map-view>
 
-    <router-view :map="map" />
+      <router-view :map="map" @reset="resetMapSettings" />
+    </div>
   </div>
 </template>
 
 <script>
-require('leaflet-semicircle');
+import Settings from '../../settings';
+require('leaflet-semirings');
+require('../../plugins/leaflet-svg-icon');
+
+import URLParams from '../../utils/URLParams';
 
 import MapView from '../map/MapView.vue';
+
+const settings = new Settings(window, 'Map');
+const mapSettings = settings.load();
 
 export default {
   name: 'MapPage',
@@ -26,85 +34,71 @@ export default {
     return {
       map: null,
       types: [],
+      mapSettings,
     };
+  },
+  mounted() {
+    settings.onSettingsChanged((keyValPairs) => {
+      keyValPairs.forEach(([key, val]) => {
+        this.$data.mapSettings[key] = val;
+      });
+    });
+
+    settings.overwriteWithQueryParams(this);
+
+    this.$nextTick(() => {
+      this.map.on('moveend', (args) => {
+        const { target: map } = args;
+        const { lat, lng } = map.getCenter();
+
+        settings.multiChange([
+          ['location', [lat, lng]],
+          ['zoom', map.getZoom()],
+        ]);
+
+        let { location, zoom } = this.mapSettings;
+        URLParams.update(this, { location, zoom });
+      });
+    });
   },
   methods: {
     mapChanged: function (map) {
       this.map = map;
+    },
+    resetMapSettings: function () {
+      settings.reset();
+      this.map.setView(this.mapSettings.location, this.mapSettings.zoom, {
+        animation: true,
+      });
     },
   },
 };
 </script>
 
 <style lang="scss">
-.leaflet-popup {
-  font-family: $font;
+.clear-filter-btn {
+  margin: 3px;
+  @include buttonColor($primary-color, rgba($white, 0.8));
 
-  header {
-    background-color: gray;
-    margin-left: -20px;
-    margin-top: -20px;
-    margin-right: -20px;
-    margin-bottom: 10px;
-    padding: 10px 20px;
-    min-width: 200px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: $border-radius;
+  justify-content: center;
+  padding: $padding $big-padding * 2;
+  border: none;
+  box-shadow: 0 0 10px $primary-color;
+}
 
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-
-    .subtitle {
-      color: $white;
-    }
-  }
-
-  .leaflet-popup-content-wrapper {
-    border-radius: 3px;
-  }
-
-  a.leaflet-popup-close-button {
-    color: white;
-    opacity: 1;
-    font-size: 1.5em !important;
-    margin: 2px 10px;
-  }
-
-  h2,
-  h3,
-  h4 {
-    margin: 0.5em 0;
-  }
-
-  h2:first-child {
-    margin-bottom: 0;
-  }
-
-  ul,
-  ol {
-    margin: 0.5em 0;
-    padding-left: 1em;
-  }
-
-  .active {
-    padding: 2px 5px;
-    font-weight: bold;
-    text-decoration: underline;
-  }
-
-  .catalog-link {
-    position: absolute;
-    right: 20px;
-    top: 52px;
-    color: $primary-color;
-    padding: 3px 5px;
-    font-weight: bold;
-    border: 1px solid $primary-color;
-    border-radius: 5px;
-  }
+.map-view-container {
+  position: relative;
+  flex: 1;
 }
 
 .map-page {
   position: relative;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
   flex: 1;
 }
 
@@ -127,38 +121,6 @@ export default {
 
   &::before {
     border-top-color: transparent !important;
-  }
-}
-
-.side-bar {
-  z-index: 100;
-
-  h3 {
-    margin-top: 0;
-  }
-
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-  }
-
-  li {
-    margin-bottom: 10px;
-    padding: 5px 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    box-sizing: border-box;
-    border: 1px solid transparent;
-    user-select: none;
-
-    &.inactive {
-      opacity: 0.5;
-    }
-
-    &:hover {
-      border: 1px solid $gray;
-    }
   }
 }
 
@@ -207,5 +169,152 @@ export default {
   top: 55px;
   display: flex;
   transform: translateX(-50%);
+}
+
+.side-bar {
+  @media screen and (max-width: 720px) {
+    position: absolute;
+    display: none !important;
+  }
+
+  grid-row: 1 / span 3;
+
+  .title {
+    display: flex;
+
+    h3 {
+      color: $gray;
+      font-size: 1em;
+      margin-bottom: 0;
+      margin-right: auto;
+    }
+  }
+
+  z-index: 100;
+
+  ul:not(.search-box) {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    overflow: hidden;
+
+    li {
+      margin: $padding;
+      cursor: pointer;
+      box-sizing: border-box;
+      // border: 1px solid transparent;
+      user-select: none;
+
+      &.inactive {
+        opacity: 0.5;
+      }
+    }
+  }
+
+  .collapsible-header {
+    margin-right: $padding;
+  }
+
+  .collapsible-content {
+    background-color: rgba($color: #000000, $alpha: 0.05);
+  }
+}
+
+.side-bar-right {
+  .select-list-item,
+  .selected-but-unavailable {
+    transition: background-color 0.3s;
+    background-color: initial;
+
+    // > * {
+    //   color: black;
+    // }
+
+    span {
+      align-self: center;
+    }
+  }
+}
+
+.timeline {
+  // max-width: 400px;
+  margin: 10px 20px;
+  margin-bottom: 20px;
+  width: 100%;
+
+  .slider {
+    color: $primary-color;
+  }
+}
+
+#timeline-canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.ui {
+  position: absolute;
+  top: 0;
+  // background-color: red;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 5fr 1fr;
+
+  @media screen and (max-width: 1080px) {
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+
+  @media screen and (max-width: 720px) {
+    grid-template-columns: 0fr 2fr 0fr;
+  }
+
+  grid-template-rows: 1fr 3fr 120px;
+
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+}
+
+.center-ui {
+  grid-column: 2;
+  position: relative;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+
+  &.center-ui-top {
+    grid-row: 1;
+
+    z-index: 100;
+  }
+  &.center-ui-center {
+    grid-row: 2;
+    pointer-events: none;
+    z-index: 100;
+  }
+  &.center-ui-bottom {
+    grid-row: 3;
+    display: flex;
+    z-index: 100;
+  }
+}
+
+.leaflet-container .leaflet-control-attribution {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  text-align: center;
+  transform: translateX(-50%);
+  background-color: white;
+  color: $gray;
+  z-index: 1000;
+  font-size: 0.6rem !important;
 }
 </style>

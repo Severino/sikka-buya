@@ -5,7 +5,13 @@
         <label v-if="title" class="title"
           >{{ title }} {{ length !== null ? `(${length})` : '' }}</label
         >
-        <button type="button" @click.stop.prevent="addEntry">+</button>
+        <button
+          class="list-add-button-besides"
+          type="button"
+          @click.stop.prevent="addEntry"
+        >
+          <span> +</span>
+        </button>
       </Row>
     </div>
 
@@ -13,7 +19,13 @@
     <div class="list-container">
       <slot />
     </div>
-    <button type="button" @click.stop.prevent="addEntry">+</button>
+    <button
+      class="list-add-button-below"
+      type="button"
+      @click.stop.prevent="addEntry"
+    >
+      <span>+</span>
+    </button>
   </div>
 </template>
 
@@ -41,7 +53,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/scss/_import.scss';
 .list-container {
   box-sizing: border-box;
 
@@ -54,7 +65,7 @@ export default {
   }
 
   > * {
-    margin-bottom: $padding/2;
+    margin-bottom: math.div($padding, 2);
   }
 
   &:not(:empty) {
@@ -105,8 +116,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .list {
   position: relative;
   display: flex;

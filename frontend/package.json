@@ -1,71 +1,80 @@
 {
-  "name": "sikkabuya",
-  "version": "0.3.8",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
-  },
-  "dependencies": {
-    "@turf/convex": "^6.5.0",
-    "@turf/turf": "^6.5.0",
-    "axios": "^0.21.1",
-    "capitalize": "^2.0.4",
-    "chai": "^4.3.4",
-    "change-case": "^4.1.2",
-    "core-js": "^3.9.1",
-    "crc-32": "^1.2.0",
-    "latinize": "^0.5.0",
-    "leaflet": "^1.7.1",
-    "leaflet-semicircle": "git+https://github.com/Severino/Leaflet-semicircle.git",
-    "lodash.deburr": "^4.1.0",
-    "mocha": "^9.0.3",
-    "node-sass": "^5.0.0",
-    "sass-loader": "^10.1.1",
-    "showdown": "^1.9.1",
-    "vue": "^2.6.11",
-    "vue-i18n": "^8.24.2",
-    "vue-material-design-icons": "^4.11.0",
-    "vue-router": "^3.5.1",
-    "vuex": "^3.6.2"
-  },
-  "devDependencies": {
-    "@cypress/vue": "^2.2.3",
-    "@cypress/webpack-dev-server": "^1.8.0",
-    "@vue/cli-plugin-babel": "^4.5.12",
-    "@vue/cli-plugin-eslint": "^4.5.12",
-    "@vue/cli-plugin-router": "^4.5.12",
-    "@vue/cli-service": "^4.5.12",
-    "babel-eslint": "^10.1.0",
-    "cypress": "^9.2.1",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
+    "name": "sikkabuya",
+    "version": "0.3.26",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "styleguide": "vue-styleguidist server",
+        "styleguide:build": "vue-styleguidist build"
     },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
+    "dependencies": {
+        "@turf/convex": "^6.5.0",
+        "@turf/turf": "^6.5.0",
+        "axios": "^0.21.1",
+        "capitalize": "^2.0.4",
+        "chai": "^4.3.4",
+        "change-case": "^4.1.2",
+        "core-js": "^3.9.1",
+        "crc-32": "^1.2.0",
+        "latinize": "^0.5.0",
+        "leaflet": "^1.7.1",
+        "leaflet-semirings": "^2.0.6",
+        "lodash.deburr": "^4.1.0",
+        "mocha": "^9.0.3",
+        "sass": "^1.54.0",
+        "sass-loader": "^10.1.1",
+        "showdown": "^1.9.1",
+        "simplebar": "^5.3.8",
+        "simplebar-vue": "^1.6.8",
+        "vue": "^2.6.11",
+        "vue-i18n": "^8.24.2",
+        "vue-material-design-icons": "^4.11.0",
+        "vue-router": "^3.5.1",
+        "vuex": "^3.6.2"
     },
-    "rules": {
-      "no-unused-vars": "off",
-      "vue/no-unused-components": "off",
-      "no-unreachable": "off",
-      "no-inner-declarations": "off",
-      "no-prototype-builtins": "off"
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "devDependencies": {
+        "@cypress/vue": "^2.2.3",
+        "@cypress/webpack-dev-server": "^1.8.0",
+        "@vue/cli-plugin-babel": "^4.5.12",
+        "@vue/cli-plugin-eslint": "^4.5.12",
+        "@vue/cli-plugin-router": "^4.5.12",
+        "@vue/cli-service": "^4.5.12",
+        "babel-eslint": "^10.1.0",
+        "cypress": "^9.2.1",
+        "eslint": "^6.7.2",
+        "eslint-plugin-vue": "^6.2.2",
+        "graphql": "^15.5.1",
+        "graphql-2-json-schema": "^0.7.0",
+        "graphql-tag": "^2.12.6",
+        "vue-template-compiler": "^2.6.11"
+    },
+    "eslintConfig": {
+        "root": true,
+        "env": {
+            "node": true
+        },
+        "extends": [
+            "plugin:vue/essential",
+            "eslint:recommended"
+        ],
+        "parserOptions": {
+            "parser": "babel-eslint"
+        },
+        "rules": {
+            "no-unused-vars": "off",
+            "vue/no-unused-components": "off",
+            "no-unreachable": "off",
+            "no-inner-declarations": "off",
+            "no-prototype-builtins": "off",
+            "no-useless-escape": "off",
+            "no-extra-semi": "off"
+        }
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
+    ]
 }

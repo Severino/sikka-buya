@@ -24,7 +24,6 @@ import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
 /**
  * Analytics
  */
-import AnalyticsDashboard from "@/components/page/analytics/AnalyticsDashboard"
 import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
 
 
@@ -32,11 +31,12 @@ import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
  * Catalog
  */
 import CatalogEntry from "@/components/page/catalog/CatalogEntry.vue"
-import CatalogLanding from "@/components/page/catalog/CatalogLanding.vue"
-import CatalogFullSearch from "@/components/page/catalog/CatalogFullSearch.vue"
+import CardLinkPage from "@/components/page/CardLinkPage.vue"
+import CatalogFilterSearch from "@/components/page/catalog/CatalogFilterSearch.vue"
+import PersonPage from "@/components/page/catalog/PersonPage.vue"
+
 
 import PersonExplorer from "@/components/page/catalog/PersonExplorer.vue"
-import PersonExplorer2 from "@/components/page/catalog/PersonExplorer2.vue"
 
 /**
  * Editor Page
@@ -45,6 +45,7 @@ import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
+import CoinVerseOverview from "@/components/page/CoinVerseOverview.vue"
 import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import FixDiff from "@/components/page/FixDiff.vue"
@@ -52,10 +53,15 @@ import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import Overview from "@/components/page/Overview.vue"
+import PersonOverview from "@/components/page/PersonOverview"
+import MaterialOverview from "@/components/page/MaterialOverview"
+
+
 
 import TypeOverview from "@/components/page/TypeOverview.vue"
 
 import CoinMarkForm from "@/components/page/property/CoinMarkForm"
+import CoinVerseForm from "@/components/page/property/CoinVerseForm"
 import HonorificForm from "@/components/page/property/HonorificForm"
 import DynastyForm from "@/components/page/property/DynastyForm"
 import MaterialForm from "@/components/page/property/MaterialForm"
@@ -71,27 +77,42 @@ import Auth from "../utils/Auth.js"
 /**
  * Maps
  */
-
 import MapPage from "@/components/page/MapPage.vue"
 import PoliticalMap from "@/components/map/PoliticalMap"
-import DominionMap from "@/components/map/DominionMap"
+import MaterialMap from "@/components/map/MaterialMap"
 import PlaygroundPage from "@/components/map/Playground"
 
 
+import TemplatePage from "@/components/page/TemplatePage"
+import { superUserIsSet } from '../utils/Setup.js'
+import store from '../store.js'
+
 Vue.use(VueRouter)
+
 
 const analyticsRoutes = {
   path: "/analytics/",
   component: RouterContainer,
+  name: "Analytics",
+  redirect: { name: "AnalyticsOverview" },
   children: [
     {
       path: "",
-      name: "Analytics",
-      component: AnalyticsDashboard
+      name: "AnalyticsOverview",
+      component: CardLinkPage,
+      props: {
+        title: "routes.Analytics",
+        links: [
+          {
+            title: "routes.Analytics Table",
+            to: { name: "Analytics Table" }
+          }
+        ]
+      }
     },
     {
       path: "/table/",
-      name: "AnalyticsTable",
+      name: "Analytics Table",
       component: YearMintTablePage
     },
   ]
@@ -99,66 +120,109 @@ const analyticsRoutes = {
 
 
 const routes = [
-
   {
-    path: "*",
+    path: "/template",
+    component: TemplatePage
+  },
+  {
+    path: "",
     component: CommonMain,
+    name: "Home",
+    redirect: "home",
     children: [
       {
         path: "/home",
-        name: "Home",
         component: LandingPage
       },
-
-
       analyticsRoutes,
       {
         path: "/persons/",
         name: "OverlordAccordeon",
         component: PersonExplorer
-      }, {
-        path: "/persons2/",
-        name: "OverlordAccordeon2",
-        component: PersonExplorer2
       },
       {
         path: '/catalog/',
         component: RouterContainer,
+        name: 'Catalog',
+        redirect: { name: "Catalog Overview" },
         meta: { auth: true },
         children: [{
           path: '',
-          name: 'Catalog',
-          component: CatalogLanding
+          name: "Catalog Overview",
+          component: CardLinkPage,
+          props: {
+            title: "routes.Catalog",
+            links: [
+              {
+                title: 'routes.Catalog Ruler Explorer',
+                image: "/img/button-images/catalog-person-tree-preview.png",
+                to: { name: "Catalog Ruler Explorer" }
+              },
+              {
+                title: "routes.Catalog Search",
+                image: "/img/button-images/catalog-search-preview.png",
+                to: { name: "Catalog Search" }
+              }
+            ]
+          }
+        }, {
+          path: 'search',
+          name: 'Catalog Search',
+          component: CatalogFilterSearch
+        }, {
+          path: 'ruler',
+          name: 'Catalog Ruler Explorer',
+          component: PersonPage
         },
         {
-          path: 'full',
-          name: 'CatalogFullSearch',
-          component: CatalogFullSearch
-        },
-        {
-          path: '/catalog/:id',
-          name: 'CatalogEntry',
+          path: ':id',
+          name: 'Catalog Entry',
           component: CatalogEntry
         }]
+      }, {
+        path: "/map-overview",
+        name: "Map Overview",
+        component: RouterContainer,
+        redirect: { name: "Map Landing" },
+        children: [
+          {
+            path: "",
+            name: "Map Landing",
+            component: CardLinkPage,
+            props: {
+              title: "routes.Map",
+              links: [{
+                title: "routes.Political Map",
+                to: { name: 'Political Map' },
+                image: "/img/button-images/political-map-preview.jpg",
+              },
+              {
+                title: "routes.Additional Maps",
+                to: { name: 'Additional Maps' },
+                image: "/img/button-images/material-map-preview.jpg",
+              },
+              ]
+            },
+          }]
       }, {
         path: "/map/",
         name: "MapPage",
         component: MapPage,
         meta: { smallNav: true },
         redirect: {
-          name: "PoliticalMap"
+          name: "Political Map"
         },
         children: [
           {
             path: '',
-            name: 'PoliticalMap',
+            name: 'Political Map',
             component: PoliticalMap,
-            meta: { smallNav: true },
+            meta: { smallNav: true }
           },
           {
-            path: "dominion",
-            name: "DominionMap",
-            component: DominionMap,
+            path: "additional",
+            name: "Additional Maps",
+            component: MaterialMap,
             meta: { smallNav: true },
           },
           {
@@ -213,17 +277,33 @@ const routes = [
 
             path: "type",
             name: "TypeOverview",
-            component: TypeOverview
+            component: TypeOverview,
+            props: { adminView: true }
           },
           {
             path: "coin_mark",
             name: "CoinMarkOverview",
             component: CoinMarkOverview
+          }, {
+            path: "coin_verse",
+            name: "CoinVerseOverview",
+            component: CoinVerseOverview
+          },
+          {
+            path: "person",
+            name: "PersonOverview",
+            component: PersonOverview
+          },
+          {
+            path: "material",
+            name: "MaterialOverview",
+            component: MaterialOverview
           },
           {
             path: ":property",
             name: "Property",
-            component: Overview
+            component: Overview,
+            props: true
           }, {
             path: 'type/create',
             name: 'TypeCreationPage',
@@ -241,6 +321,15 @@ const routes = [
             path: "coin_mark/:id",
             name: "EditCoinMark",
             component: CoinMarkForm
+          },
+          {
+            path: "coin_verse/create",
+            name: "CreateCoinVerse",
+            component: CoinVerseForm
+          }, {
+            path: "coin_verse/:id",
+            name: "EditCoinVerse",
+            component: CoinVerseForm
           }, {
             path: "material/create",
             name: "CreateMaterial",
@@ -313,16 +402,8 @@ const routes = [
             path: "province/:id",
             name: "EditProvince",
             component: ProvinceForm
-          },
-          {
-            path: "*",
-            redirect: { name: "PageNotFound" }
           }
         ]
-      },
-      {
-        path: "*",
-        redirect: { name: "PageNotFound" }
       }
     ]
   },
@@ -369,26 +450,34 @@ const router = new VueRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
+  let redirect = false
+
+  /**
+   * As the 'store errors' are shown in the `App.vue`
+   * on a global level, we must manually reset them on 
+   * navigation.
+   */
+  store.commit("resetErrors");
+
+  if (to.name == "InitialSetup" && await superUserIsSet()) {
+    next({ name: "Home" })
+  }
 
   if (to.fullPath == "/") next({ name: "Home" })
-
-
-  if (to.matched.some(record => record.meta.auth)) {
-
-    let auth = await Auth.check()
-    if (auth) {
-      next()
-    } else {
-      router.push({ name: "Login" })
-    }
-  } else {
-
-    let redirect = false
-    if (to.name == "Login") {
+  else {
+    if (to.matched.some(record => record.meta.auth)) {
       let auth = await Auth.check()
       if (auth) {
-        redirect = true
-        router.push({ name: "Editor" })
+        next()
+      } else {
+        const error = "Bitte loggen Sie sich ein!"
+        router.push({
+          name: "Login", params: {
+            error
+          }
+        })
+
+        store.commit("printError", error)
       }
     }
 

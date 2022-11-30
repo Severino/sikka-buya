@@ -1,0 +1,2 @@
+ALTER TABLE type 
+    ADD COLUMN purity NUMERIC(8,4);

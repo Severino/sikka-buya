@@ -9,7 +9,10 @@
 export default {
   name: 'LoadingSpinner',
   props: {
-    size: Number,
+    size: {
+      default: 50,
+      type: Number,
+    },
   },
 };
 </script>
@@ -27,7 +30,7 @@ export default {
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background-color: white;
+    background-color: currentColor;
 
     animation: $time infinite growing;
     animation-timing-function: linear;

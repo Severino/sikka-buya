@@ -1,12 +1,8 @@
+const { default: routesDe } = require('./de/routes.de')
+
 const general = {
-    administration:
-        "Admin-Bereich",
     type:
         "Typ | Typen",
-    create_type:
-        "Neuen Typ anlegen",
-    manage_properties:
-        "Eigenschaften verwalten",
     no:
         "nein",
     type_catalogue:
@@ -21,12 +17,35 @@ const general = {
         "offline",
     server_status:
         "server status",
-    user:
-        "Nutzer | Nutzer",
     delete_submit:
         "Entfernen",
-    yes: "ja"
+    user:
+        "Nutzer | Nutzer",
+    yes: "ja",
+    or: "oder",
+    and: "und"
 }
+
+const editor = {
+    important_properties:
+        "wichtige Eigenschaften",
+    manage_properties:
+        "Eigenschaften verwalten",
+    create_type:
+        "Neuen Typ anlegen",
+    administration:
+        "Admin-Bereich",
+    assist_tools:
+        "Hilfsprogramme",
+    compare_last_cleanup:
+        "Vergleiche Letzte Bereinigung",
+    move_to_verses:
+        "nach Vers verschieben",
+    move_to_coin_mark:
+        "nach Einzelwort verschieben",
+
+}
+
 
 const property = {
     additional_persons:
@@ -41,6 +60,8 @@ const property = {
         "Umschrift | Umschriften",
     coin_mark:
         "Mzz. und Einzelworte",
+    coin_verse:
+        "Koranverse und anderes",
     cursive_script:
         "kursive Schriftart",
     completed:
@@ -70,7 +91,7 @@ const property = {
     inner_inscript:
         "innere Umschrift",
     literature_and_remarks:
-        "Literatur & Anmerkungen",
+        "Literatur und Anmerkungen",
     material:
         "Material | Materialien",
     mint_year:
@@ -100,7 +121,8 @@ const property = {
         pressed:
             "geprägt",
     },
-    province: "Provinz | Provinzen",
+    purity: "Feingehalt",
+    province: "Region | Regionen",
     reviewed: "Erledigt",
     role:
         "Rolle | Rollen",
@@ -112,7 +134,9 @@ const property = {
             "Rückseite"
     },
     specialities_and_variants:
-        "Besonderheiten/Varianten",
+        "Besonderheiten / Varianten",
+    small:
+        "Kleine Münze",
     title:
         "Titel",
     type_id:
@@ -125,7 +149,7 @@ const property = {
     excludeFromTypeCatalogue:
         "Nicht für Typenkatalog",
     excludeFromMapApp:
-        "Nicht für Kartenanwendung",
+        "nicht für polit. Karten",
     varieties:
         "Varianten",
     year_uncertain:
@@ -138,7 +162,8 @@ const role = {
     warden: "Münzwardein | Münzwardeien",
     buyid: "Būyide | Būyiden",
     caliph: "Kalif | Kalifen",
-    vassal: "Vasallendynastie"
+    vassal: "Vasallendynastie",
+    donator: "Donator | Donatoren",
 }
 
 const attribute = {
@@ -219,6 +244,7 @@ const system = {
 
 module.exports = {
     attribute,
+    editor,
     error,
     form,
     info,
@@ -228,5 +254,6 @@ module.exports = {
     property,
     role,
     warning,
-    system
+    system,
+    routes: routesDe
 }

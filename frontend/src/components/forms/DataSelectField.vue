@@ -1,18 +1,25 @@
 <template>
   <div class="data-select" :class="{ invalid }">
+    <input type="hidden" class="data-select-id" :value="idValue" />
     <input
       class="name-field"
+      ref="nameField"
       @input="input"
-      @focus="focus"
+      @focus="activateList"
       @blur="hideList"
       :placeholder="placeholder"
       v-model="value[attribute]"
       :required="required"
     />
 
-    <Button id="clear-btn" @click.stop.prevent="clear()"><Close /></Button>
+    <Button
+      v-if="!disableRemoveButton"
+      id="clear-btn"
+      @click.stop.prevent="clear()"
+      ><Close
+    /></Button>
 
-    <div class="indicator">
+    <div v-if="!unselectable" class="indicator">
       <Alert v-if="invalid" class="alert" />
       <Check v-else class="check" />
     </div>
@@ -60,7 +67,6 @@ export default {
   components: { Alert, Check, Close },
   data: function () {
     return {
-      id: null,
       listVisible: false,
       hideTimeout: null,
       searchResults: [],
@@ -72,7 +78,7 @@ export default {
     value: {
       type: Object,
       validator: function (obj) {
-        return obj.id == null || !isNaN(parseInt(obj.id));
+        return obj && (obj.id == null || !isNaN(parseInt(obj.id)));
       },
     },
     error: String,
@@ -90,6 +96,7 @@ export default {
     attribute: {
       type: String,
       required: true,
+      default: 'name',
     },
     required: {
       type: Boolean,
@@ -102,15 +109,31 @@ export default {
       type: String,
       default: null,
     },
+    displayTextCallback: Function,
+    /**
+     * Unselectable is used, when you e.g. have multiple selection options and the
+     * field is cleared afterwards and only the selection is tracked.
+     */
+    unselectable: {
+      default: false,
+      type: Boolean,
+    },
     query: String,
     queryCommand: String,
     msg: String,
     tooltip: String,
     placeholder: String,
+    disableRemoveButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     invalid: function () {
       return this.value.id == null;
+    },
+    idValue() {
+      return this.value.id || '';
     },
   },
   methods: {
@@ -118,7 +141,7 @@ export default {
       const target = event.target;
       const value = this.value;
       this.listVisible = false;
-      value.id = target.getAttribute('data-id', this.id);
+      value.id = target.getAttribute('data-id');
       value[this.attribute] = target.textContent;
       this.$emit('input', value);
       this.$emit('select', value);
@@ -129,6 +152,9 @@ export default {
       value.id = null;
       this.checkMatch(value);
       this.$emit('input', value);
+    },
+    focus() {
+      this.$refs.nameField.focus();
     },
     checkMatch: async function (value) {
       await this.searchEntry(value[this.attribute]);
@@ -141,17 +167,19 @@ export default {
         }
       }
     },
-    focus: async function () {
+    activateList: async function () {
       await this.checkMatch(this.value);
       this.showList();
     },
     showList: function () {
       if (this.hideTimeout) clearTimeout(this.hideTimeout);
       this.listVisible = true;
+      this.$emit('dynamic-change');
     },
     hideList: function () {
       this.hideTimeout = setTimeout(() => {
         this.listVisible = false;
+        this.$emit('blur');
 
         // if (!this.value.id) {
         //   const obj = { id: null };
@@ -212,7 +240,8 @@ export default {
         });
     },
     transformTextContent: function (search) {
-      if (this.text) {
+      if (this.displayTextCallback) return this.displayTextCallback(search);
+      else if (this.text) {
         return this.text.replace(/\${(.+?)}/g, function (match, name) {
           const path = name.split('.');
           let target = search;
@@ -237,8 +266,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '../../scss/_import.scss';
-
 .error {
   position: static;
 }
@@ -321,6 +348,7 @@ export default {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   //   border: 1px solid gray;
+  transition: opacity 0.2s;
 }
 
 .id-field {
@@ -342,7 +370,6 @@ button {
   padding-left: 0;
   list-style-type: none;
   background-color: white;
-  border: 1px solid whitesmoke;
   width: 100%;
   // padding: 10px;
   box-sizing: border-box;
@@ -352,17 +379,24 @@ button {
 
   box-shadow: 1px 2px 3px rgba($color: #000000, $alpha: 0.2);
 
+  border: $border;
+  border-top-width: 0;
+  border-bottom-right-radius: $border-radius;
+  border-bottom-left-radius: $border-radius;
+  transform: translateY(-2px);
+
   li {
+    font-size: $small-font;
     border-bottom: 1px solid whitesmoke;
-    padding: 10px;
+    padding: $small-padding 2 * $small-padding;
 
     &.non-selectable {
       background-color: whitesmoke;
     }
 
     &:not(.non-selectable):hover {
-      color: whitesmoke;
-      background-color: $primary-color;
+      // color: whitesmoke;
+      background-color: $dark-white;
       cursor: pointer;
     }
   }

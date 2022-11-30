@@ -36,7 +36,6 @@ export default {
   },
   watch: {
     trigger: function () {
-      console.log(this.trigger);
       this.show();
     },
   },
@@ -45,7 +44,6 @@ export default {
       if (this.trigger_show == false) {
         this.trigger_show = true;
         if (this.$props.time > 0) {
-          console.log('SET TIMEOUT');
           setTimeout(this.hide, this.$props.time);
         }
       }
@@ -65,9 +63,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@import '@/scss/_import.scss';
-
+<style lang="scss" scoped>
 .info {
   color: white;
   background-color: gray;

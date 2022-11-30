@@ -1,42 +1,87 @@
 <template>
-  <div class="islam-political-map ui">
+  <div class="political-map ui">
+    <div class="debug-window" v-if="showDebugWindow">
+      <h3>Debug-Window</h3>
+      <pre>{{ selectedUnavailableRulers }}</pre>
+    </div>
+
     <Sidebar title="Prägeorte">
-      <Button class="clear-filter-btn" @click="clearMintSelection"
-        >Auswahl aufheben</Button
-      >
-      <multi-select-list
-        id="mints"
-        :items="availableMintsList"
-        :selectedIds="this.selectedMints"
-        @selectionChanged="mintSelectionChanged"
-      />
-      <multi-select-list
-        id="mints"
-        class="unavailable"
-        :items="unavailableMintsList"
-        :selectedIds="this.selectedMints"
+      <template v-slot:tools>
+        <list-selection-tools
+          @select-all="selectAllMints"
+          @unselect-all="clearMintSelection"
+          :allSelected="allMintsSelected"
+          :noneSelected="mintsSelected"
+        />
+      </template>
+
+      <mint-list
+        :items="mintsList"
+        :selectedIds="selectedMints"
         @selectionChanged="mintSelectionChanged"
       />
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <div class="settings">
-        <SettingsIcon class="settings-icon" @click="toggleSettings" />
-        <div class="settings-window" v-if="settings.visible">
-          <header>
-            <h3>Einstellungen</h3>
-          </header>
-          <label>Kreisgröße</label>
-          <input
-            type="range"
-            v-model="settings.maxRadius.value"
-            :min="settings.maxRadius.min"
-            :max="settings.maxRadius.max"
+      <div class="toolbar top-right-toobar">
+        <Button
+          v-if="filtersActive"
+          class="clear-filter-btn"
+          @click="resetFilters()"
+          >Filter aufheben</Button
+        >
+      </div>
+      <map-settings-box
+        :open="overlaySettings.uiOpen"
+        @toggle="toggleSettings"
+        @reset="resetSettings"
+      >
+        <labeled-input-container label="Kreisgröße">
+          <slider
+            name="maxRadius"
+            :value="overlaySettings.maxRadius"
+            @input="overlaySettingsChanged"
+            :min="overlaySettings.maxRadiusMinimum"
+            :max="overlaySettings.maxRadiusMaximum"
           />
-        </div>
+        </labeled-input-container>
+        <labeled-input-container label="Farbintensität f. inaktive Herrscher">
+          <slider
+            name="unselectedColorIntensity"
+            :value="overlaySettings.unselectedColorIntensity"
+            @input="overlaySettingsChanged"
+            :step="0.05"
+            :min="overlaySettings.unselectedColorIntensityMin"
+            :max="overlaySettings.unselectedColorIntensityMax"
+          />
+        </labeled-input-container>
+      </map-settings-box>
+    </div>
+    <div class="center-ui center-ui-center">
+      <div class="unlocated-mints" v-if="filteredUnlocatedTypes.length > 0">
+        <header class="underlined-header">
+          <h3 class="gray-heading"><i>nicht auf Karte:</i></h3>
+        </header>
+        <section
+          v-for="obj of unlocatedTypesByMint"
+          :key="`unlocated-${obj.mint.id}`"
+          class="unlocated-mint-wrapper"
+        >
+          <h4>
+            {{ obj.mint.name }}
+          </h4>
+          <div class="mint-grid grid col-3">
+            <router-link
+              v-for="type of obj.types"
+              target="_blank"
+              :to="{ name: 'Catalog Entry', params: { id: type.id } }"
+              :key="`unlocated-mint-${type.projectId}`"
+              >{{ type.projectId }}</router-link
+            >
+          </div>
+        </section>
       </div>
     </div>
-    <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
       <timeline
         ref="timeline"
@@ -45,18 +90,24 @@
         :to="timeline.to"
         :value="raw_timeline.value"
         :valid="timelineValid"
+        :shareLink="shareLink"
+        :allowToggle="true"
+        :timelineActive="timelineActive"
+        timelineName="political-map"
         @input="timelineChanged"
         @change="timelineChanged"
-      />
+        @toggle="toggleTimeline"
+      >
+        <template #background>
+          <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
+        </template>
+      </timeline>
     </div>
 
     <Sidebar title="Herrscher" side="right">
-      <Button class="clear-filter-btn" @click="clearRulerSelection"
-        >Auswahl aufheben</Button
-      >
-
-      <multi-select-list
-        id="mints"
+      <ruler-list
+        :selectedUnavailable="selectedUnavailableRulers"
+        :unavailable="unavailableRulers"
         :items="availableRulers"
         :selectedIds="selectedRulers"
         @selectionChanged="rulerSelectionChanged"
@@ -66,522 +117,578 @@
 </template>
 
 <script>
-import Sidebar from './Sidebar.vue';
-import Color from '../../models/map/color.js';
-import Timeline from './control/Timeline.vue';
-import Checkbox from '../forms/Checkbox.vue';
+// Models
+import TimelineChart from '../../models/timeline/TimelineChart.js';
+import Range from '../../models/timeline/range.js';
+import Sequence from '../../models/timeline/sequence.js';
+import Pattern from '../../models/draw/pattern';
 
-import map from './mixins/map';
-import timeline from './mixins/timeline';
-import localstore from '../mixins/localstore';
+//Utils
+import Sort from '../../utils/Sorter';
+import Sorter from '../../utils/Sorter';
 
+// Other
 import Query from '../../database/query';
 
-import MintLocation from '../../models/mintlocation';
-import SikkaColor from '../../utils/Color';
-import MultiSelectList from '../MultiSelectList.vue';
-import { rulerPopup } from '../../models/map/political';
+//Mixins
+import map from './mixins/map';
+import { mintLocationsMixin } from './mixins/MintLocationsMixin';
+import settingsMixin from '../map/mixins/settings';
+import timeline from './mixins/timeline';
+import slideshow from '../mixins/slideshow';
 
-import FilterIcon from 'vue-material-design-icons/Filter.vue';
+// Components
+import Checkbox from '../forms/Checkbox.vue';
+import LabeledInputContainer from '../LabeledInputContainer.vue';
+import ListSelectionTools from '../interactive/ListSelectionTools.vue';
+import MapSettingsBox from '../MapSettingsBox.vue';
+import MintList from '../MintList.vue';
+import MultiSelectList from '../MultiSelectList.vue';
+import RulerList from '../RulerList.vue';
+import ScrollView from '../layout/ScrollView.vue';
+import Sidebar from './Sidebar.vue';
+import Slider from '../forms/Slider.vue';
+import Timeline from './control/Timeline.vue';
+
+// Icons
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
-import { concentricCircles } from '../../models/map/geometry';
-import { coinsToRulerData } from '../../models/rulers';
+
+// Other
+import PoliticalOverlay from '../../maps/PoliticalOverlay';
+import Settings from '../../settings.js';
+import URLParams from '../../utils/URLParams.js';
+import Color from '../../utils/Color.js';
+
+let settings = new Settings(window, 'PoliticalOverlay');
+const overlaySettings = settings.load();
+
+let selectedRulers;
+
+try {
+  const json = localStorage.getItem('map-rulers');
+  selectedRulers = JSON.parse(json);
+  selectedRulers = selectedRulers.filter(
+    (item) => item != null && !isNaN(item)
+  );
+} catch (e) {
+  console.warn(
+    'Could not load selected rulers. This is normal on first start of the app.'
+  );
+} finally {
+  if (!selectedRulers) selectedRulers = [];
+}
 
 export default {
   name: 'PoliticalMap',
   components: {
+    Checkbox,
+    LabeledInputContainer,
+    ListSelectionTools,
+    MapSettingsBox,
+    MintList,
+    MultiSelectList,
+    RulerList,
+    ScrollView,
     SettingsIcon,
     Sidebar,
+    Slider,
     Timeline,
-    Checkbox,
-    FilterIcon,
-    MultiSelectList,
   },
   data: function () {
     return {
-      types: [],
-      mints: [],
-      rulers: [],
-      selectedRulers: [],
-      selectedMints: [],
-      rulerListStyles: [],
-      availableMints: [],
-      unavailableMints: [],
+      showDebugWindow: false,
       availableRulers: [],
-      mintLocation: null,
-      settings: {
-        visible: false,
-        minRadius: { value: 10, min: 0, max: 50 },
-        maxRadius: { value: 30, min: 10, max: 100 },
-      },
+      data: null,
+      mints: [],
+      mintTimelineData: [],
+      overlay: null,
+      patterns: {},
+      persons: {},
+      rulerListStyles: [],
+      rulers: [],
+      selectedRulers,
+      unavailableRulers: [],
+      selectedUnavailableRulers: [],
+      unlocatedTypes: [],
+      timelineChart: null,
+      types: [],
     };
   },
-  mixins: [map, timeline, localstore('political-map-settings', ['settings'])],
+  mixins: [
+    map,
+    timeline,
+    slideshow,
+    settingsMixin(overlaySettings),
+    mintLocationsMixin({
+      onMintSelectionChanged: async function () {
+        await this.drawTimeline();
+      },
+    }),
+  ],
   computed: {
+    options() {
+      const options = {};
+      if (this.map) {
+        options.zoom = this.map.getZoom();
+        const latlng = this.map.getCenter();
+        options.location = [latlng.lat, latlng.lng];
+      }
+
+      options.year = this.timeline.value;
+      options.selectedRulers = this.selectedRulers;
+      options.selectedMints = this.selectedMints;
+
+      return options;
+    },
+    shareLink() {
+      const options = Object.assign({}, this.options);
+      for (let [key, val] of Object.entries(options)) {
+        options[key] = JSON.stringify(val);
+      }
+      return URLParams.apply(options).href;
+    },
+    filters() {
+      return {
+        yearOfMint: this.timelineActive ? this.timeline.value.toString() : null,
+        mint: this.selectedMints,
+      };
+    },
+    selections() {
+      return {
+        selectedRulers: this.selectedRulers,
+        selectedMints: this.selectedMints,
+      };
+    },
     filtersActive: function () {
       return this.selectedRulers.length > 0 || this.selectedMints.length > 0;
     },
-    availableMintsList() {
-      return this.availableMints.map((mint) => {
-        return {
-          id: mint.id,
-          text: mint.name,
-        };
+    mintsList() {
+      function addAvailability(mint, available) {
+        mint.available = available;
+        return mint;
+      }
+
+      let sorted = [
+        ...this.availableMints.map((mint) => addAvailability(mint, true)),
+        ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
+      ];
+
+      sorted = sorted
+        .filter((mint) => mint?.province?.id)
+        .sort(Sorter.stringPropAlphabetically('name'));
+
+      return sorted;
+    },
+    filteredUnlocatedTypes() {
+      return this.unlocatedTypes.filter((type) => {
+        const mintId = type?.mint?.id ? type.mint.id : 0;
+
+        if (
+          this.selectedMints.length > 0 &&
+          this.selectedMints.indexOf(mintId) === -1
+        ) {
+          return false;
+        } else {
+          return true;
+        }
       });
     },
-    unavailableMintsList() {
-      return this.unavailableMints.map((mint) => {
-        return {
-          id: mint.id,
-          text: mint.name,
-        };
+    unlocatedTypesByMint() {
+      const mintMap = {};
+
+      this.filteredUnlocatedTypes.forEach((type) => {
+        const mintId = type?.mint?.id ? type.mint.id : 0;
+
+        if (!mintMap[mintId]) {
+          mintMap[mintId] = {
+            mint:
+              mintId === 0
+                ? { id: 0, name: 'ohne Münzstättenangabe' }
+                : type.mint,
+            types: [],
+          };
+        }
+
+        mintMap[mintId].types.push(type);
       });
-    },
-    mintMarkerOptions() {
-      return {
-        radius: 8,
-        stroke: false,
-        fillColor: 'white',
-        fillOpacity: 1,
-      };
+
+      for (let obj of Object.values(mintMap)) {
+        obj.types.sort(Sorter.stringPropAlphabetically('projectId'));
+      }
+      return Object.values(mintMap).sort(
+        Sorter.stringPropAlphabetically('mint.name')
+      );
     },
   },
-  watch: {
-    settings: {
-      handler: function () {
-        this.update();
-        this.save();
+  created() {
+    settings.onSettingsChanged((changedSettings) => {
+      let settings = this.overlaySettings;
+      changedSettings.forEach(([key, value]) => {
+        settings[key] = value;
+      });
+      this.overlaySettings = Object.assign(this.overlaySettings, settings);
+      this.repaint();
+    });
+
+    this.overlay = new PoliticalOverlay(this.featureGroup, settings, {
+      onDataTransformed: (transformedData, filters) => {
+        this.mints = transformedData.mints;
+        this.unavailableMints = transformedData.unavailableMints;
+        this.availableMints = transformedData.availableMints;
+        this.persons = transformedData.persons;
+        this.rulers = transformedData.rulers;
+        this.unlocatedTypes = transformedData.unlocatedTypes;
+
+        this.updateAvailableRulers();
       },
-      deep: true,
-    },
+    });
   },
   mounted: async function () {
-    const starTime =
-      parseInt(localStorage.getItem('political-timeline')) || 433;
+    if (this.$route.query['selectedRulers']) {
+      try {
+        let parsed = JSON.parse(this.$route.query['selectedRulers']);
+        if (Array.isArray(parsed)) {
+          this.selectedRulers = parsed;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
 
-    this.mintLocation = new MintLocation(this.mintMarkerOptions);
+    if (this.$route.query['selectedMints']) {
+      try {
+        let parsed = JSON.parse(this.$route.query['selectedMints']);
+        if (Array.isArray(parsed)) {
+          this.selectedMints = parsed;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
 
-    await this.initTimeline(starTime);
-    this.updateTimeline();
+    this.timelineChart = new TimelineChart(
+      this.$refs.timelineCanvas,
+      this.raw_timeline
+    );
+    await this.initTimeline(433);
+    this.update();
+    await this.drawTimeline();
+
+    window.addEventListener('resize', this.updateCanvas);
   },
   unmounted: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();
+
+    window.removeEventListener('resize', this.updateCanvas);
   },
   methods: {
-    toggleSettings() {
-      this.settings.visible = !this.settings.visible;
+    toggleTimeline() {
+      timeline.methods.toggleTimeline.call(this);
+      this.update();
+    },
+    requestSlideOptions({ slideshow, index }) {
+      slideshow.createSlide(this.options, index);
+    },
+    createSlide() {},
+    async drawTimeline() {
+      this.timelineChart.clear();
+      if (this.timelineActive) {
+        if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
+          const ranges = await this.drawRulersOntoTimeline(true);
+          await this.drawMintCountOntoTimeline(
+            ranges.length > 0 ? ranges : null
+          );
+        } else if (this.selectedMints.length > 0)
+          await this.drawMintCountOntoTimeline();
+        else if (this.selectedRulers.length > 0)
+          await this.drawRulersOntoTimeline();
+      }
+    },
+    async drawRulersOntoTimeline(drawAsHorizontals = false) {
+      const result = await Query.raw(
+        `{
+        timelineRuledBy(rulers: [${this.selectedRulers.join(
+          ','
+        )}], mints: [${this.selectedMints.join(',')}]){
+            ruler {color},
+            data
+        }
+ ruledMintCount(rulers: [${this.selectedRulers.join(
+   ','
+ )}], mints: [${this.selectedMints.join(',')}]){
+   ruler {id name color}
+    data {x, y}
+}
+}`
+      );
+
+      const rulerPointArrays = result.data.data.ruledMintCount;
+      this.timelineChart.updateTimeline(this.raw_timeline);
+
+      const timelineRuledBy = result.data.data.timelineRuledBy;
+
+      if (this.selectedRulers.length > 1)
+        this.drawStripedAndBlock(timelineRuledBy);
+
+      let ranges = [];
+
+      if (drawAsHorizontals) {
+        const rulerLines = () => {
+          const lineHeight = 5;
+          const padding = Math.ceil(lineHeight / 2);
+          let allSelectedRulerRanges = [];
+
+          rulerPointArrays.forEach((rulerObj) => {
+            let rulerYearArr = rulerObj.data.slice().map((obj) => obj.x);
+            const rulerRangeArr = Range.fromNumberSequence(rulerYearArr);
+            allSelectedRulerRanges.push({
+              ruler: rulerObj.ruler,
+              range: rulerRangeArr.slice(),
+            });
+          });
+
+          allSelectedRulerRanges.sort((a, b) => {
+            return (
+              Range.getWidthFromRanges(b.range) -
+              Range.getWidthFromRanges(a.range)
+            );
+          });
+
+          let yPos = 0;
+          allSelectedRulerRanges.forEach((rangeObj) => {
+            yPos += lineHeight + padding;
+            this.timelineChart.drawRangeLineOnCanvas(rangeObj.range, yPos, {
+              lineCap: 'butt',
+              lineWidth: lineHeight,
+              strokeStyle: rangeObj.ruler.color,
+            });
+          });
+
+          return allSelectedRulerRanges;
+        };
+
+        ranges = Range.union(rulerLines().map((el) => el.range));
+      } else {
+        let max = 0;
+        Object.values(rulerPointArrays).forEach(({ ruler, data }) => {
+          const c_max = data.reduce((prev, cur) => {
+            const value = cur.y;
+            return value > prev ? value : prev;
+          }, -Infinity);
+
+          if (c_max > max) max = c_max;
+        });
+
+        rulerPointArrays.forEach(({ ruler, data }) => {
+          this.timelineChart.drawGraphOnTimeline(
+            data,
+            {
+              strokeStyle: ruler.color + 'aa',
+              lineWidth: 2,
+              fillStyle: 'transparent',
+            },
+            {
+              max,
+            }
+          );
+        });
+      }
+
+      return ranges;
+    },
+    drawStripedAndBlock(timelineRuledBy) {
+      const height = this.$refs.timeline.$el.offsetHeight;
+      const colors = timelineRuledBy.ruler.map((ruler) =>
+        Color.hexToRGBA(ruler.color, 0.25)
+      );
+      const points = timelineRuledBy.data || [];
+
+      var fill =
+        colors.length > 1
+          ? this.timelineChart
+              .getContext()
+              .createPattern(Pattern.createLinePattern(colors, 10), 'repeat')
+          : 'rgba(0,0,0,0.1)';
+
+      const combinedRanges = Range.fromNumberSequence(points);
+      this.timelineChart.drawRangeRectOnCanvas(combinedRanges, 0, height, fill);
+    },
+    updateCanvas() {
+      this.timelineChart.updateSize();
+      this.drawTimeline();
     },
     timelineChanged(value) {
-      localStorage.setItem('political-timeline', value);
       this.timeChanged(value);
     },
-    fetchTypes: async function () {
-      return new Promise((resolve, reject) => {
-        if (!this.timeline.value) {
-          reject('Invalid value in timeline.');
-        } else {
-          Query.raw(
-            `{
-mint {
-  id
-  name
-  location
-  uncertain
-}
-  coinType( filters :{yearOfMint: "${this.timeline.value}", excludeFromMapApp: false},pagination:{count:1000, page:0}){
-    types{
-    id
-    projectId
-    material {name}
-    donativ
-    procedure
-    nominal {name}
-    mintAsOnCoin
-    caliph {
-      name,
-      shortName
-      id
-      color
-    }
-    mint {
-      id
-      name
-      location
-    },
-    issuers {
-      id
-      name
-      shortName
-      color
-    }
-    overlords {
-      id
-      name
-      shortName
-      rank
-      color
-    }
-    excludeFromTypeCatalogue
-  }
-  }
-}`
-          )
-            .then((result) => {
-              let data = result.data.data.coinType.types;
-              let mints = result.data.data.mint.filter(
-                (mint) => mint.location != null
-              );
-              this.mints = {};
-              mints.forEach((mint) => {
-                this.mints[mint.id] = mint;
-              });
-
-              data.forEach((type) => {
-                if (type?.mint.location) {
-                  try {
-                    type.mint.location = JSON.parse(type.mint.location);
-                  } catch (e) {
-                    console.error(
-                      'Could not parse GeoJSON.',
-                      type.mint.location
-                    );
-                  }
-                }
-              });
-
-              data = data.filter(
-                (d) => (d.mint?.location && d.mint.location.coordinates) != null
-              );
-
-              resolve(data);
-            })
-            .catch(reject);
-        }
-      });
-    },
-    updateTimeline: async function () {
-      this.types = await this.fetchTypes();
+    timelineUpdated: async function () {
       this.update();
     },
     resetFilters: function () {
-      this.selectedMints = [];
-      this.selectedRulers = [];
+      this.rulerSelectionChanged([], true);
+      this.mintSelectionChanged([], true);
       this.update();
     },
-    update() {
-      this.updateMintLocationMarker();
-      this.updateConcentricCircles();
-      this.updateAvailableMints();
-      this.updateAvailableRulers();
-      this.$emit('timeline-updated', this.value);
+    async update() {
+      await this.overlay.update({
+        filters: this.filters,
+        selections: this.selections,
+      });
     },
-    updateMintLocationMarker() {
-      if (this.mintLocations) this.mintLocations.clearLayers();
-      let features = this.mintLocation.mapToGeoJsonFeature(this.mints);
-      this.mintLocations = this.mintLocation.createGeometryLayer(features);
-      this.mintLocations.addTo(this.featureGroup);
+    repaint() {
+      if (this.overlay) {
+        this.overlay.repaint({
+          filters: this.filters,
+          selections: this.selections,
+        });
+      }
+    },
+    applySlide(options = {}) {
+      if (options.zoom && options.location) {
+        this.map.flyTo(options.location, options.zoom);
+      }
+      if (options.selectedRulers) {
+        this.selectedRulers = options.selectedRulers.slice();
+      }
+
+      if (options.selectedMints) {
+        this.mintSelectionChanged(options.selectedMints.slice());
+      }
+
+      if (options.year && options.year != 'null') {
+        this.timeChanged(options.year);
+      }
     },
     updateAvailableRulers() {
-      const rulers = Object.values(this.rulers);
-      this.availableRulers = rulers.map((ruler) => ({
-        id: ruler.id,
-        text: ruler.shortName || ruler.name || 'Unbenannter Herrscher',
-        style: {
-          border: '2px solid ' + this.getRulerColor(ruler),
-          'border-left': '15px solid ' + this.getRulerColor(ruler),
-          marginBottom: '3px',
-        },
-      }));
-    },
-    updateConcentricCircles: function () {
-      let rulers = {};
-      let mints = {};
+      let selectedRulers = this.selectedRulers.slice();
 
-      this.types.forEach((type) => {
-        if (type.mint?.id) mints[type.mint.id] = type.mint;
-        if (type.caliph) rulers[type.caliph.id] = type.caliph;
-        type.issuers.forEach((issuer) => (rulers[issuer.id] = issuer));
-        type.overlords.forEach((overlord) => (rulers[overlord.id] = overlord));
-      });
-
-      let data = this.types;
-
-      if (this.selectedMints.length > 0) {
-        data = data.filter((type) =>
-          this.selectedMints.includes(type.mint?.id)
-        );
-      }
-
-      this.rulers = rulers;
-
-      if (this.concentricCircles) {
-        this.concentricCircles.remove();
-        this.concentricCircles = null;
-      }
-
-      let mintsFeatures = {};
-
-      data.forEach((obj) => {
-        let mint = obj.mint;
-
-        if (!mintsFeatures[mint.id]) {
-          let obj = {
-            name: mint.name,
-            type: mint.location.type,
-            coordinates: mint.location.coordinates,
-            drawn: 0,
-            coins: [],
-          };
-          mintsFeatures[mint.id] = obj;
-        }
-
-        mintsFeatures[mint.id].coins.push(obj);
-      });
-
-      let that = this;
-
-      this.L.geoJSON(Object.values(this.mints));
-
-      this.concentricCircles = this.L.geoJSON(
-        Object.values(mintsFeatures),
-
-        {
-          pointToLayer: function (feature, latlng) {
-            const data = coinsToRulerData(feature.coins, that.selectedRulers);
-            const featureGroup = concentricCircles(latlng, data, {
-              openPopup: function ({ data, groupData }) {
-                return rulerPopup(groupData, data?.data);
-              },
-              innerRadius: 7,
-              radius: that.settings.maxRadius.value,
-            });
-
-            if (feature?.coins?.length > 0) {
-              const mintFeature = {
-                mint: feature.coins[0].mint,
-              };
-
-              const mintLocations = new MintLocation(that.mintMarkerOptions);
-              mintLocations
-                .createMarker(mintFeature, latlng)
-                .addTo(featureGroup);
-            }
-            featureGroup.on('mouseover', () => featureGroup.bringToFront());
-
-            featureGroup.on('click', () => featureGroup.bringToFront());
-
-            return featureGroup;
-          },
-
-          coordsToLatLng: function (coords) {
-            return new that.L.LatLng(coords[0], coords[1], coords[2]);
-          },
-          style: {
-            fillOpacity: 1,
-          },
-        }
+      this.availableRulers = Object.values(this.rulers).sort(
+        Sort.stringPropAlphabetically('shortName')
       );
 
-      this.concentricCircles.addTo(this.featureGroup);
+      /**
+       * If a ruler is selected but not in the timeline anymore:
+       */
+      this.selectedUnavailableRulers = [];
+      selectedRulers.forEach((selectedRuler) => {
+        if (!this.rulers[selectedRuler]) {
+          const person = this.persons[selectedRuler];
+          if (person)
+            this.selectedUnavailableRulers.push(this.persons[selectedRuler]);
+          else
+            throw new Error(
+              'Invalid user in selected ruler list!',
+              selectedRuler
+            );
+        }
+      });
+      this.selectedUnavailableRulers.sort(
+        Sort.stringPropAlphabetically('shortName')
+      );
     },
     clearMintSelection() {
-      this.selectedMints = [];
-      this.update();
+      this.mintSelectionChanged([]);
     },
-    clearRulerSelection() {
-      this.selectedRulers = [];
-      this.update();
+    clearRulerSelection(preventUpdate = false) {
+      this.rulerSelectionChanged([], preventUpdate);
     },
     getRulerColor(ruler) {
-      // return '#333333';
       return ruler.color || '#ff00ff';
     },
-    getContrastColor(ruler) {
-      const contrastColor = SikkaColor.getContrastColor(
-        this.getRulerColor(ruler),
-        '#ffffff',
-        '#000000'
-      );
-
-      return contrastColor;
-    },
-    updateAvailableMints() {
-      let avalMints = {};
-      let mints = this.mints;
-
-      if (this.types) {
-        for (let type of this.types) {
-          if (avalMints[type.mint.id] == null)
-            if (type.mint) {
-              const mintId = type.mint.id;
-
-              if (this.selectedRulers.length == 0) {
-                avalMints[mintId] = type.mint;
-              } else {
-                if (this.mintHasActiveRuler(type)) {
-                  avalMints[mintId] = type.mint;
-                }
-              }
-            }
-        }
-
-        let unavailMints = [];
-        for (let mint of Object.values(mints)) {
-          if (!avalMints[mint.id]) {
-            unavailMints.push(mint);
-          }
-        }
-
-        this.availableMints = Object.values(avalMints);
-        this.unavailableMints = unavailMints;
-      }
-    },
-    mintSelectionChanged(selected) {
-      this.selectedMints = selected;
-      this.update();
-    },
-    rulerSelectionChanged(selected) {
+    updateAvailableMints() {},
+    rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
-      this.update();
-    },
-    mintHasActiveRuler(type) {
-      if (!type.mint) return false;
-      for (let property of ['issuers', 'overlords', 'caliph']) {
-        if (!type[property]) continue;
-        let personArr = !Array.isArray(type[property])
-          ? [type[property]]
-          : type[property];
 
-        for (let i = 0; i < personArr.length; i++) {
-          const personId = personArr[i].id;
-          if (this.selectedRulers.indexOf(personId) != -1) return true;
-        }
+      URLParams.update({
+        selectedRulers: selected,
+      });
+
+      try {
+        localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
+      } catch (e) {
+        console.warn(e);
       }
+      this.updateAvailableRulers();
 
-      return false;
+      if (!preventUpdate) {
+        this.repaint();
+        this.drawTimeline();
+      }
+    },
+    async drawMintCountOntoTimeline(ranges) {
+      await Query.raw(
+        `{
+ typeCountOfMints(ids: [${this.selectedMints.join(',')}]){
+   mint {id name}
+    data {x, y}
+}
+}`
+      )
+        .then((val) => {
+          this.timelineChart.updateTimeline(this.raw_timeline);
+
+          this.mintTimelineData = val.data.data.typeCountOfMints;
+          const sequence = Sequence.fromArrayObject(
+            this.mintTimelineData,
+            (obj) => {
+              return obj.data;
+            }
+          ).map((obj) => obj.x);
+
+          let mintRanges = Range.fromNumberSequence(sequence);
+
+          if (ranges)
+            mintRanges = Range.overlappingRanges([mintRanges, ranges]);
+
+          const height = this.$refs.timeline.$el.offsetHeight;
+          this.timelineChart.drawRangeLineOnCanvas(mintRanges, height / 2, {
+            lineCap: 'butt',
+            lineWidth: height,
+            strokeStyle: 'rgba(0,0,0,0.05)',
+          });
+        })
+        .catch(console.error);
     },
   },
 };
 </script>
 
-<style lang="scss">
-.islam-political-map {
-  .side-bar {
-    grid-row: 1 / span 3;
-  }
-
-  .timeline {
-    border: 1px solid $light-gray;
-    background-color: white;
-    // height: 100%;
-    padding: 20px 40px;
-    margin: 100px;
-    margin-bottom: 20px;
-    border-radius: 10px;
-  }
-
-  .settings {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 10px;
-
-    h3 {
-      margin: 0;
-      margin-bottom: 1em;
-    }
-
-    .settings-window {
-      width: 240px;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: $shadow;
-      border: 1px solid whitesmoke;
-    }
-
-    .material-design-icon svg {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      fill: white;
-      filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
-    }
-  }
-}
-</style>
-
 <style lang="scss" scoped>
-.unavailable {
-  color: gray;
+.debug-window {
+  padding: $padding;
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  background-color: white;
+  border: 1px solid $yellow;
+  min-width: 200px;
+  min-height: 100px;
+  z-index: 1000000;
 }
 
-.clear-filter-btn {
-  margin-bottom: 15px;
-  background-color: $primary-color;
-  color: $white;
-  font-weight: bold;
-  text-align: center;
+.unlocated-mints {
+  position: absolute;
+  left: $padding * 2;
+  bottom: $padding * 4;
+  background-color: $white;
+  width: 260px;
   border-radius: $border-radius;
-  justify-content: center;
-  padding: 3px 10px;
-}
-.grayedOut {
-  opacity: 0.3;
-  background-color: gray;
-}
 
-.ui {
-  position: absolute;
-  top: 0;
-  // background-color: red;
-  height: 100%;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
-  grid-template-rows: 1fr 3fr 1fr;
-
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
+  h3 {
+    font-size: 1em;
   }
 }
 
-.settings {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 10px;
-
-  .material-design-icon {
-    fill: 'red';
-  }
+h4 {
+  margin: 0;
+  font-size: $regular-font;
+  color: $gray;
+  padding-bottom: $padding;
 }
 
-.center-ui {
-  grid-column: 2;
-  position: relative;
-  pointer-events: none;
-
-  > * {
-    pointer-events: auto;
-  }
-
-  &.center-ui-top {
-    grid-row: 1;
-
-    z-index: 100;
-  }
-  &.center-ui-center {
-    grid-row: 2;
-    pointer-events: none;
-    z-index: 100;
-  }
-  &.center-ui-bottom {
-    grid-row: 3;
-
-    z-index: 100;
-  }
+.unlocated-mint-wrapper {
+  padding: $big-padding;
+  font-size: $small-font;
 }
 </style>
+
+

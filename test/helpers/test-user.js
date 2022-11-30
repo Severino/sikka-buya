@@ -1,50 +1,53 @@
+const { warn } = require("../../backend/scripts/modules/logging.js")
+const { graphql } = require('./graphql.js')
+
 class TestUser {
 
-    static _superUser = null
-    static _users = []
-
-    token = null
-
-    constructor(email, password) {
+    constructor(email, password, superUser = false) {
+        this.id = null
+        this.token = null
         this.email = email
         this.password = password
+        this.superUser = superUser
     }
 
     isLoggedIn() {
         return this.token != null
     }
 
-
     authenticate(token) {
         this.token = token
     }
 
-    static hasSuperUser() {
-        return this.superUser != null
-    }
-
-    static get superUser() {
-        return this._superUser
-    }
-
-    static setSuperUser(user) {
-        this._superUser = user
-    }
-
-    static hasUser() {
-        return this._users.length > 0
-    }
-
-    static get users() {
-        return this._users
-    }
-
-    static addUser(user) {
-        this.users.push(user)
+    async login() {
+        let response = await TestUser.login(this.email, this.password)
+        if (response?.data?.data?.login?.success) {
+            let data = response?.data?.data?.login
+            this.token = data.token
+            let { id, super: superUser } = data.user
+            this.superUser = superUser
+            this.id = id
+        } else warn(`Could not login test user ${this.email}!`, response)
+        return response
     }
 
 
-
+    static async login(email, password, debug = false) {
+        return await graphql(`query Login($email: String!, $password:String!){ login(
+            email: $email,
+            password: $password
+          ){
+              success
+              message
+              token
+              user {
+                  id
+                  email
+                  super
+              }
+            }
+          }`, { email, password }, null, debug)
+    }
 }
 
 module.exports = TestUser

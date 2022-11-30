@@ -6,11 +6,11 @@
 </template>
 
 <script>
-import Navigation from '../Navigation.vue'
+import Navigation from '../Navigation.vue';
 export default {
   components: { Navigation },
-    name:"CommonMain"
-}
+  name: 'CommonMain',
+};
 </script>
 
 <style lang="scss" scoped>

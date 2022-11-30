@@ -6,7 +6,6 @@ class SQLUtils {
     static removeNullProperty(obj, prop, name = "id") {
         if (obj[prop] && obj[prop][name] && obj[prop][name] == null) {
             delete obj[prop]
-            console.log(`REMOVE ${prop} / ${name}`)
         }
     }
 
@@ -73,18 +72,29 @@ class SQLUtils {
     static objectify(obj, config) {
         if (!config.prefix) throw new Error("Object has no prefix!")
 
-        if (config.target)
-            obj[config.target] = {}
+        let targetObject = obj
+
+        if (config.target) {
+            let parts = config.target.split(".")
+
+            let current = obj
+            parts.forEach(part => {
+                /**
+                 * If a non-object value already exists at the path, it will be overwritten.
+                 */
+                if (typeof current[part] != 'object') current[part] = {}
+                current[part] = (current[part]) ? current[part] : {}
+                current = current[part]
+            })
+            targetObject = current
+        }
 
         config.keys.forEach(key => {
             if (typeof key === 'string') {
                 const targetKey = this.snakeToCamelCase(key)
                 if (obj[config.prefix + key] !== undefined) {
                     let targetValue = obj[config.prefix + key]
-                    if (config.target)
-                        obj[config.target][targetKey] = targetValue
-                    else
-                        obj[targetKey] = targetValue
+                    targetObject[targetKey] = targetValue
                     delete obj[config.prefix + key]
                 } else console.error(`Key '${config.prefix + key}' was not found on object:\n${JSON.stringify(obj)}`)
             } else if (typeof key === 'object') {

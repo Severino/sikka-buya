@@ -1,7 +1,14 @@
 **/node_modules
 **/.env 
 
-# Ignores files starting with an underscore
-_** 
-
 test/token.txt
+test/api-test-log.txt
+
+**/videos/**
+
+**/dist/**
+
+test/cypress/screenshots/**
+test/_excluded_data/**
+
+**/*.ignore

@@ -1,9 +1,20 @@
 <template>
-  <div class="list-item" @click="click">
-    <router-link v-if="to" :to="to">
-      <div class="list-item-row"><slot></slot></div>
+  <div class="list-item">
+    <router-link
+      v-if="to"
+      :to="to"
+      class="list-item-row interactive"
+      :class="{ ['disable-input']: disable }"
+      @click.prevent="click"
+    >
+      <slot></slot>
     </router-link>
-    <div v-else class="list-item-row">
+    <div
+      v-else
+      class="list-item-row"
+      :class="{ ['disable-input']: disable }"
+      @click.prevent="click"
+    >
       <slot></slot>
     </div>
   </div>
@@ -14,40 +25,56 @@ export default {
   name: 'ListItem',
   props: {
     to: Object,
+    disable: Boolean,
   },
   methods: {
     click: function () {
-      this.$emit('click');
+      if (!this.disable) {
+        if (this.to) {
+          this.$router.push(this.to);
+        } else this.$emit('click');
+      }
     },
   },
 };
 </script>
 
-<style lang="scss">
-.list-item-row .icon {
-  margin: -$padding;
-}
-</style>
+
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
+a {
+  @include resetLinkStyle();
+}
 
 .list-item:not(:last-of-type) {
-  background-color: red;
+  &:not(:last-of-type) {
+    border-bottom: #eee 1px solid;
+  }
   .list-item-row {
     border-bottom-width: 0;
   }
 }
 
 .list-item-row {
-  @include interactive();
-  @include input();
-  padding: $padding;
+  &.interactive {
+    @include input();
+    @include interactive();
+  }
+
+  background-color: $white;
+
+  border-radius: 0;
 
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
+}
+
+.list-item {
+  .list-item-row {
+    border-radius: 0;
+  }
 }
 
 .removeBtn {

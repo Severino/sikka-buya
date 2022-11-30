@@ -1,30 +1,78 @@
 <template>
-  <div class="button" :class="{ colored }" @click.stop="clicked">
+  <button
+    class="button"
+    :class="{ colored, multiline, 'content-button': contentButton }"
+    @click.stop="clicked"
+  >
+    <!-- 
+      @slot Default slot to render the button contents.
+     -->
     <slot />
-  </div>
+  </button>
 </template>
 
 <script>
+/**
+ * Renders a more pleasant looking and more customizable Button.
+ * __This button should be used as default!__
+ *
+ * An Exception would be if you want to submit a form.
+ */
 export default {
   props: {
+    /**
+     * Contentbutton doesn't use a filling, it just uses the
+     * buttons content. Most likely a single icon.
+     */
+    contentButton: Boolean,
+    /**
+     * Disables the button and the ability to push it.
+     */
     disabled: Boolean,
+    /**
+     * Displays the button in the accent color.
+     */
     colored: Boolean,
+    /**
+     * Displays multiple elements below each other.
+     */
+    multiline: Boolean,
   },
   methods: {
+    /**
+     * Called when the button is clicked.
+     */
     clicked: function () {
-      if (!this.disabled) this.$emit('click');
+      if (!this.disabled)
+        /**
+         * Click event.
+         */
+        this.$emit('click');
     },
   },
 };
 </script>
 
+<style lang="scss">
+.button {
+  a {
+    @include resetLinkStyle();
+    color: currentColor;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
 .button {
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   align-items: center;
   text-align: center;
   box-sizing: border-box;
+
+  &.multiline {
+    flex-direction: column;
+  }
 
   .material-design-icon:not(:last-child) {
     margin-right: $padding;
@@ -32,18 +80,13 @@ export default {
 }
 
 .button.colored {
-  color: $white;
-  background-color: $primary-color;
   border-radius: 3px;
 
-  &:hover {
-    color: $white;
-    background-color: darken($primary-color, 5);
-  }
+  @include buttonColor($white, $primary-color);
+}
 
-  &:active {
-    color: $white;
-    background-color: darken($primary-color, 10);
-  }
+.button.content-button {
+  background-color: transparent;
+  border: none;
 }
 </style>

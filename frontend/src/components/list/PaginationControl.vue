@@ -117,6 +117,8 @@ export default {
 input,
 button {
   font-size: $small-font;
+  border-radius: 0;
+  justify-content: center;
 }
 
 .pagination-control {
@@ -128,7 +130,7 @@ button {
 .pagination-control input,
 .pagination-control button {
   padding: 3px 5px;
-  min-width: 32px;
+  width: 32px;
 }
 .left,
 .right,

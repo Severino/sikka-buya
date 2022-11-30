@@ -7,9 +7,11 @@
       property="dynasty"
       :title="$tc('property.dynasty')"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="dynasty.id" type="hidden" />
+      <input id="dynasty-id" v-model="dynasty.id" type="hidden" />
       <input
+        id="dynasty-name"
         type="text"
         v-model="dynasty.name"
         :placeholder="$tc('attribute.name')"
@@ -34,6 +36,7 @@ export default {
         .get(id, ['id', 'name'])
         .then((result) => {
           this.dynasty = result.data.data.getDynasty;
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -44,6 +47,7 @@ export default {
         });
     } else {
       this.$data.loading = false;
+      this.disabled = false;
     }
   },
   methods: {
@@ -70,6 +74,7 @@ export default {
       error: '',
       loading: true,
       dynasty: { id: -1, name: '' },
+      disabled: true,
     };
   },
 };

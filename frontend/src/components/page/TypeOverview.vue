@@ -2,8 +2,9 @@
   <div :class="`overview type-overview`">
     <BackHeader :to="{ name: 'Editor' }" />
     <header>
-      <h1>{{ $t('attribute.test') }}</h1>
+      <h1>Typ</h1>
       <div
+        v-if="isEditor"
         id="create-button"
         class="button"
         @click="create"
@@ -24,9 +25,20 @@
       :filtered="isListFiltered"
       @clearFilters="clearFilters"
     >
-      <div class="toggle-group">
+      <div class="toggle-group" v-if="isEditor">
         <labeled-property
           v-for="name of evalFilter"
+          :key="'toggle-filter-' + name"
+          :label="$tc('property.' + name)"
+        >
+          <three-way-toggle
+            :value="filter[name]"
+            @input="filterChanged(name, $event)"
+          />
+        </labeled-property>
+
+        <labeled-property
+          v-for="name of adminFilter"
           :key="'toggle-filter-' + name"
           :label="$tc('property.' + name)"
         >
@@ -88,8 +100,9 @@
         <ListItem
           v-for="item of items"
           v-bind:key="item.key"
+          :id="`list-item-type-${item.id}`"
           :to="{
-            name: 'EditType',
+            name: path,
             params: { id: item.id },
           }"
           :class="item.completed ? 'completed' : 'incomplete'"
@@ -98,14 +111,18 @@
             {{ item.projectId }}
           </ListItemCell>
           <CompletedToggle
+            class="done-button"
+            v-if="isEditor"
             :value="item.completed"
             @input="changeCompleteState($event, item)"
           />
           <CompletedToggle
+            class="reviewed-button"
+            v-if="isEditor"
             :value="item.reviewed"
             @input="changeReviewedState($event, item)"
           />
-          <!-- <DynamicDeleteButton @click="remove(item.id)" />-->
+          <DynamicDeleteButton @delete="remove(item.id)" />
         </ListItem>
       </List>
     </pagination>
@@ -114,15 +131,18 @@
 
 <script>
 import PlusCircleOutline from 'vue-material-design-icons/PlusCircleOutline';
-import List from '../layout/List.vue';
+
 import Query from '../../database/query.js';
 import BackHeader from '../layout/BackHeader.vue';
 import SearchField from '../layout/SearchField.vue';
-import ListItem from '../layout/ListItem.vue';
 import CompletedToggle from '../layout/buttons/CompletedToggle.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+
+import List from '../layout/List.vue';
+import ListItem from '../layout/ListItem.vue';
 import ListItemIdField from '../layout/list/ListItemIdField.vue';
 import ListItemCell from '../layout/list/ListItemCell.vue';
+
 import ListFilterContainer from '../layout/list/ListFilterContainer.vue';
 import ButtonGroup from '../forms/ButtonGroup.vue';
 import AxiosHelper from '@/utils/AxiosHelper.js';
@@ -179,7 +199,9 @@ export default {
     Pagination,
   },
   mounted: function () {
-    let filters = localStorage.getItem('type-list-filter');
+    let filters = this.isEditor
+      ? localStorage.getItem('type-list-filter')
+      : null;
     if (filters) {
       try {
         let filterObj = JSON.parse(filters);
@@ -189,12 +211,22 @@ export default {
       }
     }
 
-    this.pageInfo.count =
-      parseInt(localStorage.getItem('pagination-count')) || 15;
+    if (this.isEditor)
+      this.pageInfo.count =
+        parseInt(localStorage.getItem('pagination-count')) || 15;
     this.updateTypeList();
     this.$refs.search.$el.querySelector('input').focus();
   },
   computed: {
+    isEditor() {
+      return this.adminView;
+    },
+    path() {
+      return this.isEditor ? 'EditType' : 'Catalog Entry';
+    },
+    allToggleFilters() {
+      return [...this.evalFilter, ...this.toggleFilter, ...this.adminFilter];
+    },
     isListFiltered: function () {
       let filtered = false;
       for (let [key, val] of Object.entries(this.filter)) {
@@ -218,8 +250,17 @@ export default {
 
       return filtered;
     },
+    editorFilter() {
+      return this.isEditor ? '' : 'excludeFromTypeCatalogue: false';
+    },
     list: function () {
       return this.$data.items;
+    },
+  },
+  props: {
+    adminView: {
+      default: false,
+      type: Boolean,
     },
   },
   data: function () {
@@ -251,9 +292,8 @@ export default {
         coin_mark: { id: null },
       },
       objectFilter: ['mint', 'material', 'nominal', 'caliph', 'coin_mark'],
+      adminFilter: ['exclude_from_type_catalogue', 'exclude_from_map_app'],
       toggleFilter: [
-        'exclude_from_type_catalogue',
-        'exclude_from_map_app',
         'mint_uncertain',
         'year_uncertain',
         'cursive_script',
@@ -266,7 +306,7 @@ export default {
     clearFilters() {
       this.filter.text = '';
 
-      [...this.evalFilter, ...this.toggleFilter].forEach((name) => {
+      this.allToggleFilters.forEach((name) => {
         this.filter[name] = null;
       });
 
@@ -277,18 +317,9 @@ export default {
       this.updateTypeList();
       this.filtersChanged();
     },
-    getEvalFilters() {
+    getToggleFiltersFields() {
       let activeFilter = [];
-      this.evalFilter.forEach((name) => {
-        if (this.filter[name] != null) {
-          activeFilter.push(`${camelCase(name)}: ${this.filter[name]}`);
-        }
-      });
-      return activeFilter.join('\n');
-    },
-    getToggleFilters() {
-      let activeFilter = [];
-      this.toggleFilter.forEach((name) => {
+      this.allToggleFilters.forEach((name) => {
         if (this.filter[name] != null) {
           activeFilter.push(`${camelCase(name)}: ${this.filter[name]}`);
         }
@@ -306,7 +337,6 @@ export default {
     },
     updateTypeList: async function () {
       if (this.loading) return;
-
       this.loading = true;
       Query.raw(
         `
@@ -316,10 +346,11 @@ export default {
           count:${this.pageInfo.count}, page:${this.pageInfo.page}
           },
           filters: {
-            text: "${this.filter.text}"
+            projectId: "${this.filter.text}"
+            ${this.editorFilter}
             ${this.getObjectFilters()}
-            ${this.getToggleFilters()}
-             ${this.getEvalFilters()}
+            ${this.getToggleFiltersFields()}
+
             
           }
         ) {
@@ -423,7 +454,7 @@ export default {
     remove(id) {
       Query.raw(
         `mutation{
-  removeCoinType(id: ${id})
+  deleteCoinType(id: ${id})
 }`
       )
         .then(() => {
@@ -431,11 +462,7 @@ export default {
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((answer) => {
-          console.dir(
-            answer.response.data.errors.map((item) => item.message).join('\n')
-          );
-          // this.error =
-          // console.error(err);
+          console.error(answer);
         });
     },
     filterChanged(name, val) {
@@ -445,7 +472,13 @@ export default {
     updatePagination(val) {
       this.pageInfo = val;
       this.updateTypeList();
-      localStorage.setItem('pagination-count', this.pageInfo.count);
+      if (this.isEditor) {
+        try {
+          localStorage.setItem('pagination-count', this.pageInfo.count);
+        } catch (e) {
+          console.warn(e);
+        }
+      }
     },
     completedChanged(val) {
       this.filter.completed = val;
@@ -463,7 +496,13 @@ export default {
       await this.filtersChanged();
     },
     async filtersChanged() {
-      localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
+      if (this.isEditor) {
+        try {
+          localStorage.setItem('type-list-filter', JSON.stringify(this.filter));
+        } catch (e) {
+          console.warn(e);
+        }
+      }
       await this.updateTypeList();
     },
   },
@@ -472,7 +511,7 @@ export default {
 
 <style lang="scss">
 .type-overview .labeled-property .label {
-  margin-bottom: $padding/2;
+  margin-bottom: math.div($padding, 2);
 }
 
 .type-overview .list-item-row {
@@ -485,7 +524,6 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
 .list {
   display: flex;
   flex-direction: column;
@@ -553,7 +591,7 @@ export default {
 .toggle-group {
   display: grid;
   gap: 20px;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   justify-items: center;
   text-align: center;
   align-items: flex-end;

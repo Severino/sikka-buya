@@ -12,19 +12,21 @@
     <Heading>{{ $tc('general.type') }}</Heading>
     <LoadingSpinner v-if="loading" />
     <div v-if="!loading" class="loading-area">
+      <input id="type-id" type="hidden" name="" :value="coin.id" />
       <Row>
         <LabeledInputContainer :label="$tc('property.type_id')">
-          <input v-model="coin.projectId" required />
+          <input id="type-project-id" v-model="coin.projectId" required />
         </LabeledInputContainer>
 
         <LabeledInputContainer :label="$tc('property.treadwell_id')">
-          <input v-model="coin.treadwellId" />
+          <input id="type-treadwell-id" v-model="coin.treadwellId" />
         </LabeledInputContainer>
       </Row>
 
       <Row>
         <LabeledInputContainer :label="$tc('property.mint')">
           <DataSelectField
+            id="type-mint-field"
             table="Mint"
             attribute="name"
             v-model="coin.mint"
@@ -33,11 +35,14 @@
         </LabeledInputContainer>
 
         <LabeledInputContainer :label="$t('property.mint_as_on_coin')">
-          <RemovableInputField v-model="coin.mintAsOnCoin" />
+          <RemovableInputField
+            id="type-as-on-coin-field"
+            v-model="coin.mintAsOnCoin"
+          />
         </LabeledInputContainer>
 
         <Checkbox
-          id="mint_uncertain"
+          id="type-mint-uncertain"
           v-model="coin.mintUncertain"
           :label="$tc('property.mint_uncertain')"
         />
@@ -45,6 +50,7 @@
       <Row>
         <LabeledInputContainer :label="$tc('property.material')">
           <DataSelectField
+            id="type-material-data-field"
             v-model="coin.material"
             table="Material"
             attribute="name"
@@ -52,7 +58,18 @@
         </LabeledInputContainer>
         <LabeledInputContainer :label="$tc('property.nominal')">
           <DataSelectField
+            id="type-nominal-data-field"
             v-model="coin.nominal"
+            table="Nominal"
+            attribute="name"
+          />
+        </LabeledInputContainer>
+        <LabeledInputContainer :label="$tc('property.purity')">
+          <removable-input-field
+            id="type-purity"
+            type="number"
+            step="0.01"
+            v-model="coin.purity"
             table="Nominal"
             attribute="name"
           />
@@ -61,13 +78,14 @@
       <Row>
         <LabeledInputContainer :label="$t('property.mint_year')">
           <RestrictedInputField
+            id="type-year-of-type-field"
             v-model="coin.yearOfMint"
             pattern="^-?[0-9x]{0,3}$"
           />
         </LabeledInputContainer>
 
         <Checkbox
-          id="year_uncertain"
+          id="type-year-uncertain"
           v-model="coin.yearUncertain"
           :label="$tc('property.year_uncertain')"
         />
@@ -75,14 +93,23 @@
 
       <Row>
         <Checkbox
-          id="donativ"
+          id="type-donativ"
           v-model="coin.donativ"
           :label="$tc('property.donativ')"
         />
 
-        <LabeledInputContainer :label="$tc('property.procedure')">
+        <Checkbox
+          id="type-small"
+          v-model="coin.small"
+          :label="$tc('property.small')"
+        />
+
+        <LabeledInputContainer
+          :label="$tc('property.procedure')"
+          id="type-procedure-container"
+        >
           <ButtonGroup
-            id="production"
+            id="type-procedure"
             :labels="productionLabels"
             :options="productionOptions"
             v-model="coin.procedure"
@@ -90,7 +117,11 @@
         </LabeledInputContainer>
       </Row>
 
-      <List v-on:add="addIssuer" :title="$t('property.issuer')">
+      <List
+        v-on:add="addIssuer"
+        :title="$t('property.issuer')"
+        id="type-issuers-list"
+      >
         <div v-if="coin.issuers.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
@@ -116,6 +147,7 @@
         </ListItem>
       </List>
       <List
+        id="type-overlord-list"
         v-on:add="addOverlord"
         :description="$t('info.overlords')"
         :title="$tc('property.overlord', 2)"
@@ -147,6 +179,7 @@
 
       <LabeledInputContainer :label="$tc('role.caliph')">
         <DataSelectField
+          id="type-caliph-field"
           v-model="coin.caliph"
           attribute="name"
           table="person"
@@ -156,6 +189,7 @@
         />
       </LabeledInputContainer>
       <List
+        id="type-other-person-list"
         :title="$t('property.additional_persons')"
         class="needs-spacing"
         v-on:add="addOtherPerson"
@@ -175,7 +209,7 @@
             attribute="name"
             :value="otherPerson"
             @input="otherPersonChanged($event, index)"
-            text="${name} (${role.name})"
+            :displayTextCallback="otherPersonsTextCallback"
             queryCommand="searchPersonsWithRole"
             :additionalParameters="{ exclude: ['caliph'] }"
             :queryParams="['id', { role: ['id', 'name'] }, 'name']"
@@ -189,6 +223,7 @@
       <hr />
       <Section title="Voderseite">
         <CoinSideField
+          id="type-avers"
           :title="$t('property.sides.front')"
           ref="aversField"
           prefix="Av.-"
@@ -198,6 +233,7 @@
       <hr />
       <Section title="Rückseite">
         <CoinSideField
+          id="type-reverse"
           :title="$t('property.sides.back')"
           ref="reverseField"
           prefix="Rev.-"
@@ -207,11 +243,11 @@
       <hr />
 
       <LabeledInputContainer :label="$t('property.specialities_and_variants')">
-        <SimpleFormattedField ref="specialsField" />
+        <SimpleFormattedField ref="specialsField" id="type-specials" />
       </LabeledInputContainer>
 
       <Checkbox
-        id="cursive"
+        id="type-cursive"
         :label="$t('property.cursive_script') + ' (?)'"
         v-model="coin.cursiveScript"
       />
@@ -220,6 +256,7 @@
         :title="$t('property.coin_mark')"
         @add="addCoinMark"
         class="coin-mark-list"
+        id="type-coin-mark-list"
       >
         <div v-if="coin.coinMarks.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
@@ -243,9 +280,38 @@
       </List>
 
       <List
+        :title="$t('property.coin_verse')"
+        @add="addCoinVerse"
+        class="coin-verse-list"
+        id="type-coin-verse-list"
+        v-if="coin.coinVerses"
+      >
+        <div v-if="coin.coinVerses.length == 0" class="info">
+          {{ $t('warning.list_is_empty') }}
+        </div>
+        <ListItem
+          v-for="(coinverse, idx) in coin.coinVerses"
+          :key="coinverse.key"
+          :object="coinverse"
+          @remove="removeCoinVerse(idx)"
+        >
+          <DataSelectField
+            type="text"
+            table="CoinVerse"
+            attribute="name"
+            v-model="coin.coinVerses[idx]"
+          />
+          <div v-if="coinverse.error" class="error invalid-error">
+            {{ coinverse.error }}
+          </div>
+        </ListItem>
+      </List>
+
+      <List
         :title="$tc('property.piece', 2)"
         @add="addPiece"
         class="pieces-list"
+        id="type-pieces-list"
       >
         <div v-if="coin.pieces.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
@@ -258,6 +324,7 @@
         >
           <input
             type="text"
+            class="pieces-input"
             v-model="coin.pieces[idx].value"
             @input="pieceChanged(piece)"
           />
@@ -268,12 +335,18 @@
       </List>
 
       <LabeledInputContainer :label="$t('property.literature_and_remarks')">
-        <SimpleFormattedField ref="literatureField" />
+        <SimpleFormattedField
+          id="type-literature-field"
+          ref="literatureField"
+        />
         <!-- <textarea v-model="coin.literature"></textarea> -->
       </LabeledInputContainer>
 
       <LabeledInputContainer :label="$t('property.internal_notes')">
-        <SimpleFormattedField ref="internalNotesField" />
+        <SimpleFormattedField
+          id="type-internal-notes-field"
+          ref="internalNotesField"
+        />
         <!-- <textarea v-model="coin.literature"></textarea> -->
       </LabeledInputContainer>
 
@@ -307,10 +380,19 @@
           Apply {{ debug }}
         </button>
         <button type="button" @click="exportJSON" v-if="debug">Export</button>
-        <button type="button" @click.stop.prevent="cancel">
+        <button
+          type="button"
+          id="type-main-cancel-button"
+          @click.stop.prevent="cancel"
+        >
           {{ $t('form.cancel') }}
         </button>
-        <button @click.stop.prevent="submitForm" type="submit">
+        <button
+          @click.stop.prevent="submitForm"
+          id="type-main-submit-button"
+          type="submit"
+          :disabled="submitDisabled"
+        >
           {{ $t('form.submit') }}
         </button>
       </Row>
@@ -343,6 +425,7 @@ import { TypeQueries } from '../../graphql/type-queries';
 import Modal from '../layout/Modal.vue';
 import Confirmation from '../misc/Confirmation.vue';
 import BackHeader from '../layout/BackHeader.vue';
+import { constantCase } from 'constant-case';
 
 export default {
   name: 'CreateTypePage',
@@ -367,14 +450,17 @@ export default {
     BackHeader,
   },
   computed: {
-    productionLabels: function () {
+    submitDisabled() {
+      return !(this.loaded && !this.submitted);
+    },
+    productionLabels() {
       return [
         this.$t('property.procedures.pressed'),
         this.$t('property.procedures.cast'),
       ];
     },
   },
-  mounted: function () {
+  mounted() {
     window.onbeforeunload = function (event) {
       event.returnValue = 'Navigation prevented!';
       return '';
@@ -419,7 +505,7 @@ export default {
       this.initFormattedFields.call(this);
     }
   },
-  created: function () {
+  created() {
     let id = this.$route.params.id;
     if (id != null) {
       this.$data.coin.id = id;
@@ -481,9 +567,12 @@ export default {
               : { id: null, name: '' };
             type.nominal = type.nominal ? type.nominal : { id: null, name: '' };
             type.caliph = type.caliph ? type.caliph : { id: null, name: '' };
+            type.purity = type.purity ? type.purity.toString() : '';
 
             Object.assign(this.$data.coin, type);
             this.initFormattedFields();
+
+            this.loaded = true;
           }
         })
         .catch((error) => {
@@ -500,12 +589,14 @@ export default {
         .finally((this.loading = false));
     } else {
       this.loading = false;
+      this.loaded = true;
     }
   },
 
-  data: function () {
+  data() {
     return {
       debug: false,
+      loaded: false,
       coin: {
         id: null,
         projectId: '',
@@ -537,7 +628,10 @@ export default {
         },
         cursiveScript: false,
         coinMarks: [],
+        coinVerses: [],
         pieces: [],
+        purity: '',
+        small: false,
         specials: '',
         excludeFromTypeCatalogue: false,
         excludeFromMapApp: false,
@@ -566,7 +660,7 @@ export default {
     this.next = next;
   },
   methods: {
-    compareJSON: function (event) {
+    compareJSON(event) {
       var input, file, fr;
 
       if (typeof window.FileReader !== 'function') {
@@ -596,13 +690,13 @@ export default {
         window.loadedCoin = obj;
       }
     },
-    applyJSON: function () {
+    applyJSON() {
       if (window.loadedCoin) {
         this.coin = window.loadedCoin;
         this.initFormattedFields();
       } else console.error('You must import a file first.');
     },
-    exportJSON: function () {
+    exportJSON() {
       this.initFormattedFields();
       let data = JSON.stringify(this.coin);
       const blob = new Blob([data], { type: 'text/plain' });
@@ -632,39 +726,49 @@ export default {
         key: 'error-' + this.key++,
       });
     },
-    cancel: function () {
+    cancel() {
       this.$router.push({ name: 'TypeOverview' });
     },
-    reverseChanged: function (coinSideObject) {
+    reverseChanged(coinSideObject) {
       this.coin.reverse = coinSideObject;
     },
-    issuerChanged: function (issuer, index) {
+    issuerChanged(issuer, index) {
       delete issuer.error;
       this.coin.issuers.splice(index, 1, issuer);
     },
-    addCoinMark: function () {
+    addCoinMark() {
       this.coin.coinMarks.push({
         key: 'coin-mark-' + this.key++,
         id: null,
         name: '',
       });
     },
-    removeCoinMark: function (index) {
+    addCoinVerse() {
+      this.coin.coinVerses.push({
+        key: 'coin-verse-' + this.key++,
+        id: null,
+        name: '',
+      });
+    },
+    removeCoinMark(index) {
       this.coin.coinMarks.splice(index, 1);
     },
-    addPiece: function () {
+    removeCoinVerse(index) {
+      this.coin.coinVerses.splice(index, 1);
+    },
+    addPiece() {
       this.coin.pieces.push({
         key: 'piece-' + this.key++,
         value: '',
       });
     },
-    pieceChanged: function (piece) {
+    pieceChanged(piece) {
       delete piece.error;
     },
-    removePiece: function (index) {
+    removePiece(index) {
       this.coin.pieces.splice(index, 1);
     },
-    addIssuer: function () {
+    addIssuer() {
       this.coin.issuers.push({
         key: 'issuer-' + this.key++,
         person: {
@@ -676,7 +780,7 @@ export default {
         honorifics: [],
       });
     },
-    removeIssuer: function (item) {
+    removeIssuer(item) {
       const idx = this.coin.issuers.indexOf(item);
       if (idx != -1) {
         this.coin.issuers.splice(idx, 1);
@@ -685,7 +789,15 @@ export default {
         });
       }
     },
-    initFormattedFields: function () {
+    otherPersonsTextCallback(data) {
+      let txt = data.name;
+
+      if (data?.role?.name) {
+        txt = `${txt} (${this.$tc('role.' + data.role.name)})`;
+      }
+      return txt;
+    },
+    initFormattedFields() {
       this.$refs.internalNotesField.setContent(this.coin.internalNotes);
       this.$refs.literatureField.setContent(this.coin.literature);
       this.$refs.specialsField.setContent(this.coin.specials);
@@ -693,7 +805,7 @@ export default {
       this.$refs.aversField.setFieldContent(this.coin.avers);
       this.$refs.reverseField.setFieldContent(this.coin.reverse);
     },
-    addOverlord: function () {
+    addOverlord() {
       this.coin.overlords.push({
         key: 'overlord-' + this.key++,
         rank: this.coin.overlords.length + 1,
@@ -703,7 +815,7 @@ export default {
         honorifics: [],
       });
     },
-    addOtherPerson: function () {
+    addOtherPerson() {
       this.coin.otherPersons.push({
         id: null,
         key: this.key++,
@@ -711,13 +823,13 @@ export default {
         role: '',
       });
     },
-    overlordChanged: function (overlord, index) {
+    overlordChanged(overlord, index) {
       const old = this.coin.overlords[index];
       Object.assign(old, overlord);
       delete old.error;
       this.coin.overlords.splice(index, 1, old);
     },
-    removeOverlord: function (item) {
+    removeOverlord(item) {
       const idx = this.coin.overlords.indexOf(item);
       if (idx != -1) {
         this.coin.overlords.splice(idx, 1);
@@ -726,24 +838,24 @@ export default {
         });
       }
     },
-    removeOtherPerson: function (item) {
+    removeOtherPerson(item) {
       const idx = this.coin.otherPersons.indexOf(item);
       if (idx != -1) {
         this.coin.otherPersons.splice(idx, 1);
       }
     },
-    mintSelected: function (mint) {
+    mintSelected(mint) {
       if (!this.coin.mintAsOnCoin) {
         this.coin.mintAsOnCoin = mint.name;
       }
     },
-    otherPersonChanged: function (otherPerson, index) {
+    otherPersonChanged(otherPerson, index) {
       const op = this.coin.otherPersons[index];
       Object.assign(op, otherPerson);
       delete op.error;
       this.coin.otherPersons.splice(index, 1, op);
     },
-    submitForm: function () {
+    submitForm() {
       function validateTitledPerson(titledPerson) {
         let valid = true;
         let titledPersonError = '';
@@ -851,11 +963,14 @@ export default {
 
         return;
       } else {
-        const submitData = this.$data.coin;
+        const submitData = JSON.parse(JSON.stringify(this.$data.coin));
 
         submitData.internalNotes = this.$refs.internalNotesField.getContent();
         submitData.literature = this.$refs.literatureField.getContent();
         submitData.specials = this.$refs.specialsField.getContent();
+
+        const purity = parseFloat(submitData.purity);
+        submitData.purity = isNaN(purity) ? null : purity;
 
         submitData.avers = Object.assign(
           submitData.avers,
@@ -897,6 +1012,8 @@ export default {
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
         yearOfMint: data.yearOfMint,
         donativ: data.donativ,
+        purity: data.purity === '' ? null : data.purity,
+        small: data.small,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
@@ -919,6 +1036,8 @@ export default {
         reverse: data.reverse,
         cursiveScript: data.cursiveScript,
         coinMarks: data.coinMarks.map((coinMark) => coinMark.id),
+        coinVerses: data.coinVerses.map((coinVerse) => coinVerse.id),
+
         literature: data.literature,
         pieces: data.pieces.map((piece) => {
           return piece.value;
@@ -944,6 +1063,8 @@ export default {
         nominal: data.nominal && data.nominal.id ? data.nominal.id : null,
         yearOfMint: data.yearOfMint,
         donativ: data.donativ,
+        purity: data.purity === '' ? null : data.purity,
+        small: data.small,
         procedure: data.procedure,
         issuers: data.issuers.map((issuer) => {
           return {
@@ -966,6 +1087,7 @@ export default {
         reverse: data.reverse,
         cursiveScript: data.cursiveScript,
         coinMarks: data.coinMarks.map((coinMark) => coinMark.id),
+        coinVerses: data.coinVerses.map((coinVerse) => coinVerse.id),
         literature: data.literature,
         pieces: data.pieces.map((piece) => {
           return piece.value;
@@ -989,11 +1111,29 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/scss/_import.scss';
+.types-page {
+  #type-procedure-container {
+    flex: 2;
+  }
 
+  #type-pieces-list {
+    .list-container button {
+      padding: 0 10px;
+    }
+    .slot {
+      display: flex;
+      input {
+        flex: 1;
+      }
+    }
+  }
+}
+</style>
+
+<style lang="scss" scoped>
 .coin-side-field > *,
 .loading-area > * {
-  margin-bottom: $padding * 2;
+  margin-bottom: $padding;
 }
 
 .invalid-error {
@@ -1019,7 +1159,7 @@ export default {
   font-size: 0.75rem;
   background-color: $red;
   color: $white;
-  border: 1px solid $red-dark;
+  border: 1px solid $dark-red;
 
   &:first-of-type {
     border-top-left-radius: 3px;
@@ -1089,18 +1229,6 @@ label {
 
   .titled-person-select {
     flex: 1;
-  }
-}
-
-.pieces-list {
-  .list-container button {
-    padding: 0 10px;
-  }
-  .slot {
-    display: flex;
-    input {
-      flex: 1;
-    }
   }
 }
 

@@ -2,7 +2,7 @@
   <div :class="`overview ${this.property}-page`">
     <BackHeader :to="{ name: 'Editor' }" />
     <header>
-      <h1>{{ $tc(`property.${propertyName}`) }}</h1>
+      <h1>{{ $tc(`property.${fixedPropertyName}`) }}</h1>
       <div
         id="create-button"
         class="button"
@@ -17,10 +17,9 @@
     </header>
 
     <SearchField v-model="textFilter" :asyncSearch="search" />
-
     <List
       @remove="remove"
-      :error="error"
+      :error="listError"
       :loading="loading"
       :items="items"
       :filteredItems="items"
@@ -28,14 +27,29 @@
       <ListItem
         v-for="item of items"
         v-bind:key="item.key"
+        :disable="deleteButtonActive"
         :id="item.id"
-        :to="{
-          path: `${item.id}`,
-          append: true,
-        }"
       >
-        <ListItemCell>{{ item.name }}</ListItemCell>
-        <DynamicDeleteButton @click="remove(item.id)" />
+        <slot name="list-item-before" :item="item" />
+
+        <ListItemCell
+          :to="{
+            path: `${item.id}`,
+            append: true,
+          }"
+          >{{ item.name }}</ListItemCell
+        >
+        <Button
+          v-for="tool in tools"
+          :key="'tool-' + tool"
+          @click="() => $emit('tool', tool, { id: item.id })"
+          >{{ $t('editor.' + tool) }}</Button
+        >
+        <DynamicDeleteButton
+          @delete="deleteButtonRemove(item.id)"
+          @open="deleteButtonEnable()"
+          @cancel="deleteButtonDisable()"
+        />
       </ListItem>
     </List>
   </div>
@@ -52,8 +66,10 @@ import ListItemIdField from '../layout/list/ListItemIdField.vue';
 
 import ListItemCell from '../layout/list/ListItemCell.vue';
 import ListItem from '../layout/ListItem.vue';
-import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 import { camelCase } from 'change-case';
+
+import DeleteButtonMixin from '../mixins/deletebutton';
+import Button from '../layout/buttons/Button.vue';
 
 export default {
   name: 'OverviewPage',
@@ -65,52 +81,49 @@ export default {
     ListItemIdField,
     ListItem,
     ListItemCell,
-    DynamicDeleteButton,
+    Button,
   },
+  mixins: [DeleteButtonMixin],
   created: function () {
     this.list();
   },
   props: {
     query: String,
-    overridePropertyName: String,
-    overrideProperty: String,
     createPage: String,
+    tools: Array,
+    parameters: { type: Array, default: () => [] },
+    propertyName: String,
+    property: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
-    propertyName: function () {
-      return this.overridePropertyName
-        ? this.overridePropertyName
-        : this.property;
+    fixedPropertyName: function () {
+      return this.propertyName ? this.propertyName : this.property;
     },
     queryName: function () {
       return this.query ? this.query : camelCase(this.property);
-    },
-    property: function () {
-      return this.overrideProperty
-        ? this.overrideProperty
-        : this.$route.params.property.toLowerCase();
     },
   },
   data: function () {
     return {
       loading: true,
       items: [],
-      error_id: 0,
-      error: '',
       textFilter: '',
       searchId: 0,
+      listError: '',
     };
   },
-
   methods: {
     async list() {
       new Query(this.queryName)
-        .list(['id', 'name'])
+        .list(['id', 'name', ...this.parameters])
         .then((obj) => {
           this.$data.items = obj.data.data[this.queryName];
         })
         .catch(() => {
-          this.error = this.$t('error.loading_list');
+          this.listError = this.$t('error.loading_list');
         })
         .finally(() => {
           this.$data.loading = false;
@@ -124,7 +137,7 @@ export default {
         `{
             ${queryCommand}
             (text: "${this.textFilter}"){
-              id, name
+              ${['id', 'name', ...this.parameters].join(',')}
             }
           }`
       )
@@ -161,23 +174,21 @@ export default {
         });
     },
     displayError(err) {
-      this.error_id++;
-      let current_id = this.error_id;
-      this.error = err;
-
-      // Delete the error message if its the same message after X seconds.
-      setTimeout(() => {
-        if ((this.error_id = current_id)) {
-          this.error = '';
-        }
-      }, 3000);
+      this.$store.commit('printError', err);
     },
   },
 };
 </script>
 
+<style lang="scss">
+.overview {
+  .list-item a {
+    padding: 0.1rem 0.5rem;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
 .list {
   display: flex;
   flex-direction: column;

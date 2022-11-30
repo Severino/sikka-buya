@@ -10,6 +10,9 @@
       />
     </header>
     <div class="pagination-container">
+      <info v-if="pageInfo.total === 0" :alwaysShow="true"
+        >Keine Ergebnisse gefunden</info
+      >
       <slot />
     </div>
   </div>
@@ -17,9 +20,10 @@
 
 <script>
 import PageInfo from '../../models/pageinfo';
+import Info from '../forms/Info.vue';
 import PaginationControl from './PaginationControl.vue';
 export default {
-  components: { PaginationControl },
+  components: { PaginationControl, Info },
   props: {
     pageInfo: {
       type: Object,
@@ -51,6 +55,7 @@ export default {
   border: $border;
   border-radius: 4px;
   overflow: hidden;
+  background-color: $background-color;
 }
 
 header {

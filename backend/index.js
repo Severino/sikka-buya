@@ -1,4 +1,3 @@
-
 const run = require("./express")
 
 if (!process.env.useCli) {
@@ -14,6 +13,8 @@ const map = {
     dbHost: "DB_HOST",
     dbPort: "DB_PORT",
     dbPassword: "DB_PASSWORD",
+    dbReadOnlyUser: "DB_READ_ONLY_USER",
+    dbReadOnlyPassword: "DB_READ_ONLY_PASSWORD"
 }
 
 for (let [target, source] of Object.entries(map)) {

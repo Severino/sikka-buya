@@ -1,13 +1,21 @@
+import router from '../../router/router';
+import StringUtils from '../../utils/StringUtils';
+import Mint from './mint';
 
 
 function printName(person, clickedRuler) {
-    const active = person.id === clickedRuler.id
+    let active = false
+    if (clickedRuler.group) {
+        let inGroup = clickedRuler.items.find(clickedRuler => person.id === clickedRuler.id)
+        active = inGroup !== undefined
+    } else
+        active = person.id === clickedRuler.id
     let name = person.shortName || person.name || "Unbenannter Herrscher";
     return (active) ? `<span class="active">${name}</span>` : `<span>${name}</span>`;
 }
 
 function buildRulerList(personsArr, clickedRuler, orderedList = false,) {
-    if (!personsArr || personsArr.length == 0) return '-';
+    if (!personsArr || personsArr.length == 0) return StringUtils.missingText;
     else if (Array.isArray(personsArr) && personsArr.length > 1) {
         let str = orderedList ? '<ol>' : '<ul>';
         personsArr.forEach((person) => {
@@ -28,24 +36,50 @@ export function rulerPopup(coin, clickedRuler) {
         let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
         overlordsText = buildRulerList(sorted, clickedRuler, true);
     } else {
-        overlordsText = '-';
+        overlordsText = StringUtils.missingText;
     }
     let issuersText = buildRulerList(coin.issuers, clickedRuler);
+
+    let heirText = ""
+    if (coin.heir) {
+        heirText = `
+        <h3>Thronfolger des Kalifen</h3>
+        ${buildRulerList(coin.heir, clickedRuler)}
+        `
+    }
+
+
+
+    let route = router.resolve({
+        name: 'Catalog Entry',
+        params: { id: coin.id },
+    });
+
     return `
-        <header>
-          <span class="subtitle">${coin.mint.name}</span>
-        </header>
-        <h2>${coin.projectId}</h2>
-        ${!coin.excludeFromTypeCatalogue
-            ? `<a href="/catalog/${coin.id}" target="_blank" class="catalog-link">Katalogeintrag</a>`
+       ${Mint.popupMintHeader(coin.mint, ["underlined-header"])}
+        <div class="popup-body">
+            <div class="catalog-title">
+            <h2>${coin.projectId}</h2>
+            ${!coin.excludeFromTypeCatalogue
+            ? `<a href="${route.href}" target="_blank" class="catalog-link">Katalogeintrag</a>`
             : ''
+        }</div>
+            ${(!isCaliphCoin(coin)) ?
+            `<h3>Münzherr(en)</h3>
+                    ${issuersText}
+                    <h3>Oberherr(en)</h3>
+                    ${overlordsText}
+                    ` : ""
         }
-        
-        <h3>Münzherren</h3>
-        ${issuersText}
-        <h3>Oberherren</h3>
-        ${overlordsText}
-         <h3>Kalif</h3>
-        ${caliphText}
+            
+          
+            <h3>Kalif</h3>
+            ${caliphText}
+            ${heirText}
+        </div>
       `;
+}
+
+function isCaliphCoin(coin) {
+    return (coin?.issuers?.length === 0 && coin?.overlords?.length === 0 && coin?.caliph)
 }

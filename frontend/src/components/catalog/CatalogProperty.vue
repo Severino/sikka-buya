@@ -1,15 +1,20 @@
 <template>
   <div class="catalog-property">
-    <header>
+    <header v-if="label">
       <div v-if="label" class="property-label">
         {{ label }}
       </div>
 
-      <div v-if="info" class="popup-container">
-        <InfoIcon />
-        <popup>
-          {{ info }}
-        </popup>
+      <div
+        v-if="info"
+        class="popup-container"
+        ref="popupButton"
+        @click.stop.prevent="togglePopup()"
+      >
+        <popup-activator>
+          <InfoIcon />
+          <template v-slot:popup>{{ info }}</template>
+        </popup-activator>
       </div>
     </header>
 
@@ -21,20 +26,34 @@
 </template>
 
 <script>
-import InfoIcon from "vue-material-design-icons/InformationOutline.vue";
-import Popup from "../Popup.vue";
+import InfoIcon from 'vue-material-design-icons/InformationOutline.vue';
+import Popup from '../Popup/Popup.vue';
+import PopupActivator from '../Popup/PopupActivator.vue';
 
 export default {
-  name: "CatalogProperty",
+  name: 'CatalogProperty',
   components: {
     InfoIcon,
     Popup,
+    PopupActivator,
+  },
+  data() {
+    return {
+      popupOpened: false,
+    };
   },
   props: {
     label: String,
-    value: String,
     html: String,
     info: String,
+  },
+  methods: {
+    togglePopup() {
+      this.popupOpened = !this.popupOpened;
+    },
+    closePopup() {
+      this.popupOpened = false;
+    },
   },
 };
 </script>
@@ -42,13 +61,18 @@ export default {
 <style lang="scss" scoped>
 header {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+
+  .popup-activator {
+    margin-left: $padding;
+  }
 
   .material-design-icon {
-    $size: $small-font;
+    $size: $regular-font;
     width: $size;
     height: $size;
     color: $primary-color;
+    user-select: none;
   }
 }
 

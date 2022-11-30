@@ -1,0 +1,93 @@
+<template>
+  <div class="card" :class="className">
+    <img v-if="img" class="card-background-image" :src="img" />
+    <header>
+      <slot name="header" />
+    </header>
+    <div class="body">
+      <slot />
+    </div>
+    <footer>
+      <ArrowRight />
+    </footer>
+  </div>
+</template>
+
+<script>
+import ArrowRight from 'vue-material-design-icons/ArrowRight.vue';
+export default {
+  components: {
+    ArrowRight,
+  },
+  props: {
+    img: String,
+  },
+  computed: {
+    className() {
+      return this.img ? 'image-card' : '';
+    },
+  },
+};
+</script>
+
+<style lang='scss' scoped>
+.card {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+  color: $white;
+  background-size: cover;
+  position: relative;
+  background-color: $primary-color;
+  border: $border;
+  border-radius: 5px;
+  padding: $big-box-padding;
+
+  footer {
+    z-index: 100;
+  }
+
+  &:hover {
+    header {
+      min-height: 100%;
+    }
+  }
+
+  // filter: grayscale(50%);
+}
+
+.image-card {
+  header {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 25%;
+    box-sizing: border-box;
+    padding: $padding * 2;
+    background-color: rgba($primary-color, 0.75);
+    transition: min-height $transition-time;
+    backdrop-filter: blur(3px);
+  }
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+}
+
+footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.card-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>

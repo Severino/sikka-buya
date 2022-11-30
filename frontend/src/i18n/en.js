@@ -1,12 +1,6 @@
 const general = {
-    administration:
-        "administration",
     type:
         "type | types",
-    create_type:
-        "create new type",
-    manage_properties:
-        "manage properties",
     no:
         "no",
     type_catalogue:
@@ -23,7 +17,24 @@ const general = {
         "server status",
     delete_submit:
         "Delete",
+    user:
+        "user | users",
     yes: "yes"
+}
+
+const editor = {
+    important_properties:
+        "important properties",
+    manage_properties:
+        "manage properties",
+    create_type:
+        "create new type",
+    administration:
+        "administration",
+    assist_tools:
+        "assist tools",
+    compare_last_cleanup:
+        "compare last cleanup"
 }
 
 const property = {
@@ -51,7 +62,7 @@ const property = {
         "honorific | honorifics",
     isolated_character:
         "isolated character | isolated characters",
-    intermediate_inscript :
+    intermediate_inscript:
         "intermediate marginal inscription",
     inner_inscript:
         "inner marginal inscription",
@@ -112,7 +123,8 @@ const role = {
     warden: "mint warden | mint wardens",
     buyid: "Būyid | Būyids",
     caliph: "caliph | caliphs",
-    vassal: "vassal dynastie"
+    vassal: "vassal dynastie",
+    donator: "donator | donators"
 }
 
 const attribute = {
@@ -121,9 +133,7 @@ const attribute = {
     longitude:
         "longitude",
     latitude:
-        "latitude",
-    test:
-        "type",
+        "latitude"
 }
 
 
@@ -172,6 +182,7 @@ const navigation = {
 module.exports = {
     attribute,
     error,
+    editor,
     form,
     info,
     general,

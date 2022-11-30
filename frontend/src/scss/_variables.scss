@@ -1,44 +1,66 @@
 $sans-serif: 'Arimo';
+$arabic: 'Amiri';
 $font: $sans-serif,
-'Times New Roman',
-sans-serif;
+  $arabic,
+  sans-serif;
 
-$small-padding: 5px;
-$padding: 10px;
-$big-padding: 30px;
-$big-box-padding: 30px 50px;
+$tiny-padding: 0.15em;
+$small-padding: 0.3em;
+$padding: 0.5em;
+$big-padding: 0.8em;
+$big-box-padding: $big-padding $big-padding * 1.2;
+
+$page-bottom-spacing: 20rem;
 
 $white: #fefefe;
 $dark-white: #f1f1f1;
 $light-gray: #bfbebe;
-$gray: rgb(126, 126, 126);
+$gray: #7e7e7e;
 $dark-gray: #333;
 $black: #111;
 
 $text-color: $black;
 $background-color: whitesmoke;
 
-$primary-color: #48ac48;
+$blue: #4873ac;
 
 $yellow: #e4b20d;
-$green: #18f2b2;
-$red: #da4133;
+$green: #48ac48;
+$dark-green: #255725;
 
-$red-dark: darken($red, 10%);
+$red: #da4133;
+$dark-red: darken($red, 10%);
+
+$primary-color: $green;
+$dark-primary-color: #255725;
+
 
 $large-font: 1.2rem;
 $regular-font: 0.9rem;
-$small-font: 0.8rem;
+$small-font: 0.75rem;
 $xtra-small-font: 0.6rem;
 
 $border-color: rgb(204, 204, 204);
-$border-radius: 10px;
+$small-border-radius: 3px;
+$border-radius: 5px;
 $border-width: 1px;
+$big-border-width: 3px;
 $border: $border-width solid $border-color;
+$big-border: $big-border-width solid $border-color;
 
 $transition-time: 0.3s;
 $long-transition-time: 0.6s;
 
 $shadow-offset: 1px 2px;
-$shadow: $shadow-offset 5px rgba(0, 0, 0, 0.02);
+$shadow: $shadow-offset 5px rgba(0, 0, 0, 0.03);
 $strong-shadow: $shadow-offset 5px rgba(66, 66, 66, 0.2);
+
+@mixin box {
+  background-color: $white;
+  border-radius: 15px;
+  box-shadow: $shadow;
+  overflow: hidden;
+
+  background-color: $white;
+  @include box-padding($big-padding);
+}

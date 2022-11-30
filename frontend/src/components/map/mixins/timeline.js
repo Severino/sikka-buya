@@ -1,23 +1,74 @@
 import Query from '../../../database/query';
+import RequestBuffer from '../../../models/request-buffer';
+import URLParams from '../../../utils/URLParams';
+
+/**
+ * The methods inside the object get merged with 
+ * the implementing component.
+ * 
+ * To prevent giving internal methods a weird
+ * prefix and harming readablilty, we just 
+ * put them outside the object making them private.
+ * 
+ * Note: You must call the function with `method.call(this)` 
+ * if you want to have access to `this`. 
+ */
+function save() {
+    const option = { year: this.raw_timeline.value, timelineActive: this.timelineActive }
+    URLParams.update(option)
+    localStorage.setItem('map-timeline', JSON.stringify(option));
+}
+
+function load(options = {
+    year: 433,
+    timelineActive: true
+}) {
+    const optionsString = localStorage.getItem('map-timeline')
+
+    try {
+        let loadedOptions = JSON.parse(optionsString)
+        Object.assign(options, loadedOptions)
+    } catch (e) {
+        console.warn(e)
+    }
+
+    this.raw_timeline.value = URLParams.getInteger('year', options.year)
+    this.timelineActive = URLParams.getBoolean('timelineActive', options.timelineActive)
+}
+
+
 
 export default {
     data: function () {
         return {
-            raw_timeline: { from: null, to: null, value: null },
+            timelineActive: false,
+            raw_timeline: { from: 0, to: 100, value: 0 }, timeBuffer: null
         }
     },
+    mounted() {
+        this.timeBuffer = new RequestBuffer(100)
+    },
     methods: {
+        toggleTimeline() {
+            this.timelineActive = !this.timelineActive
+            save.call(this)
+        },
         timeChanged: async function (val) {
-            this.raw_timeline.value = val;
-            this.selectedMints = [];
-            /** 
-             * To allow proper editing, but also preventing the timeline
-             * to go above min and above max, we clamp the values for the 
-             * updateTimeline.
-             */
-            this.updateTimeline();
+            this.timeBuffer.update(val, () => {
+                this.raw_timeline.value = val;
+                /** 
+                 * To allow proper editing, but also preventing the timeline
+                 * to go above min and above max, we clamp the values for the 
+                 * timelineUpdated.
+                 */
+                this.timelineUpdated();
+                save.call(this)
+            })
+
         },
         initTimeline: async function (value) {
+            load.call(this)
+
             try {
                 let result = await Query.raw(
                     `{
@@ -35,8 +86,8 @@ export default {
                 console.error(e);
             }
         },
-        updateTimeline() {
-            throw new Error("Mixin requires method 'updateTimeline'.")
+        timelineUpdated() {
+            throw new Error("Mixin requires method 'timelineUpdated'.")
         }
     },
     computed: {

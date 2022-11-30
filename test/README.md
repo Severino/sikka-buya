@@ -14,5 +14,5 @@ Wenn sich die Datenbank ändert muss auch das Schema im Testordner angepasst wer
 Hierfür wird eine 'nur-Schema' export mit pg_dump durchgeführt.
 
 ```
-pg_dump.exe -U postgres -d coins --data-only -f coins_schema.sql
+pg_dump.exe -U postgres -d coins --ignore-table app_user --data-only -f coins_schema.sql
 ```

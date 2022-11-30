@@ -1,6 +1,5 @@
 
 export default function (name, variables = []) {
-    console.error(variables)
     return {
         data() {
             return {
@@ -21,7 +20,6 @@ export default function (name, variables = []) {
                         }
                     }
 
-
                     this.localstore_variables.forEach(key => {
                         if (Object.prototype.hasOwnProperty.call(this.$data, key)) {
                             this.$data[key] = data[key]
@@ -35,16 +33,18 @@ export default function (name, variables = []) {
                 const data = {}
                 this.localstore_variables.forEach(key => {
                     try {
-                        if (Object.prototype.hasOwnProperty.call(this.$data, key)) {
-                            const data_str = JSON.stringify(this.$data[key])
+                        if (Object.prototype.hasOwnProperty.call(this.$data, key) && this.$data[key] != null) {
                             data[key] = this.$data[key]
-
                         }
                     } catch (e) {
                         console.error(`Could not stringify key '${key}' of localstore ${this.name}.`, e)
                     }
                 })
-                localStorage.setItem(this.localstore_name, JSON.stringify(data))
+                try {
+                    localStorage.setItem(this.localstore_name, JSON.stringify(data))
+                } catch (e) {
+                    console.warn(e)
+                }
             }
         }
     }

@@ -1,4 +1,5 @@
 scalar Void
+scalar GeoJSON
 
 type AuthResponse {
   success: Boolean
@@ -7,33 +8,24 @@ type AuthResponse {
   user: User
 }
 
-input UserInput {
-  email: String!
-  password: String!
-}
-
 type User {
   id: ID
   email: String
   super: Boolean
 }
 
-type Name {
-  id: ID
-  name: String
-}
 
-input NameInput {
+type Material {
   id: ID
   name: String
+  color: String
 }
 
 input MintInput {
-  id: ID
   name: String
-  location: String
+  location: GeoJSON
   uncertain: Boolean
-  uncertainArea: String
+  uncertainArea: GeoJSON
   province: ID
 }
 
@@ -63,37 +55,43 @@ type ModCoinTypePagination {
   types: [ModCoinType]
 }
 
-
-
 type CoinType {
+  avers: CoinSideInformation
+  caliph: Person
+  coinMarks: [Name]
+  coinVerses: [Name]
+  cursiveScript: Boolean
+  donativ: Boolean
+  excludeFromMapApp: Boolean
+  excludeFromTypeCatalogue: Boolean
   id: ID
-  projectId: String
-  treadwellId: String
+  internalNotes: String
+  issuers: [TitledPerson]
+  literature: String
+  material: Material
   mint: Mint
   mintAsOnCoin: String
-  material: Name
-  nominal: Name
-  yearOfMint: String
-  donativ: Boolean
-  procedure: String
-  issuers: [TitledPerson]
-  overlords: [Overlord]
-  otherPersons: [Person]
-  caliph: Person
-  avers: CoinSideInformation
-  reverse: CoinSideInformation
-  cursiveScript: Boolean
-  coinMarks: [CoinMark]
-  literature: String
-  pieces: [String]
-  specials: String
-  excludeFromTypeCatalogue: Boolean
-  excludeFromMapApp: Boolean
-  internalNotes: String
-  yearUncertain: Boolean
   mintUncertain: Boolean
+  nominal: Name
+  otherPersons: [Person]
+  overlords: [Overlord]
+  pieces: [String]
+  plain_text: String
+  procedure: String
+  projectId: String
+  purity: Float 
+  reverse: CoinSideInformation
+  small: Boolean
+  specials: String
+  treadwellId: String
+  yearOfMint: String
+  yearUncertain: Boolean
 }
 
+type MintMaterials {
+  mint: Mint
+  materials: [Material]
+}
 
 type ModCoinType {
   id: ID
@@ -113,7 +111,7 @@ type ModCoinType {
   avers: CoinSideInformation
   reverse: CoinSideInformation
   cursiveScript: Boolean
-  coinMarks: [CoinMark]
+  coinMarks: [Name]
   literature: String
   pieces: [String]
   specials: String
@@ -122,7 +120,7 @@ type ModCoinType {
   internalNotes: String
   yearUncertain: Boolean
   mintUncertain: Boolean
-  reviewed:Boolean,
+  reviewed: Boolean
   completed: Boolean
 }
 
@@ -132,35 +130,38 @@ type ModReview {
 }
 
 input CoinTypeInput {
+  avers: CoinSideInformationInput
+  caliph: ID = null
+  coinMarks: [ID] = []
+  coinVerses: [ID] = []
+  cursiveScript: Boolean = false
+  donativ: Boolean = false
+  excludeFromMapApp: Boolean
+  excludeFromTypeCatalogue: Boolean
   id: ID = null
-  projectId: String = ""
-  treadwellId: String = ""
+  internalNotes: String
+  issuers: [TitledPersonInput] = []
+  literature: String = ""
+  material: ID = null
   mint: ID = null
   mintAsOnCoin: String = ""
-  material: ID = null
-  nominal: ID = null
-  yearOfMint: String = ""
-  donativ: Boolean = false
-  procedure: String = ""
-  issuers: [TitledPersonInput] = []
-  overlords: [OverlordInput] = []
-  otherPersons: [ID] = []
-  caliph: ID = null
-  avers: CoinSideInformationInput
-  reverse: CoinSideInformationInput
-  cursiveScript: Boolean = false
-  coinMarks: [ID] = []
-  literature: String = ""
-  pieces: [String] = []
-  specials: String = ""
-  excludeFromTypeCatalogue: Boolean
-  excludeFromMapApp: Boolean
-  internalNotes: String
-  yearUncertain: Boolean
   mintUncertain: Boolean
+  nominal: ID = null
+  otherPersons: [ID] = []
+  overlords: [OverlordInput] = []
+  pieces: [String] = []
+  procedure: String = ""
+  projectId: String = ""
+  purity: Float = null
+  reverse: CoinSideInformationInput
+  specials: String = ""
+  small: Boolean = false
+  treadwellId: String = ""
+  yearOfMint: String = ""
+  yearUncertain: Boolean
 }
 
-type CoinMark {
+type Name {
   id: ID
   name: String
 }
@@ -168,13 +169,13 @@ type CoinMark {
 type Mint {
   id: ID
   name: String
-  location: String
+  location: GeoJSON
   uncertain: Boolean
-  uncertainArea: String
+  uncertainArea: GeoJSON
   province: Name
 }
 
-input PersonInput  {
+input PersonInput {
   id: ID
   name: String
   shortName: String
@@ -222,49 +223,49 @@ type Query {
   environment: String
 
   # Tested in 004_coin_mark
-  coinMark: [CoinMark]
-  searchCoinMark(text: String): [CoinMark]!
-  getCoinMark(id: Int!): CoinMark
+  coinMark: [Name]
+  searchCoinMark(text: String): [Name]!
+  getCoinMark(id: ID!): Name
 
   # Tested in 005_nominal
   nominal: [Name]!
   searchNominal(text: String): [Name]!
-  getNominal(id: Int!): Name
+  getNominal(id: ID!): Name
 
   # Tested in 006_material
-  material(language: String): [Name]!
-  searchMaterial(text: String): [Name]!
-  getMaterial(id: Int!): Name
+  material: [Material]!
+  searchMaterial(text: String): [Material]!
+  getMaterial(id: ID!): Material
 
   # Tested in 007_mint
   mint: [Mint]!
   searchMint(text: String): [Mint]!
-  getMint(id: Int!): Mint
+  getMint(id: ID!): Mint
 
   # Tested in 008_role
   role: [Name]
   searchRole(text: String): [Name]!
-  getRole(id: Int!): Name
+  getRole(id: ID!): Name
 
   # Tested in 009_dynasty
   dynasty: [Name]!
   searchDynasty(text: String): [Name]!
-  getDynasty(id: Int!): Name
+  getDynasty(id: ID!): Name
 
   # Tested in 010_title
   title: [Name]!
   searchTitle(text: String): [Name]!
-  getTitle(id: Int!): Name
+  getTitle(id: ID!): Name
 
   # Tested in 011_honorifics
   honorific: [Name]!
   searchHonorific(text: String): [Name]!
-  getHonorific(id: Int!): Name
+  getHonorific(id: ID!): Name
 
   # Tested in 012_person
   person(role: ID, dynasty: ID): [Person]!
   searchPerson(text: String): [Person]!
-  getPerson(id: Int!): Person
+  getPerson(id: ID!): Person
 
   # Tested in 030_coin_type
   coinType(pagination: Pagination, filters: TypeFilter): CoinTypePagination
@@ -279,12 +280,33 @@ type Query {
 
   # TODO: missing Tests ---------------------------------------------
 
+  # Tested in 004_coin_mark
+  coinVerse: [Name]
+  searchCoinVerse(text: String): [Name]!
+  getCoinVerse(id: ID!): Name
+
+  mintMaterials: [MintMaterials]
+  getMaterialColor(id: ID!): String
+
+  getPersonMints: [MintPersons]
+
   province: [Name]
   searchProvince(text: String): [Name]
-  getProvince(id: ID!): [Name]
+  getProvince(id: ID!): Name
 
-  getTypesByRuler(id: ID!): [CoinType]
-  modGetTypes(pagination: Pagination, filters: ModTypeFilter, evalFilters:EvalFilter): ModCoinTypePagination
+  searchCaliph(text: String): [Person]
+  searchOverlord(text: String): [Person]
+  searchIssuer(text: String): [Person]
+
+  modGetTypes(
+    pagination: Pagination
+    filters: ModTypeFilter
+    evalFilters: EvalFilter
+  ): ModCoinTypePagination
+
+  timelineRuledBy(rulers:[ID]!, mints:[ID]): RulerIntArray
+  ruledMintCount(rulers: [ID]!,mints: [ID]): [RulerPointArray]
+  typeCountOfMints(ids: [ID]): [MintPointArray]
 
 
   timespan: Range
@@ -305,8 +327,10 @@ type Query {
   ): [Person]!
   searchPersonsWithoutRole(text: String!): [Person]!
 
+  isSuperUserSet: Boolean
+  databaseExists: Boolean
   users: [User]
-  login(data: UserInput): AuthResponse
+  login(email: String!, password: String!): AuthResponse
   auth(token: String): User
 
   getLang(id: ID!, table: String!, lang: String!, attr: String!): String
@@ -318,6 +342,33 @@ type Query {
     text: String
     pagination: Pagination
   ): PaginationTypeTextSearch
+}
+
+type MintPersons {
+  mint: Mint,
+  caliphs:[Person],
+  issuers: [Person],
+  overlords: [Person]
+}
+
+type MintPointArray {
+  mint: Mint
+  data: [Point]
+}
+
+type RulerIntArray {
+  ruler: [Person],
+  data: [Int]
+}
+
+type RulerPointArray {
+  ruler: Person,
+  data: [Point]
+}
+
+type Point {
+  x: Int
+  y: Int
 }
 
 type PaginationTypeTextSearch {
@@ -332,67 +383,76 @@ type TypeTextSearch {
 
 type Mutation {
   # Tested in 002_setup
-  setup(data: UserInput): AuthResponse
+  setup(email: String!, password: String!): AuthResponse
 
   # Tested in 003_user
   inviteUser(email: String): Boolean
   acceptInvite(email: String, password: String): Void
 
   # Tested in 004_coin_mark
-  addCoinMark(data: NameInput): Void
-  updateCoinMark(data: NameInput): Void
-  deleteCoinMark(id: Int): Void
+  addCoinMark(name: String!): Void
+  updateCoinMark(id: ID!, name: String!): Void
+  deleteCoinMark(id: ID): Void
 
   # Tested in 005_nominal
-  addNominal(data: NameInput): Void
-  updateNominal(data: NameInput): Void
-  deleteNominal(id: Int): Void
+  addNominal(name: String!): Void
+  updateNominal(id: ID!, name: String!): Void
+  deleteNominal(id: ID): Void
 
   # Tested in 006_material
-  addMaterial(data: NameInput): Void
-  updateMaterial(data: NameInput): Void
-  deleteMaterial(id: Int): Void
+  addMaterial(name: String!, color: String): ID
+  updateMaterial(id: ID!, name: String!, color: String): Void
+  deleteMaterial(id: ID): Void
 
   # Tested in 007_mint
   addMint(data: MintInput): ID
-  updateMint(data: MintInput): ID
-  deleteMint(id: Int): Void
+  updateMint(id: ID!, data: MintInput): Void
+  deleteMint(id: ID): Void
 
   # Tested in 008_role
-  addRole(data: NameInput): Void
-  updateRole(data: NameInput): Void
-  deleteRole(id: Int): Void
+  addRole(name: String!): Void
+  updateRole(id: ID!, name: String!): Void
+  deleteRole(id: ID): Void
 
   # Tested in 009_dynasty
-  addDynasty(data: NameInput): Void
-  updateDynasty(data: NameInput): Void
-  deleteDynasty(id: Int): Void
+  addDynasty(name: String!): Void
+  updateDynasty(id: ID!, name: String!): Void
+  deleteDynasty(id: ID): Void
 
   # Tested in 010_title
-  addTitle(data: NameInput): Void
-  updateTitle(data: NameInput): Void
-  deleteTitle(id: Int): Void
+  addTitle(name: String!): Void
+  updateTitle(id: ID!, name: String!): Void
+  deleteTitle(id: ID): Void
 
   # Tested in 011_honorifics
-  addHonorific(data: NameInput): Void
-  updateHonorific(data: NameInput): Void
-  deleteHonorific(id: Int): Void
+  addHonorific(name: String!): Void
+  updateHonorific(id: ID!, name: String!): Void
+  deleteHonorific(id: ID): Void
 
   # Tested in 012_person
   addPerson(data: PersonInput): Void
   updatePerson(data: PersonInput): Void
-  deletePerson(id: Int): Void
+  deletePerson(id: ID): Void
 
   # Tested in 030_coin_type
   addCoinType(data: CoinTypeInput): Void
-  removeCoinType(id: ID): Void
   updateCoinType(id: ID, data: CoinTypeInput): Void
+  deleteCoinType(id: ID): Void
 
   # TODO: missing Tests ---------------------------------------------
 
-  addProvince(data: NameInput): Void
-  updateProvince(data: NameInput): Void
-  deleteProvince(id: Int): Void
+  # Tested in 031_coin_verse
+  addCoinVerse(name: String!): Void
+  updateCoinVerse(id: ID!, name: String!): Void
+  deleteCoinVerse(id: ID): Void
+  moveCoinTypeToCoinVerse(id:ID):Void
+  moveCoinVerseToCoinType(id:ID):Void
+
+  deleteUser(id: ID): Void
+
+  addProvince(name: String!): Void
+  updateProvince(id: ID!, name: String!): Void
+  deleteProvince(id: ID): Void
 
   updateNote(text: String, property: String, propertyId: ID): Void
   updateLang(
@@ -408,6 +468,9 @@ type Mutation {
   setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
 
   changePersonExplorerOrder(person: ID!, position: Int!): Void
+
+  updateMaterialColor(id: ID!, color: String!): Void
+  deleteMaterialColor(id: ID): Void
 }
 
 input Pagination {
@@ -421,7 +484,7 @@ input EvalFilter {
 }
 
 input ModTypeFilter {
-  text: String
+  projectId: String
   donativ: Boolean
   cursiveScript: Boolean
   excludeFromTypeCatalogue: Boolean
@@ -430,7 +493,7 @@ input ModTypeFilter {
   mintUncertain: Boolean
   mint: ID
   caliph: ID
-  nominal: ID
+  nominal: ID 
   material: ID
   coinMark: ID
   reviewed: Boolean
@@ -438,19 +501,39 @@ input ModTypeFilter {
 }
 
 input TypeFilter {
-  text: String
-  donativ: Boolean
+  caliph: [ID]
+  coinMark: [ID]
+  coinMark_and_or: [[ID]]
+  coinMark_and: [ID]
+  coinMark_or_and: [[ID]]
+
+  coinVerse: [ID]
+  coinVerse_and_or: [[ID]]
+  coinVerse_and: [ID]
+  coinVerse_or_and: [[ID]]
+
   cursiveScript: Boolean
-  excludeFromTypeCatalogue: Boolean
+  donativ: Boolean
   excludeFromMapApp: Boolean
+  excludeFromTypeCatalogue: Boolean
+  honorific: [ID]
+  honorific_and: [ID]
+  material: [ID]
+  mint: [ID]
+  mintUncertain: Boolean
+  nominal: [ID]
+  otherPerson: [ID]
+  otherPerson_and: [ID]
+  plain_text: String
+  procedure: String
+  projectId: String
+  ruler: [ID]
+  ruler_and: [ID]
+  title: [ID]
+  title_and: [ID]
+  treadwellId: String
   yearOfMint: String
   yearUncertain: Boolean
-  mintUncertain: Boolean
-  mint: ID
-  caliph: ID
-  nominal: ID
-  material: ID
-  coinMark: ID
 }
 
 type PageInfo {
@@ -472,8 +555,7 @@ type Comment {
   text: String
 }
 
-
-interface IPerson{
+interface IPerson {
   id: ID
   name: String
   shortName: String
@@ -510,7 +592,7 @@ type TitledPerson implements IPerson & ITitled {
   honorifics: [Name]!
 }
 
-type Overlord implements IPerson & ITitled{
+type Overlord implements IPerson & ITitled {
   id: ID
   name: String
   shortName: String

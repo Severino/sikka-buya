@@ -1,32 +1,96 @@
 <template>
-  <div class="timeline" ref="element">
-    <div class="input-wrapper">
-      <input
-        type="number"
-        :value="value"
-        style="text-align: center"
-        @input="input"
-      />
-      <Info :alwaysShow="!valid" type="warning" class="info">
-        Der eingegebene Wert befindet sich außerhalb der Zeitleiste
-      </Info>
-    </div>
-    <br />
+  <div class="timeline" :class="{ hide: !this.timelineActive }" ref="element">
+    <div class="tool-box-drawer">
+      <header>
+        <div class="left">
+          <div
+            class="button icon-button"
+            @click="() => (slideshow.active = !slideshow.active)"
+          >
+            <PlusIcon v-if="!slideshow.active" />
+            <MinusIcon v-else />
+          </div>
 
-    <div class="toolbox">
-      <button type="button" @click.stop.prevent="down">
+          <div class="button icon-button" @click="togglePlay">
+            <PlayIcon v-if="!playing" />
+            <PauseIcon v-else />
+          </div>
+
+          <popup-activator :targetWidth="280" :noShadow="true">
+            <ShareIcon class="button icon-button" />
+            <template v-slot:popup>
+              <h3>Ansicht Teilen</h3>
+
+              <copy-field :value="shareLink" /> </template
+          ></popup-activator>
+        </div>
+
+        <div class="center"></div>
+
+        <div class="right">
+          <div v-if="allowToggle">
+            <div
+              class="button small-button rounded"
+              @click="toggleTimeline"
+              v-if="timelineActive"
+            >
+              Zeitleiste deaktivieren
+            </div>
+            <div
+              class="button small-button rounded"
+              @click="toggleTimeline"
+              v-else
+            >
+              Zeitleiste aktivieren
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <slideshow
+        v-if="slideshow.active"
+        :storagePrefix="timelineName"
+        ref="slideshow"
+      />
+    </div>
+
+    <!-- <button class="play-btn" @click="play">
+      <PlayIcon v-if="!playing" />
+      <PauseIcon v-else />
+    </button> -->
+
+    <div class="timeline-container">
+      <button type="button" @click.stop.prevent="down" @focus="focusTimeline">
         <MenuLeft />
       </button>
-      <input
-        type="range"
+
+      <timeline-slider
         :min="from"
         :max="to"
         :value="value"
         @change.stop="change"
-        @pointerdown="disableMap"
-        @pointerup="enableMap"
-      />
-      <button type="button" @click.stop.prevent="up">
+        @input.stop="change"
+        :labeledValue="10"
+        :subdivisions="2"
+        ref="timelineSlider"
+      >
+        <div class="input-wrapper">
+          <input
+            type="text"
+            :value="value"
+            style="text-align: center"
+            @input="input"
+          />
+          <Info :alwaysShow="!valid" type="warning" class="info">
+            Der eingegebene Wert befindet sich außerhalb der Zeitleiste
+          </Info>
+        </div>
+
+        <template #background>
+          <slot name="background" />
+        </template>
+      </timeline-slider>
+      <button type="button" @click.stop.prevent="up" @focus="focusTimeline">
         <MenuRight />
       </button>
     </div>
@@ -40,21 +104,113 @@ import MenuLeft from 'vue-material-design-icons/MenuLeft.vue';
 import MenuRight from 'vue-material-design-icons/MenuRight.vue';
 import Info from '../../forms/Info.vue';
 
+import PlayIcon from 'vue-material-design-icons/PlayCircleOutline.vue';
+import PauseIcon from 'vue-material-design-icons/PauseCircleOutline.vue';
+
+import PlusIcon from 'vue-material-design-icons/PlusCircleOutline.vue';
+import MinusIcon from 'vue-material-design-icons/MinusCircleOutline.vue';
+import ShareIcon from 'vue-material-design-icons/ShareVariant.vue';
+
+import TimerOff from 'vue-material-design-icons/TimerOff.vue';
+import Timer from 'vue-material-design-icons/Timer';
+
+import TimelineSlider from '../../forms/TimelineSlider.vue';
+import Button from '../../layout/buttons/Button.vue';
+import PopupActivator from '../../Popup/PopupActivator.vue';
+import CopyField from '../../forms/CopyField.vue';
+import Slideshow from './Slides/Slideshow.vue';
+import Settings from '../../../settings';
+
+let slideshowSettings = new Settings(window, 'Slideshow');
+const slideshow = slideshowSettings.load();
+
 export default {
-  components: { MenuLeft, MenuRight, Info },
+  components: {
+    Button,
+    Info,
+    MenuLeft,
+    MenuRight,
+    MinusIcon,
+    PauseIcon,
+    PlayIcon,
+    PlusIcon,
+    PopupActivator,
+    ShareIcon,
+    TimelineSlider,
+    Timer,
+    TimerOff,
+    CopyField,
+    Slideshow,
+  },
   props: {
     map: Object,
     from: Number,
     to: Number,
     value: Number,
     valid: Boolean,
+    timelineActive: {
+      default: true,
+      type: Boolean,
+    },
+    timelineName: String,
+    allowToggle: {
+      default: false,
+      type: Boolean,
+    },
+    shareLink: {
+      type: String,
+      require: true,
+    },
+  },
+  data() {
+    return {
+      playInterval: null,
+      slideshow,
+    };
+  },
+  watch: {
+    slideshow: {
+      handler() {
+        slideshowSettings.save();
+      },
+      deep: true,
+    },
+  },
+  computed: {
+    playing() {
+      return this.playInterval != null;
+    },
   },
   methods: {
+    setMapTo(options) {
+      this.map.setView(options.location, options.zoom, { animation: true });
+      this.changed(options.year);
+    },
+    togglePlay() {
+      if (this.playing) this.stop();
+      else this.start();
+    },
+    start() {
+      this.playInterval = setInterval(() => {
+        if (this.value + 1 <= this.to) {
+          this.up(true);
+        } else this.stop();
+      }, 750);
+    },
+    stop() {
+      clearInterval(this.playInterval);
+      this.playInterval = null;
+    },
     input(event) {
-      this.$emit('input', parseFloat(event.target.value));
+      this.stop();
+      this.$emit('input', parseFloat(event.currentTarget.value));
     },
     change(event) {
-      this.$emit('change', parseFloat(event.target.value));
+      this.changed(parseFloat(event.currentTarget.value));
+    },
+    changed(val, isPlaying = false) {
+      if (!isPlaying) this.stop();
+      this.$emit('change', val);
     },
     enableMap() {
       this.map.dragging.enable();
@@ -62,15 +218,11 @@ export default {
     disableMap() {
       this.map.dragging.disable();
     },
-    down(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.$emit('change', parseFloat(this.value - 1));
+    down(isPlaying = false) {
+      this.changed(parseFloat(this.value - 1), isPlaying);
     },
-    up(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      this.$emit('change', parseFloat(this.value + 1));
+    up(isPlaying = false) {
+      this.changed(parseFloat(this.value + 1), isPlaying);
     },
     init() {
       L.Control.Timeline = L.Control.extend({
@@ -84,39 +236,67 @@ export default {
       let timeline = new L.Control.Timeline();
       timeline.addTo(this.map);
     },
+
+    toggleTimeline() {
+      this.$emit('toggle', this.timelineActive);
+    },
+
+    focusTimeline() {
+      const htmlSlider =
+        this.$refs.timelineSlider.$el.querySelector('input[type=range]');
+      htmlSlider.focus();
+    },
   },
 };
 </script>
 
+<style lang="scss">
+.timeline {
+  transition: $transition-time transform;
+  transform: translateY(0);
+
+  &.hide {
+    transform: translateY(calc(100% + #{$padding} + 11px));
+  }
+
+  .slider {
+    border: 0;
+  }
+}
+</style>
+
+
 <style lang="scss" scoped>
-.toolbox {
+.timeline-container {
   display: flex;
-  > input[type='slider'] {
+  > .slider {
+    flex: 1;
+    border-radius: 0;
+  }
+}
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  > * {
     flex: 1;
   }
 }
+.timeline-container {
+  button {
+    border-radius: 0;
+  }
 
-.error {
-}
+  button:first-child {
+    border-top-left-radius: $border-radius;
+    border-bottom-left-radius: $border-radius;
+  }
 
-// .timeline {
-//   position: absolute;
-//   z-index: 1;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   background-color: white;
-//   margin: 0 auto;
-//   padding: 20px;
-//   width: 50%;
-// }
-
-button {
-  border: none;
-}
-
-input {
-  width: 100%;
+  button:last-child {
+    border-top-right-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+  }
 }
 
 .label {
@@ -124,14 +304,98 @@ input {
 }
 
 .input-wrapper {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  pointer-events: none;
 
   .info {
-    width: 100%;
+    width: calc(100% - #{$small-padding * 2});
+    margin: 0 $small-padding;
     position: absolute;
     left: 0;
-    top: -$padding/2;
-    transform: translateY(-100%);
+    bottom: $small-padding;
+    border-radius: 3px;
+    padding: $small-padding;
   }
+  input {
+    display: block;
+    padding: 5px;
+    min-width: 100px;
+    width: 10%;
+    max-width: 100%;
+    margin: auto;
+    pointer-events: all;
+    border: none;
+    font-weight: bold;
+    background-color: rgba($color: #ffffff, $alpha: 0.6);
+    border-bottom: 1px solid currentColor;
+
+    &:focus {
+      background-color: rgba($color: #ffffff, $alpha: 0.8);
+    }
+  }
+}
+
+.play-btn {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: $border;
+
+  $size: 75px;
+  width: $size;
+  height: $size;
+  border-radius: math.div($size, 2);
+}
+
+.tool-box-drawer {
+  position: absolute;
+  top: -5px;
+  transform: translateY(-100%);
+  width: 100%;
+
+  header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: space-between;
+    position: absolute;
+    width: 100%;
+    top: -5px;
+    transform: translateY(-100%);
+
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+
+    > * {
+      display: flex;
+    }
+
+    &:last-child {
+      margin-left: auto;
+    }
+
+    .center {
+      justify-self: center;
+    }
+    .right {
+      justify-self: flex-end;
+    }
+  }
+}
+
+.icon-button {
+  color: white;
+  padding: 0px;
+}
+
+.icon-button,
+.icon-button:hover,
+.icon-button:active {
+  background: none;
+  border: none;
 }
 </style>

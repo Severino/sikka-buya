@@ -22,18 +22,25 @@ import SlashForward from 'vue-material-design-icons/SlashForward.vue';
 export default {
   components: { Button, Check, Close, SlashForward },
   props: {
+    invert: Boolean,
     value: {
-      validator: (val) => val === true || val === false || val === null,
+      validator: (val) => val === true || val === false || val == null,
       defaultValue: null,
       required: true,
     },
   },
   methods: {
     select(state) {
+      state = this.invertIfNecessary(state);
       this.$emit('input', state);
     },
     isActive(state) {
+      state = this.invertIfNecessary(state);
       return { active: state === this.value };
+    },
+    invertIfNecessary(state) {
+      if (this.invert && state != null) state = !state;
+      return state;
     },
   },
 };
@@ -43,8 +50,9 @@ export default {
 <style lang="scss">
 .three-way-toggle {
   .material-design-icon {
-    width: 16px;
-    height: 16px;
+    $size: 14px;
+    width: $size;
+    height: $size;
   }
 }
 </style>
@@ -52,8 +60,9 @@ export default {
 <style lang="scss" scoped>
 .three-way-toggle {
   display: inline-flex;
-  border: 1px solid gray;
-  border-radius: $border-radius;
+
+  @include input();
+  padding: 0;
 
   .button {
     color: $gray;
@@ -61,10 +70,12 @@ export default {
     padding: 3px;
     border-radius: 0;
     border-color: transparent;
+    flex: 1;
+    justify-content: center;
 
     &.active {
       color: $white;
-      background-color: $gray;
+      background-color: $light-gray;
 
       &.yes {
         background-color: $green;

@@ -2,8 +2,8 @@
 import axios from "axios"
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
-import store from "../store";
 import { graphqlEndpoint } from './host';
+import { print } from 'graphql/language/printer';
 
 export default class Query {
 
@@ -27,19 +27,23 @@ export default class Query {
         return Query.raw(query)
     }
 
-    static async raw(query, variables) {
-
-        return new Query().raw(query, variables)
-
+    async raw(query, variables) {
+        return Query.raw(query, variables)
     }
 
 
-    async raw(query, variables = {}) {
-        // console.log(query)
+    static async gql(query, variables) {
+        const string = print(query)
+        return this.raw(string, variables)
+    }
+
+    static async raw(query, variables = {}, debug = false) {
+        if (debug)
+            console.log(query, JSON.stringify(variables))
         return new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject('Operation timed out.')
-            }, 5000)
+            }, 15000)
             axios({
                 url: graphqlEndpoint,
                 method: "post",
@@ -53,16 +57,16 @@ export default class Query {
                     resolve(result)
                 } else {
                     let errors = AxiosHelper.getErrors(result)
-                    if (errors[0] === "401") {
-                        store.commit("showLoginForm")
-                    }
-
                     reject(errors)
                 }
             }).catch((e) => {
                 if (e.isAxiosError) {
-                    console.error(e.response.data.errors[0])
-                    reject(e.response.data.errors.map(item => item.message).join(" --- "))
+                    if (e.response) {
+                        console.error(e.response.data.errors[0])
+                        reject(e.response.data.errors.map(item => item.message).join(" --- "))
+                    } else {
+                        reject("Server ist derzeit nicht erreichbar. Versuchen Sie es später nochmal.")
+                    }
                 } else reject(e)
             })
                 .finally(() => clearTimeout(timeout))
@@ -80,30 +84,11 @@ export default class Query {
         }
         properties = properties.slice(0, -2)
 
-        let query
-        if (!data.id) {
-            query = `
-            mutation {
-              add${this.capitalizedName}(
-                  data:{
-                  ${properties}
-                  }
-              )
-            }
-          `;
-        } else {
-            query = `
-            mutation {
-              update${this.capitalizedName}(
-                  data:{
-                  ${properties}
-                  }
-              )
-            }
-          `;
-        }
-
-        return this.raw(query)
+        const queryName = (data.id) ? "update" : "add"
+        return this.raw(`mutation {
+            ${queryName}${this.capitalizedName}(${properties})
+          }
+        `)
     }
 
     delete(id) {

@@ -6,9 +6,11 @@
       :title="$tc('property.honorific')"
       property="honorific"
       :error="error"
+      :disabled="disabled"
     >
-      <input v-model="honorific.id" type="hidden" />
+      <input id="honorific-id" v-model="honorific.id" type="hidden" />
       <input
+        id="honorific-name"
         type="text"
         v-model="honorific.name"
         :placeholder="$tc('attribute.name')"
@@ -33,6 +35,7 @@ export default {
         .get(id, ['id', 'name'])
         .then((result) => {
           this.honorific = result.data.data.getHonorific;
+          this.disabled = false;
         })
         .catch((err) => {
           this.$data.error = this.$t('error.loading_element');
@@ -43,6 +46,7 @@ export default {
         });
     } else {
       this.$data.loading = false;
+      this.disabled = false;
     }
   },
   methods: {
@@ -66,6 +70,7 @@ export default {
       error: '',
       loading: true,
       honorific: { id: -1, name: '' },
+      disabled: true,
     };
   },
 };

@@ -1,7 +1,7 @@
 
 const { expect } = require('chai')
 const { graphql } = require('../helpers/graphql')
-const TestUser = require('../helpers/test-user')
+const { User1 } = require('../mockdata/users')
 
 const startData = {
     "data": {
@@ -98,23 +98,23 @@ describe(`Dynasty Queries`, function () {
     })
 
     it("Unauthorized Add Rejected", async function () {
-        let promise = graphql(`mutation{addDynasty(data:{name:"test"})}`)
+        let promise = graphql(`mutation{addDynasty(name:"test")}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Add", async function () {
-        let promise = graphql(`mutation{addDynasty(data:{name:"test"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{addDynasty(name:"test")}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
 
     it("Unauthorized Update Rejected", async function () {
-        let promise = graphql(`mutation{updateDynasty(data:{id:6, name: "changed"})}`)
+        let promise = graphql(`mutation{updateDynasty(id:6, name: "changed")}`)
         await expect(promise).to.be.rejectedWith(["401"])
     })
 
     it("Update", async function () {
-        let promise = graphql(`mutation{updateDynasty(data:{id:6, name: "changed"})}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{updateDynasty(id:6, name: "changed")}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 
@@ -124,7 +124,7 @@ describe(`Dynasty Queries`, function () {
     })
 
     it("Delete", async function () {
-        let promise = graphql(`mutation{deleteDynasty(id:6)}`, {}, TestUser.users[0].token)
+        let promise = graphql(`mutation{deleteDynasty(id:6)}`, {}, User1.token)
         await expect(promise).to.be.fulfilled
     })
 

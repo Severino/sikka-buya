@@ -1,8 +1,6 @@
 <template>
   <div class="back-header">
-    <router-link @click="debug" :to="to"
-      ><ArrowLeft />{{ $t('navigation.back') }}</router-link
-    >
+    <router-link :to="to"><ArrowLeft />{{ $t('navigation.back') }}</router-link>
   </div>
 </template>
 
@@ -19,18 +17,11 @@ export default {
       required: true,
     },
   },
-  methods: {
-    debug: function() {
-      console.log('CLICKED');
-    },
-  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .back-header {
   width: 100%;
   left: 0;
@@ -43,6 +34,8 @@ h1 {
 }
 
 a {
+  @include resetLinkStyle();
+
   display: flex;
   align-items: center;
   color: black;
@@ -50,6 +43,14 @@ a {
   align-self: flex-start;
   padding: $padding;
   margin-top: $padding;
+
+  background-color: $white;
+  margin-left: -40px;
+  padding-left: 40px;
+  padding-right: 20px;
+  border-top-right-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+  box-shadow: $shadow;
 
   text-decoration: none;
 

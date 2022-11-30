@@ -18,7 +18,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 label {
-  margin-bottom: 10px;
+  margin-bottom: $small-padding;
 }
 
 .labeled-input-container {
@@ -28,5 +28,7 @@ label {
   > *:not(:first-child) {
     flex: 1;
   }
+
+  margin-bottom: $padding;
 }
 </style> 

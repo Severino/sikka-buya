@@ -43,7 +43,7 @@ export default {
   props: {
     value: { type: String, required: true },
     asyncSearch: {
-      required: true,
+      // required: true,
       type: Function,
     },
     mode: {
@@ -70,7 +70,7 @@ export default {
           this.timeout = null;
         }
 
-        this.search().finally(() => {
+        this.search(value).finally(() => {
           // Only change it back, when no input has occured in the meantime!
           if (this.i == this.pendingI) {
             this.pending = false;
@@ -83,16 +83,16 @@ export default {
       }
     },
     async buttonSearch() {
-      await this.search();
+      await this.search(this.value);
       this.pending = false;
     },
-    async search() {
-      return this.asyncSearch(this.value);
+    async search(value) {
+      return this.asyncSearch(value);
     },
     handleHotkey(event) {
       if (event.target == this.$refs.searchField) {
         if (event.key == 'Enter') {
-          this.search();
+          this.search(this.value);
         }
       }
     },
@@ -100,7 +100,7 @@ export default {
 
   computed: {
     active: function () {
-      return this.value != '';
+      return this.value && this.value != '';
     },
     isInputSearch: function () {
       return this.mode == 'input';
@@ -110,10 +110,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
 .search {
   display: flex;
   position: relative;
+  border-radius: $border-radius;
+
+  .material-design-icon {
+    color: $gray;
+  }
 
   &.active {
     input {
@@ -132,6 +136,7 @@ export default {
     box-sizing: border-box;
     flex: 1;
     transition: all 0.3s;
+    border-radius: $border-radius;
   }
 
   .spinner {

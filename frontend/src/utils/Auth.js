@@ -11,7 +11,12 @@ export default class Auth {
     }
 
     static saveUser(user) {
-        localStorage.setItem(this.userStore, JSON.stringify(user))
+        try {
+            localStorage.setItem(this.userStore, JSON.stringify(user))
+        }
+        catch (e) {
+            console.warn(e)
+        }
     }
 
     static loadUser() {
@@ -31,7 +36,13 @@ export default class Auth {
     }
 
     static loadToken() {
-        return localStorage.getItem(this.tokenStore)
+        let token;
+        try {
+            token = localStorage.getItem(this.tokenStore)
+        } catch (e) {
+            console.warn(e);
+        }
+        return token
     }
 
     static load() {
@@ -61,11 +72,15 @@ export default class Auth {
         const token = this.loadToken()
         let status = true
         if (token) {
-            let response = await Query.raw(`{
+            try {
+                let response = await Query.raw(`{
                 auth(token:"${token}"){id}
             }`)
+                return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
 
-            return (response && response.data && response.data.data && response.data.data.auth) ? response.data.data.auth : null
+            } catch (e) {
+                status = false
+            }
         } else {
             status = false
         }
@@ -80,10 +95,10 @@ export default class Auth {
 
     static async queryLogin(email, password) {
         return Query.raw(`{
-            login(data: {
+            login(
               email: "${email}",
               password: "${password}"
-            }){
+            ){
                 success
                 message
                 token

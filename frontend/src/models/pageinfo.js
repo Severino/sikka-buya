@@ -20,3 +20,12 @@ export default class PageInfo {
         })
     }
 }
+
+export class Pagination {
+    static fromPageInfo(pageInfo) {
+        return {
+            page: pageInfo.page,
+            count: pageInfo.count
+        }
+    }
+}

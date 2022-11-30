@@ -4,40 +4,45 @@
     <h1>User Management</h1>
     <section>
       <form submit.stop.prevent="">
-        <h2>Add User</h2>
+        <h2>Add New User</h2>
 
         <span>Email</span>
         <input type="email" v-model="inviteEmail" />
         <input type="submit" value="Invite" @click.prevent="inviteUser" />
-        <p v-if="inviteError">{{ inviteError }}</p>
       </form>
     </section>
     <section>
       <h2>Registered Users</h2>
       <div class="error" v-if="listError">{{ listError }}</div>
-      <ul>
-        <li v-for="user in users" :key="`user-id-${user.id}`">
-          <span class="name">{{ user.email }}</span>
-          <div class="permissions"></div>
-          <input :value="getInvitePath(user.email)" @click="copy" readonly />
-        </li>
-      </ul>
+      <div class="user-list">
+        <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
+          <span class="email">{{ user.email }}</span>
+          <div class="permissions">{{ user.super ? 'SUPER' : 'User' }}</div>
+          <copy-field :value="getInvitePath(user.email)" />
+          <dynamic-delete-button @delete="deleteUser(user.id)" />
+        </div>
+      </div>
     </section>
   </div>
 </template>
 
 <script>
 import Query from '../../database/query';
+import ErrorMessage from '../ErrorMessage.vue';
+import CopyField from '../forms/CopyField.vue';
 import BackHeader from '../layout/BackHeader.vue';
+import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 export default {
   name: 'UserManagement',
   components: {
     BackHeader,
+    CopyField,
+    ErrorMessage,
+    DynamicDeleteButton,
   },
   data: function () {
     return {
       listError: '',
-      inviteError: '',
       inviteEmail: '',
       users: [Object],
     };
@@ -46,19 +51,19 @@ export default {
     this.refreshUserList();
   },
   methods: {
-    copy: function ($event) {
-      let target = $event.currentTarget;
-      target.select();
-      document.execCommand('copy');
-    },
     getInvitePath: function (email) {
       return window.location.origin + '/invite/' + email;
+    },
+    deleteUser: async function (id) {
+      await Query.raw(`mutation{deleteUser(id:${id})}`);
+      this.refreshUserList();
     },
     refreshUserList: async function () {
       let result = await Query.raw(`{
             users{
                 email
                 id
+                super
             }
         }`);
 
@@ -78,12 +83,11 @@ export default {
       )
         .then((result) => {
           this.inviteEmail = '';
-          this.inviteError = '';
           this.refreshUserList();
         })
         .catch((err) => {
-          console.log(err);
-          this.inviteError = err;
+          console.error(err);
+          this.$store.commit('printError', err);
         });
     },
   },
@@ -91,8 +95,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+form {
+  @include box;
+}
 form > * {
   display: block;
   margin-top: $padding;
+}
+
+.user {
+  display: grid;
+  grid-template-columns: 3fr 1fr 5fr 40px;
+  gap: $padding;
+  align-items: center;
+  margin: $padding 0;
 }
 </style>

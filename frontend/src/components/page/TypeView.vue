@@ -1,8 +1,24 @@
 <template>
   <div class="type-view">
     <header>
-      <h1>{{ type.projectId }}</h1>
+      <h1 class="gm2">{{ type.projectId }}</h1>
+
+      <sikka-buya-button
+        v-if="!type.excludeFromMapApp"
+        :to="{ name: 'Political Map', query: { year: type.yearOfMint } }"
+        >zu Karte</sikka-buya-button
+      >
     </header>
+
+    <div v-if="type.donativ" class="box gm4">
+      <div>Geschenkmünze</div>
+    </div>
+    <div v-else class="blank gm4"></div>
+
+    <div v-if="type.procedure != 'pressed'" class="box gm4">
+      <div>gegossen</div>
+    </div>
+    <div v-else class="blank gm4"></div>
 
     <router-link
       v-if="$store.state.user"
@@ -14,87 +30,94 @@
       </button>
     </router-link>
 
-    <div class="property gm2 gd2">
-      <catalog-property :label="mapText('year')">
-        {{ printTypeProperty('year') }}
-        <!-- <template v-if="type.yearUncertain">?</template> -->
-      </catalog-property>
-    </div>
-    <div class="property gm2 gd2">
+    <div class="property gm2" id="mint-container">
       <catalog-property :label="mapText('mint')">
-        {{ printTypeProperty('mintAsOnCoin') }}
-        <template v-if="type.mintUncertain">?</template>
+        <div style="display: flex">
+          {{ printMintProperty() }}
+          <sikka-buya-button
+            v-if="mintHasLocation"
+            style="margin-left: auto"
+            :to="{
+              name: 'Political Map',
+              query: {
+                year: null,
+                location: JSON.stringify(mintLocation),
+                zoom: 10,
+                selectedMints: JSON.stringify([type.mint.id]),
+              },
+            }"
+            >zu Karte</sikka-buya-button
+          >
+        </div>
       </catalog-property>
-    </div>
-    <div
-      class="property gm2 gt4 gd4"
-      v-for="(val, idx) of ['nominal', 'material', 'donativ', 'procedure']"
-      v-bind:key="`property-${val}-${idx}`"
-    >
-      <catalog-property :label="mapText(val)">
-        {{ printTypeProperty(val) }}</catalog-property
-      >
+      <div class="property">
+        <catalog-property label="Prägeort wie auf Münze">
+          {{ printTypeProperty('mintAsOnCoin') }}
+        </catalog-property>
+      </div>
     </div>
 
-    <h2>{{ $tc('property.person', 2) }}</h2>
-    <div class="person-container gm1 gt1 gd1">
+    <div class="property gm2">
+      <catalog-property :label="mapText('year')">
+        {{ printYearProperty() }}
+      </catalog-property>
+    </div>
+
+    <div class="force-grid grid-col-2 property gm2">
+      <div
+        v-for="(val, idx) of ['material', 'nominal']"
+        v-bind:key="`property-${val}-${idx}`"
+      >
+        <catalog-property :label="mapText(val)">
+          {{ printTypeProperty(val, 'name') }}</catalog-property
+        >
+      </div>
+    </div>
+
+    <div class="person-container gm1">
+      <person-view
+        :overlords="type.overlords"
+        :issuers="type.issuers"
+        :caliph="type.caliph"
+        :heir="heir"
+      />
+    </div>
+
+    <div class="person-container gm1" v-if="hasOtherPersons">
+      <catalog-property v-if="cutter.length > 0" label="Stempelschneider">
+        <person-list :value="cutter" />
+      </catalog-property>
+
       <catalog-property
-        v-for="(personObj, idx) of persons"
-        v-bind:key="`person-${idx}`"
-        :label="
-          mapText(
-            personObj.name,
-            Array.isArray(personObj.value) ? personObj.value.length : 1
-          )
-        "
+        v-if="warden.length > 0"
+        :label="dynamicHeading('Münzwardein', 'Münzwardeien', warden)"
       >
-        <template v-if="Array.isArray(personObj.value)">
-          <ul>
-            <li
-              v-for="(person, pIdx) in personObj.value"
-              :key="`person-${personObj.name}-${pIdx}`"
-            >
-              {{ person }}
-            </li>
-          </ul>
-        </template>
-        <template v-else>{{ personObj.value }}</template>
+        <person-list :value="warden" />
+      </catalog-property>
+
+      <catalog-property v-if="donator.length > 0" label="Donator">
+        <person-list :value="donator" />
       </catalog-property>
     </div>
 
     <div
-      v-for="(sideObj, sideIdx) in [
-        { prop: 'avers', label: 'frontside', prefix: 'Av. ' },
-        { prop: 'reverse', label: 'backside', prefix: 'Rev. ' },
-      ]"
+      v-for="(sideObj, sideIdx) in existingCoinSideProperties"
       :key="`coin-sides-${sideIdx}`"
-      class="coin-side avers gm1 gt2 gd2"
+      :class="coinSideClass(sideObj, existingCoinSideProperties.length)"
     >
-      <h2>{{ $t(`property.${sideObj.label}`) }}</h2>
-
-      <catalog-property class="property">
+      <catalog-property
+        class="property coin-side-field"
+        v-if="getFilledFields(sideObj.name).length > 0"
+      >
         <catalog-property
-          v-for="(val, idx) of getFilledFields(sideObj.prop)"
+          v-for="(val, idx) of getFilledFields(sideObj.name)"
           :key="`property-${val}-${idx}`"
           :label="getCoinSideLabel(val, sideObj)"
         >
-          <div v-html="type[sideObj.prop][val]"></div>
+          <div v-html="type[sideObj.name][val]"></div>
         </catalog-property>
       </catalog-property>
     </div>
-
-    <catalog-property class="coin-marks gm2" :label="$t('property.coin_mark')">
-      <div class="error" v-if="!type.coinMarks">
-        Münzzeichen konnten nicht geladen werden
-      </div>
-      <div v-if="type.coinMarks && type.coinMarks.length > 0">
-        <span v-for="(cm, idx) in type.coinMarks" :key="`coin_mark-${cm.id}`"
-          >{{ cm.name
-          }}<template v-if="idx < type.coinMarks.length - 1">, </template></span
-        >
-      </div>
-      <div v-else>-</div>
-    </catalog-property>
 
     <catalog-property
       v-if="type.cursive"
@@ -110,13 +133,11 @@
       :html="type.specials"
       class="gm1"
     >
-      -
+      {{ this.missingText }}
     </catalog-property>
 
-    <h2>Sonstiges</h2>
-
     <div v-if="!type.literature" class="error">
-      Literatur &amp; Anmerkungen konnte nicht geladen werden
+      Literatur und Anmerkungen konnte nicht geladen werden
     </div>
     <catalog-property
       v-else-if="htmlHasContent(type.literature)"
@@ -128,31 +149,31 @@
       v-else
       :label="$t('property.literature_and_remarks')"
       class="gm2"
-      >-</catalog-property
+      >{{ this.missingText }}</catalog-property
     >
 
     <catalog-property :label="$tc('property.piece', 2)" class="gm2">
       <div v-if="!type.pieces" class="error">Stücke wurden nicht geladen!</div>
-      <div v-if="type.pieces && type.pieces.length == 0">-</div>
+      <div v-if="type.pieces && type.pieces.length == 0">
+        {{ this.missingText }}
+      </div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
-        <a :href="piece" target="_blank">
-          <img :src="getLogoFromPath(piece)" alt="" width="32" />
-          {{ piece }}</a
-        >
+        <a :href="piece" target="_blank"
+          >{{ piece }}<ExternalIcon :size="16"
+        /></a>
       </div>
     </catalog-property>
 
-    <catalog-property
-      v-if="type.treadwellId"
-      :label="$tc('property.treadwell_id')"
-      class="gm2"
-    >
-      {{ type.treadwellId ? type.treadwellId : '-' }}
+    <catalog-property :label="$tc('property.treadwell_id')" class="gm2">
+      {{ type.treadwellId ? type.treadwellId : missingText }}
     </catalog-property>
   </div>
 </template>
 
 <script>
+import Person from '../../utils/Person';
+import Text from '../../utils/Text';
+
 import CatalogItem from '../catalog/CatalogItem.vue';
 import LabeledField from '../display/LabeledField.vue';
 import CaseHelper from '../../utils/CaseHelper';
@@ -161,11 +182,16 @@ import Gift from 'vue-material-design-icons/GiftOutline';
 import Italic from 'vue-material-design-icons/FormatItalic.vue';
 import CatalogProperty from '../catalog/CatalogProperty.vue';
 import Row from '../layout/Row.vue';
-import Tag from '../Tag.vue';
 import Web from '../../utils/Web';
 
 import EditIcon from 'vue-material-design-icons/Pen.vue';
+import ExternalIcon from 'vue-material-design-icons/OpenInNew.vue';
+
 import Button from '../layout/buttons/Button.vue';
+import PersonView from '../Person/PersonView.vue';
+import PersonList from '../Person/PersonList.vue';
+import StringUtils from '../../utils/StringUtils';
+import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
 
 export default {
   name: 'TypeView',
@@ -177,15 +203,21 @@ export default {
   components: {
     CatalogItem,
     EditIcon,
+    ExternalIcon,
     LabeledField,
     Gift,
     Italic,
     CatalogProperty,
     Row,
-    Tag,
     Button,
+    PersonView,
+    PersonList,
+    SikkaBuyaButton,
   },
   methods: {
+    dynamicHeading() {
+      return Text.pluralizer(...arguments);
+    },
     getUndefinedString() {
       return 'Nicht Erfasst';
     },
@@ -202,45 +234,75 @@ export default {
         return this.getUndefinedString();
       } else return result[key];
     },
-    printTypeProperty(key, attr = 'name') {
-      let value = 'Unbekannt';
+    printTypeProperty(key, attr = null) {
+      let value = this.missingText;
 
-      let map = { year: 'yearOfMint' };
-
-      if (map[key]) {
-        key = map[key];
-      }
-
-      if (typeof this.type[key] == 'object') {
-        if (this.type[key]) {
-          if (this.type[key][attr] !== null) {
-            value = this.type[key][attr];
-          } else {
-            value = this.type[key];
-          }
+      if (this.type[key]) {
+        if (typeof this.type[key] == 'object') {
+          if (this.type[key][attr]) value = this.type[key][attr];
+        } else {
+          value = this.type[key];
         }
-      } else {
-        value = this.type[key];
-      }
 
-      if (typeof value == 'boolean') {
-        value = value ? 'Ja' : 'Nein';
+        if (typeof value == 'boolean') {
+          value = value ? 'Ja' : 'Nein';
+        }
+        if (value == 'pressed') value = this.$tc('property.procedures.pressed');
+        if (value == 'struck') value = this.$tc('property.procedures.struck');
       }
-      if (value == 'pressed') value = this.$tc('property.procedures.pressed');
-      if (value == 'struck') value = this.$tc('property.procedures.struck');
-
       return value;
     },
+    addQuestionMarkToString(str) {
+      return str + ' ?';
+    },
+    printMintProperty() {
+      let str = '';
+
+      if (this.type?.mint?.id) {
+        str = this.printTypeProperty('mint', 'name');
+      }
+
+      if (this.type.mintUncertain) {
+        str = this.addQuestionMarkToString(str);
+      }
+
+      return str.trim();
+    },
+    printYearProperty() {
+      let str = '';
+
+      if (this.type.yearOfMint != null) {
+        str = this.printTypeProperty('yearOfMint', 'name');
+      }
+
+      if (this.type.yearUncertain) {
+        str = this.addQuestionMarkToString(str);
+      }
+
+      return str.trim();
+    },
     getCoinSideLabel(val, sideObj) {
-      let fields = this.getFilledFields(sideObj.prop);
+      let fields = this.getFilledFields(sideObj.name);
       let fieldTextIdx = fields.indexOf('fieldText');
       if (fieldTextIdx != -1) fields.splice(fieldTextIdx, 1);
 
+      if (val === 'fieldText') return `${sideObj.prefix}Feld`;
+      if (val === 'misc') return `${sideObj.prefix}Randbeschriftung`;
+
       if (fields.length == 1 && val == 'innerInscript') {
-        return sideObj.prefix + ' Umschrift';
+        return sideObj.prefix + 'Umschrift';
       } else {
-        return sideObj.prefix + this.$tc(`property.${this.camelToSnake(val)}`);
+        switch (val) {
+          case 'innerInscript':
+            return `Innere ${sideObj.prefix}Umschrift`;
+          case 'intermediateInscript':
+            return `Mittlere ${sideObj.prefix}Umschrift`;
+          case 'outerInscript':
+            return `Äußere ${sideObj.prefix}Umschrift`;
+        }
       }
+
+      return 'UNBEKANNT';
     },
     getFilledFields(str) {
       let result = [];
@@ -251,7 +313,6 @@ export default {
           })
           .map(([key, val]) => key);
       }
-
       return result;
     },
 
@@ -291,61 +352,119 @@ export default {
 
       return this.$tc(val, num);
     },
+    coinSideClass(coinSideProperty, coinSideCount) {
+      let classes = ['coin-side', coinSideProperty.name, 'gm' + coinSideCount];
+      return classes.join(' ');
+    },
   },
   computed: {
-    persons: function () {
-      let personType = [
-        'issuers',
-        'overlords',
-        'caliph',
-        'heir',
-        'warden',
-        'cutter',
+    warden: function () {
+      return Person.getOtherPersonsByRoleName(this.type, 'warden');
+    },
+    cutter: function () {
+      return Person.getOtherPersonsByRoleName(this.type, 'cutter');
+    },
+    donator: function () {
+      return Person.getOtherPersonsByRoleName(this.type, 'donator');
+    },
+    heir: function () {
+      return Person.getOtherPersonsByRoleName(this.type, 'heir')[0];
+    },
+    hasOtherPersons() {
+      return this.type.otherPersons.length > 0;
+    },
+    coinSideProperties() {
+      return [
+        { name: 'avers', label: 'frontside', prefix: 'Avers-' },
+        { name: 'reverse', label: 'backside', prefix: 'Revers-' },
       ];
-
-      let filteredPersons = [];
-
-      personType.forEach((t) => {
-        if (this.type[t]) {
-          if (Array.isArray(this.type[t])) {
-            if (this.type[t].length == 1) {
-              filteredPersons.push({
-                name: t,
-                value: this.type[t][0].name,
-              });
-            } else if (this.type[t].length > 1) {
-              filteredPersons.push({
-                name: t,
-                value: this.type[t].map((item) => item.name),
-              });
-            }
-          } else {
-            filteredPersons.push({
-              name: t,
-              value: this.type[t].name,
-            });
-          }
-        }
+    },
+    existingCoinSideProperties() {
+      const existing = [];
+      this.coinSideProperties.forEach((property) => {
+        if (this.getFilledFields(property.name).length > 0)
+          existing.push(property);
       });
-
-      return filteredPersons;
+      return existing;
+    },
+    hasCoinSideContents() {
+      let hasCoinSide = false;
+      return hasCoinSide;
+    },
+    missingText() {
+      return StringUtils.missingText;
+    },
+    mintHasLocation() {
+      return (
+        this?.type &&
+        this.type.excludeFromMapApp === false &&
+        this.type?.mint?.location?.coordinates &&
+        Array.isArray(this.type.mint.location.coordinates)
+      );
+    },
+    mintLocation() {
+      if (!this?.type?.mint?.location?.coordinates) return [0, 0];
+      return this.type.mint.location.coordinates;
     },
   },
 };
 </script>
 
+
+<style lang="scss">
+.type-view {
+  ul {
+    margin: 0;
+  }
+}
+.type-view .coin-side .nameerty-label {
+  text-align: center;
+  margin: 0 auto;
+}
+</style>
+
 <style lang="scss" scoped>
 $columns: 4;
 .type-view {
+  margin-top: 2 * $padding;
   display: grid;
   gap: $padding;
   grid-template-columns: repeat($columns, 1fr);
-  margin-bottom: 50vh;
 }
 
-header,
-h2 {
-  grid-column: 1 / -1;
+#mint-container {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-row: span 2;
+
+  align-items: stretch;
+  // background-color: $white;
+}
+
+h1 {
+  margin: 0;
+  margin-left: $padding;
+
+  align-self: center;
+  // padding: 0 0 $padding 0;
+}
+
+.box {
+  display: flex;
+  background-color: $white;
+  align-items: center;
+  justify-content: center;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  grid-column: span 2;
+
+  margin-bottom: 1rem;
+  > * {
+    margin-right: $padding;
+  }
 }
 
 .gm1 {
@@ -356,16 +475,15 @@ h2 {
   grid-column: span 2;
 }
 
-.gt1 {
-  grid-column: span $columns;
-}
-
-.gt2 {
-  grid-column: span 2;
-}
-
-.gt4 {
+.gm4 {
   grid-column: span 1;
+}
+
+.gc {
+  justify-content: center;
+  align-self: center;
+  color: $primary-color;
+  text-align: center;
 }
 
 .coin-side {
@@ -393,9 +511,37 @@ h2 {
     width: $size;
     height: $size;
     color: $white;
-    border-radius: $size/2;
+    border-radius: math.div($size, 2);
     box-shadow: $shadow;
   }
+}
+
+.piece {
+  font-size: 1rem;
+  &:not(:last-child) {
+    margin-bottom: $padding;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    font-weight: normal;
+    line-height: 1.3rem;
+    color: $black;
+    text-decoration: underline;
+  }
+
+  .material-design-icon {
+    margin-left: 0.5rem;
+  }
+}
+
+.property {
+  display: flex;
+}
+
+.catalog-property {
+  flex: 1;
 }
 </style>
 

@@ -1,14 +1,15 @@
 <template>
   <div class="list-item">
     <div class="slot">
-      <slot></slot>
+      <slot />
     </div>
     <button
       type="button"
+      class="remove-button"
       :class="removing ? 'removing' : ''"
       @click="triggerRemove"
     >
-      <Minus />
+      <Minus :size="16" />
     </button>
   </div>
 </template>
@@ -26,6 +27,7 @@ export default {
       default: null,
       required: true,
     },
+    tools: Array,
   },
   data: function () {
     return {
@@ -50,8 +52,6 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-@import '@/scss/_import.scss';
-
 .list-item {
   display: flex;
   align-items: center;
@@ -60,7 +60,6 @@ export default {
 
 .list-item > :first-child {
   flex: 1;
-  // margin-right: 10px;
 }
 
 button {
@@ -71,15 +70,18 @@ button {
   justify-content: center;
   align-items: center;
 
-  $size: 38px;
+  $size: 24px;
   width: $size;
   height: $size;
   border-color: #cccccc;
 
   transition: background-color 0.2s;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: none;
 
   .material-design-icon {
-    margin-top: 4px;
+    margin-top: 1px;
   }
 
   background-color: #bdbdbd;

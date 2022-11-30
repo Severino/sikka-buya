@@ -1,126 +1,92 @@
 <template>
   <div class="page">
-    <h1>
-      <select @input="xChanged">
-        <option
-          v-for="(val, index) of values"
-          :value="val"
-          :key="index"
-          :selected="val == x"
-        >
-          {{ val }}
-        </option>
-      </select>
-      /
-      <select @input="yChanged">
-        <option
-          v-for="(val, index) of values"
-          :value="val"
-          :key="index"
-          :selected="val == y"
-        >
-          {{ val }}
-        </option>
-      </select>
-    </h1>
+    <header>
+      <h2>Analytics Table</h2>
+
+      <div class="select-row">
+        <labeled-property label="X-Achse">
+          <select @input="xChanged">
+            <option
+              v-for="(val, index) of values"
+              :value="val"
+              :key="index"
+              :selected="val == x"
+            >
+              {{ val }}
+            </option>
+          </select>
+        </labeled-property>
+        <labeled-property label="Y-Achse">
+          <select @input="yChanged">
+            <option
+              v-for="(val, index) of values"
+              :value="val"
+              :key="index"
+              :selected="val == y"
+            >
+              {{ val }}
+            </option>
+          </select>
+        </labeled-property>
+        <labeled-property label="Skalierung">
+          <slider
+            :min="0"
+            :max="1"
+            :value="scale"
+            @input="updateScale"
+            :step="0.01"
+          />
+        </labeled-property>
+      </div>
+    </header>
     <div v-if="error" class="error"></div>
-    <table>
-      <thead>
-        <tr>
-          <td></td>
-          <td v-for="(itemX, xIdx) of xValues" :key="'row-' + xIdx">
-            {{ itemX }}
-          </td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(itemY, yIdx) in yValues" :key="'head-' + yIdx">
-          <td>{{ itemY }}</td>
-          <td
-            v-for="(itemX, xIdx) of xValues"
-            v-bind:key="'cell-' + yIdx + '-' + xIdx"
-            class="color-box"
-            :class="{ exists: getTypesFromMap(itemX, itemY).length != 0 }"
-          >
-            {{ getTypesFromMap(itemX, itemY).length }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div
+      class="viewport"
+      ref="viewport"
+      @scroll.passive="pinTableHeaders($event)"
+    >
+      <table ref="table">
+        <thead>
+          <tr>
+            <td></td>
+            <td v-for="(itemX, xIdx) of xValues" :key="'row-' + xIdx">
+              {{ itemX }}
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(itemY, yIdx) in yValues" :key="'head-' + yIdx">
+            <td>{{ itemY }}</td>
+            <td
+              v-for="(itemX, xIdx) of xValues"
+              v-bind:key="'cell-' + yIdx + '-' + xIdx"
+              class="color-box"
+              :class="{ exists: getTypesFromMap(itemX, itemY).length != 0 }"
+            >
+              {{ getTypesFromMap(itemX, itemY).length }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script>
+import gql from 'graphql-tag';
 import Query from '../../../database/query';
+import Slider from '../../forms/Slider.vue';
+import LabeledProperty from '../../display/LabeledProperty.vue';
+import RequestBuffer from '../../../models/request-buffer';
 export default {
+  components: { Slider, LabeledProperty },
   name: 'YearMintTablePage',
   created: function () {
     this.fetchTypes();
 
-    // Query.raw(
-    //   `{
-    //         getTypes{projectId, yearOfMint, mint{name} }
-    //     }`
-    // )
-    //   .then((result) => {
-    //     let data =
-    //       result && result.data && result.data.data && result.data.data.getTypes
-    //         ? result.data.data.getTypes
-    //         : null;
-    //     if (data) {
-    //       let map = {};
-    //       let years = new Set();
-    //       data.forEach((d) => {
-    //         if (d.mint !== null && d.mint.name !== null) {
-    //           const mint = d.mint.name;
-    //           const year = d.yearOfMint;
-    //           if (!map[mint]) map[mint] = new Set();
-    //           map[mint].add(year);
-    //           if (year.match(/^[1-9]*$/)) {
-    //             let numYear = parseInt(year);
-    //             if (numYear) {
-    //               years.add(numYear);
-    //             } else console.error('Year is no number', year);
-    //           }
-    //         }
-    //       });
-    //       // Max Gap must be x >= 2
-    //       const maxGap = 5;
-    //       const values = years.values();
-    //       let yearArray = Array.from(values).sort();
-    //       let yearWithGapsArray = [];
-    //       if (yearArray.length > 0) {
-    //         for (let i = 0; i <= yearArray.length - 1; i++) {
-    //           // if(year == 123) continue
-    //           const year = yearArray[i];
-    //           yearWithGapsArray.push(year);
-    //           let nextYear = yearArray[i + 1];
-    //           let gap = nextYear - year;
-    //           if (gap > maxGap) {
-    //             yearWithGapsArray.push(
-    //               `${year + 1} ... ${nextYear - 1} (${nextYear - year - 2})`
-    //             );
-    //           } else {
-    //             for (let j = parseInt(year) + 1; j < nextYear; j++) {
-    //               if (j == 125) console.error('DANGER', year, nextYear);
-    //               yearWithGapsArray.push(j);
-    //             }
-    //           }
-    //         }
-    //         yearWithGapsArray.push(yearArray[yearArray.length - 1]);
-    //       }
-    //       this.years = yearWithGapsArray;
-    //       this.map = map;
-    //     } else {
-    //       const message = 'No data received!';
-    //       console.error(message);
-    //       this.error = message;
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     this.error = err;
-    //     console.log(err);
-    //   });
+    this.pinXBuffer = new RequestBuffer(25, true);
+    this.pinYBuffer = new RequestBuffer(25, true);
   },
   data: function () {
     return {
@@ -132,23 +98,64 @@ export default {
       map: new Map(),
       plainValues: ['yearOfMint'],
       nameObjects: ['mint', 'material', 'nominal'],
+      scale: 1,
+      pinXBuffer: null,
+      pinYBuffer: null,
     };
   },
   methods: {
-    fetchTypes() {
-      Query.raw(
-        `{
-      getTypes{
-          ${this.getQuery(this.x)}
-          ${this.getQuery(this.y)}
+    updateScale(event) {
+      this.scale = parseFloat(event.currentTarget.value);
+      this.$refs.table.style.transformOrigin = 'top left';
+      this.$refs.table.style.transform = `scale(${this.scale})`;
+
+      this.pinTableHeaders();
+    },
+    async fetchTypes() {
+      let page = 0;
+      const requestSize = 100;
+      let done = false;
+      let types = [];
+      try {
+        while (!done) {
+          const query = gql`
+            {
+              coinType(
+                pagination: { count: ${requestSize}, page: ${page} },
+                filters: {excludeFromTypeCatalogue: false}) {
+                types {
+                  ${this.getQuery(this.x)}
+                   ${this.getQuery(this.y)}
+                }
+                pageInfo {
+                  page
+                  count
+                  last
+                }
+              }
+            }
+          `;
+
+          let results = await Query.gql(query);
+          const properties = results?.data?.data?.coinType;
+          const pageInfo = properties?.pageInfo;
+          const _types = properties?.types;
+
+          if (_types) {
+            types.push(..._types);
+          }
+
+          if (!properties || !pageInfo || pageInfo.last === pageInfo.page) {
+            done = true;
+          }
+          page++;
+        }
+
+        this.types = types;
+        this.updateMap();
+      } catch (e) {
+        console.error('Could not fetch types: ', e);
       }
-    }`
-      )
-        .then((result) => {
-          this.types = result?.data?.data?.getTypes;
-          this.updateMap();
-        })
-        .catch(console.error);
     },
     xChanged(event) {
       this.x = event.target.value;
@@ -157,6 +164,27 @@ export default {
     yChanged(event) {
       this.y = event.target.value;
       this.fetchTypes();
+    },
+    pinTableHeaders(event) {
+      const scrollLeft = this.$refs.viewport.scrollLeft;
+
+      this.pinXBuffer.update(scrollLeft, (value) => {
+        var scaleX =
+          this.tableHead.getBoundingClientRect().width /
+          this.tableHead.offsetWidth;
+        this.tableFirstColumn.forEach((td) => {
+          td.style.left = `${value / scaleX}px`;
+        });
+      });
+
+      const scrollTop = this.$refs.viewport.scrollTop;
+
+      this.pinYBuffer.update(scrollTop, (value) => {
+        var scaleX =
+          this.tableHead.getBoundingClientRect().width /
+          this.tableHead.offsetWidth;
+        this.tableHead.style.top = `${value / scaleX}px`;
+      });
     },
     typeByMintAndYear(mint, year) {
       return this.map[mint].has(year.toString());
@@ -222,29 +250,58 @@ export default {
     yValues: function () {
       return this.labelsFromType(this.y);
     },
+    tableHead: function () {
+      return this.$refs.table.querySelector('thead');
+    },
+    tableFirstColumn: function () {
+      return this.$refs.table.querySelectorAll('td:first-of-type');
+    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.slider {
+  margin: 10px;
+}
+.page {
+  max-height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+
+  // font-size: 10px;
+}
+
+.viewport {
+  overflow: scroll;
+  background-color: white;
+  flex: 1 0 0;
+}
+
+.select-row {
+  display: flex;
+  width: 100%;
+  > * {
+    flex: 1;
+    display: block;
+
+    select {
+      display: block;
+      width: 100%;
+    }
+  }
+}
+
 thead {
-  position: sticky;
+  z-index: 1;
+  position: relative;
   top: 0;
   background-color: rgba(whitesmoke, 0.95);
 }
 
 h1 {
   margin-bottom: 1em;
-}
-.page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-
-  align-items: flex-start;
-  padding: 3em 0;
-
-  // font-size: 10px;
 }
 
 .color-box {
@@ -266,5 +323,11 @@ td {
   width: 50px;
   min-width: 50px;
   height: 30px;
+}
+
+td:first-of-type {
+  position: relative;
+  left: 0;
+  background-color: rgba(whitesmoke, 0.95);
 }
 </style>

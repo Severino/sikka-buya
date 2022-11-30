@@ -3,7 +3,7 @@
     <Column class="container" :class="{ empty: empty }">
       <div class="search">
         <Column>
-          <h2>Typensuche (Volltext)</h2>
+          <h1>Volltextsuche</h1>
           <p class="emph">
             Beachte: Da dies vorerst als Bearbeiter-Tool gedacht ist, werden
             alle Typen angezeigt ungeachtet davon, ob 'Nicht für Typenkatalog"
@@ -25,7 +25,7 @@
           <list-item
             v-for="{ preview, type } of results"
             :key="'type-search-result-' + type.id"
-            :to="{ name: 'CatalogEntry', params: { id: type.id } }"
+            :to="{ name: 'Catalog Entry', params: { id: type.id } }"
           >
             <div class="result-id">{{ type.projectId }}</div>
             <pre class="result-preview" v-html="preview"></pre>
@@ -117,7 +117,6 @@ export default {
         .catch((err) => (this.error = err));
     },
     pageChanged(pageInfo) {
-      console.log(pageInfo);
       this.pageInfo = pageInfo;
       this.search();
     },

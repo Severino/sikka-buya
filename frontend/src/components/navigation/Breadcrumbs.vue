@@ -1,0 +1,104 @@
+<template>
+  <div class="breadcrumbs">
+    <span class="crumb" v-for="match in matched" :key="match.name">
+      <router-link :to="match"> {{ $tc(`routes.${match.name}`) }}</router-link>
+    </span>
+  </div>
+</template>
+
+<script>
+export default {
+  computed: {
+    matched() {
+      const matched = this.$route.matched;
+      const parts = [];
+      if (matched.length > 0) {
+        for (let i = 1; i < matched.length; i++) {
+          const match = matched[i];
+          const last = matched[i - 1];
+
+          if (last?.redirect?.name) {
+            const matchRedir = match.name.replace('/', '');
+            const lastRedir = last.redirect.name.replace('/', '');
+            if (lastRedir !== matchRedir) {
+              parts.push(last);
+            }
+          } else {
+            parts.push(last);
+          }
+        }
+
+        parts.push(matched[matched.length - 1]);
+      }
+
+      return parts;
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.breadcrumbs {
+  padding: $padding;
+  display: flex;
+  max-width: 100%;
+  overflow-y: auto;
+}
+
+.crumb {
+  $color: $white;
+
+  @mixin common {
+    content: '';
+    height: 0;
+    display: inline-block;
+    border: 17px solid transparent;
+  }
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  margin-left: -12px;
+
+  a {
+    color: $gray;
+    background-color: $color;
+    padding: $padding;
+  }
+
+  &:first-child {
+    a {
+      padding-left: 3 * $padding;
+    }
+  }
+
+  &:not(:first-child) {
+    &:before {
+      @include common;
+      border-right-width: 0;
+      border-top-color: $color;
+      border-bottom-color: $color;
+    }
+  }
+
+  &:after {
+    @include common;
+    border-right-width: 0;
+    border-left-color: $color;
+  }
+
+  &:last-child {
+    a {
+      color: $green;
+    }
+    &:after {
+      @include common;
+      border-right-width: 17px;
+      border-color: $color;
+      border-top-right-radius: 17px;
+      border-bottom-right-radius: 17px;
+    }
+  }
+}
+</style>
