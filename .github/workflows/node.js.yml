@@ -30,7 +30,7 @@ jobs:
 
     steps:
 
-#    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 #    - name: Use Node.js ${{ matrix.node-version }}
 #      uses: actions/setup-node@v3
 #      with:
@@ -41,7 +41,7 @@ jobs:
 #    - run: yarn install
 #    
 #    - name: Create .env file for test environment
-     - run: echo $PWD
-     - run: echo "${{ secrets.ENV_FILE }}" > test/.env
+
+    - run: echo "${{ secrets.ENV_FILE }}" > sikka-buya/test/.env
 #    - run: npm run build --if-present
 #    - run: cd test && grunt test
