@@ -42,18 +42,18 @@ jobs:
       - name: Create .env file for test environment
         run: |
          touch test/.env
-         echo DB_SUPER_USER=postgres
-         echo DB_SUPER_PASSWORD=postgres
-         echo DB_SUPER_NAME=postgres
-         echo DB_READ_ONLY_USER=test_visitor
-         echo DB_READ_ONLY_PASSWORD=test_visitor
-         echo DB_USER=adub
-         echo DB_PASSWORD=adub
-         echo DB_NAME=sikka-buya-test-database
-         echo DB_HOST=localhost
-         echo DB_PORT=5432
-         echo JWT_SECRET=secret
-         echo MAX_SEARCH=100
+         echo DB_SUPER_USER=postgres >> test/.env
+         echo DB_SUPER_PASSWORD=postgres >> test/.env
+         echo DB_SUPER_NAME=postgres >> test/.env
+         echo DB_READ_ONLY_USER=test_visitor >> test/.env
+         echo DB_READ_ONLY_PASSWORD=test_visitor >> test/.env
+         echo DB_USER=adub >> test/.env
+         echo DB_PASSWORD=adub >> test/.env
+         echo DB_NAME=sikka-buya-test-database >> test/.env
+         echo DB_HOST=localhost >> test/.env
+         echo DB_PORT=5432 >> test/.env
+         echo JWT_SECRET=secret >> test/.env
+         echo MAX_SEARCH=100 >> test/.env
          cat test/.env
 #    - run: npm run build --if-present
       - run: |
