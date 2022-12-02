@@ -52,7 +52,7 @@ export function dataFromRulers(rulers, { selected = [], options = {} }) {
             if (selected.length > 0) {
                 sel = selected.indexOf(ruler.id) !== -1
             }
-            fillColor = (sel) ? ruler.color : Color.getInactiveColor(ruler.color, options.unselectedColorIntensity || 0.85)
+            fillColor = (sel) ? ruler.color : Color.getInactiveColor()
         }
 
         data = Object.assign({

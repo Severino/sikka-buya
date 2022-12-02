@@ -266,8 +266,8 @@ export default class PoliticalOverlay extends Overlay {
         let heirColor = (heir.color) ? heir.color : Color.MissingColor
 
         if (selectedRulers.length > 0) {
-          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor(caliphColor, this.settings.settings.unselectedColorIntensity)
-          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor(heirColor, this.settings.settings.unselectedColorIntensity)
+          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor()
+          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor()
         }
 
         const stripes = new L.StripePattern({

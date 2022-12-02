@@ -45,16 +45,6 @@
             :max="overlaySettings.maxRadiusMaximum"
           />
         </labeled-input-container>
-        <labeled-input-container label="Farbintensität f. inaktive Herrscher">
-          <slider
-            name="unselectedColorIntensity"
-            :value="overlaySettings.unselectedColorIntensity"
-            @input="overlaySettingsChanged"
-            :step="0.05"
-            :min="overlaySettings.unselectedColorIntensityMin"
-            :max="overlaySettings.unselectedColorIntensityMax"
-          />
-        </labeled-input-container>
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center">

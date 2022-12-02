@@ -52,10 +52,7 @@ const DefaultSettings = {
         innerRadius: 6,
         maxRadius: 30,
         maxRadiusMinimum: 10,
-        maxRadiusMaximum: 100,
-        unselectedColorIntensity: 0.85,
-        unselectedColorIntensityMin: 0.5,
-        unselectedColorIntensityMax: 1
+        maxRadiusMaximum: 100
     },
     MaterialOverlay: {
         _requires: ["Timeline", "Overlay"],
