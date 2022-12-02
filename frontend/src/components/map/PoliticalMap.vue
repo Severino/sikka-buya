@@ -507,17 +507,17 @@ export default {
     },
     drawStripedAndBlock(timelineRuledBy) {
       const height = this.$refs.timeline.$el.offsetHeight;
-      const colors = timelineRuledBy.ruler.map((ruler) =>
-        Color.hexToRGBA(ruler.color, 0.25)
-      );
       const points = timelineRuledBy.data || [];
 
-      var fill =
-        colors.length > 1
-          ? this.timelineChart
-              .getContext()
-              .createPattern(Pattern.createLinePattern(colors, 10), 'repeat')
-          : 'rgba(0,0,0,0.1)';
+      var fill = this.timelineChart
+        .getContext()
+        .createPattern(
+          Pattern.createLinePattern(
+            [Color.Gray, Color.hexBrighten(Color.Gray, 0.5)],
+            10
+          ),
+          'repeat'
+        );
 
       const combinedRanges = Range.fromNumberSequence(points);
       this.timelineChart.drawRangeRectOnCanvas(combinedRanges, 0, height, fill);

@@ -51,7 +51,7 @@ export default class Color {
     }
 
     static getInactiveColor(color = null, intensity = 0.85) {
-        const inactiveColor = "#dddddd"
+        const inactiveColor = Color.Gray
         if (color == null)
             return "#dddddd"
         else
@@ -60,5 +60,9 @@ export default class Color {
 
     static get White() {
         return "#ffffff"
+    }
+
+    static get Gray() {
+        return "#dddddd"
     }
 }
