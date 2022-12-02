@@ -343,27 +343,11 @@ export default {
     });
   },
   mounted: async function () {
-    if (this.$route.query['selectedRulers']) {
-      try {
-        let parsed = JSON.parse(this.$route.query['selectedRulers']);
-        if (Array.isArray(parsed)) {
-          this.selectedRulers = parsed;
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    }
+    let selectedRulers = URLParams.getAll('selectedRulers');
+    if (selectedRulers) this.selectedRulers = selectedRulers;
 
-    if (this.$route.query['selectedMints']) {
-      try {
-        let parsed = JSON.parse(this.$route.query['selectedMints']);
-        if (Array.isArray(parsed)) {
-          this.selectedMints = parsed;
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    }
+    let selectedMints = URLParams.getAll('selectedMints');
+    if (selectedMints) this.selectedMints = selectedMints;
 
     this.timelineChart = new TimelineChart(
       this.$refs.timelineCanvas,

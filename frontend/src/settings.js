@@ -192,8 +192,8 @@ export default class Settings {
     }
 
     validateSetting(key, val) {
-        if (DefaultSettings[this.key]?._validator?.[key]) {
-            return !DefaultSettings[this.key]?._validator?.[key](val)
+        if (Validators[this.key]?.[key]) {
+            return Validators[this.key]?.[key](val)
         }
         return true
     }

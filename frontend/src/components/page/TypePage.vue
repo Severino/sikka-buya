@@ -179,7 +179,11 @@ export default {
                 treadwellId
                 mint {
                   id,
-                  name
+                  name,
+                  location {
+                    coordinates
+                    type
+                  }
                 }
                 mintAsOnCoin
                 mintUncertain

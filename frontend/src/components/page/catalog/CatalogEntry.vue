@@ -73,7 +73,7 @@ export default {
                 mint {
                   id,
                   name,
-                  location
+                  location 
                 }
                 mintAsOnCoin
                 mintUncertain
@@ -160,14 +160,6 @@ export default {
     )
       .then((result) => {
         const data = result.data.data.getCoinType;
-        if (data.mint.location) {
-          try {
-            data.mint.location = JSON.parse(data.mint.location);
-          } catch (e) {
-            data.mint.location = undefined;
-          }
-        }
-
         Object.assign(this.$data.type, data);
         this.loading = false;
       })

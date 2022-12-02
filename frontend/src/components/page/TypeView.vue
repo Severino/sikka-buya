@@ -5,7 +5,15 @@
 
       <sikka-buya-button
         v-if="!type.excludeFromMapApp"
-        :to="{ name: 'Political Map', query: { year: type.yearOfMint } }"
+        :to="{
+          name: 'Political Map',
+          query: {
+            year: type.yearOfMint,
+            timelineActive: true,
+            selectedRulers: [],
+            selectedMints: [type.mint.id],
+          },
+        }"
         >zu Karte</sikka-buya-button
       >
     </header>
@@ -40,7 +48,7 @@
             :to="{
               name: 'Political Map',
               query: {
-                year: null,
+                timelineActive: false,
                 location: JSON.stringify(mintLocation),
                 zoom: 10,
                 selectedMints: JSON.stringify([type.mint.id]),
@@ -395,12 +403,13 @@ export default {
       return StringUtils.missingText;
     },
     mintHasLocation() {
-      return (
+      const val =
         this?.type &&
         this.type.excludeFromMapApp === false &&
         this.type?.mint?.location?.coordinates &&
-        Array.isArray(this.type.mint.location.coordinates)
-      );
+        Array.isArray(this.type.mint.location.coordinates);
+
+      return val;
     },
     mintLocation() {
       if (!this?.type?.mint?.location?.coordinates) return [0, 0];
