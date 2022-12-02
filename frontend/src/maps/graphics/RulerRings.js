@@ -28,9 +28,9 @@ function ringsFromPersonMint(latlng, feature, selections, {
         return prev
     }, []).length
     if (count > 0) {
-        L.circleMarker(latlng, { radius: outerRadius, stroke: false, fillColor: inactiveColor }).addTo(group)
+        L.circleMarker(latlng, { radius: outerRadius, stroke: false, fillColor: backgroundColor }).addTo(group)
 
-        let ringWidth = (ringSpan - ((lists.length - 1) * spacing)) / 3
+        let ringWidth = (ringSpan - 2 * spacing) / 3
 
         lists.forEach((list, index) => {
             let radius = innerRadius + ringWidth * (index + 1) + spacing * index

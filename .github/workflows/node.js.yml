@@ -47,8 +47,8 @@ jobs:
          echo DB_SUPER_NAME=postgres >> test/.env
          echo DB_READ_ONLY_USER=test_visitor >> test/.env
          echo DB_READ_ONLY_PASSWORD=test_visitor >> test/.env
-         echo DB_USER=adub >> test/.env
-         echo DB_PASSWORD=adub >> test/.env
+         echo DB_USER=postgres >> test/.env
+         echo DB_PASSWORD=postgres >> test/.env
          echo DB_NAME=sikka-buya-test-database >> test/.env
          echo DB_HOST=localhost >> test/.env
          echo DB_PORT=5432 >> test/.env

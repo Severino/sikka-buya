@@ -75,7 +75,11 @@ export class MintLocationMarker {
         this.mint = mint
     }
 
-    create(latlng, { size = 6 } = {}) {
+    static get defaultSize() {
+        return 6
+    }
+
+    create(latlng, { size = MintLocationMarker.defaultSize } = {}) {
         const MintLocationMarkerSettings = new Settings(window, "MintLocationMarker")
 
         let marker = L.circleMarker(latlng, Object.assign(MintLocationMarkerSettings.load(), {

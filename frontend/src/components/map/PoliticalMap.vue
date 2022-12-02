@@ -58,6 +58,7 @@
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center">
+      <notification v-if="userInfo">{{ userInfo }}</notification>
       <div class="unlocated-mints" v-if="filteredUnlocatedTypes.length > 0">
         <header class="underlined-header">
           <h3 class="gray-heading"><i>nicht auf Karte:</i></h3>
@@ -144,6 +145,7 @@ import ListSelectionTools from '../interactive/ListSelectionTools.vue';
 import MapSettingsBox from '../MapSettingsBox.vue';
 import MintList from '../MintList.vue';
 import MultiSelectList from '../MultiSelectList.vue';
+import Notification from '../Notification.vue';
 import RulerList from '../RulerList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import Sidebar from './Sidebar.vue';
@@ -193,6 +195,7 @@ export default {
     Sidebar,
     Slider,
     Timeline,
+    Notification,
   },
   data: function () {
     return {
@@ -318,6 +321,12 @@ export default {
       return Object.values(mintMap).sort(
         Sorter.stringPropAlphabetically('mint.name')
       );
+    },
+    userInfo() {
+      let text = '';
+      if (!this.timelineActive && this.selectedRulers.length === 0)
+        text = `Wählen Sie einen oder mehrere Herrscher aus um Daten anzuzeigen!`;
+      return text;
     },
   },
   created() {
@@ -651,6 +660,20 @@ export default {
   },
 };
 </script>
+
+<style  lang="scss" >
+.political-map.ui {
+  .notice {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 256px;
+    max-width: 100%;
+    text-align: center;
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .debug-window {

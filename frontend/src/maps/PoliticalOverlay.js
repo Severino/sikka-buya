@@ -319,7 +319,7 @@ export default class PoliticalOverlay extends Overlay {
         openPopup: function ({ data, groupData }) {
           return rulerPopup(groupData, data?.data);
         },
-        innerRadius: this.settings.settings.innerRadius,
+        innerRadius: MintLocationMarker.defaultSize,
         radius: this.settings.settings.maxRadius,
         borderStyle: {
           stroke: true,
@@ -348,13 +348,13 @@ export default class PoliticalOverlay extends Overlay {
     return layer
   }
 
-  createMintAllRulersMarker(latlng, feature, {
+  createMintWithoutYearMarker(latlng, feature, {
     selections = {}
   } = {}) {
     let layer;
-    let innerRadius = this.settings.settings.maxRadius / 5
+    let innerRadius = MintLocationMarker.defaultSize
     let spacing = this.settings.settings.maxRadius / 15
-    let stroke = this.settings.settings.maxRadius / 10
+    let stroke = 2
     if (selections.selectedMints.length === 0 || selections.selectedMints.indexOf(feature.data.mint.id) != -1) {
 
       layer = ringsFromPersonMint(latlng, feature, selections, {
@@ -363,9 +363,10 @@ export default class PoliticalOverlay extends Overlay {
         spacing,
         stroke
       })
-      this.createMintLocationMarker(latlng, feature, { size: innerRadius - spacing }).addTo(layer)
+      this.createMintLocationMarker(latlng, feature).addTo(layer)
     } else
-      layer = this.createMintLocationMarker(latlng, feature, { size: innerRadius - spacing })
+      layer = this.createMintLocationMarker(latlng, feature)
+    layer.bringToBack()
 
     return layer
   }
@@ -379,7 +380,7 @@ export default class PoliticalOverlay extends Overlay {
     if (this.mode === "year") {
       layer = this.createMintTypesMarker(...arguments)
     } else if (this.mode === "no_year") {
-      layer = this.createMintAllRulersMarker(...arguments)
+      layer = this.createMintWithoutYearMarker(...arguments)
     } else {
       throw new Error(`Marker mode is not implemented: ${this.mode}`)
     }
