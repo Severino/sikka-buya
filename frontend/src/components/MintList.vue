@@ -7,32 +7,16 @@
         :key="`mint-list-group-${idx}`"
       >
         <template #header>
-          <div
-            :class="{ active: selectionCountInGroup(group) }"
-            class="selection-indicator"
-          >
-            <span class="count" v-if="selectionCountInGroup(group)">
-              {{ selectionCountInGroup(group) }}
-            </span>
-            <div
-              class="selection-visualizer"
-              :style="{ height: selectionPercentageOfGroup(group) }"
-            ></div>
-          </div>
-          <h4 v-if="group.name != '_'">{{ group.name }}</h4>
-          <!-- <checkbox
-            :id="`province-select-all-${idx}`"
-            :value="allSelected(group)"
-            @click.native.stop.prevent="toggleAllProvince(group)"
-          /> -->
-          <div class="fill"></div>
-
-          <list-selection-tools
+          <selectable-list-header
             @select-all="selectAllInGroup(group)"
             @unselect-all="removeAllFromGroup(group)"
             :allSelected="allSelected(group)"
             :noneSelected="noneSelected(group)"
-          />
+            :selected="selectedItemsInGroup(group).length"
+            :total="group.items.length"
+          >
+            {{ group.name }}
+          </selectable-list-header>
         </template>
         <ul>
           <MultiSelectListItem
@@ -61,6 +45,7 @@ import Sort from '../utils/Sorter';
 import Checkbox from './forms/Checkbox.vue';
 
 import ListSelectionTools from './interactive/ListSelectionTools.vue';
+import SelectableListHeader from './list/SelectableListHeader.vue';
 
 export default {
   components: {
@@ -70,40 +55,16 @@ export default {
     Checkbox,
 
     ListSelectionTools,
+    SelectableListHeader,
   },
   mixins: [MultiSelectListMixin],
   methods: {
-    allSelected(group) {
-      return group.items.every((item) => this.isSelected(item));
-    },
-    noneSelected(group) {
-      return group.items.some((item) => this.isSelected(item));
-    },
-    selectAllInGroup(group) {
-      let selection = this.selectedIds;
-      let set = new Set([...selection, ...group.items.map((item) => item.id)]);
-      selection = Array.from(set);
-      this.selectionChanged(selection);
-    },
-    removeAllFromGroup(group) {
-      let selection = this.selectedIds;
-      selection = selection.filter(
-        (id) => group.items.find((item) => item.id === id) === undefined
-      );
-      this.selectionChanged(selection);
-    },
     toggleAllProvince(group) {
       if (this.allSelected(group)) {
         this.selectAllInGroup(group);
       } else {
         this.removeAllFromGroup(group);
       }
-    },
-    selectionPercentageOfGroup(group) {
-      if (!group?.items?.length) return '0%';
-      const cur = this.selectionCountInGroup(group);
-      const max = group.items.length;
-      return `${((cur / max) * 100).toFixed(2)}%`;
     },
   },
   computed: {
@@ -132,20 +93,6 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.mint-list {
-  .collapsible {
-    border-bottom: $border;
-    header {
-      h4 {
-        margin: $small-padding 0;
-        padding: math.div($padding, 2) $padding;
-      }
-    }
-  }
-}
-</style>
-
 <style lang="scss" scoped>
 h4 {
   color: #333;
@@ -156,46 +103,5 @@ h4 {
 }
 .available {
   opacity: 1;
-}
-
-.selection-indicator {
-  position: relative;
-  background-color: $light-gray;
-  align-self: stretch;
-  border-right: $border;
-  padding: $tiny-padding;
-  font-size: $xtra-small-font;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 14px;
-
-  .selection-visualizer {
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    left: 0;
-    background-color: $primary-color;
-    z-index: 0;
-  }
-
-  .count {
-    z-index: 1;
-  }
-
-  &.active {
-    color: $white;
-    font-weight: bold;
-  }
-  // color: $white;
-  // background-color: $primary-color;
-  // transform: scale(0.55);
-  // padding: $small-padding;
-  // box-shadow: inset $shadow;
-  // border-radius: 3px;
-}
-
-.fill {
-  flex: 1;
 }
 </style>

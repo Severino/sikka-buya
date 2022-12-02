@@ -51,8 +51,21 @@ export default {
 };
 </script>
 
+<style lang="scss" >
+.collapsible header {
+  h4 {
+    margin: $small-padding 0 !important;
+    padding: math.div($padding, 2) $padding !important;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
-header {
+.collapsible {
+  border-bottom: $border;
+}
+
+.collapsible header {
   display: flex;
   align-items: center;
   user-select: none;

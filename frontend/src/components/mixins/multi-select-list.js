@@ -21,15 +21,7 @@ export default {
                 this.selectionChanged(selection);
             }
         },
-        group() {
-            return this.items
-        },
-        createGroup(name, items) {
-            return {
-                name,
-                items
-            }
-        },
+
         selectedItemsInGroup(group) {
             return group.items.filter(element => {
                 return this.isSelected(element)
@@ -37,6 +29,25 @@ export default {
         },
         selectionCountInGroup(group) {
             return this.selectedItemsInGroup(group).length
-        }
+        },
+        allSelected(group) {
+            return group.items.every((item) => this.isSelected(item));
+        },
+        noneSelected(group) {
+            return group.items.some((item) => this.isSelected(item));
+        },
+        selectAllInGroup(group) {
+            let selection = this.selectedIds;
+            let set = new Set([...selection, ...group.items.map((item) => item.id)]);
+            selection = Array.from(set);
+            this.selectionChanged(selection);
+        },
+        removeAllFromGroup(group) {
+            let selection = this.selectedIds;
+            selection = selection.filter(
+                (id) => group.items.find((item) => item.id === id) === undefined
+            );
+            this.selectionChanged(selection);
+        },
     },
 }

@@ -40,7 +40,7 @@ export default {
         return items.every((item) => item && item.hasOwnProperty('id'));
       },
     },
-    selected: Array,
+    selectedIds: Array,
     styler: {
       type: Function,
       default: () => {},
@@ -74,10 +74,6 @@ export default {
 
   .multi-select-list .select-list-item {
     grid-template-columns: auto 30px 1fr;
-  }
-
-  span {
-    color: $black;
   }
 
   .color-indicator {

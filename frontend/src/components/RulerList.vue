@@ -1,6 +1,6 @@
 <template>
   <div class="ruler-list">
-    <multi-select-list>
+    <multi-select-list v-if="!group">
       <ruler-list-section
         v-if="
           Array.isArray(selectedUnavailable) && selectedUnavailable.length > 0
@@ -23,6 +23,28 @@
         @selection-changed="(item) => this.checkboxSelected(item)"
       />
     </multi-select-list>
+    <multi-select-list v-else>
+      <collapsible v-for="group of groups" :key="group.id"
+        ><template v-slot:header>
+          <selectable-list-header
+            @select-all="selectAllInGroup(group)"
+            @unselect-all="removeAllFromGroup(group)"
+            :allSelected="allSelected(group)"
+            :noneSelected="noneSelected(group)"
+            :selected="selectedItemsInGroup(group).length"
+            :total="group.items.length"
+          >
+            {{ group.label }}
+          </selectable-list-header>
+        </template>
+        <ruler-list-section
+          :items="group.items"
+          :selectedIds="selectedIds"
+          :styler="availableStyler"
+          @selection-changed="checkboxSelected"
+        />
+      </collapsible>
+    </multi-select-list>
   </div>
 </template>
 
@@ -32,8 +54,12 @@ import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
 import Person from '../utils/Person';
 import RulerListSection from './RulerListSection.vue';
+import Collapsible from './layout/Collapsible.vue';
+import Sort from '../utils/Sorter';
+import SelectableListHeader from './list/SelectableListHeader.vue';
 export default {
   props: {
+    group: { default: false, type: Boolean },
     selectedUnavailable: {
       type: Array,
       validator: (items) => {
@@ -52,6 +78,8 @@ export default {
     MultiSelectList,
     MultiSelectListItem,
     RulerListSection,
+    Collapsible,
+    SelectableListHeader,
   },
   methods: {
     getDynasty(item) {
@@ -71,6 +99,28 @@ export default {
       return baseStyle;
     },
   },
+  computed: {
+    groups() {
+      let groups = Object.values(
+        this.items.reduce((prev, curr) => {
+          let { id: key, name: label } = curr.dynasty;
+
+          if (prev[key]) {
+            prev[key].items.push(curr);
+          } else {
+            prev[key] = { key, label, items: [curr] };
+          }
+          return prev;
+        }, {})
+      ).sort((a, b) => a.label.localeCompare(b.label));
+
+      groups.forEach((group) =>
+        group.items.sort(Sort.stringPropAlphabetically('name'))
+      );
+
+      return groups;
+    },
+  },
 };
 </script>
 
@@ -84,10 +134,6 @@ export default {
 
   .multi-select-list .select-list-item {
     grid-template-columns: auto 30px 1fr;
-  }
-
-  span {
-    color: $black;
   }
 
   .color-indicator {

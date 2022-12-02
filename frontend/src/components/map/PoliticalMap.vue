@@ -101,6 +101,7 @@
         :unavailable="unavailableRulers"
         :items="availableRulers"
         :selectedIds="selectedRulers"
+        :group="true"
         @selectionChanged="rulerSelectionChanged"
       />
     </Sidebar>
@@ -158,8 +159,15 @@ let selectedRulers;
 
 try {
   const json = localStorage.getItem('map-rulers');
-  selectedRulers = JSON.parse(json);
-  selectedRulers = selectedRulers.filter(
+  let parsedRulerSelection = JSON.parse(json);
+
+  if (!Array.isArray(parsedRulerSelection))
+    throw new Error(
+      'Saved ruler selection was not an array',
+      parsedRulerSelection
+    );
+
+  selectedRulers = parsedRulerSelection.filter(
     (item) => item != null && !isNaN(item)
   );
 } catch (e) {
