@@ -15,7 +15,6 @@ import URLParams from '../../../utils/URLParams';
  */
 function save() {
     const option = { year: this.raw_timeline.value, timelineActive: this.timelineActive }
-    URLParams.update(option)
     localStorage.setItem('map-timeline', JSON.stringify(option));
 }
 
@@ -32,8 +31,10 @@ function load(options = {
         console.warn(e)
     }
 
-    this.raw_timeline.value = URLParams.getInteger('year', options.year)
-    this.timelineActive = URLParams.getBoolean('timelineActive', options.timelineActive)
+    return {
+        year: URLParams.getInteger('year', options.year),
+        timelineActive: URLParams.getBoolean('timelineActive', options.timelineActive)
+    }
 }
 
 
@@ -66,8 +67,8 @@ export default {
             })
 
         },
-        initTimeline: async function (value) {
-            load.call(this)
+        initTimeline: async function () {
+            let options = load.call(this)
 
             try {
                 let result = await Query.raw(
@@ -79,8 +80,9 @@ export default {
             }`);
 
                 let timeline = result.data.data.timespan;
-                timeline.value = value;
+                timeline.value = options.year || 433;
                 this.raw_timeline = timeline;
+                this.timelineActive = options.timelineActive
                 window.map = this.map;
             } catch (e) {
                 console.error(e);
@@ -98,6 +100,12 @@ export default {
         },
         timelineValid() {
             return this.timeline.value === this.raw_timeline.value
+        },
+        timelineOptions() {
+            return {
+                year: this.raw_timeline.value,
+                timelineActive: this.timelineActive
+            }
         }
     }
 }

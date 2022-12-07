@@ -216,13 +216,8 @@ export default {
       return options;
     },
     shareLink() {
-      const options = Object.assign({}, this.options);
-      for (let [key, val] of Object.entries(options)) {
-        options[key] = JSON.stringify(val);
-      }
-      return URLParams.apply(options).href;
+      return URLParams.generate(this.options).href;
     },
-
     mintList() {
       function addAvailability(mint, available) {
         mint.available = available;
@@ -282,45 +277,36 @@ export default {
     });
   },
   mounted: async function () {
-    await this.fetchMints();
-    if (this.$route.query['selectedMints']) {
-      try {
-        let parsed = JSON.parse(this.$route.query['selectedMints']);
-        if (Array.isArray(parsed)) {
-          this.selectedMints = parsed;
-        }
-      } catch (e) {
-        console.warn(e);
-      }
-    }
+    // await this.fetchMints();
+    // if (this.$route.query['selectedMints']) {
+    //   try {
+    //     let parsed = JSON.parse(this.$route.query['selectedMints']);
+    //     if (Array.isArray(parsed)) {
+    //       this.selectedMints = parsed;
+    //     }
+    //   } catch (e) {
+    //     console.warn(e);
+    //   }
+    // }
 
-    this.$nextTick(() => {
-      for (let [key, val] of Object.entries(this.$route.query)) {
-        if (
-          key.startsWith(queryPrefix) &&
-          this.$refs?.catalogFilter?.activeFilters
-        ) {
-          try {
-            let parsed = JSON.parse(val);
-            const filterKey = key.replace(queryPrefix, '');
-            this.$refs.catalogFilter.setFilter(filterKey, parsed);
-          } catch (e) {
-            console.warn(e);
-          }
-        }
-      }
-    });
+    // this.$nextTick(() => {
+    //   for (let [key, val] of Object.entries(this.$route.query)) {
+    //     if (
+    //       key.startsWith(queryPrefix) &&
+    //       this.$refs?.catalogFilter?.activeFilters
+    //     ) {
+    //       try {
+    //         let parsed = JSON.parse(val);
+    //         const filterKey = key.replace(queryPrefix, '');
+    //         this.$refs.catalogFilter.setFilter(filterKey, parsed);
+    //       } catch (e) {
+    //         console.warn(e);
+    //       }
+    //     }
+    //   }
+    // });
 
-    if (this.$route.query.year) {
-      if (this.$route.query.year === 'null') this.timelineActive = false;
-    } else {
-      this.timelineActive =
-        JSON.parse(
-          window.localStorage.getItem('material-map-timeline-active')
-        ) || false;
-    }
-
-    await this.initTimeline(433);
+    await this.initTimeline();
     this.updateTimeline();
   },
   methods: {

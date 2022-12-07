@@ -230,24 +230,15 @@ export default {
   computed: {
     options() {
       const options = {};
-      if (this.map) {
-        options.zoom = this.map.getZoom();
-        const latlng = this.map.getCenter();
-        options.location = [latlng.lat, latlng.lng];
-      }
+      options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
+      options.selectedMints = URLParams.toStringArray(this.selectedMints);
 
-      options.year = this.timeline.value;
-      options.selectedRulers = this.selectedRulers;
-      options.selectedMints = this.selectedMints;
+      Object.assign(options, this.timelineOptions, this.mapOptions);
 
       return options;
     },
     shareLink() {
-      const options = Object.assign({}, this.options);
-      for (let [key, val] of Object.entries(options)) {
-        options[key] = JSON.stringify(val);
-      }
-      return URLParams.apply(options).href;
+      return URLParams.generate(this.options).href;
     },
     filters() {
       return {
@@ -350,19 +341,25 @@ export default {
         this.updateAvailableRulers();
       },
     });
-  },
-  mounted: async function () {
-    let selectedRulers = URLParams.getAll('selectedRulers');
-    if (selectedRulers) this.selectedRulers = selectedRulers;
 
-    let selectedMints = URLParams.getAll('selectedMints');
-    if (selectedMints) this.selectedMints = selectedMints;
+    let selectedRulers = URLParams.getArray('selectedRulers');
+    if (selectedRulers) this.rulerSelectionChanged(selectedRulers, true);
+
+    let selectedMints = URLParams.getArray('selectedMints');
+    if (selectedMints) this.mintSelectionChanged(selectedMints, true);
+  },
+
+  mounted: async function () {
+    this.$nextTick(() => {
+      URLParams.clear();
+    });
 
     this.timelineChart = new TimelineChart(
       this.$refs.timelineCanvas,
       this.raw_timeline
     );
-    await this.initTimeline(433);
+
+    await this.initTimeline();
     this.update();
     await this.drawTimeline();
 
@@ -383,17 +380,19 @@ export default {
     },
     createSlide() {},
     async drawTimeline() {
-      this.timelineChart.clear();
-      if (this.timelineActive) {
-        if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
-          const ranges = await this.drawRulersOntoTimeline(true);
-          await this.drawMintCountOntoTimeline(
-            ranges.length > 0 ? ranges : null
-          );
-        } else if (this.selectedMints.length > 0)
-          await this.drawMintCountOntoTimeline();
-        else if (this.selectedRulers.length > 0)
-          await this.drawRulersOntoTimeline();
+      if (this.timelineChart) {
+        this.timelineChart.clear();
+        if (this.timelineActive) {
+          if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
+            const ranges = await this.drawRulersOntoTimeline(true);
+            await this.drawMintCountOntoTimeline(
+              ranges.length > 0 ? ranges : null
+            );
+          } else if (this.selectedMints.length > 0)
+            await this.drawMintCountOntoTimeline();
+          else if (this.selectedRulers.length > 0)
+            await this.drawRulersOntoTimeline();
+        }
       }
     },
     async drawRulersOntoTimeline(drawAsHorizontals = false) {
@@ -590,18 +589,14 @@ export default {
     rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected;
 
-      URLParams.update({
-        selectedRulers: selected,
-      });
-
       try {
         localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
       } catch (e) {
         console.warn(e);
       }
-      this.updateAvailableRulers();
 
       if (!preventUpdate) {
+        this.updateAvailableRulers();
         this.repaint();
         this.drawTimeline();
       }

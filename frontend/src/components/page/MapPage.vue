@@ -24,8 +24,18 @@ import URLParams from '../../utils/URLParams';
 
 import MapView from '../map/MapView.vue';
 
+let querySettings = {
+  zoom: URLParams.getInteger('zoom'),
+  location: URLParams.getArray('location'),
+};
+
+for (let [key, val] of Object.entries(querySettings)) {
+  if (val == null) delete querySettings[key];
+}
+
 const settings = new Settings(window, 'Map');
-const mapSettings = settings.load();
+const localSettings = settings.load();
+const mapSettings = Object.assign({}, localSettings, querySettings);
 
 export default {
   name: 'MapPage',
@@ -55,9 +65,6 @@ export default {
           ['location', [lat, lng]],
           ['zoom', map.getZoom()],
         ]);
-
-        let { location, zoom } = this.mapSettings;
-        URLParams.update(this, { location, zoom });
       });
     });
   },

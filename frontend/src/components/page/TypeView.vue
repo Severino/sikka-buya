@@ -52,6 +52,7 @@
                 location: mintLocation,
                 zoom: 10,
                 selectedMints: [type.mint.id],
+                selectedRulers: [],
               },
             }"
             >zu Karte</sikka-buya-button
@@ -200,6 +201,7 @@ import PersonView from '../Person/PersonView.vue';
 import PersonList from '../Person/PersonList.vue';
 import StringUtils from '../../utils/StringUtils';
 import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
+import URLParams from '../../utils/URLParams';
 
 export default {
   name: 'TypeView',
@@ -413,8 +415,8 @@ export default {
     },
     mintLocation() {
       if (!this?.type?.mint?.location?.coordinates)
-        return JSON.stringify([0, 0]);
-      return JSON.stringify(this.type.mint.location.coordinates);
+        return URLParams.toStringArray([0, 0]);
+      return URLParams.toStringArray(this.type.mint.location.coordinates);
     },
   },
 };

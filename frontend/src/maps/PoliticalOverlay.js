@@ -307,10 +307,12 @@ export default class PoliticalOverlay extends Overlay {
       }
     );
 
-    const selectionsActive = selections?.selectedMints?.length > 0
+    const selection = selections?.selectedMints
+    const mint = feature.data?.mint
+    const isMintSelected = this.isSelected(mint, selection)
 
     let layer;
-    if (data.length > 0 && (!selectionsActive || selections?.selectedMints?.indexOf(feature.data?.mint?.id) != -1)) {
+    if (data.length > 0 && (this.isSelectionActive(selection) || isMintSelected)) {
       const concentricCirclesMarker = concentricCircles(latlng, data, {
         openPopup: function ({ data, groupData }) {
           return rulerPopup(groupData, data?.data);
@@ -325,7 +327,9 @@ export default class PoliticalOverlay extends Overlay {
         },
       });
 
-      const locationMarker = this.createMintLocationMarker(latlng, feature)
+
+
+      const locationMarker = this.createMintLocationMarker(latlng, feature, { active: isMintSelected })
       const objects = [concentricCirclesMarker, locationMarker]
 
 
@@ -354,10 +358,10 @@ export default class PoliticalOverlay extends Overlay {
 
     let personMint = feature.data?.personMints || new PersonMint()
 
-    const isMintSelected = this.isMintSelected(feature.data.mint, selections.selectedMints)
+    const isMintSelected = this.isSelected(feature.data.mint, selections.selectedMints)
 
     if (!PersonMint.isEmpty(personMint)
-      && (!this.isMintSelectionActive(selections.selectedMints) || isMintSelected)
+      && (!this.isSelectionActive(selections.selectedMints) || isMintSelected)
       && PersonMint.containsSelectedRulers(personMint, selections.selectedRulers)) {
       layer = ringsFromPersonMint(latlng, feature, selections, {
         innerRadius,
@@ -376,11 +380,11 @@ export default class PoliticalOverlay extends Overlay {
     return layer
   }
 
-  isMintSelected(mint, selection) {
-    return selection.indexOf(mint.id) != -1
+  isSelected(obj, selection) {
+    return selection.indexOf(obj.id) != -1
   }
 
-  isMintSelectionActive(selections) {
+  isSelectionActive(selections) {
     return (selections.length !== 0)
   }
 

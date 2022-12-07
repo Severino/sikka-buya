@@ -121,10 +121,6 @@ export function mintLocationsMixin({
             mintSelectionChanged(selected, { preventUpdate = false } = {}) {
                 this.selectedMints = selected;
 
-                URLParams.update({
-                    selectedMints: selected,
-                });
-
                 try {
                     window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
                 } catch (e) {

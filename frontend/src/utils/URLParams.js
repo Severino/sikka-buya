@@ -1,46 +1,6 @@
 export default class URLParams {
 
-    /**
- * Update existing params and push the state to the history object. Params that are no in the 
- * query string, will not be updated!
- *  
- * @param {*} obj 
- */
-    static update(obj) {
-        const url = this.updateURL(obj)
-        window.history.replaceState({}, '', url);
-    }
 
-
-    /**
- * Update existing params. Params that are no in the 
- * query string, will not be updated!
- *  
- * @param {*} obj 
- */
-    static updateURL(obj) {
-        let url = new URL(window.location);
-
-        url.searchParams.forEach((_, key) => {
-            if (obj[key] != undefined) {
-                if (Array.isArray(obj[key])) {
-                    let arr = obj[key]
-                    let val = arr.pop()
-                    if (val) {
-                        url.searchParams.set(key, val)
-                        while (arr.length > 0) {
-                            let val = arr.pop()
-                            url.searchParams.append(key, val)
-                        }
-
-                    }
-                } else {
-                    url.searchParams.set(key, obj[key]);
-                }
-            }
-        })
-        return url
-    }
 
     /**
      * Removes all existing parmameters and sets all 
@@ -49,7 +9,7 @@ export default class URLParams {
      * @param {*} params 
      * @returns 
      */
-    static apply(params) {
+    static generate(params) {
         let url = new URL(window.location)
         url.searchParams.forEach((_, key) => {
             url.searchParams.delete(key)
@@ -71,12 +31,14 @@ export default class URLParams {
      * @param {String} key 
      * @returns {Array | null} Array or null when no value was found.
      */
-    static getAll(key) {
+    static getArray(key) {
         let arr = null
         let url = new URL(window.location);
 
         if (url.searchParams.has(key)) {
-            arr = url.searchParams.getAll(key)
+            const queryVariable = url.searchParams.get(key)
+            if (queryVariable === "null" || queryVariable === '') return []
+            arr = URLParams.fromStringArray(queryVariable)
         }
         return arr
     }
@@ -103,6 +65,7 @@ export default class URLParams {
         if (queryParam && !isNaN(integer)) {
             value = integer
         }
+
         return value
 
     }
@@ -126,5 +89,29 @@ export default class URLParams {
         }
 
         return value
+    }
+
+    /**
+     * Removes all parameters from the URL.
+     * 
+     * Note: May be used to prevent the user to get the same
+     * result when refreshing the page.
+     */
+    static clear() {
+        let location = new URL(window.location)
+
+        for (const key of location.searchParams.keys()) {
+            location.searchParams.delete(key)
+        }
+
+        window.history.replaceState(null, "", location.href)
+    }
+
+    static fromStringArray(str) {
+        return str.split(",")
+    }
+
+    static toStringArray(arr) {
+        return arr.join(",")
     }
 }

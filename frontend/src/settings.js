@@ -227,8 +227,6 @@ export default class Settings {
             this.settings[key] = val
         })
 
-        URLParams.update(this.settings)
-
         this.save()
         if (this._onSettingsChanged)
             this._onSettingsChanged(keyValPairs)

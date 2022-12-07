@@ -1,3 +1,4 @@
+import URLParams from '../../../utils/URLParams';
 
 var L = require('leaflet');
 
@@ -19,6 +20,17 @@ export default {
     computed: {
         L: function () {
             return L;
+        },
+        mapOptions() {
+            let options = {}
+            if (this.map) {
+                options.zoom = this.map.getZoom();
+                const latlng = this.map.getCenter();
+                options.location = URLParams.toStringArray(
+                    [latlng.lat, latlng.lng].map((val) => val.toFixed(5))
+                );
+            }
+            return options
         }
     },
     mounted: function () {
