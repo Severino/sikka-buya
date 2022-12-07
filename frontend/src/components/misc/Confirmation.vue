@@ -5,8 +5,10 @@
       <slot />
     </div>
     <footer>
-      <div class="ok button" @click="$emit('result', true)">Ok</div>
-      <div class="cancel button" @click="$emit('result', false)">Abbrechen</div>
+      <div class="ok button big-button" @click="$emit('result', true)">Ok</div>
+      <div class="cancel button big-button" @click="$emit('result', false)">
+        Abbrechen
+      </div>
     </footer>
   </div>
 </template>

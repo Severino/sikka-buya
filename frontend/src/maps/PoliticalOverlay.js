@@ -8,6 +8,7 @@ import { concentricCircles } from '../maps/graphics/ConcentricCircles';
 import Color from '../utils/Color';
 import { MintLocationMarker } from '../models/mintlocation';
 import { ringsFromPersonMint } from './graphics/RulerRings';
+import PersonMint from '../models/person-mint';
 
 
 export default class PoliticalOverlay extends Overlay {
@@ -224,11 +225,6 @@ export default class PoliticalOverlay extends Overlay {
 
       if (mint.location && mint.id) {
         try {
-
-          if (!mint?.data?.personMints?.caliphs)
-            console.log(mint)
-
-
           let types = mint?.data?.types || []
           let personMints = mint?.data?.personMints || []
 
@@ -355,20 +351,37 @@ export default class PoliticalOverlay extends Overlay {
     let innerRadius = MintLocationMarker.defaultSize
     let spacing = this.settings.settings.maxRadius / 15
     let stroke = 2
-    if (selections.selectedMints.length === 0 || selections.selectedMints.indexOf(feature.data.mint.id) != -1) {
 
+    let personMint = feature.data?.personMints || new PersonMint()
+
+    const isMintSelected = this.isMintSelected(feature.data.mint, selections.selectedMints)
+
+    if (!PersonMint.isEmpty(personMint)
+      && (!this.isMintSelectionActive(selections.selectedMints) || isMintSelected)
+      && PersonMint.containsSelectedRulers(personMint, selections.selectedRulers)) {
       layer = ringsFromPersonMint(latlng, feature, selections, {
         innerRadius,
         radius: this.settings.settings.maxRadius,
         spacing,
         stroke
       })
-      this.createMintLocationMarker(latlng, feature).addTo(layer)
-    } else
-      layer = this.createMintLocationMarker(latlng, feature)
-    layer.bringToBack()
+
+      this.createMintLocationMarker(latlng, feature, { active: isMintSelected }).addTo(layer)
+      layer.bringToFront()
+    } else {
+      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected })
+      layer.bringToBack()
+    }
 
     return layer
+  }
+
+  isMintSelected(mint, selection) {
+    return selection.indexOf(mint.id) != -1
+  }
+
+  isMintSelectionActive(selections) {
+    return (selections.length !== 0)
   }
 
 

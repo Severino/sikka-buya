@@ -4,8 +4,8 @@
       <h2>{{ $t('editor.administration') }}</h2>
     </header>
 
-    <h3>{{ $t('editor.important_properties') }}</h3>
     <list :items="featuredProperties">
+      <list-header>{{ $t('editor.admin_properties') }}</list-header>
       <list-item
         v-for="(property, idx) of featuredProperties"
         :key="'prop-' + idx"
@@ -15,9 +15,9 @@
       </list-item>
     </list>
 
-    <h3>{{ $t('editor.manage_properties') }}</h3>
-
     <list :items="properties">
+      <list-header>{{ $t('editor.data_properties') }}</list-header>
+
       <list-item
         v-for="(property, idx) of properties"
         :key="'prop-' + idx"
@@ -27,8 +27,8 @@
       </list-item>
     </list>
 
-    <h3>{{ $t('editor.assist_tools') }}</h3>
     <list :items="supportPrograms">
+      <list-header>{{ $t('editor.assist_tools') }}</list-header>
       <list-item
         v-for="(property, idx) of supportPrograms"
         :key="'prop-' + idx"
@@ -44,6 +44,7 @@
 import PlusBox from 'vue-material-design-icons/PlusBox';
 import Auth from '../../utils/Auth';
 import List from '../layout/List.vue';
+import ListHeader from '../layout/list/ListHeader.vue';
 import ListItem from '../layout/ListItem.vue';
 
 export default {
@@ -52,6 +53,7 @@ export default {
     PlusBox,
     List,
     ListItem,
+    ListHeader,
   },
   method: {
     isAccessible(obj) {

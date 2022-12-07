@@ -1,4 +1,5 @@
 import Settings from '../settings';
+import Color from '../utils/Color';
 import Mint from './map/mint';
 
 var L = require('leaflet');
@@ -79,11 +80,12 @@ export class MintLocationMarker {
         return 6
     }
 
-    create(latlng, { size = MintLocationMarker.defaultSize } = {}) {
+    create(latlng, { size = MintLocationMarker.defaultSize, active = false } = {}) {
         const MintLocationMarkerSettings = new Settings(window, "MintLocationMarker")
 
         let marker = L.circleMarker(latlng, Object.assign(MintLocationMarkerSettings.load(), {
-            radius: size
+            radius: size,
+            fillColor: (active) ? "#333" : Color.White
         }))
 
         if (this.mint.uncertain) {
@@ -92,7 +94,8 @@ export class MintLocationMarker {
                 width: size * 5 / 3,
                 height: size * 5 / 3,
                 scale: (size / 15),
-                interactive: false
+                interactive: false,
+                fillColor: (active) ? Color.White : Color.Black
             })
 
             const MintLocationMarkerUncertainIconSettings = new Settings(window, "MintLocationMarkerUncertainIcon")

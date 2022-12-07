@@ -69,6 +69,7 @@
 }
 
 @mixin media-tablet {
+
   /* Portrait and Landscape */
   @media only screen and (max-width: 1024px) {
     @content;
@@ -93,6 +94,7 @@
 }
 
 @mixin allHeadings {
+
   h1,
   h2,
   h3,

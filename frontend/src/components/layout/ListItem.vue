@@ -59,7 +59,10 @@ a {
 .list-item-row {
   &.interactive {
     @include input();
-    @include interactive();
+  }
+
+  a {
+    padding: math.div($padding, 2) $padding;
   }
 
   background-color: $white;

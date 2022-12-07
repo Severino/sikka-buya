@@ -101,13 +101,14 @@
           v-for="item of items"
           v-bind:key="item.key"
           :id="`list-item-type-${item.id}`"
-          :to="{
-            name: path,
-            params: { id: item.id },
-          }"
           :class="item.completed ? 'completed' : 'incomplete'"
         >
-          <ListItemCell>
+          <ListItemCell
+            :to="{
+              name: path,
+              params: { id: item.id },
+            }"
+          >
             {{ item.projectId }}
           </ListItemCell>
           <CompletedToggle

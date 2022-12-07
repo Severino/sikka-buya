@@ -270,7 +270,7 @@ export default {
     grid-template-columns: 0fr 2fr 0fr;
   }
 
-  grid-template-rows: 1fr 3fr 120px;
+  grid-template-rows: 120px 3fr 120px;
 
   pointer-events: none;
 

@@ -1,7 +1,7 @@
 var L = require('leaflet');
 const { default: Color } = require('../../utils/Color');
 
-const backgroundColor = "#fdfdfd"
+const backgroundColor = Color.White
 const inactiveColor = Color.getInactiveColor()
 
 function ringsFromPersonMint(latlng, feature, selections, {

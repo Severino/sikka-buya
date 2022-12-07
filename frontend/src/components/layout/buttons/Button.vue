@@ -59,6 +59,10 @@ export default {
     @include resetLinkStyle();
     color: currentColor;
   }
+
+  &.big-button {
+    padding: $padding $padding * 2;
+  }
 }
 </style>
 

@@ -23,6 +23,8 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
+      <notification v-if="userInfo">{{ userInfo }}</notification>
+
       <div class="toolbar top-right-toobar">
         <Button
           v-if="filtersActive"
@@ -48,7 +50,6 @@
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center">
-      <notification v-if="userInfo">{{ userInfo }}</notification>
       <div class="unlocated-mints" v-if="filteredUnlocatedTypes.length > 0">
         <header class="underlined-header">
           <h3 class="gray-heading"><i>nicht auf Karte:</i></h3>
@@ -101,7 +102,7 @@
         :unavailable="unavailableRulers"
         :items="availableRulers"
         :selectedIds="selectedRulers"
-        :group="true"
+        :group="!timelineActive"
         @selectionChanged="rulerSelectionChanged"
       />
     </Sidebar>
@@ -646,13 +647,15 @@ export default {
 <style  lang="scss" >
 .political-map.ui {
   .notice {
+    $margin: 100px;
     position: absolute;
-    top: 50%;
+    top: 75px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    width: 256px;
-    max-width: 100%;
-    text-align: center;
+    margin: 0 $margin;
+    box-sizing: border-box;
+    transform: translateX(calc(-50% + #{-$margin}));
+    width: 420px;
+    max-width: calc(100% - 4 *#{$padding});
   }
 }
 </style>

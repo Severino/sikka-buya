@@ -49,9 +49,9 @@
               name: 'Political Map',
               query: {
                 timelineActive: false,
-                location: JSON.stringify(mintLocation),
+                location: mintLocation,
                 zoom: 10,
-                selectedMints: JSON.stringify([type.mint.id]),
+                selectedMints: [type.mint.id],
               },
             }"
             >zu Karte</sikka-buya-button
@@ -412,8 +412,9 @@ export default {
       return val;
     },
     mintLocation() {
-      if (!this?.type?.mint?.location?.coordinates) return [0, 0];
-      return this.type.mint.location.coordinates;
+      if (!this?.type?.mint?.location?.coordinates)
+        return JSON.stringify([0, 0]);
+      return JSON.stringify(this.type.mint.location.coordinates);
     },
   },
 };

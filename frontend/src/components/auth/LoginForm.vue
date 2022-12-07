@@ -16,7 +16,7 @@
           <async-button
             ref="loginBtn"
             @click="login"
-            class="colored"
+            class="colored big-button"
             :pending="buttonDisabled"
             id="submit-button"
           >

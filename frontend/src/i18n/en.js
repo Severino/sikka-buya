@@ -23,10 +23,10 @@ const general = {
 }
 
 const editor = {
-    important_properties:
-        "important properties",
-    manage_properties:
-        "manage properties",
+    admin_properties:
+        "Administration",
+    data_properties:
+        "Data",
     create_type:
         "create new type",
     administration:

@@ -33,7 +33,7 @@ export default {
   flex: 1;
 
   display: flex;
-  align-content: center;
+  // align-items: center;
 
   a {
     @include interactive;

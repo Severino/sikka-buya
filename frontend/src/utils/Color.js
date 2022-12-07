@@ -58,8 +58,12 @@ export default class Color {
             return this.hexBrighten(color, intensity, inactiveColor)
     }
 
+    static get Black() {
+        return "#111111";
+    }
+
     static get White() {
-        return "#ffffff"
+        return "#eeeeee"
     }
 
     static get Gray() {
