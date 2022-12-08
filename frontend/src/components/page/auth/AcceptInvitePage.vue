@@ -13,9 +13,17 @@
           id="password"
         />
         <error-message :error="error" />
-        <button type="button" :disabled="disabled" @click.prevent="submit">
-          {{ $t('system.register') }}
-        </button>
+        <segmented-row>
+          <template v-slot:right>
+            <button
+              class="button big-button"
+              :disabled="disabled"
+              @click.prevent="submit"
+            >
+              {{ $t('system.register') }}
+            </button>
+          </template>
+        </segmented-row>
       </form>
     </Box>
   </section>
@@ -25,9 +33,10 @@
 import Query from '../../../database/query';
 import ErrorMessage from '../../ErrorMessage.vue';
 import Box from '../../layout/Box.vue';
+import SegmentedRow from '../../layout/SegmentedRow.vue';
 export default {
   name: 'AcceptInvitePage',
-  components: { Box, ErrorMessage },
+  components: { Box, ErrorMessage, SegmentedRow },
   data: function () {
     return {
       password: '',
