@@ -535,18 +535,26 @@ export default {
     },
     applySlide(options = {}) {
       if (options.zoom && options.location) {
-        this.map.flyTo(options.location, options.zoom);
+        let location = URLParams.fromStringArray(options.location);
+        this.map.flyTo(location, options.zoom);
       }
       if (options.selectedRulers) {
-        this.selectedRulers = options.selectedRulers.slice();
+        this.selectedRulers = URLParams.fromStringArray(options.selectedRulers);
       }
 
       if (options.selectedMints) {
-        this.mintSelectionChanged(options.selectedMints.slice());
+        this.mintSelectionChanged(
+          URLParams.fromStringArray(options.selectedMints)
+        );
       }
 
       if (options.year && options.year != 'null') {
         this.timeChanged(options.year);
+      }
+
+      if (options.timelineActive != null) {
+        if (this.timelineActive != options.timelineActive)
+          this.toggleTimeline();
       }
     },
     updateAvailableRulers() {
