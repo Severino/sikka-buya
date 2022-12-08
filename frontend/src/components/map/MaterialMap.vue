@@ -277,34 +277,34 @@ export default {
     });
   },
   mounted: async function () {
-    // await this.fetchMints();
-    // if (this.$route.query['selectedMints']) {
-    //   try {
-    //     let parsed = JSON.parse(this.$route.query['selectedMints']);
-    //     if (Array.isArray(parsed)) {
-    //       this.selectedMints = parsed;
-    //     }
-    //   } catch (e) {
-    //     console.warn(e);
-    //   }
-    // }
+    await this.fetchMints();
+    if (this.$route.query['selectedMints']) {
+      try {
+        let parsed = JSON.parse(this.$route.query['selectedMints']);
+        if (Array.isArray(parsed)) {
+          this.selectedMints = parsed;
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+    }
 
-    // this.$nextTick(() => {
-    //   for (let [key, val] of Object.entries(this.$route.query)) {
-    //     if (
-    //       key.startsWith(queryPrefix) &&
-    //       this.$refs?.catalogFilter?.activeFilters
-    //     ) {
-    //       try {
-    //         let parsed = JSON.parse(val);
-    //         const filterKey = key.replace(queryPrefix, '');
-    //         this.$refs.catalogFilter.setFilter(filterKey, parsed);
-    //       } catch (e) {
-    //         console.warn(e);
-    //       }
-    //     }
-    //   }
-    // });
+    this.$nextTick(() => {
+      for (let [key, val] of Object.entries(this.$route.query)) {
+        if (
+          key.startsWith(queryPrefix) &&
+          this.$refs?.catalogFilter?.activeFilters
+        ) {
+          try {
+            let parsed = JSON.parse(val);
+            const filterKey = key.replace(queryPrefix, '');
+            this.$refs.catalogFilter.setFilter(filterKey, parsed);
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      }
+    });
 
     await this.initTimeline();
     this.updateTimeline();
