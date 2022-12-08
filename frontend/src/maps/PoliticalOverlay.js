@@ -339,7 +339,7 @@ export default class PoliticalOverlay extends Overlay {
 
       layer = L.featureGroup(objects);
     } else {
-      layer = this.createMintLocationMarker(latlng, feature)
+      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected })
       layer.bringToBack()
     }
 

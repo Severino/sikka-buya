@@ -37,11 +37,14 @@ export default class MintLocation {
         });
     }
 
-    createGeometryLayer(features) {
+    createGeometryLayer(features, selectedMints = []) {
         let that = this
         let layer = new L.geoJSON(features, {
             pointToLayer: function (feature, latlng) {
-                return that.createMarker.call(that, latlng, feature)
+                const mintId = feature?.data?.mint?.id
+                console.log(feature)
+                const active = (mintId) ? mintId : false
+                return that.createMarker.call(that, latlng, feature, { active })
             },
             coordsToLatLng: function (coords) {
                 return new L.LatLng(coords[0], coords[1], coords[2]);
@@ -51,14 +54,14 @@ export default class MintLocation {
         return layer
     }
 
-    createMarker(latlng, feature) {
+    createMarker(latlng, feature, { active = false } = {}) {
         let marker = null
 
         if (this.createMarkerCallback)
             marker = this.createMarkerCallback(latlng, feature)
         else {
             let locationMarker = new MintLocationMarker(feature.mint)
-            marker = locationMarker.create(latlng)
+            marker = locationMarker.create(latlng, { active })
         }
         if (this.bindPopupCallback)
             marker.bindPopup(this.bindPopupCallback(feature))
@@ -85,7 +88,8 @@ export class MintLocationMarker {
 
         let marker = L.circleMarker(latlng, Object.assign(MintLocationMarkerSettings.load(), {
             radius: size,
-            fillColor: (active) ? "#333" : Color.White
+            fillColor: (active) ? Color.DarkGray : Color.White,
+            color: (active) ? Color.Black : Color.DarkGray,
         }))
 
         if (this.mint.uncertain) {

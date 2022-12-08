@@ -115,7 +115,7 @@ export function mintLocationsMixin({
                     this.mintLocationLayer.clearLayers();
 
                 let features = this.mintLocation.mapToGeoJsonFeature(this.mints);
-                this.mintLocationLayer = this.mintLocation.createGeometryLayer(features);
+                this.mintLocationLayer = this.mintLocation.createGeometryLayer(features, this.selectedMints);
                 this.mintLocationLayer.addTo(this.featureGroup);
             },
             mintSelectionChanged(selected, { preventUpdate = false } = {}) {

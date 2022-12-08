@@ -69,4 +69,12 @@ export default class Color {
     static get Gray() {
         return "#dddddd"
     }
+
+    static get DarkGray() {
+        return "#333333"
+    }
+
+    static get Primary() {
+        return "#48ac48"
+    }
 }
