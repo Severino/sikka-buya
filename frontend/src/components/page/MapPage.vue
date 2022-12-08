@@ -47,14 +47,20 @@ export default {
       mapSettings,
     };
   },
+  created() {
+    let queryObject = URLParams.getMany({
+      zoom: 'int',
+      location: 'array',
+    });
+
+    this.$data.mapSettings = Object.assign({}, this.mapSettings, queryObject);
+  },
   mounted() {
     settings.onSettingsChanged((keyValPairs) => {
       keyValPairs.forEach(([key, val]) => {
         this.$data.mapSettings[key] = val;
       });
     });
-
-    settings.overwriteWithQueryParams(this);
 
     this.$nextTick(() => {
       this.map.on('moveend', (args) => {

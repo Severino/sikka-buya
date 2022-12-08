@@ -9,6 +9,8 @@
           name: 'Political Map',
           query: {
             year: type.yearOfMint,
+            zoom: linkZoom,
+            location: mintLocation,
             timelineActive: true,
             selectedRulers: [],
             selectedMints: [type.mint.id],
@@ -50,7 +52,7 @@
               query: {
                 timelineActive: false,
                 location: mintLocation,
-                zoom: 10,
+                zoom: linkZoom,
                 selectedMints: [type.mint.id],
                 selectedRulers: [],
               },
@@ -417,6 +419,9 @@ export default {
       if (!this?.type?.mint?.location?.coordinates)
         return URLParams.toStringArray([0, 0]);
       return URLParams.toStringArray(this.type.mint.location.coordinates);
+    },
+    linkZoom() {
+      return 6;
     },
   },
 };

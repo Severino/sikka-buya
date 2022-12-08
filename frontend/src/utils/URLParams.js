@@ -23,6 +23,43 @@ export default class URLParams {
         return url
     }
 
+
+    /**
+     * Get's an object of URLParams from an config object.
+     * 
+     * @param {Object} config - The configuration of how to get the query files. The object has the form of: {name: type, ...} 
+     * @returns Object with the names as keys and values
+     */
+    static getMany(config) {
+        let obj = {}
+        for (let [name, type] of Object.entries(config)) {
+            let val = this.get(name, type)
+            if (val != null) obj[name] = val
+        }
+        return obj
+    }
+
+
+    /**
+     * Get's the URLParam by name of a specific type.
+     * 
+     * @param {String} name - Name of key of the variable
+     * @param {String} type - Type of the variable, allowed types are: array, int and bool.
+     * @returns Returns the respective value of the variable. 
+     */
+    static get(name, type) {
+        switch (type) {
+            case 'array':
+                return URLParams.getArray(name)
+            case 'int':
+                return URLParams.getInteger(name)
+            case 'bool':
+                return URLParams.getBoolean(name)
+            default:
+                throw new Error(`URLParams get type not specified: ${type}!`)
+        }
+    }
+
     /**
      * Retrieves an array by a key.
      * Also transforms a single value into an 
@@ -98,13 +135,7 @@ export default class URLParams {
      * result when refreshing the page.
      */
     static clear() {
-        let location = new URL(window.location)
-
-        for (const key of location.searchParams.keys()) {
-            location.searchParams.delete(key)
-        }
-
-        window.history.replaceState(null, "", location.href)
+        window.history.replaceState(null, "", location.pathname)
     }
 
     static fromStringArray(str) {

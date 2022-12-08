@@ -10,7 +10,9 @@
       "**/bower_components": true,
       "**/*.code-search": true,
       "**/dist": true,
-      "**/*.lock": true
+      "**/*.lock": true,
+      "**/yarn-error.log": true,
+      "**/*.svg": true
     },
     "javascript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
@@ -36,7 +38,10 @@
         "label": "application",
         "type": "shell",
         "command": "npm run frontend",
-        "dependsOn": ["backend", "frontend"],
+        "dependsOn": [
+          "backend",
+          "frontend"
+        ],
         "dependsOrder": "parallel",
         "isBackground": true
       }
@@ -50,7 +55,9 @@
         "cwd": "${workspaceRoot}\\backend",
         "program": "${workspaceRoot}\\backend\\scripts\\update_plain_text_field_for_all_types.js",
         "request": "launch",
-        "skipFiles": ["<node_internals>/**"],
+        "skipFiles": [
+          "<node_internals>/**"
+        ],
         "type": "pwa-node"
       },
       {

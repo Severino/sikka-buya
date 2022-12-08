@@ -103,16 +103,14 @@ export default class Settings {
         this._onSettingsChanged = fun
     }
 
-    overwriteWithQueryParams(vue) {
+    overwriteWithQueryParams(vue, options) {
         for (let key of Object.keys(this.settings)) {
             let query = vue.$route.query[key]
             if (query) {
 
                 try {
-                    query = JSON.parse(query)
-                    if (Parser[this.key]?.[key]) {
-                        query = Parser[this.key][key](query)
-                    }
+                    if (!options[key]) throw new Error(`No option for key '${key}' set.`)
+                    query = URLParams.get(key, options[key])
 
                     if (this.validateSetting(key, query)) {
                         this.change(key, query)
