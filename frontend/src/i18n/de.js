@@ -139,6 +139,8 @@ const property = {
         "Kleine Münze",
     title:
         "Titel",
+    type:
+        "Typ",
     type_id:
         "sikka:būya-ID | sikka:būya-IDs",
 

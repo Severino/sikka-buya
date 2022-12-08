@@ -4,10 +4,10 @@
       <h2>{{ $t('editor.administration') }}</h2>
     </header>
 
-    <list :items="featuredProperties">
+    <list :items="admin_properties">
       <list-header>{{ $t('editor.admin_properties') }}</list-header>
       <list-item
-        v-for="(property, idx) of featuredProperties"
+        v-for="(property, idx) of admin_properties"
         :key="'prop-' + idx"
         :to="property.to"
       >
@@ -62,15 +62,14 @@ export default {
     },
   },
   computed: {
-    featuredProperties() {
-      const properties = [{ name: 'type', to: { name: 'TypeOverview' } }];
-
-      if (this.superuser) {
-        properties.unshift({ name: 'user', to: { name: 'UserManagement' } });
-      }
-
-      return properties;
+    admin_properties() {
+      return [{ name: 'user', to: { name: 'UserManagement' } }];
     },
+
+    // featuredProperties() {
+    //   const properties = [{ name: 'type', to: { name: 'TypeOverview' } }];
+    //   return properties;
+    // },
     supportPrograms() {
       return [{ name: 'compare_last_cleanup', to: { name: 'FixDiff' } }];
     },
@@ -84,6 +83,7 @@ export default {
         'nominal',
         'person',
         'title',
+        'type',
         'dynasty',
         'role',
         'province',
@@ -93,6 +93,7 @@ export default {
         person: 'PersonOverview',
         material: 'MaterialOverview',
         coin_mark: 'CoinMarkOverview',
+        type: 'TypeOverview',
       };
 
       props = props.sort((a, b) =>
