@@ -192,8 +192,8 @@ svg {
   top: 50%;
   transform: translateY(-50%);
 
-  right: (div($size, 2));
-  left: (div($size, 2));
+  right: math.div($size, 2);
+  left: math.div($size, 2);
   height: $trash-size;
   border-radius: math.div($trash-size, 2);
 }
