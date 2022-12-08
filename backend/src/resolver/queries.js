@@ -222,7 +222,12 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         if (!auth) {
             throw new Error('You are not authenticated!')
         } else {
-            return await Database.manyOrNone("SELECT id, email, super FROM app_user")
+            let users = await Database.manyOrNone("SELECT id, email, super FROM app_user")
+            users = users.map(user => {
+                if (user.super == null) user.super = false
+                return user
+            })
+            return users
         }
     },
     getComments: async function (_, args, context) {

@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page user-management-page">
     <back-header :to="{ name: 'Editor' }" />
     <h1>User Management</h1>
     <section>
@@ -17,8 +17,15 @@
       <div class="user-list">
         <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
           <span class="email">{{ user.email }}</span>
-          <div class="permissions">{{ user.super ? 'SUPER' : 'User' }}</div>
+          <toggle
+            :value="user.super"
+            @input="(_super) => togglePermission(user, _super)"
+          >
+            <template v-slot:active><KingIcon /></template>
+            <template v-slot:inactive><PawnIcon /></template>
+          </toggle>
           <copy-field :value="getInvitePath(user.email)" />
+
           <dynamic-delete-button @delete="deleteUser(user.id)" />
         </div>
       </div>
@@ -31,20 +38,28 @@ import Query from '../../database/query';
 import ErrorMessage from '../ErrorMessage.vue';
 import CopyField from '../forms/CopyField.vue';
 import BackHeader from '../layout/BackHeader.vue';
+import Toggle from '../layout/buttons/Toggle.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
+
+import KingIcon from 'vue-material-design-icons/ChessKing.vue';
+import PawnIcon from 'vue-material-design-icons/ChessPawn.vue';
+
 export default {
   name: 'UserManagement',
   components: {
     BackHeader,
     CopyField,
-    ErrorMessage,
     DynamicDeleteButton,
+    ErrorMessage,
+    KingIcon,
+    PawnIcon,
+    Toggle,
   },
   data: function () {
     return {
       listError: '',
       inviteEmail: '',
-      users: [Object],
+      users: [],
     };
   },
   mounted: function () {
@@ -74,6 +89,24 @@ export default {
         this.users = [];
         this.listError = 'Nutzerliste konnte nicht geladen werden!';
       }
+    },
+    togglePermission: async function (user, _super) {
+      if (_super) {
+        await Query.raw(
+          `mutation Promote($email: String){
+            promoteUser(email: $email)
+          }`,
+          { email: user.email }
+        );
+      } else {
+        await Query.raw(
+          `mutation Demote($email: String){
+            demoteUser(email: $email)
+          }`,
+          { email: user.email }
+        );
+      }
+      user.super = _super;
     },
     inviteUser: async function () {
       Query.raw(
@@ -105,9 +138,14 @@ form > * {
 
 .user {
   display: grid;
-  grid-template-columns: 3fr 1fr 5fr 40px;
+  grid-template-columns: 3fr auto 5fr 40px;
   gap: $padding;
   align-items: center;
   margin: $padding 0;
+}
+
+.toggle-button {
+  @include input();
+  @include interactive();
 }
 </style>

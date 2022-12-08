@@ -1,5 +1,5 @@
 <template>
-  <div class="button button-completed" @click.stop.prevent="toggle">
+  <div class="button toggle-button" @click.stop.prevent="toggle">
     <div v-if="value" class="active">
       <slot name="active"></slot>
     </div>
@@ -10,9 +10,8 @@
 </template>
 
 <script>
-
 export default {
-  name: "Toggle",
+  name: 'Toggle',
   props: {
     value: {
       type: Boolean,
@@ -21,7 +20,7 @@ export default {
   },
   methods: {
     toggle: function () {
-      this.$emit("input", !this.value);
+      this.$emit('input', !this.value);
     },
     stop(event) {
       event.stopPropagation();
@@ -32,14 +31,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.active svg {
-  fill: #3cb8ff;
-}
-
 .button {
   border-radius: 0 !important;
   border: none;
   background-color: transparent;
+
+  .active {
+    color: $primary-color;
+  }
 
   &:hover {
     background-color: rgb(223, 223, 223);

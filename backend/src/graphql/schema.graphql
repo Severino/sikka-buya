@@ -471,6 +471,9 @@ type Mutation {
 
   updateMaterialColor(id: ID!, color: String!): Void
   deleteMaterialColor(id: ID): Void
+
+  promoteUser(email:String): Void
+  demoteUser(email:String): Void
 }
 
 input Pagination {

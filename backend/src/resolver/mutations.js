@@ -71,13 +71,22 @@ const UnguardedMutations = {
 }
 
 const SuperUserMutations = {
-    async deleteUser(_, args, context, info) {
+    async deleteUser(_, args) {
         return WriteableDatabase.none("DELETE FROM app_user WHERE id=$[id]", args)
     },
-    async inviteUser(_, { email } = {}, context) {
+    async inviteUser(_, { email } = {}) {
         let mailValidation = Auth.validateEmail(email)
         if (!mailValidation.ok) throw new Error(mailValidation.error)
         return await WriteableDatabase.none("INSERT INTO app_user (email) VALUES ($1)", email)
+    },
+    async promoteUser(_, { email } = {}) {
+        console.log(email)
+        return WriteableDatabase.none("UPDATE app_user SET super=TRUE WHERE email=$1", email)
+    },
+    async demoteUser(_, { email } = {}, context) {
+        let user = Auth.verifyContext(context)
+        if (user.email === email) throw new Error("You can't demote yourself!")
+        return WriteableDatabase.none("UPDATE app_user SET super=FALSE WHERE email=$1", email)
     }
 }
 
