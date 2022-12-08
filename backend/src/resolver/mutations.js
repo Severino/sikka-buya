@@ -80,7 +80,6 @@ const SuperUserMutations = {
         return await WriteableDatabase.none("INSERT INTO app_user (email) VALUES ($1)", email)
     },
     async promoteUser(_, { email } = {}) {
-        console.log(email)
         return WriteableDatabase.none("UPDATE app_user SET super=TRUE WHERE email=$1", email)
     },
     async demoteUser(_, { email } = {}, context) {
