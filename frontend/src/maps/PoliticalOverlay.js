@@ -311,8 +311,10 @@ export default class PoliticalOverlay extends Overlay {
     const mint = feature.data?.mint
     const isMintSelected = this.isSelected(mint, selection)
 
+    console.log(isMintSelected, selection)
+
     let layer;
-    if (data.length > 0 && (this.isSelectionActive(selection) || isMintSelected)) {
+    if (data.length > 0 && (!this.isSelectionActive(selection) || isMintSelected)) {
       const concentricCirclesMarker = concentricCircles(latlng, data, {
         openPopup: function ({ data, groupData }) {
           return rulerPopup(groupData, data?.data);
@@ -363,6 +365,7 @@ export default class PoliticalOverlay extends Overlay {
     if (!PersonMint.isEmpty(personMint)
       && (!this.isSelectionActive(selections.selectedMints) || isMintSelected)
       && PersonMint.containsSelectedRulers(personMint, selections.selectedRulers)) {
+
       layer = ringsFromPersonMint(latlng, feature, selections, {
         innerRadius,
         radius: this.settings.settings.maxRadius,
