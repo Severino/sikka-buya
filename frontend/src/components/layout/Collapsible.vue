@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     toggleCollapse: function () {
-      this.$emit('toggled', this.collapsed);
+      this.$emit('toggled', !this.collapsed);
 
       if (this.collapsed) {
         this.$emit('close');

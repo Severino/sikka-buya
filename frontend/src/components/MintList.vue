@@ -4,6 +4,8 @@
       <Collapsible
         class="group"
         v-for="(group, idx) of groupedItems"
+        @toggled="(collapsed) => toggleCollapsible(group.id, collapsed)"
+        :collapsed="isCollapsed(group.id)"
         :key="`mint-list-group-${idx}`"
       >
         <template #header>
@@ -40,6 +42,10 @@
 import MultiSelectList from './MultiSelectList.vue';
 import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
+
+import CollapsibleListMixin from './mixins/collapsible-list.js';
+
+
 import Collapsible from './layout/Collapsible.vue';
 import Sort from '../utils/Sorter';
 import Checkbox from './forms/Checkbox.vue';
@@ -57,7 +63,8 @@ export default {
     ListSelectionTools,
     SelectableListHeader,
   },
-  mixins: [MultiSelectListMixin],
+  mixins: [MultiSelectListMixin,
+  CollapsibleListMixin],
   methods: {
     toggleAllProvince(group) {
       if (this.allSelected(group)) {
@@ -66,7 +73,9 @@ export default {
         this.removeAllFromGroup(group);
       }
     },
+
   },
+
   computed: {
     groupedItems() {
       let groups = {};
@@ -74,10 +83,11 @@ export default {
       this.items.forEach((mint) => {
         const province = mint.province?.name ? mint.province.name : '_';
         if (!groups[province]) {
+          const id = mint.province?.id;
           groups[province] = {
-            id: mint.province?.id,
+            id,
             name: province,
-            items: [],
+            items: []
           };
         }
         groups[province].items.push(mint);

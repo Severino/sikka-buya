@@ -311,8 +311,6 @@ export default class PoliticalOverlay extends Overlay {
     const mint = feature.data?.mint
     const isMintSelected = this.isSelected(mint, selection)
 
-    console.log(isMintSelected, selection)
-
     let layer;
     if (data.length > 0 && (!this.isSelectionActive(selection) || isMintSelected)) {
       const concentricCirclesMarker = concentricCircles(latlng, data, {

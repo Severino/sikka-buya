@@ -97,8 +97,6 @@ export default {
             }
           }
 
-          console.log(item);
-
           this.selection = Object.assign({}, selection);
 
           this.personMap = {};
@@ -143,7 +141,6 @@ export default {
           options
         );
       }
-      console.log(JSON.stringify(this.selection));
 
       localStorage.setItem(
         selectionLocalStorageName,
@@ -154,7 +151,6 @@ export default {
       return !!this.selection[personId];
     },
     personSelection(personId) {
-      console.log(this.selection);
       return this.hasSelection(personId) ? this.selection[personId] : {};
     },
   },

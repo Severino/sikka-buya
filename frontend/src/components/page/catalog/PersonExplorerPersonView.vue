@@ -257,7 +257,7 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
       }
     },
     toggleCollapse(collapsed) {
-      this.open = collapsed;
+      this.open = !collapsed;
 
       if (this.open) {
         this.getTypes();

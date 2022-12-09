@@ -24,7 +24,9 @@
       />
     </multi-select-list>
     <multi-select-list v-else>
-      <collapsible v-for="group of groups" :key="group.id"
+      <collapsible v-for="group of groups" :key="group.key"
+        @toggled="(collapsed) => toggleCollapsible(group.key, collapsed)"
+        :collapsed="isCollapsed(group.key)"
         ><template v-slot:header>
           <selectable-list-header
             @select-all="selectAllInGroup(group)"
@@ -52,6 +54,9 @@
 import MultiSelectList from './MultiSelectList.vue';
 import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
+
+import CollapsibleListMixin from './mixins/collapsible-list.js';
+
 import Person from '../utils/Person';
 import RulerListSection from './RulerListSection.vue';
 import Collapsible from './layout/Collapsible.vue';
@@ -73,7 +78,7 @@ export default {
       },
     },
   },
-  mixins: [MultiSelectListMixin],
+  mixins: [MultiSelectListMixin, CollapsibleListMixin],
   components: {
     MultiSelectList,
     MultiSelectListItem,
