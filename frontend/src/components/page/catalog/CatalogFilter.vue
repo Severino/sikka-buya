@@ -329,6 +329,7 @@ export default {
     MultiDataSelect2D,
   },
   props: {
+    initData: Object,
     forceAll: Boolean,
     pageInfo: Object,
     additionalQuery: {
@@ -382,6 +383,11 @@ export default {
       deep: true,
     },
   },
+  mounted() {
+    if (this.initData) {
+      this.filters = Object.assign({}, this.filters, this.initData);
+    }
+  },
   methods: {
     ...filterMethods,
     setFilter(key, val) {
@@ -433,22 +439,28 @@ export default {
               pageInfo.page * (pageInfo.count + 1) < pageInfo.total
             ) {
               let { types: nextTypes, pageInfo: nextPageInfo } =
-                await Type.filteredQuery({
-                  pagination: Pagination.fromPageInfo(pageInfo),
-                  filters,
-                  typeBody: this.typeBody,
-                });
+                await Type.filteredQuery(
+                  {
+                    pagination: Pagination.fromPageInfo(pageInfo),
+                    filters,
+                    typeBody: this.typeBody,
+                  },
+                  true
+                );
 
               pageInfo = nextPageInfo;
               pageInfo.page++;
               types.push(...nextTypes);
             }
           } else {
-            ({ types, pageInfo } = await Type.filteredQuery({
-              pagination: Pagination.fromPageInfo(this.pageInfo),
-              filters,
-              typeBody: this.typeBody,
-            }));
+            ({ types, pageInfo } = await Type.filteredQuery(
+              {
+                pagination: Pagination.fromPageInfo(this.pageInfo),
+                filters,
+                typeBody: this.typeBody,
+              },
+              true
+            ));
           }
 
           this.$emit('update', { types, pageInfo });

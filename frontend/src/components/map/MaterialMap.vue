@@ -71,6 +71,7 @@
       <div class="padding-box">
         <catalog-filter
           ref="catalogFilter"
+          :initData="initialCatalogFilters"
           @update="dataUpdated"
           @dynamic-change="recalculateCatalogSidebar"
           :forceAll="true"
@@ -147,6 +148,15 @@ let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
 const selectedMints = loadSelectedMints();
 
+let filterLocalStorageName = `sikka-buya-material-map-filters`;
+let filterLocalStorageString = localStorage.getItem(filterLocalStorageName);
+let initialCatalogFilters = {};
+try {
+  initialCatalogFilters = JSON.parse(filterLocalStorageString);
+} catch (e) {
+  console.warn('Could not load stored filter values!');
+}
+
 export default {
   name: 'MaterialMap',
   components: {
@@ -164,6 +174,7 @@ export default {
   },
   data: function () {
     return {
+      initialCatalogFilters,
       catalogFilterActive: false,
       filteredMintLayer: null,
       filteredMintLocation: null,
@@ -297,6 +308,7 @@ export default {
         ) {
           try {
             let parsed = JSON.parse(val);
+            console.log(parsed);
             const filterKey = key.replace(queryPrefix, '');
             this.$refs.catalogFilter.setFilter(filterKey, parsed);
           } catch (e) {
@@ -361,15 +373,22 @@ export default {
 
       this.overlay.setData(data);
       this.overlay.repaint();
+
+      const strData = JSON.stringify(this.$refs.catalogFilter.activeFilters);
+      console.log('SAVE', strData);
+
+      localStorage.setItem(filterLocalStorageName, strData);
+
+      console.log(this.$refs.catalogFilter.activeFilters);
     },
     updateMints() {
       this.$refs.catalogFilter.search();
     },
     timelineChanged(value) {
-      localStorage.setItem('map-timeline', value);
       this.updateYearOverwrite(value);
       this.timeChanged(value);
     },
+    save() {},
     timelineUpdated() {},
     updateTimeline: async function () {
       const triggered = this.updateYearOverwrite(this.timeline.value);
