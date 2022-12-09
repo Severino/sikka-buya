@@ -14,8 +14,15 @@
         :key="person.id"
         :person="person"
         :orderMap="orderMap"
+        :initOpen="hasSelection(person.id)"
         :editmode="editmode"
+        :selection="personSelection(person.id)"
         @order-changed="orderChanged"
+        @person-selected="personSelected"
+        @person-unselected="personUnselected"
+        @selection-changed="
+          (selection) => updateSelection(person.id, selection)
+        "
       />
     </div>
   </div>
@@ -26,6 +33,8 @@ import Query from '../../../database/query';
 import Button from '../../layout/buttons/Button.vue';
 import EditorToolbar from '../editor/EditorToolbar.vue';
 import PersonExplorerPersonView from './PersonExplorerPersonView.vue';
+
+const selectionLocalStorageName = 'sikka-buya-person-explorer-selection';
 
 export default {
   components: {
@@ -41,6 +50,7 @@ export default {
       map: {},
       orderMap: {},
       editmode: false,
+      selection: {},
     };
   },
   mounted() {
@@ -76,12 +86,23 @@ export default {
 
           const persons = result.data.data.person;
 
+          let selection = {};
+
+          let item = localStorage.getItem(selectionLocalStorageName);
+          if (item != null) {
+            try {
+              selection = JSON.parse(item);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+
+          console.log(item);
+
+          this.selection = Object.assign({}, selection);
+
           this.personMap = {};
           persons.forEach((person) => {
-            person.activeYears = {};
-            person.activeOverlords = {};
-            person.activeIssuers = {};
-            person.activeType = null;
             person.loading = true;
             person.orderNum = orderMap[person.id] || -1000;
             this.personMap[person.id] = person;
@@ -105,6 +126,36 @@ export default {
       if (this.$store.state.user) {
         this.editmode = !this.editmode;
       }
+    },
+
+    personSelected(person) {
+      if (!this.selection[person]) this.selection[person] = {};
+    },
+    personUnselected(person) {
+      if (this.selection[person]) delete this.selection[person];
+    },
+    updateSelection(personId, options) {
+      if (options == null) delete this.selection[personId];
+      else {
+        this.selection[personId] = Object.assign(
+          {},
+          this.selection[personId],
+          options
+        );
+      }
+      console.log(JSON.stringify(this.selection));
+
+      localStorage.setItem(
+        selectionLocalStorageName,
+        JSON.stringify(this.selection)
+      );
+    },
+    hasSelection(personId) {
+      return !!this.selection[personId];
+    },
+    personSelection(personId) {
+      console.log(this.selection);
+      return this.hasSelection(personId) ? this.selection[personId] : {};
     },
   },
   computed: {

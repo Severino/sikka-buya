@@ -6,7 +6,8 @@
       ['generation-gap']: spacingByHardCodedGenerations(orderMap[person.id]),
     }"
     :key="person.id"
-    @open="getTypes()"
+    :collapsed="!open"
+    @toggled="toggleCollapse"
   >
     <template slot="header">
       <div class="edit-toolbar" v-if="editmode">
@@ -27,7 +28,7 @@
         class="year-area area"
         :list="sortedTypeTree"
         :person="person"
-        :active="activeYears"
+        :active="selection"
         @change="yearChanged"
       />
     </section>
@@ -36,7 +37,7 @@
     <section class="mint-section area" v-if="hasActiveYears">
       <person-explorer-mint-list
         :yearObjectArray="yearObjectArray"
-        :activeYears="activeYears"
+        :activeYears="selection"
         @change="mintChanged"
       />
     </section>
@@ -84,11 +85,11 @@ export default {
       open: false,
       types: {},
       typeTree: {},
-      activeYears: {},
       activeType: null,
     };
   },
   props: {
+    initOpen: Boolean,
     person: {
       required: true,
       type: Object,
@@ -97,11 +98,26 @@ export default {
       required: true,
       type: Object,
     },
+    selection: {
+      required: true,
+      type: Object,
+    },
     editmode: Boolean,
   },
+  mounted() {
+    if (this.initOpen) this.open = true;
+    this.initialFetch();
+  },
   methods: {
+    async initialFetch() {
+      if (Object.keys(this.selection).length > 0 || this.initOpen) {
+        this.open = true;
+        await this.getTypes();
+      }
+    },
     selectType(id) {
       this.activeType = this.activeType === id ? null : id;
+      this.$emit('type-selected', id);
     },
     isTypeActive(id) {
       return this.activeType === id;
@@ -114,18 +130,21 @@ export default {
       return name.replace(/^(.*)(b\..*?|banū.*?)(?=\(|$)/g, '$1 <i>$2</i>');
     },
     yearChanged(year) {
-      if (this.activeYears[year]) {
+      let selection = this.selection;
+      if (selection[year]) {
         if (this.types?.[this.activeType]?.yearOfMint === year)
           this.activeType = null;
-        delete this.activeYears[year];
+        delete selection[year];
       } else
-        this.activeYears[year] = {
+        selection[year] = {
           activeIssuerMints: {},
           activeOverlordsMints: {},
         };
-      this.activeYears = Object.assign({}, this.activeYears);
+      this.updateSelection(selection);
     },
     mintChanged(year, mintId, isOverlord = false) {
+      let selection = this.selection;
+
       const toggleMintObject = (obj) => {
         if (obj[mintId]) {
           const typeLeaves = this.getTypesFromTree(year, mintId, isOverlord);
@@ -138,14 +157,19 @@ export default {
       };
 
       if (isOverlord) {
-        toggleMintObject(this.activeYears[year].activeOverlordsMints);
+        toggleMintObject(selection[year].activeOverlordsMints);
       } else {
-        toggleMintObject(this.activeYears[year].activeIssuerMints);
+        toggleMintObject(selection[year].activeIssuerMints);
       }
-
-      this.activeYears = Object.assign({}, this.activeYears);
+      this.updateSelection(selection);
     },
-
+    updateSelection(selection) {
+      this.$emit('selection-changed', selection);
+    },
+    async personSelected(collapsed) {
+      if (!collapsed) this.$emit('person-selected', this.person.id);
+      else this.$emit('person-unselected', this.person.id);
+    },
     getTypes: async function () {
       if (!this.loading) {
         this.loading = true;
@@ -170,7 +194,6 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
           });
 
           const types = result.types;
-
           let typeTree = {};
           types.forEach((type) => {
             this.types[type.id] = type;
@@ -233,6 +256,16 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
         }
       }
     },
+    toggleCollapse(collapsed) {
+      this.open = collapsed;
+
+      if (this.open) {
+        this.getTypes();
+        this.updateSelection({});
+      } else {
+        this.updateSelection(null);
+      }
+    },
     getTypesFromTree(year, mintId, isOverlord = false) {
       const rulerType = isOverlord ? 'asOverlord' : 'asIssuer';
       const types = this.typeTree[year]?.[rulerType]?.[mintId]?.children;
@@ -240,20 +273,22 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
     },
     getActiveTypes(isOverlord = 'false') {
       const types = {};
-      Object.entries(this.activeYears).forEach(([year, yearObj]) => {
-        const mintProperty = isOverlord
-          ? 'activeOverlordsMints'
-          : 'activeIssuerMints';
-        const obj = yearObj?.[mintProperty];
+      Object.entries(this.selection).forEach(([year, yearObj]) => {
+        if (this.typeTree[year]) {
+          const mintProperty = isOverlord
+            ? 'activeOverlordsMints'
+            : 'activeIssuerMints';
+          const obj = yearObj?.[mintProperty];
 
-        Object.keys(obj).forEach((mintId) => {
-          const rulerProperty = isOverlord ? 'asOverlord' : 'asIssuer';
-          this.typeTree[year][rulerProperty][mintId].children.forEach(
-            (type) => {
-              types[type.id] = type;
-            }
-          );
-        });
+          Object.keys(obj).forEach((mintId) => {
+            const rulerProperty = isOverlord ? 'asOverlord' : 'asIssuer';
+            this.typeTree[year][rulerProperty][mintId].children.forEach(
+              (type) => {
+                types[type.id] = type;
+              }
+            );
+          });
+        }
       });
       return Object.values(types);
     },
@@ -267,8 +302,8 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
     },
     yearObjectArray() {
       const yearObjects = [];
-      Object.keys(this.activeYears).forEach((year) => {
-        yearObjects.push(this.typeTree[year]);
+      Object.keys(this.selection).forEach((year) => {
+        if (this.typeTree[year]) yearObjects.push(this.typeTree[year]);
       });
       return yearObjects.sort(Sort.stringPropAlphabetically('value'));
     },
@@ -277,7 +312,7 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
       return typeTree.sort(Sort.stringPropAlphabetically('value'));
     },
     hasActiveMints() {
-      for (let activeYearObj of Object.values(this.activeYears)) {
+      for (let activeYearObj of Object.values(this.selection)) {
         if (
           Object.keys(activeYearObj.activeOverlordsMints).length > 0 ||
           Object.keys(activeYearObj.activeIssuerMints).length > 0
@@ -287,7 +322,7 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
       return false;
     },
     hasActiveYears() {
-      return Object.keys(this.activeYears).length > 0;
+      return Object.keys(this.selection).length > 0;
     },
   },
 };

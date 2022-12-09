@@ -27,14 +27,12 @@ export default {
     ChevronDown,
     AlertCircleOutline,
   },
-  data: function () {
-    return {
-      collapsed: true,
-    };
+  props: {
+    collapsed: Boolean,
   },
   methods: {
     toggleCollapse: function () {
-      this.collapsed = !this.collapsed;
+      this.$emit('toggled', this.collapsed);
 
       if (this.collapsed) {
         this.$emit('close');
@@ -71,6 +69,10 @@ export default {
   user-select: none;
   cursor: pointer;
   position: relative;
+}
+
+.collapsible-content {
+  min-height: 40px;
 }
 
 .icon {
