@@ -1195,6 +1195,8 @@ class Type {
                 }
 
             }
+
+            delete filter.honorific
         }
     }
 
