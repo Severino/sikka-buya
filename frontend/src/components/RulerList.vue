@@ -136,6 +136,10 @@ export default {
     grid-template-columns: auto 30px 1fr;
   }
 
+  span {
+    color: $black;
+  }
+
   .color-indicator {
     $size: 1em;
     width: math.div($size, 3);
