@@ -505,8 +505,6 @@ class Type {
         const total = await Database.one(totalQuery)
         pageInfo.updateTotal(total.count)
 
-        console.log(WHERE)
-
         const query = `
         SELECT 
         ${SELECT}

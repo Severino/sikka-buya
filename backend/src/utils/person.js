@@ -4,17 +4,6 @@ const SQLUtils = require('./sql')
 class Person {
 
     static async searchWithoutRole(_, args) {
-        //         const searchString = args.text
-        //         let result = await Database.manyOrNone(`
-        // SELECT * FROM person WHERE role IS NULL AND unaccent(name) ILIKE $1 ORDER BY name ASC
-        // LIMIT ${process.env.MAX_SEARCH}
-        // `, `%${searchString}%`)
-
-        //         result.forEach((item, idx) => {
-        //             result[idx]["role"] = { id: null, name: null }
-        //         })
-
-        //         console.log(result)
         args.hasRole = false
         return this.search(_, args)
     }
