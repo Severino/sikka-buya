@@ -11,7 +11,7 @@ export default class Overlay {
         this.data = {}
         this.parent = parent
         this.settings = settings
-        this.fetchGuard = new RequestGuard()
+        this.fetchGuard = new RequestGuard(this.fetch.bind(this))
         this._onDataTransformed = onDataTransformed
         this._onGeoJSONTransform = onGeoJSONTransform
         this._onApplyData = onApplyData
@@ -20,9 +20,7 @@ export default class Overlay {
 
 
     async guardedFetch(filters) {
-        return this.fetchGuard.exec(async (filters) => {
-            return this.fetch(filters)
-        }, filters)
+        return this.fetchGuard.exec(filters)
     }
 
     /** Fetches the data from the server. */

@@ -117,8 +117,6 @@ import PageInfo, { Pagination } from '../../../models/pageinfo';
 import ErrorBox from '../system/ErrorBox.vue';
 import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
 
-const searchRequestGuard = new RequestGuard();
-
 function addType(arr, typeName) {
   arr.forEach((obj) => (obj.type = typeName));
 }
@@ -384,6 +382,7 @@ export default {
     },
   },
   mounted() {
+    this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this));
     if (this.initData) {
       this.filters = Object.assign({}, this.filters, this.initData);
     }
@@ -393,6 +392,76 @@ export default {
     setFilter(key, val) {
       this.filters[key] = val;
     },
+    async searchCallback({
+      filters,
+      multiSelectFilters,
+      multiSelectFilters2D,
+    } = {}) {
+      this.$emit('loading', true);
+
+      multiSelectFilters.forEach(({ value: name }) => {
+        if (filters[name]) {
+          filters[name] = filters[name].map((item) => item.id);
+
+          if (this.filterMode?.[name] === 'AND') {
+            filters[name + '_and'] = filters[name];
+            delete filters[name];
+          }
+        }
+      });
+
+      multiSelectFilters2D.forEach(({ value: name }) => {
+        if (filters[name]) {
+          if (this.filterMode?.[name] === 'AND') {
+            filters[name + '_or_and'] = filters[name].map((arr) =>
+              arr.map((el) => el.id)
+            );
+          } else {
+            filters[name + '_and_or'] = filters[name].map((arr) =>
+              arr.map((el) => el.id)
+            );
+          }
+
+          delete filters[name];
+        }
+      });
+
+      let types = [],
+        pageInfo = this.pageInfo;
+
+      if (this.forceAll) {
+        while (
+          pageInfo.total === undefined ||
+          pageInfo.page * (pageInfo.count + 1) < pageInfo.total
+        ) {
+          let { types: nextTypes, pageInfo: nextPageInfo } =
+            await Type.filteredQuery(
+              {
+                pagination: Pagination.fromPageInfo(pageInfo),
+                filters,
+                typeBody: this.typeBody,
+              },
+              true
+            );
+
+          pageInfo = nextPageInfo;
+          pageInfo.page++;
+          types.push(...nextTypes);
+        }
+      } else {
+        ({ types, pageInfo } = await Type.filteredQuery(
+          {
+            pagination: Pagination.fromPageInfo(this.pageInfo),
+            filters,
+            typeBody: this.typeBody,
+          },
+          true
+        ));
+      }
+
+      this.$emit('update', { types, pageInfo });
+      this.$emit('loading', false);
+    },
     async search() {
       const filters = Object.assign(
         {},
@@ -401,76 +470,11 @@ export default {
         this.overwriteFilters
       );
 
-      searchRequestGuard.exec(
-        async ({ filters, multiSelectFilters, multiSelectFilters2D } = {}) => {
-          multiSelectFilters.forEach(({ value: name }) => {
-            if (filters[name]) {
-              filters[name] = filters[name].map((item) => item.id);
-
-              if (this.filterMode?.[name] === 'AND') {
-                filters[name + '_and'] = filters[name];
-                delete filters[name];
-              }
-            }
-          });
-
-          multiSelectFilters2D.forEach(({ value: name }) => {
-            if (filters[name]) {
-              if (this.filterMode?.[name] === 'AND') {
-                filters[name + '_or_and'] = filters[name].map((arr) =>
-                  arr.map((el) => el.id)
-                );
-              } else {
-                filters[name + '_and_or'] = filters[name].map((arr) =>
-                  arr.map((el) => el.id)
-                );
-              }
-
-              delete filters[name];
-            }
-          });
-
-          let types = [],
-            pageInfo = this.pageInfo;
-
-          if (this.forceAll) {
-            while (
-              pageInfo.total === undefined ||
-              pageInfo.page * (pageInfo.count + 1) < pageInfo.total
-            ) {
-              let { types: nextTypes, pageInfo: nextPageInfo } =
-                await Type.filteredQuery(
-                  {
-                    pagination: Pagination.fromPageInfo(pageInfo),
-                    filters,
-                    typeBody: this.typeBody,
-                  },
-                  true
-                );
-
-              pageInfo = nextPageInfo;
-              pageInfo.page++;
-              types.push(...nextTypes);
-            }
-          } else {
-            ({ types, pageInfo } = await Type.filteredQuery(
-              {
-                pagination: Pagination.fromPageInfo(this.pageInfo),
-                filters,
-                typeBody: this.typeBody,
-              },
-              true
-            ));
-          }
-
-          this.$emit('update', { types, pageInfo });
-        },
-        {
-          filters,
-          multiSelectFilters: this.multiSelectFilters,
-          multiSelectFilters2D: this.multiSelectFilters2D,
-        }
-      );
+      let value = await this.searchRequestGuard.exec({
+        filters,
+        multiSelectFilters: this.multiSelectFilters,
+        multiSelectFilters2D: this.multiSelectFilters2D,
+      });
     },
     watch() {
       if (this.watching) this.search();

@@ -72,6 +72,7 @@
         <catalog-filter
           ref="catalogFilter"
           :initData="initialCatalogFilters"
+          @loading="setLoading"
           @update="dataUpdated"
           @dynamic-change="recalculateCatalogSidebar"
           :forceAll="true"
@@ -319,7 +320,7 @@ export default {
     });
 
     await this.initTimeline();
-    this.updateTimeline();
+    this.updateTimeline(true);
   },
   methods: {
     recalculateCatalogSidebar() {
@@ -375,14 +376,11 @@ export default {
       this.overlay.repaint();
 
       const strData = JSON.stringify(this.$refs.catalogFilter.activeFilters);
-      console.log('SAVE', strData);
 
       localStorage.setItem(filterLocalStorageName, strData);
-
-      console.log(this.$refs.catalogFilter.activeFilters);
     },
-    updateMints() {
-      this.$refs.catalogFilter.search();
+    async updateMints() {
+      await this.$refs.catalogFilter.search();
     },
     timelineChanged(value) {
       this.updateYearOverwrite(value);
@@ -390,9 +388,9 @@ export default {
     },
     save() {},
     timelineUpdated() {},
-    updateTimeline: async function () {
+    updateTimeline: async function (initial = false) {
       const triggered = this.updateYearOverwrite(this.timeline.value);
-      if (!triggered) this.update();
+      if (!triggered && !initial) this.update();
     },
     updateYearOverwrite(value) {
       const old = this.overwriteFilters.yearOfMint;
@@ -431,8 +429,8 @@ export default {
 
       // this.update();
     },
-    update() {
-      this.updateMints();
+    async update() {
+      await this.updateMints();
       this.$emit('timeline-updated', this.value);
     },
   },

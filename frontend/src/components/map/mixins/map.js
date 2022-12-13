@@ -43,14 +43,14 @@ export default {
         this.featureGroup.clearLayers()
 
     },
-    beforeRouteEnter: function (_, _2, next) {
-        next()
-    },
-    beforeRouteLeave(to, from, next) {
-        this.featureGroup.name = "OLD"
-        this.featureGroup.clearLayers()
-        next()
-    },
+    // beforeRouteEnter: function (_, _2, next) {
+    //     next()
+    // },
+    // beforeRouteLeave(to, from, next) {
+    //     this.featureGroup.name = "OLD"
+    //     this.featureGroup.clearLayers()
+    //     next()
+    // },
     methods: {
         update: function () {
             throw new Error("Map mixin requires an update method!")
@@ -63,6 +63,9 @@ export default {
         },
         clearLayers: function () {
             this.featureGroup.clearLayers()
-        }
+        },
+        setLoading(isLoading) {
+            this.$emit('loading', isLoading);
+        },
     }
 }

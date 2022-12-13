@@ -520,10 +520,12 @@ export default {
       this.update();
     },
     async update() {
+      this.setLoading(true);
       await this.overlay.update({
         filters: this.filters,
         selections: this.selections,
       });
+      this.setLoading(false);
     },
     repaint() {
       if (this.overlay) {
