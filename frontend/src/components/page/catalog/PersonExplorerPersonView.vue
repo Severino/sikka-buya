@@ -52,7 +52,7 @@
     </section>
 
     <!-- Type View -->
-    <type-view v-if="activeType" :type="selectedType" />
+    <type-view v-if="selectedType" :type="selectedType" />
   </collapsible>
 </template>
 
@@ -85,10 +85,10 @@ export default {
       open: false,
       types: {},
       typeTree: {},
-      activeType: null,
     };
   },
   props: {
+    activeType: String,
     initOpen: Boolean,
     person: {
       required: true,
@@ -116,7 +116,6 @@ export default {
       }
     },
     selectType(id) {
-      this.activeType = this.activeType === id ? null : id;
       this.$emit('type-selected', id);
     },
     isTypeActive(id) {
@@ -131,15 +130,18 @@ export default {
     },
     yearChanged(year) {
       let selection = this.selection;
+
       if (selection[year]) {
-        if (this.types?.[this.activeType]?.yearOfMint === year)
-          this.activeType = null;
-        delete selection[year];
-      } else
+        if (this.types?.[this.activeType]?.yearOfMint === year) {
+          this.$emit('type-selected', null);
+          delete selection[year];
+        }
+      } else {
         selection[year] = {
           activeIssuerMints: {},
           activeOverlordsMints: {},
         };
+      }
       this.updateSelection(selection);
     },
     mintChanged(year, mintId, isOverlord = false) {
@@ -151,7 +153,7 @@ export default {
           if (
             typeLeaves.findIndex((type) => type.id === this.activeType) !== -1
           )
-            this.activeType = null;
+            this.$emit('type-selected', null);
           delete obj[mintId];
         } else obj[mintId] = true;
       };

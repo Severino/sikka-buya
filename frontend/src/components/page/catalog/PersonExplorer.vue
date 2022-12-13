@@ -18,6 +18,8 @@
         :editmode="editmode"
         :selection="personSelection(person.id)"
         @order-changed="orderChanged"
+        :activeType="getActiveType(person)"
+        @type-selected="(type) => selectType(person, type)"
         @person-selected="personSelected"
         @person-unselected="personUnselected"
         @selection-changed="
@@ -35,6 +37,8 @@ import EditorToolbar from '../editor/EditorToolbar.vue';
 import PersonExplorerPersonView from './PersonExplorerPersonView.vue';
 
 const selectionLocalStorageName = 'sikka-buya-person-explorer-selection';
+const selectedTypesLocalStorageName =
+  'sikka-buya-person-explorer-selected-types';
 
 export default {
   components: {
@@ -51,6 +55,7 @@ export default {
       orderMap: {},
       editmode: false,
       selection: {},
+      selectedTypes: {},
     };
   },
   mounted() {
@@ -96,8 +101,20 @@ export default {
               console.error(e);
             }
           }
-
           this.selection = Object.assign({}, selection);
+
+          let selectedTypesStorageString = localStorage.getItem(
+            selectedTypesLocalStorageName
+          );
+          let selectedTypes = {};
+          if (selectedTypesStorageString != null) {
+            try {
+              selectedTypes = JSON.parse(selectedTypesStorageString);
+            } catch (e) {
+              console.error(e);
+            }
+          }
+          this.selectedTypes = Object.assign({}, selectedTypes);
 
           this.personMap = {};
           persons.forEach((person) => {
@@ -131,14 +148,16 @@ export default {
     },
     personUnselected(person) {
       if (this.selection[person]) delete this.selection[person];
+      if (this.selectType[person]) this.selectType[person] = null;
     },
     updateSelection(personId, options) {
-      if (options == null) delete this.selection[personId];
-      else {
-        this.selection[personId] = Object.assign(
-          {},
-          this.selection[personId],
-          options
+      if (options == null) {
+        this.$set(this.selection, personId, {});
+      } else {
+        this.$set(
+          this.selection,
+          personId,
+          Object.assign({}, this.selection[personId], options)
         );
       }
 
@@ -152,6 +171,17 @@ export default {
     },
     personSelection(personId) {
       return this.hasSelection(personId) ? this.selection[personId] : {};
+    },
+    getActiveType(person) {
+      return this.selectedTypes[person.id] || null;
+    },
+    selectType(person, type) {
+      console.log(person, type);
+      this.$set(this.selectedTypes, person.id, type);
+      localStorage.setItem(
+        selectedTypesLocalStorageName,
+        JSON.stringify(this.selectedTypes)
+      );
     },
   },
   computed: {
