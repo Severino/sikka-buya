@@ -3,49 +3,49 @@
     <template v-for="input of filteredInput">
       <labeled-input-container
         v-if="input.type === 'text'"
-        :key="input.value"
+        :key="input.name"
         :label="input.label"
-        :class="[input.value]"
+        :class="[input.name]"
         class="three-way-wrapper"
       >
-        <input type="text" v-model="filters[input.value]" />
+        <input type="text" v-model="filters[input.name]" />
       </labeled-input-container>
 
       <labeled-input-container
         v-else-if="input.type === 'number'"
-        :key="input.value"
+        :key="input.name"
         :label="input.label"
-        :class="[input.value]"
+        :class="[input.name]"
         class="three-way-wrapper"
       >
-        <input type="number" v-model="filters[input.value]" />
+        <input type="number" v-model="filters[input.name]" />
       </labeled-input-container>
 
       <labeled-input-container
         v-else-if="input.type === 'button-group'"
-        :key="input.value"
+        :key="input.name"
         :label="input.label"
-        :class="[input.value]"
+        :class="[input.name]"
         class="three-way-wrapper"
       >
         <button-group
-          :id="input.value"
+          :id="input.name"
           :labels="input.labels"
           :options="input.options"
           :unselectable="true"
-          v-model="filters[input.value]"
+          v-model="filters[input.name]"
         />
       </labeled-input-container>
 
       <labeled-input-container
         v-else-if="input.type === 'three-way'"
-        :key="input.value"
+        :key="input.name"
         :label="input.label"
-        :class="[input.value]"
+        :class="[input.name]"
         class="three-way-wrapper"
       >
         <three-way-toggle
-          v-model="filters[input.value]"
+          v-model="filters[input.name]"
           :invert="input.invert"
         />
       </labeled-input-container>
@@ -53,51 +53,51 @@
       <labeled-input-container
         v-else-if="input.type === 'multi-select'"
         :label="input.label"
-        :class="[input.value]"
-        :key="input.value"
+        :class="[input.name]"
+        :key="input.name"
         class="multi-select-wrapper"
       >
         <multi-data-select
-          :active="filters[input.value]"
+          :active="filters[input.name]"
           :additionalParameters="input.additionalParameters"
           :allowModeChange="input.allowModeChange"
           :attribute="input.attribute"
           :disableRemoveButton="true"
           :displayTextCallback="input.displayTextCallback"
-          :mode="getMode(input.value)"
+          :mode="input.mode"
           :queryCommand="input.queryCommand"
           :queryParams="input.queryParams"
-          :table="input.value"
+          :table="input.name"
           :text="input.text"
-          v-model="filters[searchVariableName(input.value)]"
-          @select="(el) => selectFilter(input.value, el)"
-          @remove="(el) => removeFilter(input.value, el)"
-          @change-mode="() => changeFilterMode(input.value)"
+          v-model="filters[searchVariableName(input.name)]"
+          @select="(el) => selectFilter(input.name, el)"
+          @remove="(el) => removeFilter(input.name, el)"
+          @change-mode="() => dataSelectToggled(input)"
           @dynamic-change="() => $emit('dynamic-change')"
         />
       </labeled-input-container>
       <labeled-input-container
         v-else-if="input.type === 'multi-select-2d'"
         :label="input.label"
-        :class="[input.value]"
-        :key="input.value"
+        :class="[input.name]"
+        :key="input.name"
         class="multi-select-wrapper"
       >
         <multi-data-select-2-d
-          :active="filters[input.value]"
+          :active="filters[input.name]"
           :input="input"
-          :mode="getMode(input.value)"
-          @add="() => addToFilterList(input.value)"
-          @select="(value, idx) => selectFilter(input.value, value, idx)"
-          @remove="(el, idx) => removeFilter(input.value, el, idx)"
+          :mode="input.mode"
+          @add="() => addToFilterList(input.name)"
+          @select="(value, idx) => selectFilter(input.name, value, idx)"
+          @remove="(el, idx) => removeFilter(input.name, el, idx)"
           @dynamic-change="() => $emit('dynamic-change')"
-          @remove-group="(idx) => removeFilterGroup(input.value, idx)"
-          @change-mode="() => changeFilterMode(input.value)"
+          @remove-group="(idx) => removeFilterGroup(input.name, idx)"
+          @change-mode="() => dataSelectToggled(input)"
         />
       </labeled-input-container>
       <error-box
         v-else
-        :key="input.value"
+        :key="input.name"
         :message="`Unbekannter Eingabetyp '${input.type}': EingabeFeld kann nicht angezeigt werden!`"
       />
     </template>
@@ -116,30 +116,26 @@ import Type from '../../../utils/Type';
 import PageInfo, { Pagination } from '../../../models/pageinfo';
 import ErrorBox from '../system/ErrorBox.vue';
 import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
+import Mode from '../../../models/Mode';
 
 function addType(arr, typeName) {
   arr.forEach((obj) => (obj.type = typeName));
 }
 
-const mode = {
-  and: 'and',
-  or: 'or',
-};
-
 const textFilters = [
   {
     label: 'sikka:būya-ID',
-    value: 'projectId',
+    name: 'projectId',
     order: -10,
   },
   {
     label: 'Treadwell-ID',
-    value: 'treadwellId',
+    name: 'treadwellId',
     order: -9,
   },
   {
     label: 'Prägejahr',
-    value: 'yearOfMint',
+    name: 'yearOfMint',
     order: -3,
   },
 ];
@@ -151,7 +147,7 @@ addType(unfilteredNumberFilters, 'number');
 const unfilteredButtonGroupFilters = [
   {
     label: 'Herstellungsart',
-    value: 'procedure',
+    name: 'procedure',
     options: ['pressed', 'cast'],
     labels: ['geprägt', 'gegossen'],
     order: 3,
@@ -162,23 +158,23 @@ addType(unfilteredButtonGroupFilters, 'button-group');
 const unfilteredThreeWayFilters = [
   {
     label: 'kursive Schrift',
-    value: 'cursiveScript',
+    name: 'cursiveScript',
     order: 8,
   },
   {
     label: 'Geschenkmünze',
-    value: 'donativ',
+    name: 'donativ',
     order: 4,
   },
   {
     label: 'Jahr sicher',
-    value: 'yearUncertain',
+    name: 'yearUncertain',
     invert: true,
     order: 10,
   },
   {
     label: 'Ort sicher',
-    value: 'mintUncertain',
+    name: 'mintUncertain',
     invert: true,
     order: 9,
   },
@@ -188,33 +184,33 @@ addType(unfilteredThreeWayFilters, 'three-way');
 let unfilteredMultiSelectFilters = [
   {
     label: 'Material',
-    value: 'material',
+    name: 'material',
     order: 0,
-    mode: mode.or,
+    mode: Mode.Or,
   },
   {
     label: 'Prägeort',
-    value: 'mint',
+    name: 'mint',
     order: -5,
-    mode: mode.or,
+    mode: Mode.Or,
   },
   {
     label: 'Nominal',
-    value: 'nominal',
+    name: 'nominal',
     order: 3,
-    mode: mode.or,
+    mode: Mode.Or,
   },
   {
     label: 'Kalif',
-    value: 'caliph',
-    mode: mode.or,
+    name: 'caliph',
+    mode: Mode.Or,
     attribute: 'shortName',
     queryParams: ['id', 'shortName'],
     order: 5.8,
   },
   {
     label: 'sonstige Personen',
-    value: 'otherPerson',
+    name: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
 
     queryParams: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
@@ -228,24 +224,25 @@ let unfilteredMultiSelectFilters = [
     },
     order: 6,
     allowModeChange: true,
+    mode: Mode.And,
   },
   {
     label: 'Herrschertitel',
-    value: 'title',
+    name: 'title',
     order: 7,
-    mode: mode.and,
+    mode: Mode.And,
     allowModeChange: true,
   },
   {
     label: 'Ehrennamen',
-    value: 'honorific',
+    name: 'honorific',
     order: 8,
-    mode: mode.and,
+    mode: Mode.And,
     allowModeChange: true,
   },
   {
     label: 'Herrscher',
-    value: 'ruler',
+    name: 'ruler',
     queryCommand: 'searchPersonsWithoutRole',
     queryParams: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
     displayTextCallback: function (search) {
@@ -255,6 +252,7 @@ let unfilteredMultiSelectFilters = [
     },
     order: 5.5,
     allowModeChange: true,
+    mode: Mode.And,
   },
 ];
 addType(unfilteredMultiSelectFilters, 'multi-select');
@@ -262,8 +260,9 @@ addType(unfilteredMultiSelectFilters, 'multi-select');
 const unfilteredMultiDataSelect2D = [
   {
     label: 'Münzzeichen/Einzelworte',
-    value: 'coinMark',
+    name: 'coinMark',
     order: 5,
+    mode: Mode.And,
   },
 ];
 addType(unfilteredMultiDataSelect2D, 'multi-select-2d');
@@ -282,25 +281,25 @@ let filterMethods = {};
   ...unfilteredNumberFilters,
 ].forEach((item) => {
   filterData = Object.assign(filterData, {
-    [item.value]: item.defaultValue || null,
+    [item.name]: item.defaultValue || null,
   });
 });
 
 let filterMode = {};
 
 unfilteredMultiSelectFilters.forEach((item) => {
-  const filter = new Filter(item.value);
+  const filter = new Filter(item.name);
   filterData = Object.assign(filterData, filter.mapData(item.defaultValue));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
-  filterMode[item.value] = item.mode ? item.mode : mode.and;
+  filterMode[item.name] = item.mode ? item.mode : Mode.And;
   item.filter = filter;
 });
 
 unfilteredMultiDataSelect2D.forEach((item) => {
-  const filter = new FilterList(item.value);
+  const filter = new FilterList(item.name);
   filterData = Object.assign(filterData, filter.mapData([[]]));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
-  filterMode[item.value] = item.mode ? item.mode : mode.and;
+  filterMode[item.name] = item.mode ? item.mode : Mode.And;
   item.filter = filter;
 });
 
@@ -326,6 +325,7 @@ export default {
     ErrorBox,
     MultiDataSelect2D,
   },
+  mixins: [Mode.mixin()],
   props: {
     initData: Object,
     forceAll: Boolean,
@@ -384,6 +384,15 @@ export default {
   mounted() {
     this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this));
     if (this.initData) {
+      [...unfilteredMultiSelectFilters, ...unfilteredMultiDataSelect2D].forEach(
+        (input) => {
+          if (this.initData[input.name]) {
+            input.mode = this.initData[input.name].mode || input.mode;
+            this.initData[input.name] = this.initData[input.name].value || [];
+          }
+        }
+      );
+
       this.filters = Object.assign({}, this.filters, this.initData);
     }
   },
@@ -392,6 +401,10 @@ export default {
     setFilter(key, val) {
       this.filters[key] = val;
     },
+    dataSelectToggled(input) {
+      this.toggleMode(input);
+      this.$emit('toggled');
+    },
     async searchCallback({
       filters,
       multiSelectFilters,
@@ -399,7 +412,7 @@ export default {
     } = {}) {
       this.$emit('loading', true);
 
-      multiSelectFilters.forEach(({ value: name }) => {
+      multiSelectFilters.forEach(({ name: name }) => {
         if (filters[name]) {
           filters[name] = filters[name].map((item) => item.id);
 
@@ -410,7 +423,7 @@ export default {
         }
       });
 
-      multiSelectFilters2D.forEach(({ value: name }) => {
+      multiSelectFilters2D.forEach(({ name: name }) => {
         if (filters[name]) {
           if (this.filterMode?.[name] === 'AND') {
             filters[name + '_or_and'] = filters[name].map((arr) =>
@@ -470,7 +483,7 @@ export default {
         this.overwriteFilters
       );
 
-      let value = await this.searchRequestGuard.exec({
+      await this.searchRequestGuard.exec({
         filters,
         multiSelectFilters: this.multiSelectFilters,
         multiSelectFilters2D: this.multiSelectFilters2D,
@@ -485,18 +498,18 @@ export default {
         ...unfilteredButtonGroupFilters,
         ...unfilteredNumberFilters,
       ].forEach((item) => {
-        this.$set(this.filters, item.value, item.defaultValue || null);
+        this.$set(this.filters, item.name, item.defaultValue || null);
       });
 
       [...unfilteredMultiSelectFilters].forEach((filter) => {
-        const emptyObj = Filter.mapData(filter.value, filter.defaultValue);
+        const emptyObj = Filter.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
         }
       });
 
       [...unfilteredMultiDataSelect2D].forEach((filter) => {
-        const emptyObj = FilterList.mapData(filter.value, filter.defaultValue);
+        const emptyObj = FilterList.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
         }
@@ -526,7 +539,8 @@ export default {
       this.filters[name].splice(idx, 1);
     },
     changeFilterMode(name) {
-      let newMode = this.filterMode[name] === 'AND' ? 'OR' : 'AND';
+      let newMode =
+        this.filterMode[name].toLowerCase() === 'and' ? 'or' : 'and';
       this.filterMode[name] = newMode;
       this.search();
     },
@@ -549,10 +563,7 @@ export default {
       this.watching = true;
     },
     excludeItem(group) {
-      return group.filter((item) => this.exclude.indexOf(item.value) === -1);
-    },
-    getMode(name) {
-      return this.filterMode[name];
+      return group.filter((item) => this.exclude.indexOf(item.name) === -1);
     },
   },
   computed: {
@@ -589,7 +600,7 @@ export default {
     },
     filteredInput() {
       return this.inputs.filter(
-        (item) => this.exclude.indexOf(item.value) === -1
+        (item) => this.exclude.indexOf(item.name) === -1
       );
     },
     multiSelectFilters() {
@@ -597,6 +608,31 @@ export default {
     },
     multiSelectFilters2D() {
       return this.excludeItem(unfilteredMultiDataSelect2D);
+    },
+    storageString() {
+      let storage = {};
+      let activeFilters = this.activeFilters;
+
+      [
+        ...unfilteredThreeWayFilters,
+        ...unfilteredButtonGroupFilters,
+        ...unfilteredNumberFilters,
+      ].forEach((item) => {
+        if (activeFilters[item.name]) {
+          storage[item.name] = activeFilters[item.name];
+        }
+      });
+
+      [...unfilteredMultiSelectFilters, ...unfilteredMultiDataSelect2D].forEach(
+        (filter) => {
+          storage[filter.name] = {
+            mode: filter.mode || Mode.And,
+            value: activeFilters[filter.name] || [],
+          };
+        }
+      );
+
+      return JSON.stringify(storage);
     },
   },
 };

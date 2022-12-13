@@ -6,7 +6,11 @@
         :key="`mda-${input.name}-(${idx})-separator`"
         class="between-groups-area"
       >
-        <div class="separator" v-text="mode" @click="changeMode" />
+        <div
+          class="separator button"
+          v-text="$t(`general.${mode.toLowerCase()}`)"
+          @click="changeMode"
+        />
         <Button @click.native="() => $emit('remove-group', idx)">
           Unten Löschen
         </Button>
@@ -23,7 +27,7 @@
         :mode="childModeSign"
         :queryCommand="input.queryCommand"
         :queryParams="input.queryParams"
-        :table="input.value"
+        :table="input.name"
         :text="input.text"
         @select="(value) => $emit('select', value, idx)"
         @remove="(el) => $emit('remove', el, idx)"
@@ -79,11 +83,13 @@ export default {
     display: inline-flex;
     align-items: center;
     color: $white;
-    background-color: $gray;
+    background-color: $blue;
     border-radius: $border-radius;
 
     font-size: $xtra-small-font;
     font-weight: bold;
+
+    text-transform: uppercase;
   }
 }
 </style>

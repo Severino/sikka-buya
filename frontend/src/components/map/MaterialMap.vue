@@ -75,6 +75,7 @@
           @loading="setLoading"
           @update="dataUpdated"
           @dynamic-change="recalculateCatalogSidebar"
+          @toggled="save"
           :forceAll="true"
           :pageInfo="pageInfo"
           :exclude="[
@@ -374,10 +375,13 @@ export default {
 
       this.overlay.setData(data);
       this.overlay.repaint();
-
-      const strData = JSON.stringify(this.$refs.catalogFilter.activeFilters);
-
-      localStorage.setItem(filterLocalStorageName, strData);
+      this.save();
+    },
+    save() {
+      localStorage.setItem(
+        filterLocalStorageName,
+        this.$refs.catalogFilter.storageString
+      );
     },
     async updateMints() {
       await this.$refs.catalogFilter.search();
@@ -386,7 +390,6 @@ export default {
       this.updateYearOverwrite(value);
       this.timeChanged(value);
     },
-    save() {},
     timelineUpdated() {},
     updateTimeline: async function (initial = false) {
       const triggered = this.updateYearOverwrite(this.timeline.value);

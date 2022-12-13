@@ -72,7 +72,6 @@
 import DataSelectField from './DataSelectField.vue';
 import CloseThickIcon from 'vue-material-design-icons/CloseThick.vue';
 import PlusIcon from 'vue-material-design-icons/Plus.vue';
-
 import MultiDataSelectAddButton from './MultiDataSelectAddButton.vue';
 
 export default {
@@ -272,7 +271,7 @@ $min-height: 24px;
   color: $gray;
 
   &.interactive {
-    background-color: $dark-primary-color;
+    background-color: $blue;
 
     min-width: 32px;
     justify-content: center;
