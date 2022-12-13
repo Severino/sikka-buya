@@ -30,7 +30,7 @@
       v-if="mode"
       @click="changeMode"
     >
-      {{ $t('general.' + mode) }}
+      {{ $t(`general.${mode.toLowerCase()}`) }}
     </div>
 
     <div

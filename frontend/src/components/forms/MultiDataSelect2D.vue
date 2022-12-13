@@ -7,7 +7,6 @@
         class="between-groups-area"
       >
         <div class="separator" v-text="mode" @click="changeMode" />
-
         <Button @click.native="() => $emit('remove-group', idx)">
           Unten Löschen
         </Button>
@@ -68,7 +67,7 @@ export default {
   },
   computed: {
     childModeSign() {
-      return this.mode === 'and' ? 'or' : 'and';
+      return this.mode.toLowerCase() === 'and' ? 'or' : 'and';
     },
   },
 };
