@@ -329,7 +329,12 @@ export default class PoliticalOverlay extends Overlay {
 
 
 
-      const locationMarker = this.createMintLocationMarker(latlng, feature, { active: isMintSelected })
+      /**
+       * The consistency of keeping the selected mints in the year view,
+       * was intentionally removed by request of the numismatics 
+       * //14-12-2022
+       */
+      const locationMarker = this.createMintLocationMarker(latlng, feature)
       const objects = [concentricCirclesMarker, locationMarker]
 
 
@@ -339,7 +344,7 @@ export default class PoliticalOverlay extends Overlay {
 
       layer = L.featureGroup(objects);
     } else {
-      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected })
+      layer = this.createMintLocationMarker(latlng, feature)
       layer.bringToBack()
     }
 
