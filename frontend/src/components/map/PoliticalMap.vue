@@ -5,7 +5,7 @@
       <pre>{{ selectedUnavailableRulers }}</pre>
     </div>
 
-    <Sidebar title="Prägeorte">
+    <Sidebar title="Prägeorteauswahl">
       <template v-slot:tools>
         <list-selection-tools
           @select-all="selectAllMints"
@@ -94,7 +94,7 @@
       </timeline>
     </div>
 
-    <Sidebar title="Herrscher" side="right">
+    <Sidebar title="Herrscherauswahl" side="right">
       <ruler-list
         :selectedUnavailable="selectedUnavailableRulers"
         :unavailable="unavailableRulers"
