@@ -123,6 +123,10 @@ export default {
       transform: translateX(-50%);
     }
   }
+
+  .slider-bar {
+    background-color: transparent;
+  }
 }
 </style>
 
