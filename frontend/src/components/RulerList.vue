@@ -24,7 +24,9 @@
       />
     </multi-select-list>
     <multi-select-list v-else>
-      <collapsible v-for="group of groups" :key="group.key"
+      <collapsible
+        v-for="group of groups"
+        :key="group.key"
         @toggled="(collapsed) => toggleCollapsible(group.key, collapsed)"
         :collapsed="isCollapsed(group.key)"
         ><template v-slot:header>
@@ -117,7 +119,10 @@ export default {
           }
           return prev;
         }, {})
-      ).sort((a, b) => a.label.localeCompare(b.label));
+      ).sort(function (a, b) {
+        if (a.label === '?' || b.label === '?') return 1;
+        else return Sort.stringPropAlphabetically('label')(a, b);
+      });
 
       groups.forEach((group) =>
         group.items.sort(Sort.stringPropAlphabetically('name'))
