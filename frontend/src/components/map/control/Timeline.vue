@@ -16,8 +16,12 @@
             <PauseIcon v-else />
           </div>
 
-          <popup-activator :targetWidth="280" :noShadow="true">
-            <ShareIcon class="button icon-button" />
+          <popup-activator
+            class="button icon-button"
+            :targetWidth="280"
+            :noShadow="true"
+          >
+            <ShareIcon />
             <template v-slot:popup>
               <h3>Ansicht Teilen</h3>
 
@@ -25,22 +29,16 @@
           ></popup-activator>
         </div>
 
-        <div class="center"></div>
-
         <div class="right">
           <div v-if="allowToggle">
             <div
-              class="button small-button rounded"
+              class="button button rounded"
               @click="toggleTimeline"
               v-if="timelineActive"
             >
               Zeitleiste deaktivieren
             </div>
-            <div
-              class="button small-button rounded"
-              @click="toggleTimeline"
-              v-else
-            >
+            <div class="button button rounded" @click="toggleTimeline" v-else>
               Zeitleiste aktivieren
             </div>
           </div>
@@ -257,6 +255,10 @@ export default {
 
   &.hide {
     transform: translateY(calc(100% + #{$padding} + 11px));
+
+    .tool-box-drawer {
+      top: -17px;
+    }
   }
 
   .slider {
@@ -359,9 +361,11 @@ export default {
   transform: translateY(-100%);
   width: 100%;
 
+  transition: top $transition-time;
+
   header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     justify-content: space-between;
     position: absolute;
     width: 100%;
@@ -378,9 +382,6 @@ export default {
       margin-left: auto;
     }
 
-    .center {
-      justify-self: center;
-    }
     .right {
       justify-self: flex-end;
     }
