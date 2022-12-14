@@ -1,6 +1,7 @@
 <template>
   <div class="list-selection-tools">
     <div
+      v-if="!hideAll"
       @click.prevent.stop="() => $emit('select-all')"
       :class="{ disabled: allSelected }"
     >
@@ -26,6 +27,7 @@ export default {
   props: {
     allSelected: { type: Boolean, required: true },
     noneSelected: { type: Boolean, required: true },
+    hideAll: Boolean,
   },
 };
 </script>
