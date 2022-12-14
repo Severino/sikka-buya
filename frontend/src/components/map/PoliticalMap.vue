@@ -23,8 +23,6 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <notification v-if="userInfo">{{ userInfo }}</notification>
-
       <div class="toolbar top-right-toobar">
         <Button
           v-if="filtersActive"
@@ -311,12 +309,6 @@ export default {
       return Object.values(mintMap).sort(
         Sorter.stringPropAlphabetically('mint.name')
       );
-    },
-    userInfo() {
-      let text = '';
-      if (!this.timelineActive && this.selectedRulers.length === 0)
-        text = `Wählen Sie einen oder mehrere Herrscher aus um Daten anzuzeigen!`;
-      return text;
     },
   },
   created() {
