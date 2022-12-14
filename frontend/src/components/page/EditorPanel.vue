@@ -4,7 +4,7 @@
       <h2>{{ $t('editor.administration') }}</h2>
     </header>
 
-    <list :items="admin_properties">
+    <list :items="admin_properties" v-if="superuser">
       <list-header>{{ $t('editor.admin_properties') }}</list-header>
       <list-item
         v-for="(property, idx) of admin_properties"
@@ -54,12 +54,6 @@ export default {
     List,
     ListItem,
     ListHeader,
-  },
-  method: {
-    isAccessible(obj) {
-      if (!obj.superuser) return true;
-      else return this.superuser;
-    },
   },
   computed: {
     admin_properties() {
