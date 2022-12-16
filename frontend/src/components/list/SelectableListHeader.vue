@@ -9,6 +9,7 @@
       @unselect-all="$emit('unselect-all')"
       :allSelected="allSelected"
       :noneSelected="noneSelected"
+      :hideAll="hideAll"
     />
   </div>
 </template>
@@ -23,6 +24,7 @@ export default {
     noneSelected: Boolean,
     selected: Number,
     total: Number,
+    hideAll: Boolean,
   },
 };
 </script>

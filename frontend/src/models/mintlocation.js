@@ -89,7 +89,8 @@ export class MintLocationMarker {
         let marker = L.circleMarker(latlng, Object.assign(MintLocationMarkerSettings.load(), {
             radius: size,
             fillColor: (active) ? Color.DarkGray : Color.White,
-            color: (active) ? Color.Black : Color.DarkGray,
+            color: (active) ? Color.White : Color.DarkGray,
+            weight: 1
         }))
 
         if (this.mint.uncertain) {

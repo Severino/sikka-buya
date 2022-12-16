@@ -511,16 +511,21 @@ export default {
 </script>
 
 <style lang="scss">
-.type-overview .labeled-property .label {
-  margin-bottom: math.div($padding, 2);
-}
+.type-overview {
+  .labeled-property .label {
+    margin-bottom: math.div($padding, 2);
+  }
 
-.type-overview .list-item-row {
-  height: 44px;
-}
+  .type-overview .list-item-row {
+    height: 44px;
+  }
 
-.toggle-group .labeled-property {
-  //
+  .toggle-button {
+    color: $light-gray;
+    .active {
+      color: $bright-blue;
+    }
+  }
 }
 </style>
 

@@ -63,67 +63,60 @@ export default {
   },
   methods: {
     updateRulers() {
-      Query.raw(
-        `{
-          person (dynasty: 1){
-            id
-              name
-              role {name}
-              dynasty{name}
-          } 
-          
-            getPersonExplorerOrder{
-              order
-              person
-            }
-
-          }`
-      )
-        .then((result) => {
-          const order = result.data.data.getPersonExplorerOrder;
-          const orderMap = {};
-          order.forEach((item) => {
-            if (item.person != null) {
-              orderMap[item.person] = item.order;
-            }
-          });
-          this.orderMap = orderMap;
-
-          const persons = result.data.data.person;
-
-          let selection = {};
-
-          let item = localStorage.getItem(selectionLocalStorageName);
-          if (item != null) {
-            try {
-              selection = JSON.parse(item);
-            } catch (e) {
-              console.error(e);
-            }
-          }
-          this.selection = Object.assign({}, selection);
-
-          let selectedTypesStorageString = localStorage.getItem(
-            selectedTypesLocalStorageName
-          );
-          let selectedTypes = {};
-          if (selectedTypesStorageString != null) {
-            try {
-              selectedTypes = JSON.parse(selectedTypesStorageString);
-            } catch (e) {
-              console.error(e);
-            }
-          }
-          this.selectedTypes = Object.assign({}, selectedTypes);
-
-          this.personMap = {};
-          persons.forEach((person) => {
-            person.loading = true;
-            person.orderNum = orderMap[person.id] || -1000;
-            this.personMap[person.id] = person;
-          });
-        })
-        .catch(console.error);
+      // Query.raw(
+      //   `{
+      //     person (dynasty: 1){
+      //       id
+      //         name
+      //         role {name}
+      //         dynasty{name}
+      //     }
+      //       getPersonExplorerOrder{
+      //         order
+      //         person
+      //       }
+      //     }`
+      // )
+      //   .then((result) => {
+      //     const order = result.data.data.getPersonExplorerOrder;
+      //     const orderMap = {};
+      //     order.forEach((item) => {
+      //       if (item.person != null) {
+      //         orderMap[item.person] = item.order;
+      //       }
+      //     });
+      //     this.orderMap = orderMap;
+      //     const persons = result.data.data.person;
+      //     let selection = {};
+      //     let item = localStorage.getItem(selectionLocalStorageName);
+      //     if (item != null) {
+      //       try {
+      //         selection = JSON.parse(item);
+      //       } catch (e) {
+      //         console.error(e);
+      //       }
+      //     }
+      //     this.selection = Object.assign({}, selection);
+      //     let selectedTypesStorageString = localStorage.getItem(
+      //       selectedTypesLocalStorageName
+      //     );
+      //     let selectedTypes = {};
+      //     if (selectedTypesStorageString != null) {
+      //       try {
+      //         selectedTypes = JSON.parse(selectedTypesStorageString);
+      //       } catch (e) {
+      //         console.error(e);
+      //       }
+      //     }
+      //     this.selectedTypes = Object.assign({}, selectedTypes);
+      //     this.personMap = {};
+      //     persons.forEach((person) => {
+      //       person.loading = true;
+      //       person.orderNum = orderMap[person.id] || -1000;
+      //       this.personMap[person.id] = person;
+      //     });
+      //   })
+      //   .catch(console.error);
     },
 
     orderChanged(event, personId) {

@@ -40,6 +40,12 @@ export default {
 </script>
 
 
+<style lang="scss">
+.list-item a {
+  font-weight: normal;
+}
+</style>
+
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
