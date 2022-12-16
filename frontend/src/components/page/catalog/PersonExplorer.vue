@@ -10,20 +10,19 @@
     </editor-toolbar>
     <div class="list">
       <PersonExplorerPersonView
-        v-for="person of persons"
-        :key="person.id"
-        :person="person"
-        :orderMap="orderMap"
-        :initOpen="hasSelection(person.id)"
+        v-for="pes of personExplorerSelection"
+        :key="pes.person.id"
+        :personExplorerSelection="pes"
+        :initOpen="hasSelection(pes.person.id)"
         :editmode="editmode"
-        :selection="personSelection(person.id)"
+        :selection="personSelection(pes.person.id)"
         @order-changed="orderChanged"
-        :activeType="getActiveType(person)"
-        @type-selected="(type) => selectType(person, type)"
+        :activeType="getActiveType(pes.person)"
+        @type-selected="(type) => selectType(pes.person, type)"
         @person-selected="personSelected"
         @person-unselected="personUnselected"
         @selection-changed="
-          (selection) => updateSelection(person.id, selection)
+          (selection) => updateSelection(pes.person.id, selection)
         "
       />
     </div>
@@ -32,6 +31,7 @@
 
 <script>
 import Query from '../../../database/query';
+import { PersonExplorer } from '../../../models/PersonExplorer';
 import Button from '../../layout/buttons/Button.vue';
 import EditorToolbar from '../editor/EditorToolbar.vue';
 import PersonExplorerPersonView from './PersonExplorerPersonView.vue';
@@ -49,10 +49,10 @@ export default {
   },
   data: function () {
     return {
+      personExplorerSelection: [],
       searchText: '',
       personMap: {},
       map: {},
-      orderMap: {},
       editmode: false,
       selection: {},
       selectedTypes: {},
@@ -62,7 +62,9 @@ export default {
     this.updateRulers();
   },
   methods: {
-    updateRulers() {
+    async updateRulers() {
+      this.personExplorerSelection = await PersonExplorer.getItems();
+
       // Query.raw(
       //   `{
       //     person (dynasty: 1){
@@ -136,12 +138,12 @@ export default {
       }
     },
 
-    personSelected(person) {
-      if (!this.selection[person]) this.selection[person] = {};
+    personSelected(personExplorerItem) {
+      // if (!this.selection[person]) this.selection[person] = {};
     },
-    personUnselected(person) {
-      if (this.selection[person]) delete this.selection[person];
-      if (this.selectType[person]) this.selectType[person] = null;
+    personUnselected(personExplorerItem) {
+      // if (this.selection[person]) delete this.selection[person];
+      // if (this.selectType[person]) this.selectType[person] = null;
     },
     updateSelection(personId, options) {
       if (options == null) {
@@ -169,7 +171,6 @@ export default {
       return this.selectedTypes[person.id] || null;
     },
     selectType(person, type) {
-      console.log(person, type);
       this.$set(this.selectedTypes, person.id, type);
       localStorage.setItem(
         selectedTypesLocalStorageName,
@@ -179,11 +180,10 @@ export default {
   },
   computed: {
     persons() {
-      return Object.values(this.personMap).sort((a, b) => {
-        let aPos = this.orderMap[a.id] ? this.orderMap[a.id] : 0;
-        let bPos = this.orderMap[b.id] ? this.orderMap[b.id] : 0;
-        if (aPos < bPos) return 1;
-        else if (aPos > bPos) return -1;
+      console.log(this.personExplorerSelection);
+      return Object.values(this.personExplorerSelection).sort((a, b) => {
+        if (a.order < b.order) return 1;
+        else if (a.order > b.order) return -1;
         else return 0;
       });
     },

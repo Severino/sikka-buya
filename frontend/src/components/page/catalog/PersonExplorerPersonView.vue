@@ -3,7 +3,7 @@
     class="person-explorer-person-view"
     :class="{
       highlight: person.id == 8,
-      ['generation-gap']: spacingByHardCodedGenerations(orderMap[person.id]),
+      ['generation-gap']: spacingByHardCodedGenerations(order),
     }"
     :key="person.id"
     :collapsed="!open"
@@ -15,7 +15,7 @@
           type="number"
           class="editor-order-input"
           @click.stop
-          :value="orderMap[person.id]"
+          :value="order"
           @change="$emit('order-changed', $event, person.id)"
         />
       </div>
@@ -26,33 +26,12 @@
     <section v-else>
       <person-explorer-year-list
         class="year-area area"
-        :list="sortedTypeTree"
+        :list="years"
         :person="person"
-        :active="selection"
+        :active="selection.years"
         @change="yearChanged"
       />
     </section>
-
-    <!-- Mint List -->
-    <section class="mint-section area" v-if="hasActiveYears">
-      <person-explorer-mint-list
-        :yearObjectArray="yearObjectArray"
-        :activeYears="selection"
-        @change="mintChanged"
-      />
-    </section>
-    <!-- Type List -->
-    <section class="type-section area" v-if="hasActiveYears && hasActiveMints">
-      <person-explorer-type-list
-        :issuerTypes="getActiveTypes(false)"
-        :overlordTypes="getActiveTypes(true)"
-        :selected="activeType"
-        @change="selectType"
-      />
-    </section>
-
-    <!-- Type View -->
-    <type-view v-if="selectedType" :type="selectedType" />
   </collapsible>
 </template>
 
@@ -67,6 +46,13 @@ import Type from '../../../utils/Type';
 import OverlordSeparator from './OverlordSeparator.vue';
 import PersonExplorerTypeList from './PersonExplorerTypeList.vue';
 import TypeView from '../TypeView.vue';
+
+import {
+  PersonExplorer,
+  PersonExplorerSelection,
+  PersonExplorerQuery,
+  PersonExplorerTree,
+} from '../../../models/PersonExplorer.js';
 
 export default {
   components: {
@@ -83,37 +69,29 @@ export default {
     return {
       loading: false,
       open: false,
-      types: {},
-      typeTree: {},
+      selection: new PersonExplorerSelection(),
+      tree: {},
     };
   },
   props: {
-    activeType: String,
-    initOpen: Boolean,
-    person: {
-      required: true,
-      type: Object,
-    },
-    orderMap: {
-      required: true,
-      type: Object,
-    },
-    selection: {
+    personExplorerSelection: {
       required: true,
       type: Object,
     },
     editmode: Boolean,
   },
   mounted() {
-    if (this.initOpen) this.open = true;
-    this.initialFetch();
+    // if (this.initOpen) {
+    //   this.open = true;
+    //   this.fetch();
+    // }
+
+    this.getTypes();
   },
   methods: {
-    async initialFetch() {
-      if (Object.keys(this.selection).length > 0 || this.initOpen) {
-        this.open = true;
-        await this.getTypes();
-      }
+    async fetch() {
+      let tree = new PersonExplorerTree(this.personExplorerSelection.person);
+      this.tree = await tree.fetch();
     },
     selectType(id) {
       this.$emit('type-selected', id);
@@ -129,41 +107,40 @@ export default {
       return name.replace(/^(.*)(b\..*?|banū.*?)(?=\(|$)/g, '$1 <i>$2</i>');
     },
     yearChanged(year) {
-      let selection = this.selection;
+      this.selection.updateYear(year);
 
-      if (selection[year]) {
-        if (this.types?.[this.activeType]?.yearOfMint === year) {
-          this.$emit('type-selected', null);
-          delete selection[year];
-        }
-      } else {
-        selection[year] = {
-          activeIssuerMints: {},
-          activeOverlordsMints: {},
-        };
-      }
-      this.updateSelection(selection);
+      // let selection = this.selection;
+      // if (selection[year]) {
+      //   if (this.types?.[this.activeType]?.yearOfMint === year) {
+      //     this.$emit('type-selected', null);
+      //     delete selection[year];
+      //   }
+      // } else {
+      //   selection[year] = {
+      //     activeIssuerMints: {},
+      //     activeOverlordsMints: {},
+      //   };
+      // }
+      // this.updateSelection(selection);
     },
     mintChanged(year, mintId, isOverlord = false) {
-      let selection = this.selection;
-
-      const toggleMintObject = (obj) => {
-        if (obj[mintId]) {
-          const typeLeaves = this.getTypesFromTree(year, mintId, isOverlord);
-          if (
-            typeLeaves.findIndex((type) => type.id === this.activeType) !== -1
-          )
-            this.$emit('type-selected', null);
-          delete obj[mintId];
-        } else obj[mintId] = true;
-      };
-
-      if (isOverlord) {
-        toggleMintObject(selection[year].activeOverlordsMints);
-      } else {
-        toggleMintObject(selection[year].activeIssuerMints);
-      }
-      this.updateSelection(selection);
+      // let selection = this.selection;
+      // const toggleMintObject = (obj) => {
+      //   if (obj[mintId]) {
+      //     const typeLeaves = this.getTypesFromTree(year, mintId, isOverlord);
+      //     if (
+      //       typeLeaves.findIndex((type) => type.id === this.activeType) !== -1
+      //     )
+      //       this.$emit('type-selected', null);
+      //     delete obj[mintId];
+      //   } else obj[mintId] = true;
+      // };
+      // if (isOverlord) {
+      //   toggleMintObject(selection[year].activeOverlordsMints);
+      // } else {
+      //   toggleMintObject(selection[year].activeIssuerMints);
+      // }
+      // this.updateSelection(selection);
     },
     updateSelection(selection) {
       this.$emit('selection-changed', selection);
@@ -175,87 +152,8 @@ export default {
     getTypes: async function () {
       if (!this.loading) {
         this.loading = true;
-        try {
-          const result = await Type.filteredQuery({
-            pagination: {
-              page: 0,
-              count: 100000,
-            },
-            filters: {
-              ruler: [this.person.id],
-              excludeFromTypeCatalogue: false,
-            },
-            typeBody: `id projectId treadwellId mint {name id location} mintAsOnCoin material {name id} nominal {name id}
-yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id role {name id} name shortName}
-caliph {id name shortName}
-avers {fieldText innerInscript intermediateInscript outerInscript misc}
-reverse {fieldText innerInscript intermediateInscript outerInscript misc} 
-cursiveScript coinMarks {name id}
-literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
-`,
-          });
-
-          const types = result.types;
-          let typeTree = {};
-          types.forEach((type) => {
-            this.types[type.id] = type;
-
-            const year =
-              type.yearOfMint === '' ? ' ohne Jahresangabe' : type.yearOfMint;
-
-            if (!typeTree[year]) {
-              typeTree[year] = {
-                value: year,
-                active: false,
-                // children: {},
-                asIssuer: {},
-                asOverlord: {},
-              };
-            }
-
-            const isIssuer = Boolean(
-              type.issuers.find((issuer) => issuer.id === this.person.id)
-            );
-
-            let mint = type?.mint?.id
-              ? type.mint
-              : { id: 0, name: 'ohne Ortsangabe' };
-            const mintId = mint.id;
-
-            try {
-              type.mint.location = JSON.parse(type.mint.location);
-            } catch (e) {
-              type.mint.location = null;
-            }
-
-            if (isIssuer) {
-              if (!typeTree[year].asIssuer[mintId]) {
-                typeTree[year].asIssuer[mintId] = {
-                  value: mint,
-                  active: false,
-                  children: [],
-                };
-              }
-              typeTree[year].asIssuer[mintId].children.push(type);
-            } else {
-              if (!typeTree[year].asOverlord[mintId]) {
-                typeTree[year].asOverlord[mintId] = {
-                  value: mint,
-                  active: false,
-                  children: [],
-                };
-              }
-              typeTree[year].asOverlord[mintId].children.push(type);
-            }
-          });
-
-          this.typeTree = typeTree;
-        } catch (e) {
-          console.error(e);
-          this.person.error = e;
-        } finally {
-          this.loading = false;
-        }
+        this.fetch();
+        this.loading = false;
       }
     },
     toggleCollapse(collapsed) {
@@ -302,6 +200,9 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
     availableMints() {
       return [];
     },
+    years() {
+      return this.tree.years || [];
+    },
     yearObjectArray() {
       const yearObjects = [];
       Object.keys(this.selection).forEach((year) => {
@@ -325,6 +226,13 @@ literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
     },
     hasActiveYears() {
       return Object.keys(this.selection).length > 0;
+    },
+
+    order() {
+      return this.personExplorerSelection.order;
+    },
+    person() {
+      return this.personExplorerSelection.person;
     },
   },
 };
