@@ -2,6 +2,36 @@ import StringUtils from './StringUtils';
 
 export default class Sort {
 
+    /**
+     * Performs a classical alphabetical sorting without 
+     * ignoring any characters.
+     * 
+     * If used for sorting phonetic spelling, you should use
+     * 'Sort.stringAlphabetically'.
+     * 
+     * @param {*} asc 
+     * @returns 
+     */
+    static classicStringAlphabetically(asc = true) {
+        return function (a, b) {
+            if (a == null) return 1
+            if (b == null) return -1
+
+            let sort = a.localeCompare(b)
+            // Flip if not asc.
+            if (!asc) sort *= -1
+            return sort
+        }
+    }
+
+    /**
+     * Returns a sorting method for the german phonetic spelling of the 
+     * arabic language, to get a more natural sorting of those words 
+     * (ignores things like e.g. a starting halfring and al-, ad- prefixes).
+     * 
+     * @param {*} asc 
+     * @returns 
+     */
     static stringAlphabetically(asc = true) {
         return function (a, b) {
 
@@ -13,10 +43,7 @@ export default class Sort {
             a = Sort._removeCharactersThatObstructSorting(a.toUpperCase())
             b = Sort._removeCharactersThatObstructSorting(b.toUpperCase())
 
-            let sort = a.localeCompare(b)
-            // Flip if not asc.
-            if (!asc) sort *= -1
-            return sort
+            return Sort.classicStringAlphabetically(a, b)
         }
     }
 

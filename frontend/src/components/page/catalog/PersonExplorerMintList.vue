@@ -1,27 +1,15 @@
 <template>
   <div class="person-explorer-mint-list">
     <h6>Prägeort(e)</h6>
-
     <div
       class="mint-row"
-      v-for="yearObject of yearObjectArray"
-      :key="`mint-of-year-${yearObject.value}`"
+      v-for="year of sortedSelectedYears"
+      :key="`mint-of-year-${year}`"
     >
-      <span class="year-title">{{ yearObject.value }}:</span>
-
-      <toggle-button-list
-        :list="getSortedPersonList(yearObject.asIssuer)"
-        :active="activeIssuers(yearObject.value)"
-        @change="(mint) => changed(yearObject.value, mint, false)"
-      />
-      <overlord-separator
-        v-if="getSortedPersonList(yearObject.asOverlord).length > 0"
-        :appended="getSortedPersonList(yearObject.asIssuer).length > 0"
-      />
-      <toggle-button-list
-        :list="getSortedPersonList(yearObject.asOverlord)"
-        :active="activeOverlords(yearObject.value)"
-        @change="(mint) => changed(yearObject.value, mint, true)"
+      <person-explorer-mint-row
+        :year="year"
+        :tree="tree"
+        :selectedIssuerMints="[]"
       />
     </div>
     <span v-if="!hasActive" class="hint">Wählen Sie einen Prägeort!</span>
@@ -31,47 +19,40 @@
 <script>
 import Sort from '../../../utils/Sorter';
 import OverlordSeparator from './OverlordSeparator.vue';
+import PersonExplorerMintRow from './PersonExplorerMintRow.vue';
 import ToggleButtonList from './ToggleButtonList.vue';
 
 export default {
-  components: { ToggleButtonList, OverlordSeparator },
+  components: { ToggleButtonList, OverlordSeparator, PersonExplorerMintRow },
   props: {
-    yearObjectArray: { type: Array, required: true },
-    activeYears: { type: Object, required: true },
+    tree: Object,
+    selectedYears: Array,
   },
   methods: {
-    toggleActive(obj) {
-      obj.active = !obj.active;
-    },
     changed(year, mint, rulerType) {
       this.$emit('change', year, mint, rulerType);
     },
-    activeMints(year, isOverlord = false) {
-      let activeMints;
-      if (isOverlord)
-        activeMints = this.activeYears?.[year]?.activeOverlordsMints;
-      else activeMints = this.activeYears?.[year]?.activeIssuerMints;
-      return activeMints;
-    },
-    getSortedPersonList(personObject, prop = 'value') {
-      return Object.values(personObject)
-        .map((obj) => obj[prop])
-        .sort(Sort.stringPropAlphabetically('name'));
-    },
+
     activeIssuers(year) {
       return this.activeYears[year].activeIssuerMints;
     },
     activeOverlords(year) {
       return this.activeYears[year].activeOverlordsMints;
     },
+    getSortedMintList() {
+      return [];
+    },
   },
   computed: {
+    sortedSelectedYears() {
+      let selectedYears = this.selectedYears;
+      return selectedYears.sort(Sort.classicStringAlphabetically());
+    },
+    yearObjectArray() {
+      return [];
+    },
     hasActive() {
-      for (let yearObject of Object.values(this.activeYears)) {
-        for (let key of ['activeOverlordsMints', 'activeIssuerMints'])
-          if (Object.keys(yearObject[key]).length > 0) return true;
-      }
-      return false;
+      return this.selectedYears.length > 0;
     },
   },
 };

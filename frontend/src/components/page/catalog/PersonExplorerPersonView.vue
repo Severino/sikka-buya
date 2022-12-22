@@ -28,8 +28,17 @@
         class="year-area area"
         :list="years"
         :person="person"
-        :active="selection.years"
+        :active="selectedYears"
         @change="yearChanged"
+      />
+    </section>
+
+    <!-- Mint List -->
+    <section class="mint-section area" v-if="hasActiveYears">
+      <person-explorer-mint-list
+        :tree="tree"
+        :selectedYears="selectedYears"
+        @change="mintChanged"
       />
     </section>
   </collapsible>
@@ -47,12 +56,8 @@ import OverlordSeparator from './OverlordSeparator.vue';
 import PersonExplorerTypeList from './PersonExplorerTypeList.vue';
 import TypeView from '../TypeView.vue';
 
-import {
-  PersonExplorer,
-  PersonExplorerSelection,
-  PersonExplorerQuery,
-  PersonExplorerTree,
-} from '../../../models/PersonExplorer.js';
+import { PersonExplorerTree } from '../../../models/PersonExplorer.js';
+import List from '../../../utils/List';
 
 export default {
   components: {
@@ -68,29 +73,31 @@ export default {
   data() {
     return {
       loading: false,
-      open: false,
-      selection: new PersonExplorerSelection(),
       tree: {},
+      active: false,
     };
   },
   props: {
-    personExplorerSelection: {
-      required: true,
+    order: Number,
+    person: {
       type: Object,
+      required: true,
     },
+    selection: { type: Object, required: true },
+    initOpen: Boolean,
     editmode: Boolean,
   },
   mounted() {
-    // if (this.initOpen) {
-    //   this.open = true;
-    //   this.fetch();
-    // }
+    if (this.initOpen) {
+      this.open = true;
+      this.fetch();
+    }
 
     this.getTypes();
   },
   methods: {
     async fetch() {
-      let tree = new PersonExplorerTree(this.personExplorerSelection.person);
+      let tree = new PersonExplorerTree(this.person);
       this.tree = await tree.fetch();
     },
     selectType(id) {
@@ -107,21 +114,7 @@ export default {
       return name.replace(/^(.*)(b\..*?|banū.*?)(?=\(|$)/g, '$1 <i>$2</i>');
     },
     yearChanged(year) {
-      this.selection.updateYear(year);
-
-      // let selection = this.selection;
-      // if (selection[year]) {
-      //   if (this.types?.[this.activeType]?.yearOfMint === year) {
-      //     this.$emit('type-selected', null);
-      //     delete selection[year];
-      //   }
-      // } else {
-      //   selection[year] = {
-      //     activeIssuerMints: {},
-      //     activeOverlordsMints: {},
-      //   };
-      // }
-      // this.updateSelection(selection);
+      this.updateSelection({ years: year });
     },
     mintChanged(year, mintId, isOverlord = false) {
       // let selection = this.selection;
@@ -156,12 +149,10 @@ export default {
         this.loading = false;
       }
     },
-    toggleCollapse(collapsed) {
-      this.open = !collapsed;
-
-      if (this.open) {
+    toggleCollapse(open) {
+      if (!open) {
         this.getTypes();
-        this.updateSelection({});
+        this.updateSelection({ open: true });
       } else {
         this.updateSelection(null);
       }
@@ -200,39 +191,30 @@ export default {
     availableMints() {
       return [];
     },
+    open() {
+      return this.selection.open || false;
+    },
+    selectedYears() {
+      return this.selection.years || [];
+    },
     years() {
       return this.tree.years || [];
     },
     yearObjectArray() {
-      const yearObjects = [];
-      Object.keys(this.selection).forEach((year) => {
-        if (this.typeTree[year]) yearObjects.push(this.typeTree[year]);
-      });
-      return yearObjects.sort(Sort.stringPropAlphabetically('value'));
+      // const yearObjects = [];
+      // Object.keys(this.selection).forEach((year) => {
+      //   if (this.typeTree[year]) yearObjects.push(this.typeTree[year]);
+      // });
+      // return yearObjects.sort(Sort.stringPropAlphabetically('value'));
+
+      return [];
     },
     sortedTypeTree() {
       let typeTree = Object.values(this.typeTree);
       return typeTree.sort(Sort.stringPropAlphabetically('value'));
     },
-    hasActiveMints() {
-      for (let activeYearObj of Object.values(this.selection)) {
-        if (
-          Object.keys(activeYearObj.activeOverlordsMints).length > 0 ||
-          Object.keys(activeYearObj.activeIssuerMints).length > 0
-        )
-          return true;
-      }
-      return false;
-    },
     hasActiveYears() {
-      return Object.keys(this.selection).length > 0;
-    },
-
-    order() {
-      return this.personExplorerSelection.order;
-    },
-    person() {
-      return this.personExplorerSelection.person;
+      return this.selectedYears.length > 0;
     },
   },
 };

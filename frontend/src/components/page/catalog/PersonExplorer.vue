@@ -10,19 +10,18 @@
     </editor-toolbar>
     <div class="list">
       <PersonExplorerPersonView
-        v-for="pes of personExplorerSelection"
-        :key="pes.person.id"
-        :personExplorerSelection="pes"
-        :initOpen="hasSelection(pes.person.id)"
+        v-for="t of tree"
+        :key="t.person.id"
+        :tree="t"
+        :person="t.person"
         :editmode="editmode"
-        :selection="personSelection(pes.person.id)"
+        :selection="personSelection(t.person.id)"
         @order-changed="orderChanged"
-        :activeType="getActiveType(pes.person)"
-        @type-selected="(type) => selectType(pes.person, type)"
+        @type-selected="(type) => selectType(t.person, type)"
         @person-selected="personSelected"
         @person-unselected="personUnselected"
         @selection-changed="
-          (selection) => updateSelection(pes.person.id, selection)
+          (selection) => updateSelection(t.person.id, selection)
         "
       />
     </div>
@@ -32,6 +31,7 @@
 <script>
 import Query from '../../../database/query';
 import { PersonExplorer } from '../../../models/PersonExplorer';
+import List from '../../../utils/List';
 import Button from '../../layout/buttons/Button.vue';
 import EditorToolbar from '../editor/EditorToolbar.vue';
 import PersonExplorerPersonView from './PersonExplorerPersonView.vue';
@@ -49,12 +49,16 @@ export default {
   },
   data: function () {
     return {
-      personExplorerSelection: [],
-      searchText: '',
+      tree: [],
       personMap: {},
       map: {},
       editmode: false,
-      selection: {},
+      selection: {
+        6: {
+          open: true,
+          years: ['328', '360'],
+        },
+      },
       selectedTypes: {},
     };
   },
@@ -63,7 +67,7 @@ export default {
   },
   methods: {
     async updateRulers() {
-      this.personExplorerSelection = await PersonExplorer.getItems();
+      this.tree = await PersonExplorer.getItems();
 
       // Query.raw(
       //   `{
@@ -146,15 +150,21 @@ export default {
       // if (this.selectType[person]) this.selectType[person] = null;
     },
     updateSelection(personId, options) {
+      console.log('DELETE', options);
+
       if (options == null) {
-        this.$set(this.selection, personId, {});
+        this.$delete(this.selection, personId);
       } else {
-        this.$set(
-          this.selection,
-          personId,
-          Object.assign({}, this.selection[personId], options)
-        );
+        for (let [key, value] of Object.entries(options)) {
+          let sel = this.selection[personId];
+          let combined = List.toggle(sel[key], value);
+          sel[key] = combined;
+
+          this.$set(this.selection, personId, sel);
+        }
       }
+
+      console.log(options);
 
       localStorage.setItem(
         selectionLocalStorageName,
@@ -168,14 +178,14 @@ export default {
       return this.hasSelection(personId) ? this.selection[personId] : {};
     },
     getActiveType(person) {
-      return this.selectedTypes[person.id] || null;
+      // return this.selectedTypes[person.id] || null;
     },
     selectType(person, type) {
-      this.$set(this.selectedTypes, person.id, type);
-      localStorage.setItem(
-        selectedTypesLocalStorageName,
-        JSON.stringify(this.selectedTypes)
-      );
+      // this.$set(this.selectedTypes, person.id, type);
+      // localStorage.setItem(
+      //   selectedTypesLocalStorageName,
+      //   JSON.stringify(this.selectedTypes)
+      // );
     },
   },
   computed: {

@@ -6,13 +6,13 @@
     </p>
     <div class="flex">
       <Button
-        v-for="yearObject of list"
-        :key="'year-' + person.id + '-' + yearObject"
+        v-for="year of list"
+        :key="'year-' + person.id + '-' + year"
         class="year-grid"
-        :class="{ active: isActive(yearObject) }"
-        @click="activeChanged(yearObject)"
+        :class="{ active: isActive(year) }"
+        @click="activeChanged(year)"
       >
-        {{ yearObject }}
+        {{ year }}
       </Button>
     </div>
 

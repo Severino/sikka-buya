@@ -36,10 +36,8 @@ export class PersonExplorer {
       let personBOrder = orderMap[personB.id] || 0
 
       return personBOrder - personAOrder
-    }, {}).map(p => {
-      return new PersonExplorerSelection(p, {
-        order: orderMap[p.id]
-      })
+    }, {}).map(person => {
+      return new PersonExplorerTree(person, orderMap[person.id])
     })
 
 
@@ -48,56 +46,12 @@ export class PersonExplorer {
   }
 }
 
-export class PersonExplorerSelection {
-  constructor(person, {
-    active = false,
-    order = 0,
-    years = [],
-    mintsAsOverlord = [],
-    mintsAsIssuer = [],
-    typesAsOverlord = [],
-    typesAsIssuer = [],
-    activeType = null
-  } = {}) {
-    this.person = person
-    this.active = active
-    this.order = order
-
-    this.years = years
-
-    this.mintsAsOverlord = mintsAsOverlord
-    this.mintsAsIssuer = mintsAsIssuer
-
-    this.typesAsOverlord = typesAsOverlord
-    this.typesAsIssuer = typesAsIssuer
-
-    this.activeType = activeType
-  }
-
-  reset() {
-    this.active = false
-    this.years = []
-    this.mintsAsOverlord = []
-    this.mintsAsIssuer = []
-    this.typesAsOverlord = []
-    this.typesAsIssuer = []
-    this.activeType = null
-  }
-
-
-  updateYear(year) {
-    let idx = this.years.indexOf(year)
-    if (idx == -1) this.years.push(year)
-    else this.years.splice(idx, 1)
-  }
-
-}
-
 export class PersonExplorerTree {
 
 
-  constructor(person) {
+  constructor(person, order) {
     this.person = person
+    this.order = order
     this.issuerTree = {}
     this.overlordTree = {}
 
