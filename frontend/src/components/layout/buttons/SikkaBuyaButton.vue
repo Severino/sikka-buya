@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="to" class="sikka-buya-button button">
+  <router-link :to="to" class="sikka-buya-button button" target="_blank">
     <img src="/img/logos/sikka-buya-icon-only.svg" />
     <slot />
   </router-link>
