@@ -10,19 +10,14 @@
     </editor-toolbar>
     <div class="list">
       <PersonExplorerPersonView
-        v-for="t of tree"
-        :key="t.person.id"
-        :tree="t"
-        :person="t.person"
+        v-for="person of persons"
+        :initialSelection="getSelection(person)"
+        :key="person.id"
+        :person="person"
+        :orderMap="orderMap"
         :editmode="editmode"
-        :selection="personSelection(t.person.id)"
+        @selection-changed="selectionChanged"
         @order-changed="orderChanged"
-        @type-selected="(type) => selectType(t.person, type)"
-        @person-selected="personSelected"
-        @person-unselected="personUnselected"
-        @selection-changed="
-          (selection) => updateSelection(t.person.id, selection)
-        "
       />
     </div>
   </div>
@@ -30,15 +25,11 @@
 
 <script>
 import Query from '../../../database/query';
-import { PersonExplorer } from '../../../models/PersonExplorer';
-import List from '../../../utils/List';
 import Button from '../../layout/buttons/Button.vue';
 import EditorToolbar from '../editor/EditorToolbar.vue';
 import PersonExplorerPersonView from './PersonExplorerPersonView.vue';
 
-const selectionLocalStorageName = 'sikka-buya-person-explorer-selection';
-const selectedTypesLocalStorageName =
-  'sikka-buya-person-explorer-selected-types';
+const selectionStorage = 'sikka-buya-person-explorer';
 
 export default {
   components: {
@@ -49,80 +40,88 @@ export default {
   },
   data: function () {
     return {
-      tree: [],
+      selection: {},
+      searchText: '',
       personMap: {},
       map: {},
+      orderMap: {},
       editmode: false,
-      selection: {
-        6: {
-          open: true,
-          years: ['328', '360'],
-        },
-      },
-      selectedTypes: {},
     };
   },
   mounted() {
+    this.selection = this.load();
     this.updateRulers();
   },
   methods: {
-    async updateRulers() {
-      this.tree = await PersonExplorer.getItems();
+    load() {
+      let data = {};
+      try {
+        let storageString = localStorage.getItem(selectionStorage);
+        data = JSON.parse(storageString);
+      } catch (e) {
+        console.warn(
+          'Person Explorer data could not be loaded! This is normal on first startup.'
+        );
+      }
 
-      // Query.raw(
-      //   `{
-      //     person (dynasty: 1){
-      //       id
-      //         name
-      //         role {name}
-      //         dynasty{name}
-      //     }
-      //       getPersonExplorerOrder{
-      //         order
-      //         person
-      //       }
-      //     }`
-      // )
-      //   .then((result) => {
-      //     const order = result.data.data.getPersonExplorerOrder;
-      //     const orderMap = {};
-      //     order.forEach((item) => {
-      //       if (item.person != null) {
-      //         orderMap[item.person] = item.order;
-      //       }
-      //     });
-      //     this.orderMap = orderMap;
-      //     const persons = result.data.data.person;
-      //     let selection = {};
-      //     let item = localStorage.getItem(selectionLocalStorageName);
-      //     if (item != null) {
-      //       try {
-      //         selection = JSON.parse(item);
-      //       } catch (e) {
-      //         console.error(e);
-      //       }
-      //     }
-      //     this.selection = Object.assign({}, selection);
-      //     let selectedTypesStorageString = localStorage.getItem(
-      //       selectedTypesLocalStorageName
-      //     );
-      //     let selectedTypes = {};
-      //     if (selectedTypesStorageString != null) {
-      //       try {
-      //         selectedTypes = JSON.parse(selectedTypesStorageString);
-      //       } catch (e) {
-      //         console.error(e);
-      //       }
-      //     }
-      //     this.selectedTypes = Object.assign({}, selectedTypes);
-      //     this.personMap = {};
-      //     persons.forEach((person) => {
-      //       person.loading = true;
-      //       person.orderNum = orderMap[person.id] || -1000;
-      //       this.personMap[person.id] = person;
-      //     });
-      //   })
-      //   .catch(console.error);
+      return data;
+    },
+    selectionChanged(personId, selection) {
+      this.selection[personId] = {
+        activeType: selection.activeType,
+        activeYears: selection.activeYears,
+        open: selection.open,
+      };
+      try {
+        localStorage.setItem(selectionStorage, JSON.stringify(this.selection));
+      } catch (e) {
+        console.error(
+          'Could not save person explorer data to local storage: ',
+          e
+        );
+      }
+    },
+    updateRulers() {
+      Query.raw(
+        `{
+          person (dynasty: 1){
+            id
+              name
+              role {name}
+              dynasty{name}
+          } 
+          
+            getPersonExplorerOrder{
+              order
+              person
+            }
+
+          }`
+      )
+        .then((result) => {
+          const order = result.data.data.getPersonExplorerOrder;
+          const orderMap = {};
+          order.forEach((item) => {
+            if (item.person != null) {
+              orderMap[item.person] = item.order;
+            }
+          });
+          this.orderMap = orderMap;
+
+          const persons = result.data.data.person;
+
+          this.personMap = {};
+          persons.forEach((person) => {
+            person.activeYears = {};
+            person.activeOverlords = {};
+            person.activeIssuers = {};
+            person.activeType = null;
+            person.loading = true;
+            person.orderNum = orderMap[person.id] || -1000;
+            this.personMap[person.id] = person;
+          });
+        })
+        .catch(console.error);
     },
 
     orderChanged(event, personId) {
@@ -141,59 +140,19 @@ export default {
         this.editmode = !this.editmode;
       }
     },
-
-    personSelected(personExplorerItem) {
-      // if (!this.selection[person]) this.selection[person] = {};
-    },
-    personUnselected(personExplorerItem) {
-      // if (this.selection[person]) delete this.selection[person];
-      // if (this.selectType[person]) this.selectType[person] = null;
-    },
-    updateSelection(personId, options) {
-      console.log('DELETE', options);
-
-      if (options == null) {
-        this.$delete(this.selection, personId);
-      } else {
-        for (let [key, value] of Object.entries(options)) {
-          let sel = this.selection[personId];
-          let combined = List.toggle(sel[key], value);
-          sel[key] = combined;
-
-          this.$set(this.selection, personId, sel);
-        }
-      }
-
-      console.log(options);
-
-      localStorage.setItem(
-        selectionLocalStorageName,
-        JSON.stringify(this.selection)
-      );
-    },
-    hasSelection(personId) {
-      return !!this.selection[personId];
-    },
-    personSelection(personId) {
-      return this.hasSelection(personId) ? this.selection[personId] : {};
-    },
-    getActiveType(person) {
-      // return this.selectedTypes[person.id] || null;
-    },
-    selectType(person, type) {
-      // this.$set(this.selectedTypes, person.id, type);
-      // localStorage.setItem(
-      //   selectedTypesLocalStorageName,
-      //   JSON.stringify(this.selectedTypes)
-      // );
+    getSelection(person) {
+      if (this.selection && this.selection[person.id])
+        return this.selection[person.id];
+      else return null;
     },
   },
   computed: {
     persons() {
-      console.log(this.personExplorerSelection);
-      return Object.values(this.personExplorerSelection).sort((a, b) => {
-        if (a.order < b.order) return 1;
-        else if (a.order > b.order) return -1;
+      return Object.values(this.personMap).sort((a, b) => {
+        let aPos = this.orderMap[a.id] ? this.orderMap[a.id] : 0;
+        let bPos = this.orderMap[b.id] ? this.orderMap[b.id] : 0;
+        if (aPos < bPos) return 1;
+        else if (aPos > bPos) return -1;
         else return 0;
       });
     },
@@ -224,17 +183,6 @@ export default {
     &.open {
       > header {
         font-weight: bold;
-
-        &::before {
-          content: '';
-          display: block;
-          $size: 8px;
-          margin-right: $padding;
-          width: $size;
-          height: $size;
-          border-radius: math.div($size, 2);
-          background-color: $primary-color;
-        }
       }
     }
   }

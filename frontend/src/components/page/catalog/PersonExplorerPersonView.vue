@@ -2,12 +2,11 @@
   <collapsible
     class="person-explorer-person-view"
     :class="{
-      highlight: person.id == 8,
-      ['generation-gap']: spacingByHardCodedGenerations(order),
+      ['generation-gap']: spacingByHardCodedGenerations(orderMap[person.id]),
     }"
     :key="person.id"
     :collapsed="!open"
-    @toggled="toggleCollapse"
+    @toggled="toggledCollapsible"
   >
     <template slot="header">
       <div class="edit-toolbar" v-if="editmode">
@@ -15,7 +14,7 @@
           type="number"
           class="editor-order-input"
           @click.stop
-          :value="order"
+          :value="orderMap[person.id]"
           @change="$emit('order-changed', $event, person.id)"
         />
       </div>
@@ -26,9 +25,9 @@
     <section v-else>
       <person-explorer-year-list
         class="year-area area"
-        :list="years"
+        :list="sortedTypeTree"
         :person="person"
-        :active="selectedYears"
+        :active="activeYears"
         @change="yearChanged"
       />
     </section>
@@ -36,11 +35,23 @@
     <!-- Mint List -->
     <section class="mint-section area" v-if="hasActiveYears">
       <person-explorer-mint-list
-        :tree="tree"
-        :selectedYears="selectedYears"
+        :yearObjectArray="yearObjectArray"
+        :activeYears="activeYears"
         @change="mintChanged"
       />
     </section>
+    <!-- Type List -->
+    <section class="type-section area" v-if="hasActiveYears && hasActiveMints">
+      <person-explorer-type-list
+        :issuerTypes="getActiveTypes(false)"
+        :overlordTypes="getActiveTypes(true)"
+        :selected="activeType"
+        @change="selectType"
+      />
+    </section>
+
+    <!-- Type View -->
+    <type-view v-if="activeType" :type="selectedType" />
   </collapsible>
 </template>
 
@@ -56,9 +67,6 @@ import OverlordSeparator from './OverlordSeparator.vue';
 import PersonExplorerTypeList from './PersonExplorerTypeList.vue';
 import TypeView from '../TypeView.vue';
 
-import { PersonExplorerTree } from '../../../models/PersonExplorer.js';
-import List from '../../../utils/List';
-
 export default {
   components: {
     Collapsible,
@@ -73,35 +81,60 @@ export default {
   data() {
     return {
       loading: false,
-      tree: {},
-      active: false,
+      open: false,
+      types: {},
+      typeTree: {},
+      activeYears: {},
+      activeType: null,
     };
   },
   props: {
-    order: Number,
+    initialSelection: Object,
     person: {
-      type: Object,
       required: true,
+      type: Object,
     },
-    selection: { type: Object, required: true },
-    initOpen: Boolean,
+    orderMap: {
+      required: true,
+      type: Object,
+    },
     editmode: Boolean,
   },
   mounted() {
-    if (this.initOpen) {
-      this.open = true;
-      this.fetch();
-    }
-
-    this.getTypes();
+    this.init();
   },
   methods: {
-    async fetch() {
-      let tree = new PersonExplorerTree(this.person);
-      this.tree = await tree.fetch();
+    async init() {
+      if (this.initialSelection) {
+        if (this.initialSelection.open) {
+          this.open = true;
+          await this.getTypes();
+        }
+
+        for (let [key, val] of Object.entries(this.initialSelection)) {
+          this.$data[key] = val;
+        }
+      }
+    },
+    toggledCollapsible() {
+      if (this.open) {
+        this.resetSelection();
+      } else {
+        this.getTypes();
+      }
+      this.open = !this.open;
+      this.selectionChanged();
+    },
+    resetSelection() {
+      this.activeYears = {};
+      this.activeType = null;
     },
     selectType(id) {
-      this.$emit('type-selected', id);
+      this.activeType = this.activeType === id ? null : id;
+      this.selectionChanged();
+    },
+    selectionChanged() {
+      this.$emit('selection-changed', this.person.id, this.selection);
     },
     isTypeActive(id) {
       return this.activeType === id;
@@ -114,47 +147,121 @@ export default {
       return name.replace(/^(.*)(b\..*?|banū.*?)(?=\(|$)/g, '$1 <i>$2</i>');
     },
     yearChanged(year) {
-      this.updateSelection({ years: year });
+      if (this.activeYears[year]) {
+        if (this.types?.[this.activeType]?.yearOfMint === year)
+          this.activeType = null;
+        delete this.activeYears[year];
+      } else
+        this.activeYears[year] = {
+          activeIssuerMints: {},
+          activeOverlordsMints: {},
+        };
+      this.activeYears = Object.assign({}, this.activeYears);
+      this.selectionChanged();
     },
     mintChanged(year, mintId, isOverlord = false) {
-      // let selection = this.selection;
-      // const toggleMintObject = (obj) => {
-      //   if (obj[mintId]) {
-      //     const typeLeaves = this.getTypesFromTree(year, mintId, isOverlord);
-      //     if (
-      //       typeLeaves.findIndex((type) => type.id === this.activeType) !== -1
-      //     )
-      //       this.$emit('type-selected', null);
-      //     delete obj[mintId];
-      //   } else obj[mintId] = true;
-      // };
-      // if (isOverlord) {
-      //   toggleMintObject(selection[year].activeOverlordsMints);
-      // } else {
-      //   toggleMintObject(selection[year].activeIssuerMints);
-      // }
-      // this.updateSelection(selection);
+      const toggleMintObject = (obj) => {
+        if (obj[mintId]) {
+          const typeLeaves = this.getTypesFromTree(year, mintId, isOverlord);
+          if (
+            typeLeaves.findIndex((type) => type.id === this.activeType) !== -1
+          )
+            this.activeType = null;
+          delete obj[mintId];
+        } else obj[mintId] = true;
+      };
+
+      if (isOverlord) {
+        toggleMintObject(this.activeYears[year].activeOverlordsMints);
+      } else {
+        toggleMintObject(this.activeYears[year].activeIssuerMints);
+      }
+
+      this.activeYears = Object.assign({}, this.activeYears);
+      this.selectionChanged();
     },
-    updateSelection(selection) {
-      this.$emit('selection-changed', selection);
-    },
-    async personSelected(collapsed) {
-      if (!collapsed) this.$emit('person-selected', this.person.id);
-      else this.$emit('person-unselected', this.person.id);
-    },
+
     getTypes: async function () {
       if (!this.loading) {
         this.loading = true;
-        this.fetch();
-        this.loading = false;
-      }
-    },
-    toggleCollapse(open) {
-      if (!open) {
-        this.getTypes();
-        this.updateSelection({ open: true });
-      } else {
-        this.updateSelection(null);
+        try {
+          const result = await Type.filteredQuery({
+            pagination: {
+              page: 0,
+              count: 100000,
+            },
+            filters: {
+              ruler: [this.person.id],
+              excludeFromTypeCatalogue: false,
+            },
+            typeBody: `id projectId treadwellId mint {name id location } mintAsOnCoin material {name id} nominal {name id}
+yearOfMint donativ procedure issuers {id name shortName} overlords {id name shortName} otherPersons {id role {name id} name shortName}
+caliph {id name shortName}
+avers {fieldText innerInscript intermediateInscript outerInscript misc}
+reverse {fieldText innerInscript intermediateInscript outerInscript misc} 
+cursiveScript coinMarks {name id}
+literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
+`,
+          });
+
+          const types = result.types;
+
+          console.log(types);
+
+          let typeTree = {};
+          types.forEach((type) => {
+            this.types[type.id] = type;
+
+            const year =
+              type.yearOfMint === '' ? ' ohne Jahresangabe' : type.yearOfMint;
+
+            if (!typeTree[year]) {
+              typeTree[year] = {
+                value: year,
+                active: false,
+                // children: {},
+                asIssuer: {},
+                asOverlord: {},
+              };
+            }
+
+            const isIssuer = Boolean(
+              type.issuers.find((issuer) => issuer.id === this.person.id)
+            );
+
+            let mint = type?.mint?.id
+              ? type.mint
+              : { id: 0, name: 'ohne Ortsangabe' };
+            const mintId = mint.id;
+
+            if (isIssuer) {
+              if (!typeTree[year].asIssuer[mintId]) {
+                typeTree[year].asIssuer[mintId] = {
+                  value: mint,
+                  active: false,
+                  children: [],
+                };
+              }
+              typeTree[year].asIssuer[mintId].children.push(type);
+            } else {
+              if (!typeTree[year].asOverlord[mintId]) {
+                typeTree[year].asOverlord[mintId] = {
+                  value: mint,
+                  active: false,
+                  children: [],
+                };
+              }
+              typeTree[year].asOverlord[mintId].children.push(type);
+            }
+          });
+
+          this.typeTree = typeTree;
+        } catch (e) {
+          console.error(e);
+          this.person.error = e;
+        } finally {
+          this.loading = false;
+        }
       }
     },
     getTypesFromTree(year, mintId, isOverlord = false) {
@@ -164,57 +271,63 @@ export default {
     },
     getActiveTypes(isOverlord = 'false') {
       const types = {};
-      Object.entries(this.selection).forEach(([year, yearObj]) => {
-        if (this.typeTree[year]) {
-          const mintProperty = isOverlord
-            ? 'activeOverlordsMints'
-            : 'activeIssuerMints';
-          const obj = yearObj?.[mintProperty];
+      Object.entries(this.activeYears).forEach(([year, yearObj]) => {
+        const mintProperty = isOverlord
+          ? 'activeOverlordsMints'
+          : 'activeIssuerMints';
+        const obj = yearObj?.[mintProperty];
 
-          Object.keys(obj).forEach((mintId) => {
-            const rulerProperty = isOverlord ? 'asOverlord' : 'asIssuer';
-            this.typeTree[year][rulerProperty][mintId].children.forEach(
-              (type) => {
-                types[type.id] = type;
-              }
-            );
-          });
-        }
+        Object.keys(obj).forEach((mintId) => {
+          const rulerProperty = isOverlord ? 'asOverlord' : 'asIssuer';
+          this.typeTree[year][rulerProperty][mintId].children.forEach(
+            (type) => {
+              types[type.id] = type;
+            }
+          );
+        });
       });
       return Object.values(types);
     },
   },
   computed: {
+    selection() {
+      return {
+        open: this.open,
+        types: this.types,
+        typeTree: this.typeTree,
+        activeYears: this.activeYears,
+        activeType: this.activeType,
+      };
+    },
     selectedType() {
       return this.types[this.activeType];
     },
     availableMints() {
       return [];
     },
-    open() {
-      return this.selection.open || false;
-    },
-    selectedYears() {
-      return this.selection.years || [];
-    },
-    years() {
-      return this.tree.years || [];
-    },
     yearObjectArray() {
-      // const yearObjects = [];
-      // Object.keys(this.selection).forEach((year) => {
-      //   if (this.typeTree[year]) yearObjects.push(this.typeTree[year]);
-      // });
-      // return yearObjects.sort(Sort.stringPropAlphabetically('value'));
-
-      return [];
+      const yearObjects = [];
+      Object.keys(this.activeYears).forEach((year) => {
+        yearObjects.push(this.typeTree[year]);
+      });
+      return yearObjects.sort(Sort.stringPropAlphabetically('value'));
     },
     sortedTypeTree() {
       let typeTree = Object.values(this.typeTree);
       return typeTree.sort(Sort.stringPropAlphabetically('value'));
     },
+    hasActiveMints() {
+      for (let activeYearObj of Object.values(this.activeYears)) {
+        if (
+          Object.keys(activeYearObj.activeOverlordsMints).length > 0 ||
+          Object.keys(activeYearObj.activeIssuerMints).length > 0
+        )
+          return true;
+      }
+      return false;
+    },
     hasActiveYears() {
-      return this.selectedYears.length > 0;
+      return Object.keys(this.activeYears).length > 0;
     },
   },
 };

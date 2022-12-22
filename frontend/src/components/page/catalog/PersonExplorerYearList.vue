@@ -1,18 +1,18 @@
 <template>
-  <div class="person-explorer-year-list">
+  <div class="person-explorer-year-list" v-if="list.length > 0">
     <h6>Prägejahr(e)</h6>
     <p v-if="list.length == 0" class="error">
       Keine Typen mit dieser Person vorhanden
     </p>
     <div class="flex">
       <Button
-        v-for="year of list"
-        :key="'year-' + person.id + '-' + year"
+        v-for="yearObject of list"
+        :key="'year-' + person.id + '-' + yearObject.value"
         class="year-grid"
-        :class="{ active: isActive(year) }"
-        @click="activeChanged(year)"
+        :class="{ active: isActive(yearObject.value) }"
+        @click="activeChanged(yearObject.value)"
       >
-        {{ year }}
+        {{ yearObject.value }}
       </Button>
     </div>
 
@@ -26,11 +26,11 @@ export default {
     loading: Boolean,
     person: { type: Object, required: true },
     list: { type: Array, required: true },
-    active: { type: Array, required: true },
+    active: { type: Object, required: true },
   },
   methods: {
     isActive(year) {
-      return this.active.indexOf(year) != -1;
+      return Boolean(this.active[year]);
     },
     activeChanged(year) {
       this.$emit('change', year);

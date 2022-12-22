@@ -3,12 +3,12 @@
     <slot name="before" />
     <Button
       v-for="toggleButton of list"
-      :key="toggleButton"
+      :key="toggleButton[textProperty]"
       class="year-grid"
       :class="{ active: isActive(toggleButton[idProperty]) }"
       @click="activeChanged(toggleButton[idProperty])"
     >
-      {{ toggleButton }}
+      {{ toggleButton[textProperty] }}
     </Button>
     <slot name="after" />
   </span>
@@ -34,13 +34,6 @@ export default {
     },
     activeChanged(id) {
       this.$emit('change', id);
-    },
-    text(item) {
-      if (this.textProperty) {
-        return item[this.textProperty];
-      } else {
-        return item;
-      }
     },
   },
 };
