@@ -65,7 +65,10 @@ export default {
     //   return properties;
     // },
     supportPrograms() {
-      return [{ name: 'compare_last_cleanup', to: { name: 'FixDiff' } }];
+      return [
+        { name: 'expert_search', to: { name: 'ExpertSearch' } },
+        { name: 'compare_last_cleanup', to: { name: 'FixDiff' } }
+        ];
     },
     properties() {
       let props = [

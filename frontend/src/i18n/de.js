@@ -43,7 +43,8 @@ const editor = {
         "nach Vers verschieben",
     move_to_coin_mark:
         "nach Einzelwort verschieben",
-
+    expert_search:
+        "Expertensuche"
 }
 
 

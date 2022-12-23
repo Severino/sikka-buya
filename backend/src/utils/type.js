@@ -12,6 +12,7 @@ const PageInfo = require('../models/pageinfo')
 const graphqlFields = require('graphql-fields')
 const { JSDOM } = require("jsdom");
 const QueryBuilder = require('./querybuilder')
+const Auth = require('../auth')
 
 
 class Type {
@@ -486,7 +487,7 @@ class Type {
 
         pagination.count = (pagination.count < process.env.MAX_SEARCH) ? pagination.count : process.env.MAX_SEARCH
 
-        const queryBuilder = this.complexFilters(filters)
+        const queryBuilder = this.complexFilters(filters, context)
         const conditions = this.objectToConditions(filters)
         const pageInfo = new PageInfo(pagination)
 
@@ -525,7 +526,7 @@ class Type {
         return { types: result, pageInfo }
     }
 
-    static complexFilters(filter) {
+    static complexFilters(filter, context) {
 
         const queryBuilder = new QueryBuilder()
         this._processComplexCoinMark(queryBuilder, filter)
@@ -564,12 +565,22 @@ class Type {
             }
         })
         if (Object.hasOwnProperty.bind(filter)("plain_text")) {
+            queryBuilder.addJoin(`LEFT JOIN internal_notes_plain_text inpt ON t.id = inpt.type `)
             filter["plain_text"] = filter["plain_text"].trim()
             const searchValues = filter["plain_text"].split(/\s+/g)
             if (searchValues.length > 0) {
-                queryBuilder.addWhere(pgp.as.format(`unaccent(t.${"plain_text"}) ILIKE unaccent($1)`, `%${searchValues.join("%")}%`))
+                const baseCondition = `unaccent(t.plain_text) ILIKE unaccent($1)`;
+                const parameters =  `%${searchValues.join("%")}%`
+
+
+                if(Auth.authContext(context)){
+                    queryBuilder.addWhere(pgp.as.format(`${baseCondition} OR unaccent(inpt.text) ILIKE unaccent($1)`, parameters))
+                }else{
+                    queryBuilder.addWhere(pgp.as.format(baseCondition, parameters))
+                }
+
             }
-            delete filter["plain_text"]
+            delete filter["plain_text"] 
         }
 
 

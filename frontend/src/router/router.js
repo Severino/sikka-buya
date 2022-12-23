@@ -52,6 +52,8 @@ import FixDiff from "@/components/page/FixDiff.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
+import ExpertSearch from "@/components/page/editor/ExpertSearch.vue"
+
 import Overview from "@/components/page/Overview.vue"
 import PersonOverview from "@/components/page/PersonOverview"
 import MaterialOverview from "@/components/page/MaterialOverview"
@@ -88,7 +90,6 @@ import { superUserIsSet } from '../utils/Setup.js'
 import store from '../store.js'
 
 Vue.use(VueRouter)
-
 
 const analyticsRoutes = {
   path: "/analytics/",
@@ -259,8 +260,12 @@ const routes = [
             name: "Editor",
             component: EditorPanel,
             meta: { auth: true },
+          },{
+            path:"expert_search",
+            name:"ExpertSearch",
+            component: ExpertSearch,
+            meta: {auth: true}
           },
-
           {
             path: "fixdiff",
             name: "FixDiff",

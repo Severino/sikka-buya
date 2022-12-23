@@ -105,11 +105,19 @@ class Auth {
         return (context && context.headers) ? context.headers.auth : null
     }
 
-    static verifyContext(context) {
+    static authContext(context){
+        let valid = false
         let token = this.getTokenFromContext(context)
+        if(token){
+            valid = this.verify(token)
+        }
+        return valid
+    }
 
-        if (!token) throw new Error("401")
-        else return this.verify(token)
+    static verifyContext(context) {
+        let valid = this.authContext(context)
+        if (!valid) throw new Error("401")
+        return valid
     }
 
     static requireAuthContext(context) {
