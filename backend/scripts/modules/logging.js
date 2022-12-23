@@ -1,23 +1,23 @@
 const chalk = require("chalk")
 
-function log(...msg) {
-    console.log(...msg)
+function log(msg, ...optional_parameters) {
+    console.log(msg, ...optional_parameters)
 }
 
-function warn(...msg) {
-    console.warn(chalk.bold.yellow(...msg))
+function warn(msg, ...optional_parameters) {
+    console.warn(chalk.bold.yellow(msg), ...optional_parameters)
 }
 
-function error(...msg) {
-    console.error(chalk.bold.red(...msg))
+function error(msg, ...optional_parameters) {
+    console.error(chalk.bold.red(msg), ...optional_parameters)
 }
 
-function success(...msg) {
-    log(chalk.bold.green(...msg))
+function success(msg, ...optional_parameters) {
+    log(chalk.bold.green(msg), ...optional_parameters)
 }
 
-function notice(...msg) {
-    log(chalk.bold.blue(...msg))
+function notice(msg, ...optional_parameters) {
+    log(chalk.bold.blue(msg), ...optional_parameters)
 }
 
 

@@ -1,4 +1,3 @@
-const Async = require('../../frontend/src/utils/Async')
 const { WriteableDatabase } = require("../src/utils/database")
 
 
