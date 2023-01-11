@@ -34,7 +34,7 @@ import Box from '../layout/Box.vue';
 import UserForm from '../auth/UserForm';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
 import ErrorMessage from '../ErrorMessage.vue';
-import Async from '../../utils/Async';
+import Async from '../../utils/Async.mjs';
 import SegmentedRow from '../layout/SegmentedRow.vue';
 
 export default {

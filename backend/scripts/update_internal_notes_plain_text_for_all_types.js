@@ -4,7 +4,6 @@ const { JSDOM } = require("jsdom");
 const { error } = require('./modules/logging');
 
 async function createPlainTextNotes({ id = -1, internal_notes = "" } = {}) {
-
     try {
         let dom = new JSDOM(internal_notes)
         let text = dom.window.document.body.textContent
@@ -18,7 +17,6 @@ async function createPlainTextNotes({ id = -1, internal_notes = "" } = {}) {
     } catch (e) {
         error(`Could not create plain text of type with id '${id}'`, e)
     }
-
 }
 
 main(async () => {

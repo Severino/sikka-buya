@@ -1,6 +1,7 @@
 const { resetTestDatabase } = require('./tasks/setup.js')
 const { join: joinPath } = require("path");
 const start = require('../backend/express.js');
+const { error } = require('../backend/scripts/modules/logging.js');
 
 
 function verifyAllEnvVariablesAreSet() {
@@ -111,4 +112,4 @@ async function main() {
 
 
 
-main().then().catch(console.error)
+main().then().catch(error)

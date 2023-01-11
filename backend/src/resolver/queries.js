@@ -142,9 +142,6 @@ ORDER BY person.id;
         return Person.searchWithRole(...arguments)
     },
     searchPersonsWithoutRole: function () { return Person.searchWithoutRole(...arguments) },
-    searchType: async function () {
-        return Type.searchType(...arguments)
-    },
     mintMaterials: async function () {
         let result = await Database.manyOrNone(`SELECT mint.id, mint.name, 
         json_agg(DISTINCT mat.material) AS materials
@@ -280,9 +277,6 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
     },
     getPersonExplorerOrder: async function () {
         return Database.manyOrNone(`SELECT position as order, person FROM person_explorer_custom_sorting`)
-    },
-    fullSearchOnTypes: async function () {
-        return Type.fullSearchTypes(...arguments)
     },
     fixDiff: async function () {
         let result = {}

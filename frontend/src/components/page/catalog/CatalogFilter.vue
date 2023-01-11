@@ -111,7 +111,7 @@ import LabeledInputContainer from '../../LabeledInputContainer.vue';
 import Sorter from '../../../utils/Sorter';
 import ThreeWayToggle from '../../forms/ThreeWayToggle.vue';
 import ButtonGroup from '../../forms/ButtonGroup.vue';
-import { RequestGuard } from '../../../utils/Async';
+import { RequestGuard } from '../../../utils/Async.mjs';
 import Type from '../../../utils/Type';
 import PageInfo, { Pagination } from '../../../models/pageinfo';
 import ErrorBox from '../system/ErrorBox.vue';

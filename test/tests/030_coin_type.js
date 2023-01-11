@@ -136,71 +136,189 @@ excludeFromMapApp
 internalNotes
 yearUncertain
 mintUncertain
+plain_text
 `
 
 describe(`Type Queries`, function () {
-  // it(`List`, async function () {
-  //   let result = await graphql(`{ coinType{
-  //     types {
-  //     ${body}
-  //   }}}`)
-  //   expect(result.data).to.deep.equal({
-  //     "data": {
-  //       "coinType": {
-  //         "types": [
-  //           FRENCH_TYPE,
-  //           GERMAN_TYPE,
-  //         ]
-  //       }
-  //     }
-  //   })
-  // })
+  it(`List`, async function () {
+    let result = await graphql(`{ coinType{
+      types {
+      ${body}
+    }}}`)
+    expect(result.data).to.deep.equal({
+      "data": {
+        "coinType": {
+          "types": [
+            FRENCH_TYPE,
+            GERMAN_TYPE,
+          ]
+        }
+      }
+    })
+  })
 
-  // it("Get", async function () {
-  //   let result = await graphql(`
-  //         {
-  //             getCoinType(id:2) {
-  //                 ${body}
-  //             }
-  //         }
-  // `)
+  it(`List when logged in`, async function () {
+    let result = await graphql(`{ coinType{
+        types {
+        ${body}
+      }}}`, {}, User1.token)
 
-  //   expect(result.data).to.deep.equal({
-  //     "data": {
-  //       "getCoinType": FRENCH_TYPE
-  //     }
-  //   })
-  // })
+    expect(result.data).to.deep.equal({
+      "data": {
+        "coinType": {
+          "types": [
+            FRENCH_TYPE_WHEN_LOGGED_IN,
+            GERMAN_TYPE_WHEN_LOGGED_IN,
+          ]
+        }
+      }
+    })
+  })
 
-  // it("Search with regular characters", async function () {
-  //   let result = await graphql(`
-  //         {searchType(text: "revo") {
-  //             ${body}
-  //           }}`)
+  it("Get", async function () {
+    let result = await graphql(`
+          {
+              getCoinType(id:2) {
+                  ${body}
+              }
+          }
+  `)
 
-  //   expect(result.data).to.deep.equal({
-  //     "data": {
-  //       "searchType": [
-  //         FRENCH_TYPE
-  //       ]
-  //     }
-  //   })
-  // })
+    expect(result.data).to.deep.equal({
+      "data": {
+        "getCoinType": FRENCH_TYPE
+      }
+    })
+  })
 
-  // it("Search with exact characters", async function () {
-  //   let result = await graphql(`
-  //         {searchType(text: "Révô") {
-  //             ${body}
-  //           }}`)
+  it("Get when logged in", async function () {
+    let result = await graphql(`
+          {
+              getCoinType(id:2) {
+                  ${body}
+              }
+          }
+  `, {}, User1.token)
 
-  //   expect(result.data).to.deep.equal({
-  //     "data": {
-  //       "searchType": [
-  //         FRENCH_TYPE
-  //       ]
-  //     }
-  //   })
-  // })
+    expect(result.data).to.deep.equal({
+      "data": {
+        "getCoinType": FRENCH_TYPE_WHEN_LOGGED_IN
+      }
+    })
+  })
+
+  it("Search with regular characters", async function () {
+    let result = await graphql(`
+          {
+            coinType(filters:{plain_text: "frevo1789"}){
+              pageInfo {page count last total}
+              types { 
+                ${body}
+              }
+            }
+          }`)
+
+    expect(result.data).to.deep.equal({
+      "data": {
+        "coinType": {
+          "pageInfo": {
+            "page": 0,
+            "count": 20,
+            "last": 0,
+            "total": 1
+          },
+          "types": [
+            FRENCH_TYPE
+          ]
+        }
+      }
+    })
+  })
+
+  it("Search with exact characters", async function () {
+    let result = await graphql(`
+           {
+            coinType(filters:{plain_text: "FRévô1789"}){
+              pageInfo {page count last total}
+              types { 
+                ${body}
+              }
+            }
+          }`)
+
+    expect(result.data).to.deep.equal({
+      "data": {
+        "coinType": {
+          "pageInfo": {
+            "page": 0,
+            "count": 20,
+            "last": 0,
+            "total": 1
+          },
+          "types": [
+            FRENCH_TYPE
+          ]
+        }
+      }
+    })
+  })
+
+  it("Cannot find internal notes", async function () {
+    let result = await graphql(`
+           {
+            coinType(filters:{plain_text: "Überprüfen"}){
+              pageInfo {page count last total}
+              types { 
+                ${body}
+              }
+            }
+          }`)
+
+    expect(result.data).to.deep.equal({
+      "data": {
+        "coinType": {
+          "pageInfo": {
+            "page": 0,
+            "count": 20,
+            "last": 0,
+            "total": 0
+          },
+          "types": [
+
+          ]
+        }
+      }
+    })
+  })
+
+
+  it("Can find internal notes when logged in", async function () {
+    let result = await graphql(`
+           {
+            coinType(filters:{plain_text: "Überprüfen"}){
+              pageInfo {page count last total}
+              types { 
+                ${body}
+              }
+            }
+          }`, {}, User1.token)
+
+    expect(result.data).to.deep.equal({
+      "data": {
+        "coinType": {
+          "pageInfo": {
+            "page": 0,
+            "count": 20,
+            "last": 0,
+            "total": 1
+          },
+          "types": [
+            FRENCH_TYPE_WHEN_LOGGED_IN
+          ]
+        }
+      }
+    })
+  })
 
   it("Unauthorized Add Rejected", async function () {
     let promise = graphql(`mutation{addCoinType(data: ${ATLANTIS_INPUT})}`)
@@ -409,7 +527,12 @@ const GERMAN_TYPE = {
   "excludeFromMapApp": false,
   "internalNotes": "<div style=\" text - align: center;\">Bitte nochmal neu!</div>",
   "yearUncertain": false,
-  "mintUncertain": false
+  "mintUncertain": false,
+  "plain_text": "GER1989\\nGøld\\nBerlin\\n1 Mark\\nAbbildung des deutschen Michels\\nDanach lasst uns alle streben\\nfür das deutsche Vaterland!\\nEinigkeit und Recht und Freiheit\\nMichel ohne Mütze\\nAbbildung eines Birnbaums\\nUnd kam die goldene Herbsteszeit,\\nEin Birnbaum in seinem Garten stand,\\nHerr von Ribbeck auf Ribbeck im Havelland,\\nBirnbaum ohne Früchte\\nAv: NationalhymneRev. Gedicht Fontane\\nKeine"
+}
+
+const GERMAN_TYPE_WHEN_LOGGED_IN_DIFF = {
+  "plain_text": "GER1989\\nGøld\\nBerlin\\n1 Mark\\nAbbildung des deutschen Michels\\nDanach lasst uns alle streben\\nfür das deutsche Vaterland!\\nEinigkeit und Recht und Freiheit\\nMichel ohne Mütze\\nAbbildung eines Birnbaums\\nUnd kam die goldene Herbsteszeit,\\nEin Birnbaum in seinem Garten stand,\\nHerr von Ribbeck auf Ribbeck im Havelland,\\nBirnbaum ohne Früchte\\nAv: NationalhymneRev. Gedicht Fontane\\nKeine\\nBitte nochmal neu!"
 }
 
 const FRENCH_TYPE = {
@@ -587,10 +710,18 @@ const FRENCH_TYPE = {
   "specials": "<div style=\" text - align: center;\">Revolutionsmünze mit König</div>",
   "excludeFromTypeCatalogue": false,
   "excludeFromMapApp": false,
-  "internalNotes": "<div style=\" text - align: center;\">Unfug</div>",
+  "internalNotes": "<div style=\" text - align: center;\">Bitte Überprüfen!</div>",
   "yearUncertain": true,
-  "mintUncertain": true
+  "mintUncertain": true,
+  "plain_text": "FRévô1789\\nSilber\\nParis\\n1 Taler\\nAbb. Französische Flagge\\nContre nous de la tyrannie\\nLe jour de gloire est arrivé!\\nAllons enfants de la Patrie,\\nFlagge wehend\\nFranzösischer Hahn\\nFraternité\\nÉgalité\\nLiberté\\nHahn trägt Hose\\nAv: NationalhymneRev. revolutionärer Asusspruch\\nRevolutionsmünze mit König"
 }
+
+FRENCH_TYPE_WHEN_LOGGED_IN_DIFF = {
+  "plain_text": "FRévô1789\\nSilber\\nParis\\n1 Taler\\nAbb. Französische Flagge\\nContre nous de la tyrannie\\nLe jour de gloire est arrivé!\\nAllons enfants de la Patrie,\\nFlagge wehend\\nFranzösischer Hahn\\nFraternité\\nÉgalité\\nLiberté\\nHahn trägt Hose\\nAv: NationalhymneRev. revolutionärer Asusspruch\\nRevolutionsmünze mit König\\nBitte Überprüfen!"
+}
+
+const GERMAN_TYPE_WHEN_LOGGED_IN = Object.assign({}, GERMAN_TYPE, GERMAN_TYPE_WHEN_LOGGED_IN_DIFF)
+const FRENCH_TYPE_WHEN_LOGGED_IN = Object.assign({}, FRENCH_TYPE, FRENCH_TYPE_WHEN_LOGGED_IN_DIFF)
 
 const ATLANTIS_TYPE = {
   "id": "3",
@@ -769,7 +900,8 @@ const ATLANTIS_TYPE = {
   "excludeFromMapApp": true,
   "internalNotes": "Ziemlich sicher eine Fäschung!",
   "yearUncertain": true,
-  "mintUncertain": true
+  "mintUncertain": true,
+  "plain_text": "ẲTLxxx\nPerlmutt\nǍtlantis\n⅟₂ ₳die\nEin Mann in Lokführermontur vor einer Dampflokomotive.\nEine Insel mit zwei Bergen,\nund dem tiefen weiten Meer,\nmit viel Tunnels und Gleisen.\nLokführer scheint an Fäden zu hängen.\nGroßes '₳'\nDie Währung\ndes Landes\nunter dem Meer.\nJahreszahl unter '₳' nicht lesbar.\nKeine Literatur vorhanden\nEinzige bekannte Münze aus Atlantis"
 }
 
 
@@ -1077,5 +1209,6 @@ const ATLANTIS_TYPE_UPDATED = {
   "excludeFromMapApp": false,
   "internalNotes": "Fäschung!",
   "yearUncertain": false,
-  "mintUncertain": false
+  "mintUncertain": false,
+  "plain_text": "ẲT\nSilber\nBerlin\n1 Taler\nDampflokomotive\nBergen\nMeer\nGleisen\nLokführer\n₳\nDie\ndes\nunter\nnicht lesbar.\nvorhanden\nEis"
 }

@@ -3,6 +3,7 @@ const _colors = require("colors")
 const fs = require("fs")
 const path = require("path")
 const { Database, pgp } = require("../../src/utils/database")
+const { error, notice } = require('./logging')
 
 class TypeIterator {
     constructor(name, {
@@ -33,24 +34,33 @@ class TypeIterator {
 
         let items = await this.getTypesList()
 
-        await this.loop(items)
+        let errors = await this.loop(items)
 
         let exitMessage = ""
-        if (errorousTypes == 0) {
+        if (errorousTypes == 0 && errors.length == 0) {
             exitMessage = "\n\nFinished successfully without any erros!\n"
         } else {
-            exitMessage = `\n\nFinished, but encountered ${errorousTypes} types that had errors.`
-            if (this.logging) {
-                exitMessage += `Check the logfile for more details:\n${this.logFile}.\n`
+
+            if (errorousTypes > 0) {
+                exitMessage = `\n\nFinished, but encountered ${errorousTypes} types that had errors.`
+                if (this.logging) {
+                    exitMessage += `Check the logfile for more details:\n${this.logFile}.\n`
+                }
+            }
+
+            if (errors.length > 0) {
+                exitMessage += `Encountered erros inside the loop: \n${errors.join("\n")}`
             }
         }
+
+        if (exitMessage != "")
+            error(exitMessage)
+
         if (this.logging) {
-            writeStream.write(exitMessage)
-            writeStream.end()
+            writeStream.end(exitMessage)
         }
 
-        console.log("Updated all types.\nThanks for keeping SIKKA:BUYA up to date!")
-
+        notice("Updated all types.\nThanks for keeping SIKKA:BUYA up to date!")
     }
 
     async start() {
@@ -69,13 +79,17 @@ class TypeIterator {
     async loop(items) {
         this.progress.start(items.length, 0)
 
+        let errors = []
         for (let [index, type] of items.entries()) {
             const obj = await this.callEvent("onEach", type, index) || {}
             obj.name = this.name
+            if (obj.error)
+                errors.push(obj.error)
             this.progress.update(index + 1, obj)
         }
 
         this.progress.stop()
+        return errors
     }
 
     async getTypesList() {

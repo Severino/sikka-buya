@@ -4,6 +4,15 @@
       <h2>{{ $t('editor.administration') }}</h2>
     </header>
 
+    <div class="quick-access">
+      <h4>Schnellzugriff</h4>
+      <div class="items">
+        <router-link :to="{ name: 'TypeOverview' }">
+          <button>{{ $tc('general.type', 1) }}</button></router-link
+        >
+      </div>
+    </div>
+
     <list :items="admin_properties" v-if="superuser">
       <list-header>{{ $t('editor.admin_properties') }}</list-header>
       <list-item
@@ -43,6 +52,7 @@
 <script>
 import PlusBox from 'vue-material-design-icons/PlusBox';
 import Auth from '../../utils/Auth';
+import Button from '../layout/buttons/Button.vue';
 import List from '../layout/List.vue';
 import ListHeader from '../layout/list/ListHeader.vue';
 import ListItem from '../layout/ListItem.vue';
@@ -54,21 +64,17 @@ export default {
     List,
     ListItem,
     ListHeader,
+    Button,
   },
   computed: {
     admin_properties() {
       return [{ name: 'user', to: { name: 'UserManagement' } }];
     },
-
-    // featuredProperties() {
-    //   const properties = [{ name: 'type', to: { name: 'TypeOverview' } }];
-    //   return properties;
-    // },
     supportPrograms() {
       return [
         { name: 'expert_search', to: { name: 'ExpertSearch' } },
-        { name: 'compare_last_cleanup', to: { name: 'FixDiff' } }
-        ];
+        { name: 'compare_last_cleanup', to: { name: 'FixDiff' } },
+      ];
     },
     properties() {
       let props = [
@@ -158,5 +164,33 @@ h3 {
   position: absolute;
   top: 0;
   transform: translate(20px, -50%);
+}
+
+.quick-access {
+  background-color: $dark-white;
+  padding: $padding;
+  margin-bottom: $padding;
+  border-radius: $border-radius;
+  box-shadow: inset $shadow;
+
+  h4 {
+    margin: 0;
+    margin-bottom: $padding;
+    color: $gray;
+  }
+
+  .items {
+    display: flex;
+    > * {
+      flex: 1;
+      display: flex;
+      max-width: 200px;
+
+      button {
+        flex: 1;
+        padding: 20px;
+      }
+    }
+  }
 }
 </style>

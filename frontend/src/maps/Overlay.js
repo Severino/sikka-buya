@@ -1,5 +1,5 @@
 import L from "leaflet"
-import { RequestGuard } from '../utils/Async';
+import { RequestGuard } from '../utils/Async.mjs';
 
 export default class Overlay {
 

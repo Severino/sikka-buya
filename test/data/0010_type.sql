@@ -27,7 +27,8 @@ INSERT INTO
         specials,
         internal_notes,
         mint_uncertain,
-        year_uncertain
+        year_uncertain,
+        plain_text
     )
 VALUES
     (
@@ -62,7 +63,8 @@ VALUES
         '<div style=" text - align: center;">Keine</div>',
         '<div style=" text - align: center;">Bitte nochmal neu!</div>',
         false,
-        false
+        false,
+        'GER1989\nGøld\nBerlin\n1 Mark\nAbbildung des deutschen Michels\nDanach lasst uns alle streben\nfür das deutsche Vaterland!\nEinigkeit und Recht und Freiheit\nMichel ohne Mütze\nAbbildung eines Birnbaums\nUnd kam die goldene Herbsteszeit,\nEin Birnbaum in seinem Garten stand,\nHerr von Ribbeck auf Ribbeck im Havelland,\nBirnbaum ohne Früchte\nAv: NationalhymneRev. Gedicht Fontane\nKeine'
     ),
     (
         'FRévô1789',
@@ -94,7 +96,10 @@ VALUES
         false,
         '<div style=" text - align: center;">Av: Nationalhymne</div><div style=" text - align: center;">Rev. revolutionärer Asusspruch</div>',
         '<div style=" text - align: center;">Revolutionsmünze mit König</div>',
-        '<div style=" text - align: center;">Unfug</div>',
+        '<div style=" text - align: center;">Bitte Überprüfen!</div>',
         true,
-        true
-    )
+        true,
+        'FRévô1789\nSilber\nParis\n1 Taler\nAbb. Französische Flagge\nContre nous de la tyrannie\nLe jour de gloire est arrivé!\nAllons enfants de la Patrie,\nFlagge wehend\nFranzösischer Hahn\nFraternité\nÉgalité\nLiberté\nHahn trägt Hose\nAv: NationalhymneRev. revolutionärer Asusspruch\nRevolutionsmünze mit König'
+    );
+
+    INSERT INTO internal_notes_plain_text (type, text) VALUES (1, 'Bitte nochmal neu!'),(2, 'Bitte Überprüfen!');

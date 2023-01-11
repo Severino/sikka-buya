@@ -1,14 +1,16 @@
 **/node_modules
 **/.env 
 
-test/token.txt
-test/api-test-log.txt
+**/*.ignore
 
 **/videos/**
 
 **/dist/**
 
+backend/scripts/modules/logs/**
+
 test/cypress/screenshots/**
 test/_excluded_data/**
+test/token.txt
+test/api-test-log.txt
 
-**/*.ignore

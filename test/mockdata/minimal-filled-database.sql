@@ -216,6 +216,16 @@ ALTER SEQUENCE public.honorific_id_seq OWNED BY public.honorific.id;
 
 
 --
+-- Name: internal_notes_plain_text; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.internal_notes_plain_text (
+    text text,
+    type integer
+);
+
+
+--
 -- Name: issuer; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -901,6 +911,8 @@ ALTER TABLE ONLY public.type ALTER COLUMN id SET DEFAULT nextval('public.type_id
 --
 
 INSERT INTO public.app_user VALUES (1, NULL, 'admin@sikka-buya.de', '$2b$10$67jHE8fkL/h4qXC7tVldTeNVB3XwnrCi1srM/OV88JQzjp9w2QPYG', true);
+
+
 --
 -- Data for Name: coin_marks; Type: TABLE DATA; Schema: public; Owner: -
 --
@@ -916,6 +928,7 @@ INSERT INTO public.coin_marks VALUES (2, 'bāʾ/tāʾ/ṯāʾ');
 INSERT INTO public.coin_verse VALUES (1, 'Koran 9:33');
 INSERT INTO public.coin_verse VALUES (2, 'محمد رسول الله');
 INSERT INTO public.coin_verse VALUES (3, 'Koran 30:4‒5');
+
 
 --
 -- Data for Name: comment; Type: TABLE DATA; Schema: public; Owner: -
@@ -937,6 +950,16 @@ INSERT INTO public.dynasty VALUES (2, 'ʿAbbāside');
 
 INSERT INTO public.honorific VALUES (1, '… ad-Daula');
 INSERT INTO public.honorific VALUES (3, '… al-Mulūk');
+
+
+--
+-- Data for Name: internal_notes_plain_text; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.internal_notes_plain_text VALUES ('FINT 2010-6-33
+https://www.fint-ikmk.uni-tuebingen.de/ikmk/mk-edit/mk_object_seiten.php?id=66
+
+muss suchen Nur und Husam ad-Dawala Siraz 389H. ?', 4);
 
 
 --
@@ -1347,6 +1370,14 @@ ALTER TABLE ONLY public.honorific
 
 
 --
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_key UNIQUE (type);
+
+
+--
 -- Name: issuer issuer_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1575,6 +1606,14 @@ ALTER TABLE ONLY public.issuer_honorifics
 
 ALTER TABLE ONLY public.issuer_honorifics
     ADD CONSTRAINT ih_issuer_fk FOREIGN KEY (issuer) REFERENCES public.issuer(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_fkey FOREIGN KEY (type) REFERENCES public.type(id) ON DELETE CASCADE ON UPDATE CASCADE;
 
 
 --

@@ -1,7 +1,6 @@
 const { join: joinPath } = require("path");
 const { createReadOnlyUser, hasReadOnlyUser, dropReadOnlyUser, grantPersmissionsToReadOnlyUser } = require('../../backend/scripts/create_read_only_user');
 const { WriteableDatabase, QueryFile, QueryFileMap, getQueryFile, addQueryFile } = require('../../backend/src/utils/database');
-const Async = require('../../frontend/src/utils/Async');
 const { readdir } = require('fs').promises;
 
 
@@ -42,6 +41,9 @@ async function createTestDatabase() {
 }
 
 async function resetTestDatabase(backupFile) {
+
+    const { default: Async } = await import('../../frontend/src/utils/Async.mjs')
+
     if (!resetLock) {
         resetLock = true
         try {
@@ -119,6 +121,7 @@ async function applySchemaFile(db, file) {
    */
 
     let dbSchemaFile = getQueryFile(file)
+
     if (!dbSchemaFile) {
         dbSchemaFile = new QueryFile(file, { minify: true, compress: true, debug: true })
         addQueryFile(file, dbSchemaFile)

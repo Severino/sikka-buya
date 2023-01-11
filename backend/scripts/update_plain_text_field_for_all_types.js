@@ -7,7 +7,7 @@
 
 const TypeIterator = require("./modules/type_iterator")
 const Type = require('../src/utils/type');
-const { Database } = require("../src/utils/database")
+const { Database, WriteableDatabase } = require("../src/utils/database")
 
 
 
@@ -24,9 +24,9 @@ new TypeIterator("Update Plain Text Fields on Types", {
 
         let error = (Object.keys(errors).length > 0) ? `Errors on type ${typeIdToString(type)}: ${errorsToString(errors)}` : ""
         try {
-            await Database.any(`UPDATE type SET plain_text=$[text] WHERE id=$[id]`, { id: type.id, text })
+            await WriteableDatabase.any(`UPDATE type SET plain_text=$[text] WHERE id=$[id]`, { id: type.id, text })
         } catch (e) {
-            error += `Could not update type: ${typeIdToString(type)}`
+            error += `Could not update type: ${typeIdToString(type)}. ${e}`
         }
 
         return {

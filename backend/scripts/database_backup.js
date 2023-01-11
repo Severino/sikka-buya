@@ -2,9 +2,10 @@
  * Creates a backup of the database
  * based on the configured .env file.
  * 
- * Must be run with on of the flags:
- * --data (-d) : Backs up all data
- * --schema (-s) : Backs up only the structure of the database without the data.
+ * Must be run with one of the flags:
+ * --mode=data: Backs up all data
+ * --mode=schema : Backs up only the structure of the database without the data.
+ * --mode=backend-schema: Updates the schema file located at backend/schema.sql
  */
 
 try {
@@ -18,6 +19,8 @@ const util = require("util")
 const exec = util.promisify(require("child_process").exec);
 
 const path = require('path');
+const { error, notice } = require('./modules/logging');
+const { readFileSync, writeFileSync } = require('fs');
 
 
 function execute(command) {
@@ -40,15 +43,16 @@ function constructFileName(prefix, ext) {
     return path.join(os.homedir(), name)
 }
 
-function dump(name, ext, options) {
-    const fileName = constructFileName(`${process.env.DB_NAME}_${name}`, ext)
-    const command = `pg_dump --username ${process.env.DB_USER} --no-privileges --exclude-table-data app_user --no-password ${options}  --file ${fileName} ${process.env.DB_NAME} `
-    execute(command).then(() => {
-        console.log(`Successfully exported ${name} to: ${fileName}`)
-        process.exit()
-    }).catch(err => {
-        console.error(`Command encountered errors: ${err}`)
-        process.exit()
+function dump(fileName, options) {
+    return new Promise((resolve, reject) => {
+        const command = `pg_dump --username ${process.env.DB_USER} --no-privileges --exclude-table-data app_user --no-password ${options}  --file ${fileName} ${process.env.DB_NAME} `
+        execute(command).then(() => {
+            console.log(`Successfully exported dump to: ${fileName}`)
+            resolve()
+        }).catch(err => {
+            console.error(`Command encountered errors: ${err}`)
+            reject()
+        })
     })
 }
 
@@ -70,27 +74,47 @@ args = args.forEach(element => {
 
 let additionalOptions = []
 
-let name = (options.mode === "data") ? "data" : (options.mode === "schema") ? "schema" : "both"
-let ext = (options.format === "custom") ? "dump" : "sql"
+if (options.mode == "backend-schema") {
+    fileName = path.join(__dirname, "..", "schema.sql")
+    dump(fileName, "--schema-only --no-owner").then(() => {
+        let txt = readFileSync(fileName, "utf-8")
+        // If the search_path is set to false the database somehow needs a long time to 'readjust' 
+        // resulting in the database being not usable for 1-10 minutes which results in tests
+        // failing. Removing this line fixes this problem. 
+        // 
+        // A definite reason, why this happens remains unknown.
+        txt = txt.replace("SELECT pg_catalog.set_config('search_path', '', false);", "-- SELECT pg_catalog.set_config('search_path', '', false);")
+        writeFileSync(fileName, txt, "utf-8")
+        notice("Schema updated correctly!")
+    }).catch((err) => {
+        error("Failed to update schema", err)
+    })
+} else {
+    let name = (options.mode === "data") ? "data" : (options.mode === "schema") ? "schema" : "both"
+    let ext = (options.format === "custom") ? "dump" : "sql"
 
-if (!options.owner) {
-    additionalOptions.push("--no-owner")
+    if (!options.owner) {
+        additionalOptions.push("--no-owner")
+    }
+
+    if (options.mode === "schema")
+        additionalOptions.push("--schema-only")
+    else if (options.mode === "data")
+        additionalOptions.push("--data-only")
+
+    if (options.format === "custom") {
+        additionalOptions.push("--format=custom")
+    }
+
+    if (options.inserts) {
+        additionalOptions.push("--inserts")
+    }
+
+
+    const fileName = constructFileName(`${process.env.DB_NAME}_${name}`, ext)
+    dump(fileName, additionalOptions.join(" ")).finally(process.exit)
 }
 
-if (options.mode === "schema")
-    additionalOptions.push("--schema-only")
-else if (options.mode === "data")
-    additionalOptions.push("--data-only")
 
-if (options.format === "custom") {
-    additionalOptions.push("--format=custom")
-}
-
-if (options.inserts) {
-    additionalOptions.push("--inserts")
-}
-
-
-dump(name, ext, additionalOptions.join(" "))
 
 

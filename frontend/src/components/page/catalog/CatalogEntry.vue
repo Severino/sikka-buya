@@ -1,5 +1,6 @@
 <template>
   <div class="catalog-entry">
+    <notes v-if="hasInternalNotes" :html="type.internalNotes" />
     <type-view v-if="!loading" :type="type" />
     <div class="center-frame" v-else>
       <loading-spinner :size="100" />
@@ -9,6 +10,7 @@
 
 <script>
 import Query from '../../../database/query';
+import Notes from '../../forms/Notes.vue';
 import LoadingSpinner from '../../misc/LoadingSpinner.vue';
 import TypeView from '../TypeView.vue';
 
@@ -16,6 +18,7 @@ export default {
   components: {
     TypeView,
     LoadingSpinner,
+    Notes,
   },
   name: 'CatalogEntry',
   data: function () {
@@ -53,15 +56,28 @@ export default {
         cursiveScript: false,
         pieces: [],
         specials: '',
+        internalNotes: null,
       },
     };
   },
   computed: {
-    id: function () {
+    id() {
       return this.$route.params.id;
     },
+    hasInternalNotes() {
+      if (!this.type || !this.type.internalNotes) return false;
+      else {
+        let parser = new DOMParser();
+        let document = parser.parseFromString(
+          this.type.internalNotes,
+          'text/html'
+        );
+
+        return document.body.textContent.trim() !== '';
+      }
+    },
   },
-  created: function () {
+  created() {
     Query.raw(
       `
 

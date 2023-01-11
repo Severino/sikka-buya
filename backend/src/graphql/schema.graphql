@@ -269,13 +269,6 @@ type Query {
 
   # Tested in 030_coin_type
   coinType(pagination: Pagination, filters: TypeFilter): CoinTypePagination
-
-  searchType(
-    text: String
-    excludeFromTypeCatalogue: Boolean
-    excludeFromMapApp: Boolean
-  ): [CoinType]!
-
   getCoinType(id: ID!): CoinType
 
   # TODO: missing Tests ---------------------------------------------
@@ -504,6 +497,8 @@ input ModTypeFilter {
 }
 
 input TypeFilter {
+  id:ID
+
   caliph: [ID]
   coinMark: [ID]
   coinMark_and_or: [[ID]]

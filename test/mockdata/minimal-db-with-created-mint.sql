@@ -5,8 +5,6 @@
 -- Dumped from database version 13.1
 -- Dumped by pg_dump version 13.1
 
--- Started on 2022-11-25 15:40:02
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -19,7 +17,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 3 (class 3079 OID 837202)
 -- Name: postgis; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -27,8 +24,6 @@ CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public;
 
 
 --
--- TOC entry 4199 (class 0 OID 0)
--- Dependencies: 3
 -- Name: EXTENSION postgis; Type: COMMENT; Schema: -; Owner: -
 --
 
@@ -36,7 +31,6 @@ COMMENT ON EXTENSION postgis IS 'PostGIS geometry, geography, and raster spatial
 
 
 --
--- TOC entry 2 (class 3079 OID 838218)
 -- Name: unaccent; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -44,8 +38,6 @@ CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
 
 
 --
--- TOC entry 4200 (class 0 OID 0)
--- Dependencies: 2
 -- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner: -
 --
 
@@ -57,7 +49,6 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 207 (class 1259 OID 838225)
 -- Name: app_user; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -71,7 +62,6 @@ CREATE TABLE public.app_user (
 
 
 --
--- TOC entry 208 (class 1259 OID 838231)
 -- Name: app_user_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -85,8 +75,6 @@ CREATE SEQUENCE public.app_user_id_seq
 
 
 --
--- TOC entry 4201 (class 0 OID 0)
--- Dependencies: 208
 -- Name: app_user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -94,7 +82,6 @@ ALTER SEQUENCE public.app_user_id_seq OWNED BY public.app_user.id;
 
 
 --
--- TOC entry 209 (class 1259 OID 838233)
 -- Name: coin_marks; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -105,7 +92,6 @@ CREATE TABLE public.coin_marks (
 
 
 --
--- TOC entry 210 (class 1259 OID 838239)
 -- Name: coin_marks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -119,8 +105,6 @@ CREATE SEQUENCE public.coin_marks_id_seq
 
 
 --
--- TOC entry 4202 (class 0 OID 0)
--- Dependencies: 210
 -- Name: coin_marks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -128,7 +112,6 @@ ALTER SEQUENCE public.coin_marks_id_seq OWNED BY public.coin_marks.id;
 
 
 --
--- TOC entry 211 (class 1259 OID 838241)
 -- Name: coin_verse; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -139,7 +122,6 @@ CREATE TABLE public.coin_verse (
 
 
 --
--- TOC entry 212 (class 1259 OID 838247)
 -- Name: coin_verse_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -153,8 +135,6 @@ CREATE SEQUENCE public.coin_verse_id_seq
 
 
 --
--- TOC entry 4203 (class 0 OID 0)
--- Dependencies: 212
 -- Name: coin_verse_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -162,7 +142,6 @@ ALTER SEQUENCE public.coin_verse_id_seq OWNED BY public.coin_verse.id;
 
 
 --
--- TOC entry 213 (class 1259 OID 838249)
 -- Name: comment; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -177,7 +156,6 @@ CREATE TABLE public.comment (
 
 
 --
--- TOC entry 214 (class 1259 OID 838253)
 -- Name: dynasty; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -188,7 +166,6 @@ CREATE TABLE public.dynasty (
 
 
 --
--- TOC entry 215 (class 1259 OID 838259)
 -- Name: dynasty_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -202,8 +179,6 @@ CREATE SEQUENCE public.dynasty_id_seq
 
 
 --
--- TOC entry 4204 (class 0 OID 0)
--- Dependencies: 215
 -- Name: dynasty_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -211,7 +186,6 @@ ALTER SEQUENCE public.dynasty_id_seq OWNED BY public.dynasty.id;
 
 
 --
--- TOC entry 216 (class 1259 OID 838261)
 -- Name: honorific; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -222,7 +196,6 @@ CREATE TABLE public.honorific (
 
 
 --
--- TOC entry 217 (class 1259 OID 838267)
 -- Name: honorific_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -236,8 +209,6 @@ CREATE SEQUENCE public.honorific_id_seq
 
 
 --
--- TOC entry 4205 (class 0 OID 0)
--- Dependencies: 217
 -- Name: honorific_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -245,7 +216,16 @@ ALTER SEQUENCE public.honorific_id_seq OWNED BY public.honorific.id;
 
 
 --
--- TOC entry 218 (class 1259 OID 838269)
+-- Name: internal_notes_plain_text; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.internal_notes_plain_text (
+    text text,
+    type integer
+);
+
+
+--
 -- Name: issuer; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -257,7 +237,6 @@ CREATE TABLE public.issuer (
 
 
 --
--- TOC entry 219 (class 1259 OID 838272)
 -- Name: issuer_honorifics; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -268,7 +247,6 @@ CREATE TABLE public.issuer_honorifics (
 
 
 --
--- TOC entry 220 (class 1259 OID 838275)
 -- Name: issuer_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -282,8 +260,6 @@ CREATE SEQUENCE public.issuer_id_seq
 
 
 --
--- TOC entry 4206 (class 0 OID 0)
--- Dependencies: 220
 -- Name: issuer_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -291,7 +267,6 @@ ALTER SEQUENCE public.issuer_id_seq OWNED BY public.issuer.id;
 
 
 --
--- TOC entry 221 (class 1259 OID 838277)
 -- Name: issuer_titles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -302,7 +277,6 @@ CREATE TABLE public.issuer_titles (
 
 
 --
--- TOC entry 222 (class 1259 OID 838280)
 -- Name: material; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -313,7 +287,6 @@ CREATE TABLE public.material (
 
 
 --
--- TOC entry 223 (class 1259 OID 838286)
 -- Name: material_color; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -324,7 +297,6 @@ CREATE TABLE public.material_color (
 
 
 --
--- TOC entry 224 (class 1259 OID 838289)
 -- Name: material_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -338,8 +310,6 @@ CREATE SEQUENCE public.material_id_seq
 
 
 --
--- TOC entry 4207 (class 0 OID 0)
--- Dependencies: 224
 -- Name: material_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -347,7 +317,6 @@ ALTER SEQUENCE public.material_id_seq OWNED BY public.material.id;
 
 
 --
--- TOC entry 225 (class 1259 OID 838291)
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -359,7 +328,6 @@ CREATE TABLE public.migrations (
 
 
 --
--- TOC entry 226 (class 1259 OID 838294)
 -- Name: migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -373,8 +341,6 @@ CREATE SEQUENCE public.migrations_id_seq
 
 
 --
--- TOC entry 4208 (class 0 OID 0)
--- Dependencies: 226
 -- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -382,7 +348,6 @@ ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
 
 
 --
--- TOC entry 227 (class 1259 OID 838296)
 -- Name: mint; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -398,7 +363,6 @@ CREATE TABLE public.mint (
 
 
 --
--- TOC entry 228 (class 1259 OID 838302)
 -- Name: mint_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -412,8 +376,6 @@ CREATE SEQUENCE public.mint_id_seq
 
 
 --
--- TOC entry 4209 (class 0 OID 0)
--- Dependencies: 228
 -- Name: mint_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -421,7 +383,6 @@ ALTER SEQUENCE public.mint_id_seq OWNED BY public.mint.id;
 
 
 --
--- TOC entry 229 (class 1259 OID 838304)
 -- Name: nominal; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -432,7 +393,6 @@ CREATE TABLE public.nominal (
 
 
 --
--- TOC entry 230 (class 1259 OID 838310)
 -- Name: nominal_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -446,8 +406,6 @@ CREATE SEQUENCE public.nominal_id_seq
 
 
 --
--- TOC entry 4210 (class 0 OID 0)
--- Dependencies: 230
 -- Name: nominal_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -455,7 +413,6 @@ ALTER SEQUENCE public.nominal_id_seq OWNED BY public.nominal.id;
 
 
 --
--- TOC entry 231 (class 1259 OID 838312)
 -- Name: note; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -467,7 +424,6 @@ CREATE TABLE public.note (
 
 
 --
--- TOC entry 232 (class 1259 OID 838318)
 -- Name: notes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -481,8 +437,6 @@ CREATE SEQUENCE public.notes_id_seq
 
 
 --
--- TOC entry 4211 (class 0 OID 0)
--- Dependencies: 232
 -- Name: notes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -490,7 +444,6 @@ ALTER SEQUENCE public.notes_id_seq OWNED BY public.comment.id;
 
 
 --
--- TOC entry 233 (class 1259 OID 838320)
 -- Name: other_person; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -501,7 +454,6 @@ CREATE TABLE public.other_person (
 
 
 --
--- TOC entry 234 (class 1259 OID 838323)
 -- Name: overlord; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -514,7 +466,6 @@ CREATE TABLE public.overlord (
 
 
 --
--- TOC entry 235 (class 1259 OID 838326)
 -- Name: overlord_honorifics; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -525,7 +476,6 @@ CREATE TABLE public.overlord_honorifics (
 
 
 --
--- TOC entry 236 (class 1259 OID 838329)
 -- Name: overlord_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -539,8 +489,6 @@ CREATE SEQUENCE public.overlord_id_seq
 
 
 --
--- TOC entry 4212 (class 0 OID 0)
--- Dependencies: 236
 -- Name: overlord_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -548,7 +496,6 @@ ALTER SEQUENCE public.overlord_id_seq OWNED BY public.overlord.id;
 
 
 --
--- TOC entry 237 (class 1259 OID 838331)
 -- Name: overlord_titles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -559,7 +506,6 @@ CREATE TABLE public.overlord_titles (
 
 
 --
--- TOC entry 238 (class 1259 OID 838334)
 -- Name: person; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -574,7 +520,6 @@ CREATE TABLE public.person (
 
 
 --
--- TOC entry 239 (class 1259 OID 838340)
 -- Name: person_color; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -585,7 +530,6 @@ CREATE TABLE public.person_color (
 
 
 --
--- TOC entry 240 (class 1259 OID 838343)
 -- Name: person_explorer_custom_sorting; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -596,7 +540,6 @@ CREATE TABLE public.person_explorer_custom_sorting (
 
 
 --
--- TOC entry 241 (class 1259 OID 838346)
 -- Name: person_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -610,8 +553,6 @@ CREATE SEQUENCE public.person_id_seq
 
 
 --
--- TOC entry 4213 (class 0 OID 0)
--- Dependencies: 241
 -- Name: person_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -619,7 +560,6 @@ ALTER SEQUENCE public.person_id_seq OWNED BY public.person.id;
 
 
 --
--- TOC entry 242 (class 1259 OID 838348)
 -- Name: person_role; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -630,7 +570,6 @@ CREATE TABLE public.person_role (
 
 
 --
--- TOC entry 243 (class 1259 OID 838354)
 -- Name: person_role_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -644,8 +583,6 @@ CREATE SEQUENCE public.person_role_id_seq
 
 
 --
--- TOC entry 4214 (class 0 OID 0)
--- Dependencies: 243
 -- Name: person_role_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -653,7 +590,6 @@ ALTER SEQUENCE public.person_role_id_seq OWNED BY public.person_role.id;
 
 
 --
--- TOC entry 244 (class 1259 OID 838356)
 -- Name: piece; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -665,7 +601,6 @@ CREATE TABLE public.piece (
 
 
 --
--- TOC entry 245 (class 1259 OID 838362)
 -- Name: piece_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -679,8 +614,6 @@ CREATE SEQUENCE public.piece_id_seq
 
 
 --
--- TOC entry 4215 (class 0 OID 0)
--- Dependencies: 245
 -- Name: piece_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -688,7 +621,6 @@ ALTER SEQUENCE public.piece_id_seq OWNED BY public.piece.id;
 
 
 --
--- TOC entry 246 (class 1259 OID 838364)
 -- Name: province; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -699,7 +631,6 @@ CREATE TABLE public.province (
 
 
 --
--- TOC entry 247 (class 1259 OID 838367)
 -- Name: province_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -713,8 +644,6 @@ CREATE SEQUENCE public.province_id_seq
 
 
 --
--- TOC entry 4216 (class 0 OID 0)
--- Dependencies: 247
 -- Name: province_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -722,7 +651,6 @@ ALTER SEQUENCE public.province_id_seq OWNED BY public.province.id;
 
 
 --
--- TOC entry 248 (class 1259 OID 838369)
 -- Name: title; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -733,7 +661,6 @@ CREATE TABLE public.title (
 
 
 --
--- TOC entry 249 (class 1259 OID 838375)
 -- Name: title_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -747,8 +674,6 @@ CREATE SEQUENCE public.title_id_seq
 
 
 --
--- TOC entry 4217 (class 0 OID 0)
--- Dependencies: 249
 -- Name: title_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -756,7 +681,6 @@ ALTER SEQUENCE public.title_id_seq OWNED BY public.title.id;
 
 
 --
--- TOC entry 250 (class 1259 OID 838377)
 -- Name: type; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -799,7 +723,6 @@ CREATE TABLE public.type (
 
 
 --
--- TOC entry 251 (class 1259 OID 838387)
 -- Name: type_coin_marks; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -810,7 +733,6 @@ CREATE TABLE public.type_coin_marks (
 
 
 --
--- TOC entry 252 (class 1259 OID 838390)
 -- Name: type_coin_verse; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -821,7 +743,6 @@ CREATE TABLE public.type_coin_verse (
 
 
 --
--- TOC entry 253 (class 1259 OID 838393)
 -- Name: type_completed; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -831,7 +752,6 @@ CREATE TABLE public.type_completed (
 
 
 --
--- TOC entry 254 (class 1259 OID 838396)
 -- Name: type_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -845,8 +765,6 @@ CREATE SEQUENCE public.type_id_seq
 
 
 --
--- TOC entry 4218 (class 0 OID 0)
--- Dependencies: 254
 -- Name: type_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
@@ -854,7 +772,6 @@ ALTER SEQUENCE public.type_id_seq OWNED BY public.type.id;
 
 
 --
--- TOC entry 255 (class 1259 OID 838398)
 -- Name: type_reviewed; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -864,7 +781,6 @@ CREATE TABLE public.type_reviewed (
 
 
 --
--- TOC entry 3891 (class 2604 OID 838401)
 -- Name: app_user id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -872,7 +788,6 @@ ALTER TABLE ONLY public.app_user ALTER COLUMN id SET DEFAULT nextval('public.app
 
 
 --
--- TOC entry 3892 (class 2604 OID 838402)
 -- Name: coin_marks id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -880,7 +795,6 @@ ALTER TABLE ONLY public.coin_marks ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
--- TOC entry 3893 (class 2604 OID 838403)
 -- Name: coin_verse id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -888,7 +802,6 @@ ALTER TABLE ONLY public.coin_verse ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
--- TOC entry 3895 (class 2604 OID 838404)
 -- Name: comment id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -896,7 +809,6 @@ ALTER TABLE ONLY public.comment ALTER COLUMN id SET DEFAULT nextval('public.note
 
 
 --
--- TOC entry 3896 (class 2604 OID 838405)
 -- Name: dynasty id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -904,7 +816,6 @@ ALTER TABLE ONLY public.dynasty ALTER COLUMN id SET DEFAULT nextval('public.dyna
 
 
 --
--- TOC entry 3897 (class 2604 OID 838406)
 -- Name: honorific id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -912,7 +823,6 @@ ALTER TABLE ONLY public.honorific ALTER COLUMN id SET DEFAULT nextval('public.ho
 
 
 --
--- TOC entry 3898 (class 2604 OID 838407)
 -- Name: issuer id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -920,7 +830,6 @@ ALTER TABLE ONLY public.issuer ALTER COLUMN id SET DEFAULT nextval('public.issue
 
 
 --
--- TOC entry 3899 (class 2604 OID 838408)
 -- Name: material id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -928,7 +837,6 @@ ALTER TABLE ONLY public.material ALTER COLUMN id SET DEFAULT nextval('public.mat
 
 
 --
--- TOC entry 3900 (class 2604 OID 838409)
 -- Name: migrations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -936,7 +844,6 @@ ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.m
 
 
 --
--- TOC entry 3901 (class 2604 OID 838410)
 -- Name: mint id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -944,7 +851,6 @@ ALTER TABLE ONLY public.mint ALTER COLUMN id SET DEFAULT nextval('public.mint_id
 
 
 --
--- TOC entry 3902 (class 2604 OID 838411)
 -- Name: nominal id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -952,7 +858,6 @@ ALTER TABLE ONLY public.nominal ALTER COLUMN id SET DEFAULT nextval('public.nomi
 
 
 --
--- TOC entry 3903 (class 2604 OID 838412)
 -- Name: overlord id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -960,7 +865,6 @@ ALTER TABLE ONLY public.overlord ALTER COLUMN id SET DEFAULT nextval('public.ove
 
 
 --
--- TOC entry 3904 (class 2604 OID 838413)
 -- Name: person id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -968,7 +872,6 @@ ALTER TABLE ONLY public.person ALTER COLUMN id SET DEFAULT nextval('public.perso
 
 
 --
--- TOC entry 3905 (class 2604 OID 838414)
 -- Name: person_role id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -976,7 +879,6 @@ ALTER TABLE ONLY public.person_role ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
--- TOC entry 3906 (class 2604 OID 838415)
 -- Name: piece id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -984,7 +886,6 @@ ALTER TABLE ONLY public.piece ALTER COLUMN id SET DEFAULT nextval('public.piece_
 
 
 --
--- TOC entry 3907 (class 2604 OID 838416)
 -- Name: province id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -992,7 +893,6 @@ ALTER TABLE ONLY public.province ALTER COLUMN id SET DEFAULT nextval('public.pro
 
 
 --
--- TOC entry 3908 (class 2604 OID 838417)
 -- Name: title id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1000,7 +900,6 @@ ALTER TABLE ONLY public.title ALTER COLUMN id SET DEFAULT nextval('public.title_
 
 
 --
--- TOC entry 3913 (class 2604 OID 838418)
 -- Name: type id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1008,8 +907,6 @@ ALTER TABLE ONLY public.type ALTER COLUMN id SET DEFAULT nextval('public.type_id
 
 
 --
--- TOC entry 4145 (class 0 OID 838225)
--- Dependencies: 207
 -- Data for Name: app_user; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1017,8 +914,6 @@ INSERT INTO public.app_user VALUES (1, NULL, 'admin@sikka-buya.de', '$2b$10$67jH
 
 
 --
--- TOC entry 4147 (class 0 OID 838233)
--- Dependencies: 209
 -- Data for Name: coin_marks; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1027,8 +922,6 @@ INSERT INTO public.coin_marks VALUES (2, 'bāʾ/tāʾ/ṯāʾ');
 
 
 --
--- TOC entry 4149 (class 0 OID 838241)
--- Dependencies: 211
 -- Data for Name: coin_verse; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1038,16 +931,12 @@ INSERT INTO public.coin_verse VALUES (3, 'Koran 30:4‒5');
 
 
 --
--- TOC entry 4151 (class 0 OID 838249)
--- Dependencies: 213
 -- Data for Name: comment; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4152 (class 0 OID 838253)
--- Dependencies: 214
 -- Data for Name: dynasty; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1056,8 +945,6 @@ INSERT INTO public.dynasty VALUES (2, 'ʿAbbāside');
 
 
 --
--- TOC entry 4154 (class 0 OID 838261)
--- Dependencies: 216
 -- Data for Name: honorific; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1066,8 +953,16 @@ INSERT INTO public.honorific VALUES (3, '… al-Mulūk');
 
 
 --
--- TOC entry 4156 (class 0 OID 838269)
--- Dependencies: 218
+-- Data for Name: internal_notes_plain_text; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.internal_notes_plain_text VALUES ('FINT 2010-6-33
+https://www.fint-ikmk.uni-tuebingen.de/ikmk/mk-edit/mk_object_seiten.php?id=66
+
+muss suchen Nur und Husam ad-Dawala Siraz 389H. ?', 4);
+
+
+--
 -- Data for Name: issuer; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1076,8 +971,6 @@ INSERT INTO public.issuer VALUES (6, 4, 2);
 
 
 --
--- TOC entry 4157 (class 0 OID 838272)
--- Dependencies: 219
 -- Data for Name: issuer_honorifics; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1086,8 +979,6 @@ INSERT INTO public.issuer_honorifics VALUES (5, 3);
 
 
 --
--- TOC entry 4159 (class 0 OID 838277)
--- Dependencies: 221
 -- Data for Name: issuer_titles; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1096,8 +987,6 @@ INSERT INTO public.issuer_titles VALUES (6, 1);
 
 
 --
--- TOC entry 4160 (class 0 OID 838280)
--- Dependencies: 222
 -- Data for Name: material; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1106,8 +995,6 @@ INSERT INTO public.material VALUES (2, 'Silber');
 
 
 --
--- TOC entry 4161 (class 0 OID 838286)
--- Dependencies: 223
 -- Data for Name: material_color; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1116,16 +1003,12 @@ INSERT INTO public.material_color VALUES (2, '#C0C0C0');
 
 
 --
--- TOC entry 4163 (class 0 OID 838291)
--- Dependencies: 225
 -- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4165 (class 0 OID 838296)
--- Dependencies: 227
 -- Data for Name: mint; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1135,8 +1018,6 @@ INSERT INTO public.mint VALUES (3, 'Aiḏaǧ', NULL, '0101000020E61000009B650260
 
 
 --
--- TOC entry 4167 (class 0 OID 838304)
--- Dependencies: 229
 -- Data for Name: nominal; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1145,8 +1026,6 @@ INSERT INTO public.nominal VALUES (2, 'Ruknī-Dinar');
 
 
 --
--- TOC entry 4169 (class 0 OID 838312)
--- Dependencies: 231
 -- Data for Name: note; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1156,40 +1035,30 @@ INSERT INTO public.note VALUES ('Newly created mint!', 'mint', 3);
 
 
 --
--- TOC entry 4171 (class 0 OID 838320)
--- Dependencies: 233
 -- Data for Name: other_person; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4172 (class 0 OID 838323)
--- Dependencies: 234
 -- Data for Name: overlord; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4173 (class 0 OID 838326)
--- Dependencies: 235
 -- Data for Name: overlord_honorifics; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4175 (class 0 OID 838331)
--- Dependencies: 237
 -- Data for Name: overlord_titles; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4176 (class 0 OID 838334)
--- Dependencies: 238
 -- Data for Name: person; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1203,8 +1072,6 @@ INSERT INTO public.person VALUES (7, 'al-Qādir bi-᾽llāh, Abu ᾽l-ʿAbbās A
 
 
 --
--- TOC entry 4177 (class 0 OID 838340)
--- Dependencies: 239
 -- Data for Name: person_color; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1216,16 +1083,12 @@ INSERT INTO public.person_color VALUES (5, '#ffa953');
 
 
 --
--- TOC entry 4178 (class 0 OID 838343)
--- Dependencies: 240
 -- Data for Name: person_explorer_custom_sorting; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4180 (class 0 OID 838348)
--- Dependencies: 242
 -- Data for Name: person_role; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1235,8 +1098,6 @@ INSERT INTO public.person_role VALUES (5, 'caliph');
 
 
 --
--- TOC entry 4182 (class 0 OID 838356)
--- Dependencies: 244
 -- Data for Name: piece; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1245,8 +1106,6 @@ INSERT INTO public.piece VALUES (6, 'https://www.zeno.ru/showphoto.php?photo=403
 
 
 --
--- TOC entry 4184 (class 0 OID 838364)
--- Dependencies: 246
 -- Data for Name: province; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1256,16 +1115,12 @@ INSERT INTO public.province VALUES (10, 'Ḫūzistān');
 
 
 --
--- TOC entry 3889 (class 0 OID 837510)
--- Dependencies: 203
 -- Data for Name: spatial_ref_sys; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4186 (class 0 OID 838369)
--- Dependencies: 248
 -- Data for Name: title; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1274,8 +1129,6 @@ INSERT INTO public.title VALUES (2, 'šāhānšāh');
 
 
 --
--- TOC entry 4188 (class 0 OID 838377)
--- Dependencies: 250
 -- Data for Name: type; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1303,8 +1156,6 @@ Av.-Randzier: Perlkreis, daran außen vier (?) Ringe, in denen jeweils ein Ringl
 
 
 --
--- TOC entry 4189 (class 0 OID 838387)
--- Dependencies: 251
 -- Data for Name: type_coin_marks; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -1313,32 +1164,24 @@ INSERT INTO public.type_coin_marks VALUES (4, 2);
 
 
 --
--- TOC entry 4190 (class 0 OID 838390)
--- Dependencies: 252
 -- Data for Name: type_coin_verse; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4191 (class 0 OID 838393)
--- Dependencies: 253
 -- Data for Name: type_completed; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4193 (class 0 OID 838398)
--- Dependencies: 255
 -- Data for Name: type_reviewed; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 
 
 --
--- TOC entry 4219 (class 0 OID 0)
--- Dependencies: 208
 -- Name: app_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1346,8 +1189,6 @@ SELECT pg_catalog.setval('public.app_user_id_seq', 1, true);
 
 
 --
--- TOC entry 4220 (class 0 OID 0)
--- Dependencies: 210
 -- Name: coin_marks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1355,8 +1196,6 @@ SELECT pg_catalog.setval('public.coin_marks_id_seq', 2, true);
 
 
 --
--- TOC entry 4221 (class 0 OID 0)
--- Dependencies: 212
 -- Name: coin_verse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1364,8 +1203,6 @@ SELECT pg_catalog.setval('public.coin_verse_id_seq', 3, true);
 
 
 --
--- TOC entry 4222 (class 0 OID 0)
--- Dependencies: 215
 -- Name: dynasty_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1373,8 +1210,6 @@ SELECT pg_catalog.setval('public.dynasty_id_seq', 2, true);
 
 
 --
--- TOC entry 4223 (class 0 OID 0)
--- Dependencies: 217
 -- Name: honorific_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1382,8 +1217,6 @@ SELECT pg_catalog.setval('public.honorific_id_seq', 3, true);
 
 
 --
--- TOC entry 4224 (class 0 OID 0)
--- Dependencies: 220
 -- Name: issuer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1391,8 +1224,6 @@ SELECT pg_catalog.setval('public.issuer_id_seq', 6, true);
 
 
 --
--- TOC entry 4225 (class 0 OID 0)
--- Dependencies: 224
 -- Name: material_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1400,8 +1231,6 @@ SELECT pg_catalog.setval('public.material_id_seq', 2, true);
 
 
 --
--- TOC entry 4226 (class 0 OID 0)
--- Dependencies: 226
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1409,8 +1238,6 @@ SELECT pg_catalog.setval('public.migrations_id_seq', 1, false);
 
 
 --
--- TOC entry 4227 (class 0 OID 0)
--- Dependencies: 228
 -- Name: mint_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1418,8 +1245,6 @@ SELECT pg_catalog.setval('public.mint_id_seq', 3, true);
 
 
 --
--- TOC entry 4228 (class 0 OID 0)
--- Dependencies: 230
 -- Name: nominal_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1427,8 +1252,6 @@ SELECT pg_catalog.setval('public.nominal_id_seq', 2, true);
 
 
 --
--- TOC entry 4229 (class 0 OID 0)
--- Dependencies: 232
 -- Name: notes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1436,8 +1259,6 @@ SELECT pg_catalog.setval('public.notes_id_seq', 1, false);
 
 
 --
--- TOC entry 4230 (class 0 OID 0)
--- Dependencies: 236
 -- Name: overlord_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1445,8 +1266,6 @@ SELECT pg_catalog.setval('public.overlord_id_seq', 1, false);
 
 
 --
--- TOC entry 4231 (class 0 OID 0)
--- Dependencies: 241
 -- Name: person_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1454,8 +1273,6 @@ SELECT pg_catalog.setval('public.person_id_seq', 7, true);
 
 
 --
--- TOC entry 4232 (class 0 OID 0)
--- Dependencies: 243
 -- Name: person_role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1463,8 +1280,6 @@ SELECT pg_catalog.setval('public.person_role_id_seq', 5, true);
 
 
 --
--- TOC entry 4233 (class 0 OID 0)
--- Dependencies: 245
 -- Name: piece_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1472,8 +1287,6 @@ SELECT pg_catalog.setval('public.piece_id_seq', 6, true);
 
 
 --
--- TOC entry 4234 (class 0 OID 0)
--- Dependencies: 247
 -- Name: province_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1481,8 +1294,6 @@ SELECT pg_catalog.setval('public.province_id_seq', 10, true);
 
 
 --
--- TOC entry 4235 (class 0 OID 0)
--- Dependencies: 249
 -- Name: title_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1490,8 +1301,6 @@ SELECT pg_catalog.setval('public.title_id_seq', 2, true);
 
 
 --
--- TOC entry 4236 (class 0 OID 0)
--- Dependencies: 254
 -- Name: type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -1499,7 +1308,6 @@ SELECT pg_catalog.setval('public.type_id_seq', 4, true);
 
 
 --
--- TOC entry 3917 (class 2606 OID 838422)
 -- Name: app_user app_user_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1508,7 +1316,6 @@ ALTER TABLE ONLY public.app_user
 
 
 --
--- TOC entry 3919 (class 2606 OID 838424)
 -- Name: app_user app_user_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1517,7 +1324,6 @@ ALTER TABLE ONLY public.app_user
 
 
 --
--- TOC entry 3921 (class 2606 OID 838426)
 -- Name: app_user app_user_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1526,7 +1332,6 @@ ALTER TABLE ONLY public.app_user
 
 
 --
--- TOC entry 3923 (class 2606 OID 838428)
 -- Name: coin_marks coin_marks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1535,7 +1340,6 @@ ALTER TABLE ONLY public.coin_marks
 
 
 --
--- TOC entry 3925 (class 2606 OID 838430)
 -- Name: coin_verse coin_verse_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1544,7 +1348,6 @@ ALTER TABLE ONLY public.coin_verse
 
 
 --
--- TOC entry 3931 (class 2606 OID 838432)
 -- Name: dynasty dynasty_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1553,7 +1356,6 @@ ALTER TABLE ONLY public.dynasty
 
 
 --
--- TOC entry 3933 (class 2606 OID 838434)
 -- Name: dynasty dynasty_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1562,7 +1364,6 @@ ALTER TABLE ONLY public.dynasty
 
 
 --
--- TOC entry 3935 (class 2606 OID 838436)
 -- Name: honorific honorific_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1571,7 +1372,14 @@ ALTER TABLE ONLY public.honorific
 
 
 --
--- TOC entry 3937 (class 2606 OID 838438)
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_key UNIQUE (type);
+
+
+--
 -- Name: issuer issuer_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1580,7 +1388,6 @@ ALTER TABLE ONLY public.issuer
 
 
 --
--- TOC entry 3941 (class 2606 OID 838440)
 -- Name: material_color material_color_material_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1589,7 +1396,6 @@ ALTER TABLE ONLY public.material_color
 
 
 --
--- TOC entry 3939 (class 2606 OID 838442)
 -- Name: material material_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1598,7 +1404,6 @@ ALTER TABLE ONLY public.material
 
 
 --
--- TOC entry 3943 (class 2606 OID 838444)
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1607,7 +1412,6 @@ ALTER TABLE ONLY public.migrations
 
 
 --
--- TOC entry 3945 (class 2606 OID 838446)
 -- Name: mint mint_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1616,7 +1420,6 @@ ALTER TABLE ONLY public.mint
 
 
 --
--- TOC entry 3947 (class 2606 OID 838448)
 -- Name: nominal nominal_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1625,7 +1428,6 @@ ALTER TABLE ONLY public.nominal
 
 
 --
--- TOC entry 3949 (class 2606 OID 838450)
 -- Name: note note_property_property_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1634,7 +1436,6 @@ ALTER TABLE ONLY public.note
 
 
 --
--- TOC entry 3927 (class 2606 OID 838452)
 -- Name: comment notes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1643,7 +1444,6 @@ ALTER TABLE ONLY public.comment
 
 
 --
--- TOC entry 3929 (class 2606 OID 838454)
 -- Name: comment notes_text_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1652,7 +1452,6 @@ ALTER TABLE ONLY public.comment
 
 
 --
--- TOC entry 3951 (class 2606 OID 838456)
 -- Name: overlord overlord_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1661,7 +1460,6 @@ ALTER TABLE ONLY public.overlord
 
 
 --
--- TOC entry 3955 (class 2606 OID 838458)
 -- Name: person_color person_color_person_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1670,7 +1468,6 @@ ALTER TABLE ONLY public.person_color
 
 
 --
--- TOC entry 3957 (class 2606 OID 838460)
 -- Name: person_explorer_custom_sorting person_explorer_custom_sorting_person_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1679,7 +1476,6 @@ ALTER TABLE ONLY public.person_explorer_custom_sorting
 
 
 --
--- TOC entry 3953 (class 2606 OID 838462)
 -- Name: person person_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1688,7 +1484,6 @@ ALTER TABLE ONLY public.person
 
 
 --
--- TOC entry 3959 (class 2606 OID 838464)
 -- Name: person_role person_role_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1697,7 +1492,6 @@ ALTER TABLE ONLY public.person_role
 
 
 --
--- TOC entry 3961 (class 2606 OID 838466)
 -- Name: person_role person_role_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1706,7 +1500,6 @@ ALTER TABLE ONLY public.person_role
 
 
 --
--- TOC entry 3963 (class 2606 OID 838468)
 -- Name: piece piece_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1715,7 +1508,6 @@ ALTER TABLE ONLY public.piece
 
 
 --
--- TOC entry 3965 (class 2606 OID 838470)
 -- Name: province province_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1724,7 +1516,6 @@ ALTER TABLE ONLY public.province
 
 
 --
--- TOC entry 3967 (class 2606 OID 838472)
 -- Name: province province_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1733,7 +1524,6 @@ ALTER TABLE ONLY public.province
 
 
 --
--- TOC entry 3969 (class 2606 OID 838474)
 -- Name: title title_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1742,7 +1532,6 @@ ALTER TABLE ONLY public.title
 
 
 --
--- TOC entry 3976 (class 2606 OID 838476)
 -- Name: type_completed type_completed_type_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1751,7 +1540,6 @@ ALTER TABLE ONLY public.type_completed
 
 
 --
--- TOC entry 3972 (class 2606 OID 838478)
 -- Name: type type_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1760,7 +1548,6 @@ ALTER TABLE ONLY public.type
 
 
 --
--- TOC entry 3974 (class 2606 OID 838480)
 -- Name: type type_project_id_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1769,7 +1556,6 @@ ALTER TABLE ONLY public.type
 
 
 --
--- TOC entry 3978 (class 2606 OID 838482)
 -- Name: type_reviewed type_reviewed_type_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1778,7 +1564,6 @@ ALTER TABLE ONLY public.type_reviewed
 
 
 --
--- TOC entry 3970 (class 1259 OID 838483)
 -- Name: idx_search_vectors; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1786,7 +1571,6 @@ CREATE INDEX idx_search_vectors ON public.type USING gin (search_vectors);
 
 
 --
--- TOC entry 4004 (class 2606 OID 838484)
 -- Name: type_coin_marks cmt_coin_mark_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1795,7 +1579,6 @@ ALTER TABLE ONLY public.type_coin_marks
 
 
 --
--- TOC entry 4005 (class 2606 OID 838489)
 -- Name: type_coin_marks cmt_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1804,7 +1587,6 @@ ALTER TABLE ONLY public.type_coin_marks
 
 
 --
--- TOC entry 3986 (class 2606 OID 838494)
 -- Name: mint fk_province; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1813,7 +1595,6 @@ ALTER TABLE ONLY public.mint
 
 
 --
--- TOC entry 3981 (class 2606 OID 838499)
 -- Name: issuer_honorifics ih_honorific_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1822,7 +1603,6 @@ ALTER TABLE ONLY public.issuer_honorifics
 
 
 --
--- TOC entry 3982 (class 2606 OID 838504)
 -- Name: issuer_honorifics ih_issuer_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1831,7 +1611,14 @@ ALTER TABLE ONLY public.issuer_honorifics
 
 
 --
--- TOC entry 3979 (class 2606 OID 838509)
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_fkey FOREIGN KEY (type) REFERENCES public.type(id) ON DELETE CASCADE ON UPDATE CASCADE;;
+
+
+--
 -- Name: issuer issuer_person_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1840,7 +1627,6 @@ ALTER TABLE ONLY public.issuer
 
 
 --
--- TOC entry 3980 (class 2606 OID 838514)
 -- Name: issuer issuer_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1849,7 +1635,6 @@ ALTER TABLE ONLY public.issuer
 
 
 --
--- TOC entry 3983 (class 2606 OID 838519)
 -- Name: issuer_titles it_issuer_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1858,7 +1643,6 @@ ALTER TABLE ONLY public.issuer_titles
 
 
 --
--- TOC entry 3984 (class 2606 OID 838524)
 -- Name: issuer_titles it_title_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1867,7 +1651,6 @@ ALTER TABLE ONLY public.issuer_titles
 
 
 --
--- TOC entry 3985 (class 2606 OID 838529)
 -- Name: material_color material_color_material_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1876,7 +1659,6 @@ ALTER TABLE ONLY public.material_color
 
 
 --
--- TOC entry 3991 (class 2606 OID 838534)
 -- Name: overlord_honorifics oh_honorific_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1885,7 +1667,6 @@ ALTER TABLE ONLY public.overlord_honorifics
 
 
 --
--- TOC entry 3992 (class 2606 OID 838539)
 -- Name: overlord_honorifics oh_overlord_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1894,7 +1675,6 @@ ALTER TABLE ONLY public.overlord_honorifics
 
 
 --
--- TOC entry 3987 (class 2606 OID 838544)
 -- Name: other_person other_person_person_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1903,7 +1683,6 @@ ALTER TABLE ONLY public.other_person
 
 
 --
--- TOC entry 3988 (class 2606 OID 838549)
 -- Name: other_person other_person_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1912,7 +1691,6 @@ ALTER TABLE ONLY public.other_person
 
 
 --
--- TOC entry 3993 (class 2606 OID 838554)
 -- Name: overlord_titles overlord_honorific_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1921,7 +1699,6 @@ ALTER TABLE ONLY public.overlord_titles
 
 
 --
--- TOC entry 3989 (class 2606 OID 838559)
 -- Name: overlord overlord_person_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1930,7 +1707,6 @@ ALTER TABLE ONLY public.overlord
 
 
 --
--- TOC entry 3994 (class 2606 OID 838564)
 -- Name: overlord_titles overlord_title_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1939,7 +1715,6 @@ ALTER TABLE ONLY public.overlord_titles
 
 
 --
--- TOC entry 3990 (class 2606 OID 838569)
 -- Name: overlord overlord_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1948,7 +1723,6 @@ ALTER TABLE ONLY public.overlord
 
 
 --
--- TOC entry 3997 (class 2606 OID 838574)
 -- Name: person_color person_color_person_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1957,7 +1731,6 @@ ALTER TABLE ONLY public.person_color
 
 
 --
--- TOC entry 3995 (class 2606 OID 838579)
 -- Name: person person_dynasty_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1966,7 +1739,6 @@ ALTER TABLE ONLY public.person
 
 
 --
--- TOC entry 3998 (class 2606 OID 838584)
 -- Name: person_explorer_custom_sorting person_explorer_custom_sorting_person_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1975,7 +1747,6 @@ ALTER TABLE ONLY public.person_explorer_custom_sorting
 
 
 --
--- TOC entry 3996 (class 2606 OID 838589)
 -- Name: person person_role_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1984,7 +1755,6 @@ ALTER TABLE ONLY public.person
 
 
 --
--- TOC entry 3999 (class 2606 OID 838594)
 -- Name: piece piece_type_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1993,7 +1763,6 @@ ALTER TABLE ONLY public.piece
 
 
 --
--- TOC entry 4006 (class 2606 OID 838599)
 -- Name: type_coin_verse type_coin_verse_coin_verse_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2002,7 +1771,6 @@ ALTER TABLE ONLY public.type_coin_verse
 
 
 --
--- TOC entry 4007 (class 2606 OID 838604)
 -- Name: type_coin_verse type_coin_verse_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2011,7 +1779,6 @@ ALTER TABLE ONLY public.type_coin_verse
 
 
 --
--- TOC entry 4008 (class 2606 OID 838609)
 -- Name: type_completed type_completed_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2020,7 +1787,6 @@ ALTER TABLE ONLY public.type_completed
 
 
 --
--- TOC entry 4000 (class 2606 OID 838614)
 -- Name: type type_material_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2029,7 +1795,6 @@ ALTER TABLE ONLY public.type
 
 
 --
--- TOC entry 4001 (class 2606 OID 838619)
 -- Name: type type_mint_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2038,7 +1803,6 @@ ALTER TABLE ONLY public.type
 
 
 --
--- TOC entry 4002 (class 2606 OID 838624)
 -- Name: type type_nominal_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2047,7 +1811,6 @@ ALTER TABLE ONLY public.type
 
 
 --
--- TOC entry 4003 (class 2606 OID 838629)
 -- Name: type type_person_caliph_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2056,15 +1819,12 @@ ALTER TABLE ONLY public.type
 
 
 --
--- TOC entry 4009 (class 2606 OID 838634)
 -- Name: type_reviewed type_reviewed_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.type_reviewed
     ADD CONSTRAINT type_reviewed_type_id_fk FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
-
--- Completed on 2022-11-25 15:40:03
 
 --
 -- PostgreSQL database dump complete

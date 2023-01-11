@@ -39,7 +39,7 @@ describe(`Setup test environment`, async function () {
 
 
 
-    await fs.writeFile(path.join(__dirname, "..", "token.txt"), result.data.data.setup.token)
+    await fs.writeFile(path.join(__dirname, "..", "token.txt"), `This file is created by the setup function of the api test (npm run test:api).\nIf this you want to debug with this token and you receive a 401, you should update this token by running the respectice command:\n\n${result.data.data.setup.token}`)
 
     expect(result.data.data.setup).to.deep.include({
       success: true,

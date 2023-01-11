@@ -44,6 +44,7 @@ class Auth {
 
         try {
             let user = await Database.oneOrNone("SELECT * FROM app_user WHERE email=$1", email)
+
             if (user && user.password) {
                 let result = await Auth.checkPassword(password, user.password)
                 if (result) {
@@ -67,6 +68,7 @@ class Auth {
             /*Wrong user was passed. Thats fine! */
             console.error(e)
         }
+
 
         return {
             success: false,
@@ -105,10 +107,10 @@ class Auth {
         return (context && context.headers) ? context.headers.auth : null
     }
 
-    static authContext(context){
+    static authContext(context) {
         let valid = false
         let token = this.getTokenFromContext(context)
-        if(token){
+        if (token) {
             valid = this.verify(token)
         }
         return valid

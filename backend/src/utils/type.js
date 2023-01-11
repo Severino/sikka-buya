@@ -13,6 +13,7 @@ const graphqlFields = require('graphql-fields')
 const { JSDOM } = require("jsdom");
 const QueryBuilder = require('./querybuilder')
 const Auth = require('../auth')
+const { notice, warn } = require('../../scripts/modules/logging')
 
 
 class Type {
@@ -29,9 +30,10 @@ class Type {
     static async updateType(id, data) {
         if (!id) throw new Error("Id is required for update.")
         data.id = id
-        data = await this.postProcessUpsert(data)
 
         return WriteableDatabase.tx(async t => {
+            data = await this.preProcessUpsert(data, { transaction: t, skipFetch: true })
+
             await t.none(`
         UPDATE type 
         SET
@@ -85,6 +87,7 @@ class Type {
             await this.addPieces(t, data, id)
             await this.addCoinMarks(t, data, id)
             await this.addCoinVerses(t, data, id)
+            await this.upsertInternalNotesPlainText(t, data, id)
 
             return id
         })
@@ -150,38 +153,63 @@ class Type {
     }
 
 
-    static async createPlainTextField(type, skipFetch = false) {
+    static async createPlainTextField(type, { transaction = null, skipFetch = false }) {
         /**
          * We get the complete type to have all fields available.
          */
         if (!skipFetch)
-            type = await this.getFullType(type.id)
+            type = await this.getFullType(type.id, transaction)
 
-        let textFields = [
+        if (!transaction) transaction = Database
+
+        let textProperties = [
             "project_id",
             "treadwell_id",
             "mint_as_on_coin",
             "year_of_mint",
         ]
 
-        textFields = textFields.map(attribute => {
+        textProperties = textProperties.map(attribute => {
             return { key: attribute, text: type[attribute] }
         })
 
-        let nameFields = [
+        let namedPropertiesConfig = [
             "material",
             "mint",
             "nominal",
-            "donativ",
-            "procedure",
-            "caliph",
+            // Only need a config object if the table name is different than the
+            // property name. 
+            // { name: "caliph", table: "person" },
         ]
 
-        nameFields = nameFields.map(attribute => {
-            return { key: attribute, text: type[attribute] ? type[attribute].name : null }
-        })
+        let nameProperties = []
 
-        let htmlFields = [
+        for (let property of namedPropertiesConfig) {
+
+            let table, key, text;
+            if (typeof property === "string") {
+                key = property
+                table = property
+            } else if (typeof property === "object") {
+                key = property.name
+                table = property.table
+            } else throw new Error(`Mal-configured property in 'createPlainTextField' ${property}`)
+
+            if (type[key]) {
+                if (!type[key].name) {
+                    text = (await transaction.one(`SELECT name FROM ${table}  WHERE id=$1 LIMIT 1`, type[key])).name
+                } else text = type[key].name
+            }
+
+            if (!text) warn(`Could not add plain_text property of ${key}!`)
+
+            nameProperties.push({
+                key,
+                text
+            })
+        }
+
+        let htmlProperties = [
             "front_side_field_text",
             "front_side_inner_inscript",
             "front_side_intermediate_inscript",
@@ -198,12 +226,12 @@ class Type {
 
 
         let errors = {}
-        htmlFields = htmlFields.map(key => {
+        htmlProperties = htmlProperties.map(key => {
             let text = type[key]
             return { key, text }
         })
 
-        let fields = [...textFields, ...nameFields, ...htmlFields].filter(obj => {
+        let fields = [...textProperties, ...nameProperties, ...htmlProperties].filter(obj => {
             if (!obj || !obj.text || obj.text.trim() === "")
                 return false
 
@@ -231,7 +259,11 @@ class Type {
         return { text: type.projectId + "\n" + text, errors }
     }
 
-    static async postProcessUpsert(data, skipFetch) {
+    static async completeUpsertData(t) {
+
+    }
+
+    static async preProcessUpsert(data, { skipFetch = false, transaction = null }) {
         /**
         * Thus the avers and reverse data is nested inside a seperate object,
         * inside the GraphQL interface, we need to transform whose properties
@@ -244,14 +276,14 @@ class Type {
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
         this.cleanupHTMLFields(data)
-        data.plainText = (await this.createPlainTextField(data, skipFetch)).text
+        data.plainText = (await this.createPlainTextField(data, { skipFetch, transaction })).text
         return data
     }
 
     static async addType(_, args, context, info) {
-        const data = await this.postProcessUpsert(args.data, true)
 
         return WriteableDatabase.tx(async t => {
+            const data = await this.preProcessUpsert(args.data, { skipFetch: true, transaction: t })
 
             const { id: type } = await t.one(`
             INSERT INTO type(
@@ -329,6 +361,7 @@ class Type {
             await this.addPieces(t, data, type)
             await this.addCoinMarks(t, data, type)
             await this.addCoinVerses(t, data, type)
+            await this.upsertInternalNotesPlainText(t, data, type)
             return type
         })
     }
@@ -384,39 +417,27 @@ class Type {
             for (let title of overlord.titles.values()) {
                 await t.none("INSERT INTO overlord_titles(overlord_id, title_id) VALUES($1, $2)", [overlord_id, title])
             }
-
+            this.apply
             for (let honorific of overlord.honorifics.values()) {
                 await t.none("INSERT INTO overlord_honorifics(overlord_id, honorific_id) VALUES($1, $2)", [overlord_id, honorific])
             }
         }
     }
 
-    static async searchType(_, filters = {}, context, info) {
-
-        let text = filters.text
-        delete filters.text
-
-        const f = this.objectToConditions(filters)
-        const whereClause = this.buildWhereFilter([...f, "unaccent(t.project_id) ILIKE unaccent($[searchText])"])
-
-        let result = await Database.manyOrNone(
-            `
-        SELECT 
-            ${this.rows}
-        FROM type t
-            ${this.joins}
-            ${whereClause}
-        LIMIT ${process.env.MAX_SEARCH}
-        `, { searchText: "%" + text + "%" })
-
-        let fields = graphqlFields(info)
-        for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type, fields)
+    static async upsertInternalNotesPlainText(t, data, type) {
+        if (data.internalNotes) {
+            const internalNotes = data.internalNotes
+            let dom = new JSDOM(internalNotes)
+            let text = dom.window.document.body.textContent
+            if (text !== "") {
+                await t.none(`
+            INSERT INTO internal_notes_plain_text (type, text) 
+            VALUES ($[type], $[text]) 
+            ON CONFLICT (type) DO UPDATE 
+            SET text=EXCLUDED.text`, { data, type, text })
+            }
         }
-
-        return result
     }
-
 
     static buildWhereFilter(conditions) {
         if (!conditions || conditions.length == 0) return ""
@@ -437,13 +458,20 @@ class Type {
         }
     }
 
-    static objectToConditions(filterObj) {
+    static objectToFilters(filterObj) {
+
+
         /**
-         * TODO // WARNING // ALERT // ERROR: HERE WE HAVE THE DANGER OF SQLINJECTION
+         * TODO // WARNING // ALERT // ERROR: HERE WE HAVE A POTENTIAL DANGER OF SQLINJECTION
          */
+
+        let map = {
+            id: "t.id"
+        }
+
         const where = []
         for (let [key, filters] of Object.entries(filterObj)) {
-            let db_key = camelCaseToSnakeCase(key)
+            let db_key = (map[key]) ? map[key] : camelCaseToSnakeCase(key)
             if (
                 // Skip if filter is invalid:
                 filters == null ||
@@ -469,7 +497,7 @@ class Type {
         return where
     }
 
-    static async getTypes(_, { pagination = { count: 50, total: 0, page: 0 }, filters = {}, additionalJoin = "", additionalRows = [] }, context, info) {
+    static async getTypes(_, { pagination = { count: 50, total: 0, page: 0 }, filters = {}, additionalJoin = "", additionalRows = [], postProcessFields = null }, context, info) {
 
         /**
          * 
@@ -487,13 +515,16 @@ class Type {
 
         pagination.count = (pagination.count < process.env.MAX_SEARCH) ? pagination.count : process.env.MAX_SEARCH
 
-        const queryBuilder = this.complexFilters(filters, context)
-        const conditions = this.objectToConditions(filters)
+
+
+        const queryBuilder = new QueryBuilder()
+        this.complexFilters(queryBuilder, filters, context)
+        const conditions = this.objectToFilters(filters)
         const pageInfo = new PageInfo(pagination)
 
 
-        const SELECT = [this.rows, ...additionalRows].join(",")
-        const JOINS = [this.joins, ...queryBuilder.join, additionalJoin].join("\n")
+        const SELECT = [this.rows, this.getAuthRows(context), ...additionalRows].join(",")
+        const JOINS = [this.joins, this.getAuthJoins(context), ...queryBuilder.join, additionalJoin].join("\n")
         const WHERE = this.buildWhereFilter([...conditions, ...queryBuilder.where])
 
         const totalQuery = `
@@ -519,16 +550,19 @@ class Type {
 
         const result = await Database.manyOrNone(query)
 
-        let fields = graphqlFields(info)
-        for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type, fields.types)
+        if (!postProcessFields) {
+            let fields = graphqlFields(info)
+            postProcessFields = fields.types
         }
+
+        for (let [idx, type] of result.entries()) {
+            result[idx] = await this.postprocessType(type, postProcessFields)
+        }
+
         return { types: result, pageInfo }
     }
 
-    static complexFilters(filter, context) {
-
-        const queryBuilder = new QueryBuilder()
+    static complexFilters(queryBuilder, filter, context) {
         this._processComplexCoinMark(queryBuilder, filter)
         this._processComplexCoinVerse(queryBuilder, filter)
         this._processComplexHonorificsFilter(queryBuilder, filter)
@@ -565,22 +599,21 @@ class Type {
             }
         })
         if (Object.hasOwnProperty.bind(filter)("plain_text")) {
-            queryBuilder.addJoin(`LEFT JOIN internal_notes_plain_text inpt ON t.id = inpt.type `)
             filter["plain_text"] = filter["plain_text"].trim()
             const searchValues = filter["plain_text"].split(/\s+/g)
             if (searchValues.length > 0) {
                 const baseCondition = `unaccent(t.plain_text) ILIKE unaccent($1)`;
-                const parameters =  `%${searchValues.join("%")}%`
+                const parameters = `%${searchValues.join("%")}%`
 
 
-                if(Auth.authContext(context)){
+                if (Auth.authContext(context)) {
                     queryBuilder.addWhere(pgp.as.format(`${baseCondition} OR unaccent(inpt.text) ILIKE unaccent($1)`, parameters))
-                }else{
+                } else {
                     queryBuilder.addWhere(pgp.as.format(baseCondition, parameters))
                 }
 
             }
-            delete filter["plain_text"] 
+            delete filter["plain_text"]
         }
 
 
@@ -588,82 +621,12 @@ class Type {
         return queryBuilder
     }
 
-    static counter = 0
-
-    static async fullSearchTypes(_, { text = "", filters = {}, pagination = {} } = {}, context, info) {
-
-
-        this.counter++
-
-        pagination = new PageInfo(pagination)
-        const conditions = this.objectToConditions(filters)
-        let whereClause = this.buildWhereFilter(conditions)
-        if (whereClause == "") whereClause = "WHERE"
-        else whereClause += " AND "
-
-        const additionalWhereClauses = ["search_vectors @@ keywords"]
-        whereClause += " " + additionalWhereClauses.join(" AND ")
-
-
-        const test_query = `
-        SELECT
-        COUNT(*) as total     
-        FROM type t
-        ${this.joins},
-        websearch_to_tsquery($[text]) as keywords
-        ${whereClause}; 
-        `
-
-        const { total } = await Database.one(test_query, Object.assign(filters, { text }))
-        pagination.updateTotal(total)
-
-        const query = `
-            SELECT 
-            ${this.rows}, ts_headline(plain_text, keywords, 'MaxFragments=10, HighlightALL=true') as preview        
-            FROM type t
-            ${this.joins}
-            , websearch_to_tsquery($[text]) as keywords 
-            ${whereClause} 
-            ORDER BY t.project_id ASC
-            ${pagination.toQuery()}
-        ; `
-
-
-        const result = await Database.manyOrNone(query, { text })
-
-
-        let fields = graphqlFields(info)
-        for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type, fields)
-        }
-        const results = result.map(res => {
-            return {
-                type: res,
-                preview: res.preview
-            }
-        })
-
-        return {
-            pagination,
-            results
-        }
-    }
-
     static async getType(_, { id = null } = {}, context, info) {
-
         if (!id) throw new Error("Id must be provided!")
-
-        const result = await Database.one(`
-            SELECT 
-                ${this.rows}
-            FROM type t
-                ${this.joins}
-            WHERE t.id = $1
-                `, id).catch((e) => {
-            throw new Error("Requested type does not exist: " + e)
-        })
-        const fields = graphqlFields(info)
-        return await this.postprocessType(result, fields);
+        let postProcessFields = graphqlFields(info)
+        let response = await this.getTypes(_, { filters: { id }, postProcessFields }, context, info)
+        if (!response?.types?.[0]) throw new Error("Requested type does not exist.")
+        return response.types[0]
     }
 
 
@@ -679,7 +642,9 @@ class Type {
      * 
      * @param {number} id - If of the type you want to access
      */
-    static async getFullType(id) {
+    static async getFullType(id, transaction = null) {
+        if (transaction == null) transaction = Database
+
         const result = await Database.one(`
             SELECT 
             ${this.rows}
@@ -699,12 +664,10 @@ class Type {
                 ${Material.colorQuery()},
                 ${Mint.query()}
                 ${Nominal.query()}
-                plain_text,
                 province.id AS mint_province_id,
                 province.name AS mint_province_name,
                 exclude_from_type_catalogue,
                 exclude_from_map_app,
-                internal_notes,
                 year_uncertain,
                 mint_uncertain as guessed_mint,
                 p.id AS caliph_id,
@@ -726,6 +689,24 @@ class Type {
         LEFT JOIN person_color pc
         ON p.id = pc.person
         `
+    }
+
+    static getAuthRows(context) {
+        let select = ""
+        if (Auth.authContext(context)) {
+            select = `concat(plain_text,'\\n', inpt.text) AS plain_text, internal_notes`
+        } else {
+            select = `plain_text`
+        }
+        return select
+    }
+
+    static getAuthJoins(context) {
+        let joins = ""
+        if (Auth.authContext(context)) {
+            joins = `\nLEFT JOIN internal_notes_plain_text inpt ON inpt.type = t.id`
+        }
+        return joins
     }
 
     static async postprocessType(type, fields) {
@@ -769,11 +750,11 @@ class Type {
                 "otherPersons",
                 "overlords",
                 "issuers",
+                "plain_text"
             ]
 
         for (let property of Object.keys(fields)) {
             switch (property) {
-
                 case 'avers':
                     type.avers = this.wrapCoinSideInformation(type, "front_side_")
                     break;
@@ -807,8 +788,6 @@ class Type {
                 case "issuers":
                     type.issuers = await Type.getIssuerByType(type.id)
                     break;
-
-
             }
         }
 

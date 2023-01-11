@@ -112,6 +112,36 @@ ALTER SEQUENCE public.coin_marks_id_seq OWNED BY public.coin_marks.id;
 
 
 --
+-- Name: coin_verse; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.coin_verse (
+    id integer NOT NULL,
+    name text
+);
+
+
+--
+-- Name: coin_verse_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.coin_verse_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: coin_verse_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.coin_verse_id_seq OWNED BY public.coin_verse.id;
+
+
+--
 -- Name: comment; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -183,6 +213,16 @@ CREATE SEQUENCE public.honorific_id_seq
 --
 
 ALTER SEQUENCE public.honorific_id_seq OWNED BY public.honorific.id;
+
+
+--
+-- Name: internal_notes_plain_text; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.internal_notes_plain_text (
+    text text,
+    type integer
+);
 
 
 --
@@ -676,7 +716,9 @@ CREATE TABLE public.type (
     mint_uncertain boolean,
     year_uncertain boolean,
     plain_text text,
-    search_vectors tsvector
+    search_vectors tsvector,
+    purity numeric(8,4),
+    small boolean DEFAULT false NOT NULL
 );
 
 
@@ -687,6 +729,16 @@ CREATE TABLE public.type (
 CREATE TABLE public.type_coin_marks (
     type integer,
     coin_mark integer
+);
+
+
+--
+-- Name: type_coin_verse; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.type_coin_verse (
+    type integer,
+    coin_verse integer
 );
 
 
@@ -740,6 +792,13 @@ ALTER TABLE ONLY public.app_user ALTER COLUMN id SET DEFAULT nextval('public.app
 --
 
 ALTER TABLE ONLY public.coin_marks ALTER COLUMN id SET DEFAULT nextval('public.coin_marks_id_seq'::regclass);
+
+
+--
+-- Name: coin_verse id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.coin_verse ALTER COLUMN id SET DEFAULT nextval('public.coin_verse_id_seq'::regclass);
 
 
 --
@@ -863,6 +922,12 @@ INSERT INTO public.coin_marks VALUES (2, 'bāʾ/tāʾ/ṯāʾ');
 
 
 --
+-- Data for Name: coin_verse; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+
+
+--
 -- Data for Name: comment; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -882,6 +947,17 @@ INSERT INTO public.dynasty VALUES (2, 'ʿAbbāside');
 
 INSERT INTO public.honorific VALUES (1, '… ad-Daula');
 INSERT INTO public.honorific VALUES (3, '… al-Mulūk');
+
+
+--
+-- Data for Name: internal_notes_plain_text; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.internal_notes_plain_text VALUES ('FINT 2010-6-33
+https://www.fint-ikmk.uni-tuebingen.de/ikmk/mk-edit/mk_object_seiten.php?id=66
+
+muss suchen Nur und Husam ad-Dawala Siraz 389H. ?', 4);
+INSERT INTO public.internal_notes_plain_text VALUES ('Diese Zeichen können verwendet werden#+-!"§$%&/()=?', 5);
 
 
 --
@@ -1009,7 +1085,7 @@ INSERT INTO public.person VALUES (3, 'al-Muṭīʿ li-᾽llāh, Abu ᾽l-Qāsim 
 INSERT INTO public.person VALUES (4, 'ʿIzz ad-Daula Abū Manṣūr Baḫtiyār b. Muʿizz ad-Daula Aḥmad', NULL, 1, 'ʿIzz ad-Daula', NULL);
 INSERT INTO public.person VALUES (5, 'ʿUmdat ad-Daula Abū Isḥāq Ibrāhīm b. Muʿizz ad-Daula Aḥmad', NULL, 1, 'ʿUmdat ad-Daula', NULL);
 INSERT INTO public.person VALUES (6, 'Abu ’l-Ḥasan Muḥammad b. al-Mustakfī', NULL, 2, 'Abu ’l-Ḥasan b. al-Mustakfī', 3);
-INSERT INTO public.person VALUES (7, 'al-Qādir bi-᾽llāh, Abu ᾽l-ʿAbbās Aḥmad b. Isḥāq', null, 2, 'al-Qādir', 5);
+INSERT INTO public.person VALUES (7, 'al-Qādir bi-᾽llāh, Abu ᾽l-ʿAbbās Aḥmad b. Isḥāq', NULL, 2, 'al-Qādir', 5);
 
 
 --
@@ -1095,7 +1171,7 @@ muss suchen Nur und Husam ad-Dawala Siraz 389H. ?<br></div>', true, true, 'Šīr
 <h3>Rev. Randbeschriftung</h3><div style="text-align: center;">5</div>
 <h3>Besonderheiten/Varianten</h3>Im Av.-Feld unten zwei Punkte.
 
-Av.-Randzier: Perlkreis, daran außen vier (?) Ringe, in denen jeweils ein Ringlein sitzt (⊚). Rev.-Feldbegrenzung: Perlkreis.<div><b></b></div>', '''2'':46,47,48 ''3'':52 ''33'':61 ''5'':64 ''9'':60 ''aaaa'':17 ''auss'':23,54,76 ''av'':4,14,18,22,35,67,72 ''bb'':21 ''besonderheiten/varianten'':65 ''ccc'':37 ''daran'':75 ''den'':80 ''feld'':5,39,68 ''feldbegrenz'':86 ''inn'':15,44 ''jeweil'':81 ''koran'':59 ''material'':2 ''mittl'':19,50 ''perlkreis'':74,87 ''punkt'':71 ''randbeschrift'':36,63 ''randzi'':73 ''rev'':38,43,49,53,62,85 ''ring'':78 ''ringlein'':83 ''silb'':3 ''sitzt'':84 ''umschrift'':16,20,24,45,51,55 ''unt'':69 ''vier'':77 ''zwei'':70 ''šīr389'':1 ''إلا'':8 ''إله'':7 ''الدرهم'':29 ''الله'':9,26,42,58 ''بسم'':25 ''بشيراز'':30 ''تسع'':32 ''رسول'':41,57 ''سنة'':31 ''شريك'':12 ''ضرب'':27 ''لا'':6,11 ''له'':13 ''محمد'':40,56 ''هذا'':28 ''وثلثمائة'':34 ''وثمانين'':33 ''وحده'':10');
+Av.-Randzier: Perlkreis, daran außen vier (?) Ringe, in denen jeweils ein Ringlein sitzt (⊚). Rev.-Feldbegrenzung: Perlkreis.<div><b></b></div>', '''2'':46,47,48 ''3'':52 ''33'':61 ''5'':64 ''9'':60 ''aaaa'':17 ''auss'':23,54,76 ''av'':4,14,18,22,35,67,72 ''bb'':21 ''besonderheiten/varianten'':65 ''ccc'':37 ''daran'':75 ''den'':80 ''feld'':5,39,68 ''feldbegrenz'':86 ''inn'':15,44 ''jeweil'':81 ''koran'':59 ''material'':2 ''mittl'':19,50 ''perlkreis'':74,87 ''punkt'':71 ''randbeschrift'':36,63 ''randzi'':73 ''rev'':38,43,49,53,62,85 ''ring'':78 ''ringlein'':83 ''silb'':3 ''sitzt'':84 ''umschrift'':16,20,24,45,51,55 ''unt'':69 ''vier'':77 ''zwei'':70 ''šīr389'':1 ''إلا'':8 ''إله'':7 ''الدرهم'':29 ''الله'':9,26,42,58 ''بسم'':25 ''بشيراز'':30 ''تسع'':32 ''رسول'':41,57 ''سنة'':31 ''شريك'':12 ''ضرب'':27 ''لا'':6,11 ''له'':13 ''محمد'':40,56 ''هذا'':28 ''وثلثمائة'':34 ''وثمانين'':33 ''وحده'':10', NULL, false);
 INSERT INTO public.type VALUES (5, 'Fārs365Ga', 'tFā365', 1, 2, 'Fāahrs', 2, '365', true, 'cast', 7, '<div style="text-align: center;">ح</div><div style="text-align: center;">لا إله إلا الله</div><div style="text-align: center;">بويه</div>', '<div style="text-align: center;">خمس وستين وثلثمائة</div>', '<div style="text-align: center;">اَنَا اللّٰہُ اَعلَمُ: میں اللہ</div><div style="text-align: center;">اہل روم مغل گئے۔</div>', '<div style="text-align: center;">Koran 30:4‒5</div><div style="text-align: center;">قریب کی زمین میں۔ے۔</div><div style="text-align: center;">تبھی اور</div>', '<div style="text-align: center;">Stern in Mitte</div><div style="text-align: center;">ب کئے گئے۔</div>', '<div style="text-align: center;">لله</div><div style="text-align: center;">محمد رسول الله</div>', '<div style="text-align: center;">محمد رسول + Koran 9:33</div><div style="text-align: center;">اللہ کے نام کے</div>', '<div style="text-align: center;">عذاب آ جائے۔</div><div style="text-align: center;">اپنی قوم کو ڈرا - Koran 71:1</div>', '<div style="text-align: center;">اُس نے کہا۔</div><div style="text-align: center;">second row</div>', '<div style="text-align: center;">He said, ‘O my people!</div>', true, NULL, '<div style="text-align: center;">Besondere Zeichen</div><div style="text-align: center;">#+-!"§$%&amp;/()=?</div>', '<div>Av. extraordinary</div><div><br></div><div>Rev. unusual line:&nbsp; لئے والا ہوں۔</div>', true, true, '<div style="text-align: center;">Diese Zeichen können verwendet werden</div><div style="text-align: center;">#+-!"§$%&amp;/()=?</div>', true, true, 'Fārs365Ga
 <h3>Av. Feld</h3><div style="text-align: center;">ح</div><div style="text-align: center;">لا إله إلا الله</div><div style="text-align: center;">بويه</div>
 <h3>Av. innere Umschrift</h3><div style="text-align: center;">خمس وستين وثلثمائة</div>
@@ -1108,7 +1184,7 @@ INSERT INTO public.type VALUES (5, 'Fārs365Ga', 'tFā365', 1, 2, 'Fāahrs', 2, 
 <h3>Rev. äußere Umschrift</h3><div style="text-align: center;">اُس نے کہا۔</div><div style="text-align: center;">second row</div>
 <h3>Rev. Randbeschriftung</h3><div style="text-align: center;">He said, ‘O my people!</div>
 <h3>Literatur & Anmerkungen</h3><div style="text-align: center;">Besondere Zeichen</div><div style="text-align: center;">#+-!"§$%&amp;/()=?</div>
-<h3>Besonderheiten/Varianten</h3><div>Av. extraordinary</div><div><br></div><div>Rev. unusual line:&nbsp; لئے والا ہوں۔</div>', '''1'':80 ''30'':32 ''33'':63 ''4'':33 ''5'':34 ''71'':79 ''9'':62 ''anmerk'':97 ''auss'':29,82 ''av'':2,10,16,28,42,101 ''besond'':98 ''besonderheiten/varianten'':100 ''extraordinary'':102 ''feld'':3,51 ''fārs365ga'':1 ''he'':91 ''inn'':11,57 ''koran'':31,61,78 ''lin'':105 ''literatur'':96 ''mitt'':46 ''mittl'':17,69 ''my'':94 ''o'':93 ''peopl'':95 ''randbeschrift'':43,90 ''rev'':50,56,68,81,89,103 ''row'':88 ''said'':92 ''second'':87 ''stern'':44 ''umschrift'':12,18,30,58,70,83 ''unusual'':104 ''zeich'':99 ''آ'':72 ''إلا'':7 ''إله'':6 ''الله'':8,55 ''اللّٰہُ'':20 ''اللہ'':23,64 ''اور'':41 ''اَعلَمُ'':21 ''اَنَا'':19 ''اُس'':84 ''اپنی'':74 ''اہل'':24 ''ب'':47 ''بويه'':9 ''تبھی'':40 ''جائے'':73 ''ح'':4 ''خمس'':13 ''رسول'':54,60 ''روم'':25 ''زمین'':37 ''عذاب'':71 ''قریب'':35 ''قوم'':75 ''لئے'':106 ''لا'':5 ''لله'':52 ''محمد'':53,59 ''مغل'':26 ''میں'':22,38 ''نام'':66 ''نے'':85 ''والا'':107 ''وثلثمائة'':15 ''وستين'':14 ''ڈرا'':77 ''کئے'':48 ''کو'':76 ''کہا'':86 ''کی'':36 ''کے'':65,67 ''گئے'':27,49 ''ہوں'':108 ''ے'':39');
+<h3>Besonderheiten/Varianten</h3><div>Av. extraordinary</div><div><br></div><div>Rev. unusual line:&nbsp; لئے والا ہوں۔</div>', '''1'':80 ''30'':32 ''33'':63 ''4'':33 ''5'':34 ''71'':79 ''9'':62 ''anmerk'':97 ''auss'':29,82 ''av'':2,10,16,28,42,101 ''besond'':98 ''besonderheiten/varianten'':100 ''extraordinary'':102 ''feld'':3,51 ''fārs365ga'':1 ''he'':91 ''inn'':11,57 ''koran'':31,61,78 ''lin'':105 ''literatur'':96 ''mitt'':46 ''mittl'':17,69 ''my'':94 ''o'':93 ''peopl'':95 ''randbeschrift'':43,90 ''rev'':50,56,68,81,89,103 ''row'':88 ''said'':92 ''second'':87 ''stern'':44 ''umschrift'':12,18,30,58,70,83 ''unusual'':104 ''zeich'':99 ''آ'':72 ''إلا'':7 ''إله'':6 ''الله'':8,55 ''اللّٰہُ'':20 ''اللہ'':23,64 ''اور'':41 ''اَعلَمُ'':21 ''اَنَا'':19 ''اُس'':84 ''اپنی'':74 ''اہل'':24 ''ب'':47 ''بويه'':9 ''تبھی'':40 ''جائے'':73 ''ح'':4 ''خمس'':13 ''رسول'':54,60 ''روم'':25 ''زمین'':37 ''عذاب'':71 ''قریب'':35 ''قوم'':75 ''لئے'':106 ''لا'':5 ''لله'':52 ''محمد'':53,59 ''مغل'':26 ''میں'':22,38 ''نام'':66 ''نے'':85 ''والا'':107 ''وثلثمائة'':15 ''وستين'':14 ''ڈرا'':77 ''کئے'':48 ''کو'':76 ''کہا'':86 ''کی'':36 ''کے'':65,67 ''گئے'':27,49 ''ہوں'':108 ''ے'':39', NULL, false);
 
 
 --
@@ -1119,6 +1195,12 @@ INSERT INTO public.type_coin_marks VALUES (4, 1);
 INSERT INTO public.type_coin_marks VALUES (4, 2);
 INSERT INTO public.type_coin_marks VALUES (5, 2);
 INSERT INTO public.type_coin_marks VALUES (5, 1);
+
+
+--
+-- Data for Name: type_coin_verse; Type: TABLE DATA; Schema: public; Owner: -
+--
+
 
 
 --
@@ -1145,6 +1227,13 @@ SELECT pg_catalog.setval('public.app_user_id_seq', 1, true);
 --
 
 SELECT pg_catalog.setval('public.coin_marks_id_seq', 2, true);
+
+
+--
+-- Name: coin_verse_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.coin_verse_id_seq', 1, false);
 
 
 --
@@ -1285,6 +1374,14 @@ ALTER TABLE ONLY public.coin_marks
 
 
 --
+-- Name: coin_verse coin_verse_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.coin_verse
+    ADD CONSTRAINT coin_verse_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: dynasty dynasty_name_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1306,6 +1403,14 @@ ALTER TABLE ONLY public.dynasty
 
 ALTER TABLE ONLY public.honorific
     ADD CONSTRAINT honorific_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_key UNIQUE (type);
 
 
 --
@@ -1540,6 +1645,14 @@ ALTER TABLE ONLY public.issuer_honorifics
 
 
 --
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_fkey FOREIGN KEY (type) REFERENCES public.type(id) ON DELETE CASCADE ON UPDATE CASCADE;;
+
+
+--
 -- Name: issuer issuer_person_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1684,6 +1797,22 @@ ALTER TABLE ONLY public.piece
 
 
 --
+-- Name: type_coin_verse type_coin_verse_coin_verse_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.type_coin_verse
+    ADD CONSTRAINT type_coin_verse_coin_verse_fkey FOREIGN KEY (coin_verse) REFERENCES public.coin_verse(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: type_coin_verse type_coin_verse_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.type_coin_verse
+    ADD CONSTRAINT type_coin_verse_type_fkey FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: type_completed type_completed_type_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1729,14 +1858,6 @@ ALTER TABLE ONLY public.type
 
 ALTER TABLE ONLY public.type_reviewed
     ADD CONSTRAINT type_reviewed_type_id_fk FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
---
-
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --

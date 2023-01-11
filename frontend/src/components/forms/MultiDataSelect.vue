@@ -192,6 +192,8 @@ $min-height: 24px;
     font-weight: bold;
     position: relative;
     padding-right: 12px;
+    word-break: break-all;
+    overflow-wrap: break-word;
 
     .closeButton {
       position: absolute;

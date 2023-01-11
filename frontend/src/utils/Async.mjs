@@ -1,12 +1,10 @@
-const { default: Compare } = require('./Compare');
+import Compare from "./Compare.mjs";
 
-class Async {
+export default class Async {
     static sleep(seconds) {
         return new Promise((r) => setTimeout(r, seconds));
     }
 }
-
-
 
 /**
  * A RequestGuard will receive a function that executes a request.
@@ -15,7 +13,7 @@ class Async {
  * executes the last request send, after it finalized the first,
  * while ignoring all requests done inbetween. 
  */
-class RequestGuard {
+export class RequestGuard {
     constructor(callback) {
         if (!callback || typeof callback !== "function")
             throw new Error(`RequestGuard requires a callback function, got ${typeof callback}.`)
@@ -63,6 +61,3 @@ class RequestGuard {
 
 }
 
-Async.RequestGuard = RequestGuard
-
-module.exports = Async

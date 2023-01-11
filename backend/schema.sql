@@ -216,6 +216,16 @@ ALTER SEQUENCE public.honorific_id_seq OWNED BY public.honorific.id;
 
 
 --
+-- Name: internal_notes_plain_text; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.internal_notes_plain_text (
+    text text,
+    type integer
+);
+
+
+--
 -- Name: issuer; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -961,6 +971,14 @@ ALTER TABLE ONLY public.honorific
 
 
 --
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_key UNIQUE (type);
+
+
+--
 -- Name: issuer issuer_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -969,19 +987,19 @@ ALTER TABLE ONLY public.issuer
 
 
 --
--- Name: material_color material_color_material_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.material_color
-    ADD CONSTRAINT material_color_material_key UNIQUE (material);
-
-
---
 -- Name: material material_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.material
     ADD CONSTRAINT material_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: material_color material_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.material_color
+    ADD CONSTRAINT material_unique UNIQUE (material);
 
 
 --
@@ -1192,6 +1210,14 @@ ALTER TABLE ONLY public.issuer_honorifics
 
 
 --
+-- Name: internal_notes_plain_text internal_notes_plain_text_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.internal_notes_plain_text
+    ADD CONSTRAINT internal_notes_plain_text_type_fkey FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: issuer issuer_person_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1228,7 +1254,7 @@ ALTER TABLE ONLY public.issuer_titles
 --
 
 ALTER TABLE ONLY public.material_color
-    ADD CONSTRAINT material_color_material_fkey FOREIGN KEY (material) REFERENCES public.material(id) ON DELETE CASCADE;
+    ADD CONSTRAINT material_color_material_fkey FOREIGN KEY (material) REFERENCES public.material(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
