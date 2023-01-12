@@ -315,7 +315,7 @@ export default class PoliticalOverlay extends Overlay {
     if (data.length > 0 && (!this.isSelectionActive(selection) || isMintSelected)) {
       const concentricCirclesMarker = concentricCircles(latlng, data, {
         openPopup: function ({ data, groupData }) {
-          return rulerPopup(groupData, data?.data);
+          return rulerPopup(groupData, data?.data, true);
         },
         innerRadius: MintLocationMarker.defaultSize,
         radius: this.settings.settings.maxRadius,
@@ -334,7 +334,7 @@ export default class PoliticalOverlay extends Overlay {
        * was intentionally removed by request of the numismatics 
        * //14-12-2022
        */
-      const locationMarker = this.createMintLocationMarker(latlng, feature)
+      const locationMarker = this.createMintLocationMarker(latlng, feature, /* {active: isMintSelected} */)
       const objects = [concentricCirclesMarker, locationMarker]
 
 
@@ -344,7 +344,7 @@ export default class PoliticalOverlay extends Overlay {
 
       layer = L.featureGroup(objects);
     } else {
-      layer = this.createMintLocationMarker(latlng, feature)
+      layer = this.createMintLocationMarker(latlng, feature, /* {active: isMintSelected} */)
       layer.bringToBack()
     }
 

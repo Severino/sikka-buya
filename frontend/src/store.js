@@ -13,7 +13,8 @@ const store = new Vuex.Store({
     showLoginForm: false,
     showConfirmation: true,
     version,
-    errors: []
+    errors: [],
+    debug: true
   },
   mutations: {
     login(state, user) {

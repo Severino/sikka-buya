@@ -29,7 +29,7 @@ function buildRulerList(personsArr, clickedRuler, orderedList = false,) {
     }
 }
 
-export function rulerPopup(coin, clickedRuler) {
+export function rulerPopup(coin, clickedRuler, debug = false) {
     let caliphText = buildRulerList(coin.caliph, clickedRuler);
     let overlordsText;
     if (coin.overlords) {
@@ -55,29 +55,55 @@ export function rulerPopup(coin, clickedRuler) {
         params: { id: coin.id },
     });
 
-    return `
-       ${Mint.popupMintHeader(coin.mint, ["underlined-header"])}
-        <div class="popup-body">
-            <div class="catalog-title">
-            <h2>${coin.projectId}</h2>
-            ${!coin.excludeFromTypeCatalogue
+    let popup = `
+    ${Mint.popupMintHeader(coin.mint, ["underlined-header"])}
+     <div class="popup-body">
+         <div class="catalog-title">
+         <h2>${coin.projectId}</h2>
+         ${!coin.excludeFromTypeCatalogue
             ? `<a href="${route.href}" target="_blank" class="catalog-link">Katalogeintrag</a>`
             : ''
         }</div>
-            ${(!isCaliphCoin(coin)) ?
+         ${(!isCaliphCoin(coin)) ?
             `<h3>Münzherr(en)</h3>
-                    ${issuersText}
-                    <h3>Oberherr(en)</h3>
-                    ${overlordsText}
-                    ` : ""
+                 ${issuersText}
+                 <h3>Oberherr(en)</h3>
+                 ${overlordsText}
+                 ` : ""
         }
-            
-          
-            <h3>Kalif</h3>
-            ${caliphText}
-            ${heirText}
-        </div>
-      `;
+         
+       
+         <h3>Kalif</h3>
+         ${caliphText}
+         ${heirText}
+   `;
+
+    if (debug) {
+        popup += `
+            <hr />
+            <h3>Debug</h3>
+
+            <a href="${route.href}" target="_blank" >Katalogeintrag</a>
+            <table>
+            <tr>
+            <td>Id</td>
+            <td>${coin.id}</td>
+            </tr>
+            <tr>
+            <td>Mint Id</td>
+            <td>${coin.mint.id}</td>
+            </tr>
+            <tr>
+            <td>Caliph Id</td>
+            <td>${coin.caliph.id}</td>
+            </tr>
+            </table>
+        `
+    }
+
+    popup += "</div>"
+
+    return popup
 }
 
 function isCaliphCoin(coin) {
