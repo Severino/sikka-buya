@@ -31,6 +31,7 @@
             :style="{ color: item.color, borderColor: item.color }"
           >
             <span>{{ item.name }}</span>
+            <span v-if="$store.state.debug">{{ item.id }}</span>
           </MultiSelectListItem>
         </ul>
       </Collapsible>
@@ -44,7 +45,6 @@ import MultiSelectListItem from './MultiSelectListItem.vue';
 import MultiSelectListMixin from './mixins/multi-select-list.js';
 
 import CollapsibleListMixin from './mixins/collapsible-list.js';
-
 
 import Collapsible from './layout/Collapsible.vue';
 import Sort from '../utils/Sorter';
@@ -63,8 +63,7 @@ export default {
     ListSelectionTools,
     SelectableListHeader,
   },
-  mixins: [MultiSelectListMixin,
-  CollapsibleListMixin],
+  mixins: [MultiSelectListMixin, CollapsibleListMixin],
   methods: {
     toggleAllProvince(group) {
       if (this.allSelected(group)) {
@@ -73,7 +72,6 @@ export default {
         this.removeAllFromGroup(group);
       }
     },
-
   },
 
   computed: {
@@ -87,7 +85,7 @@ export default {
           groups[province] = {
             id,
             name: province,
-            items: []
+            items: [],
           };
         }
         groups[province].items.push(mint);
