@@ -19,9 +19,12 @@ export default class Mint {
         })
     }
 
-    static popupMintHeader(mint, headerClasses = []) {
+    static popupMintHeader(mint, headerClasses = [], debug = false) {
         return `<header class="${headerClasses.join(" ")}">
-            <span class="subtitle no-padding-bottom">${mint.name}</span>    
+            <span class="subtitle no-padding-bottom">${mint.name}
+            ${(window.debug) ? `  (${mint.id})` : ''}
+            
+            </span>    
             ${(mint.uncertain) ? `
         <div class="uncertain-info"> 
             (genaue) Lokalisierung unsicher
@@ -29,8 +32,10 @@ export default class Mint {
            `
                 : ""
             }
+
+            ${(window.debug) ? `${mint.province.name} (${mint.province.id})` : ''} 
         
-       
+        
         </header > `
     }
 
@@ -38,12 +43,12 @@ export default class Mint {
         return `mint {
             id
             name
-            location 
+            location
             uncertain
             province {
-              id
-              name
+                id
+                name
             }
-          }`
+        } `
     }
 }
