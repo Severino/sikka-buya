@@ -1,5 +1,5 @@
 
-const { Database } = require('../utils/database.js')
+const { Database, pgp } = require('../utils/database.js')
 const Person = require('../utils/person.js')
 const fs = require('fs').promises
 const Auth = require("../auth.js")
@@ -373,7 +373,14 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
             }).filter(year => !isNaN(year))
         }
     },
-    async getPersonMints(_, args) {
+    async getPersonMints(_, { mints = [], persons = [] } = {}) {
+
+
+        let whereFilters = []
+        if (mints.length > 0) whereFilters.push('mint IN ($[mints:csv])')
+        if (persons.length > 0) whereFilters.push(`ruler_id::text[] && ${pgp.as.array(persons)}`)
+
+
         const results = await Database.manyOrNone(`
         WITH persons AS(
             WITH types AS (
@@ -396,12 +403,16 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                 )
                 
             SELECT  type.id, type.mint, 
-                array_agg(caliph_person.json) as caliphs, 
+                    coalesce(array_agg(caliph_person.json) filter (where caliph_person.id is not null) , '{}') as caliphs, 
                 -- Note here we implemente some special behavior the numismatics wanted:
                 -- When there is no issuer, but a caliph, then we use the caliph as issuer.
                 coalesce(array_agg(issuer_person.json) filter (where issuer_person.id is not null), 
                          array_agg(caliph_person.json) filter (where caliph_person.id is not null) ,'{}' ) as issuers, 
-                array_agg(overlord_person.json)  as overlords
+                coalesce(array_agg(overlord_person.json)  filter (where caliph_person.id is not null), '{}')  as overlords,
+
+                coalesce(array_agg(issuer.id) filter (where issuer.id is not null), '{}') as issuer_id,
+                coalesce(array_agg(overlord.id) filter (where overlord.id is not null), '{}') as overlord_id,
+                coalesce(array_agg(type.caliph) filter (where type.caliph is not null), '{}') as caliphs_id
             FROM type 
             LEFT JOIN issuer ON issuer.type = type.id
             LEFT JOIN overlord ON overlord.type = type.id
@@ -416,11 +427,13 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                 coalesce(array_agg(DISTINCT issuers) filter (where issuers is not null), '{}') as issuers, 
                 coalesce(array_agg(DISTINCT overlords) filter (where overlords is not null), '{}') as overlords, 
                 coalesce(array_agg(DISTINCT caliphs) filter (where caliphs is not null), '{}') as caliphs
+
+
                 
-                FROM (SELECT mint, UNNEST(issuers) as issuers, UNNEST(overlords) as overlords, UNNEST(caliphs) as caliphs FROM types) persons
+                FROM (SELECT DISTINCT mint, UNNEST(issuers) as issuers, UNNEST(overlords) as overlords, UNNEST(caliphs) as caliphs,  issuer_id || overlord_id || caliphs_id  as ruler_id FROM types) persons
                 JOIN mint m ON m.id = mint
                 JOIN province p ON m.province = p.id
-                ${(args.mints && args.mints.length > 0) ? 'WHERE mint IN ($[mints:csv])' : ''}
+                ${(whereFilters.length > 0) ? `WHERE ${whereFilters.join(" AND ")}` : ''}
                 GROUP BY persons.mint
                 ) SELECT  
                     issuers, 
@@ -439,7 +452,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                     ) as mint FROM persons
                     JOIN mint m ON m.id = mint
                     JOIN province p ON m.province = p.id                    
-            `, args)
+            `, { mints })
 
         return results
     },
