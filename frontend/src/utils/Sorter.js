@@ -14,10 +14,13 @@ export default class Sort {
      */
     static classicStringAlphabetically(asc = true) {
         return function (a, b) {
-            if (a == null) return 1
-            if (b == null) return -1
+            let sort;
+            if (a == null) sort = 1
+            if (b == null) sort = -1
+            else sort = a.localeCompare(b)
 
-            let sort = a.localeCompare(b)
+            console.log(a, b, sort)
+
             // Flip if not asc.
             if (!asc) sort *= -1
             return sort
@@ -43,7 +46,7 @@ export default class Sort {
             a = Sort._removeCharactersThatObstructSorting(a.toUpperCase())
             b = Sort._removeCharactersThatObstructSorting(b.toUpperCase())
 
-            return Sort.classicStringAlphabetically(a, b)
+            return Sort.classicStringAlphabetically(asc)(a, b)
         }
     }
 
