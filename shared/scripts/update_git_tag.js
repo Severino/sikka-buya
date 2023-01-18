@@ -40,7 +40,7 @@ function pushTag() {
 
             if (err) {
                 reject(`Could not push tag: ${err}`)
-            } else resolve(stdout || stderr)
+            } else resolve(stderr)
 
 
         });
