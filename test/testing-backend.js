@@ -4,6 +4,18 @@ const start = require('../backend/express.js');
 const { error } = require('../backend/scripts/modules/logging.js');
 
 
+function overwriteWithGithubActionsEnv() {
+    const config = {
+        POSTGRES_HOST: "DB_HOST",
+        POSTGRES_PORT: "DB_PORT"
+    }
+
+    for (let { githubEnv, env } of config) {
+        if (process.env[githubEnv])
+            process.env[env] = process.env[githubEnv]
+    }
+}
+
 function verifyAllEnvVariablesAreSet() {
     const missingEnv = []
 
@@ -24,6 +36,8 @@ function verifyAllEnvVariablesAreSet() {
             missingEnv.push(env)
     })
 
+
+
     if (missingEnv.length > 0) throw new Error(`Missing env variables: ${missingEnv.join(", ")}. Set them in the .env file in the test directory.`)
 }
 
@@ -34,6 +48,7 @@ async function main() {
         require("dotenv").config()
     }
 
+    overwriteWithGithubActionsEnv()
     verifyAllEnvVariablesAreSet()
     process.env.expressPort = 4000
     process.env.jwtSecret = "secret"
