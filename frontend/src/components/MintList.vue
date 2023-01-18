@@ -18,6 +18,7 @@
             :total="group.items.length"
           >
             {{ group.name }}
+            <span v-if="$store.state.debug">({{ group.id }})</span>
           </selectable-list-header>
         </template>
         <ul>
@@ -92,8 +93,9 @@ export default {
       });
 
       const groupArray = Object.values(groups);
-
       groupArray.sort(Sort.stringPropAlphabetically('name'));
+
+      console.log(groupArray.map((i) => i.name).join(', '));
 
       return groupArray;
     },

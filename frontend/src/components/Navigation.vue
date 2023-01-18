@@ -10,6 +10,14 @@
         <nav>
           <ul>
             <li
+              class="button"
+              id="debug-notification"
+              v-if="$store.state.debug"
+              @click="() => $store.commit('disableDebugging')"
+            >
+              Entwickler Modus Aktiv!
+            </li>
+            <li
               v-for="(item, index) in visibleItems"
               :key="`nav-item-${index}`"
             >
@@ -301,5 +309,12 @@ a {
 
     padding: 2em;
   }
+}
+#debug-notification {
+  font-weight: bold;
+  border-radius: $padding;
+  padding: $padding;
+  color: $white;
+  background-color: $red;
 }
 </style>
