@@ -43,7 +43,6 @@ jobs:
       - run: npm install yarn -g
       - run: yarn global add grunt
       - run: yarn install
-#    
       - name: Create .env file for test environment
         run: |
          touch test/.env
@@ -55,12 +54,14 @@ jobs:
          echo DB_USER=postgres >> test/.env
          echo DB_PASSWORD=postgres >> test/.env
          echo DB_NAME=sikka-buya-test-database >> test/.env
-         echo DB_HOST=localhost >> test/.env
-         echo DB_PORT=5432 >> test/.env
          echo JWT_SECRET=secret >> test/.env
          echo MAX_SEARCH=100 >> test/.env
          cat test/.env
 #    - run: npm run build --if-present
-      - run: cd test && ls -a
-      - run: cat test/.env
       - run: cd test && grunt test
+        working-directory: ./test
+        env:
+          # use postgres for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be localhost
+          DB_HOST: postgres
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}
