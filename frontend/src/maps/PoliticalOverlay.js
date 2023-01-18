@@ -39,37 +39,62 @@ export default class PoliticalOverlay extends Overlay {
     //   delete filters.mint
     // }
 
-    const pagination = {
-      page: 0,
-      count: 100000
+
+
+    let result;
+    if (filters.yearOfMint) {
+      const pagination = {
+        page: 0,
+        count: 100000
+      }
+
+      const query = `query($filters: TypeFilter, $pagination: Pagination) {
+        person {
+          id
+          name
+          shortName
+          color
+          dynasty {
+            id
+            name
+          }
+        }
+          ${Mint.mintGraphQL()}  
+          ${this.typeQuery()}
+      }
+        `
+
+      result = await Query.raw(query, { pagination, filters }, true)
+
+    } else {
+      const query = `query ($persons:[ID], $mints: [ID]) {
+        person {
+          id
+          name
+          shortName
+          color
+          dynasty {
+            id
+            name
+          }
+        }
+        getPersonMints(mints: $mints, persons: $persons) {
+          mint { id, name, location }
+          caliphs {id shortName name color dynasty {id name } }
+          issuers {id shortName name color dynasty {id name } }
+          overlords {id shortName name color dynasty {id name } }
+        }
+
+          ${Mint.mintGraphQL()}  
+      }
+        `
+
+
+      result = await Query.raw(query, {
+        persons: filters.persons,
+        mints: filters.mints
+      }, true)
     }
-
-
-    const result = await Query.raw(
-      `query  ${(filters.yearOfMint === null ? "" : "($filters: TypeFilter, $pagination: Pagination)")} {
-      
-                person {
-                  id
-                  name
-                  shortName
-                  color
-                  dynasty {
-                    id
-                    name
-                  }
-                }
-                  ${Mint.mintGraphQL()}  
-                  ${filters.yearOfMint === null ?
-        this.personMintsQuery()
-        : this.typeQuery()
-      }  
-                  
-  
-    }`,
-      {
-        pagination,
-        filters
-      })
 
     return result.data.data
   }
@@ -426,81 +451,73 @@ export default class PoliticalOverlay extends Overlay {
     return marker
   }
 
-  personMintsQuery() {
-    return `getPersonMints {
-        mint {id, name, location}
-        caliphs {id shortName name color dynasty {id name}}
-        issuers {id shortName name color dynasty {id name}}
-        overlords {id shortName name color dynasty {id name}}
-      }`
-  }
 
   typeQuery() {
     return `coinType(pagination: $pagination, filters: $filters){
       types{
-      id
-      projectId
-      material {name}
-      donativ
-      procedure
-      nominal {name}
-      mintAsOnCoin
-      caliph {
-        name,
-        shortName
-        id
-        color
-        dynasty{
-          id,name
-        }
-      }
-      mint {
-        id
-        name
-        location
-        uncertain
-        province {
           id
-          name
-        }
-      },
+          projectId
+      material { name }
+          donativ
+          procedure
+      nominal { name }
+          mintAsOnCoin
+      caliph {
+            name,
+              shortName
+            id
+            color
+        dynasty{
+              id, name
+            }
+          }
+      mint {
+            id
+            name
+            location
+            uncertain
+        province {
+              id
+              name
+            }
+          },
       issuers {
-        id
-        name
-        shortName
-        color
+            id
+            name
+            shortName
+            color
         dynasty{
-          id,name
-        }
-      }
+              id, name
+            }
+          }
       overlords {
-        id
-        name
-        shortName
-        rank
-        color
+            id
+            name
+            shortName
+            rank
+            color
         dynasty{
-          id,name
-        }
-      }
+              id, name
+            }
+          }
       otherPersons {
-      id
-      shortName
-      name
-      color
+            id
+            shortName
+            name
+            color
       role {
-        id
-        name
-      }
+              id
+              name
+            }
       dynasty {
-        id
-        name
-      }
-    }
-      excludeFromTypeCatalogue
-      excludeFromMapApp
-    }
-    }`
+              id
+              name
+            }
+          }
+          excludeFromTypeCatalogue
+          excludeFromMapApp
+        }
+      }`
   }
 }
 

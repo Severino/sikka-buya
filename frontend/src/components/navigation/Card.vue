@@ -47,12 +47,6 @@ export default {
     z-index: 100;
   }
 
-  &:hover {
-    header {
-      min-height: 100%;
-    }
-  }
-
   // filter: grayscale(50%);
 }
 
@@ -66,7 +60,6 @@ export default {
     box-sizing: border-box;
     padding: $padding * 2;
     background-color: rgba($primary-color, 0.75);
-    transition: min-height $transition-time;
     backdrop-filter: blur(3px);
   }
 }

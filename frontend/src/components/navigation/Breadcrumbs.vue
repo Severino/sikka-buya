@@ -38,7 +38,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+$crumb-background-color: $white;
+
 .breadcrumbs {
+  position: relative;
   padding: $padding;
   display: flex;
   max-width: 100%;
@@ -46,8 +49,6 @@ export default {
 }
 
 .crumb {
-  $color: $white;
-
   @mixin common {
     content: '';
     height: 0;
@@ -63,7 +64,7 @@ export default {
 
   a {
     color: $gray;
-    background-color: $color;
+    background-color: $crumb-background-color;
     padding: $padding;
   }
 
@@ -77,15 +78,15 @@ export default {
     &:before {
       @include common;
       border-right-width: 0;
-      border-top-color: $color;
-      border-bottom-color: $color;
+      border-top-color: $crumb-background-color;
+      border-bottom-color: $crumb-background-color;
     }
   }
 
   &:after {
     @include common;
     border-right-width: 0;
-    border-left-color: $color;
+    border-left-color: $crumb-background-color;
   }
 
   &:last-child {
@@ -95,7 +96,7 @@ export default {
     &:after {
       @include common;
       border-right-width: 17px;
-      border-color: $color;
+      border-color: $crumb-background-color;
       border-top-right-radius: 17px;
       border-bottom-right-radius: 17px;
     }
