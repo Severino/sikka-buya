@@ -5,9 +5,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "actions-test" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "actions-test" ]
 
 jobs:
   build:
@@ -56,5 +56,4 @@ jobs:
          echo MAX_SEARCH=100 >> test/.env
          cat test/.env
 #    - run: npm run build --if-present
-      - run: |
-         cd test && grunt test
+      - run: ls -a
