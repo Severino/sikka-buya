@@ -63,3 +63,4 @@ jobs:
           DB_HOST: postgres
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
       - run: cat test/.env
+      - run: cd test && grunt test
