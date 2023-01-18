@@ -36,19 +36,13 @@ async function addTag(version) {
 
 function pushTag() {
     return new Promise((resolve, reject) => {
-        let errors = []
         exec(`git push --tags`, (err, stdout, stderr) => {
-            if (stderr)
-                errors.push(stderr)
 
-            if (stdout)
-                log(`${stdout}`);
+            if (err) {
+                reject(`Could not push tag: ${err}`)
+            } else resolve(stdout || stderr)
 
-            if (errors.length === 0) {
-                resolve()
-            } else (
-                reject(`Could not push tag: ${errors.join("\n\n")}`)
-            )
+
         });
     })
 }
