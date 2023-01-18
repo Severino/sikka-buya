@@ -58,3 +58,4 @@ jobs:
 #    - run: npm run build --if-present
       - run: cd test && ls -a
       - run: cat test/.env
+      - run: cd test && grunt test
