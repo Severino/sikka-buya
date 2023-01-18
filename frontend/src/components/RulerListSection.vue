@@ -19,7 +19,7 @@
       </template>
       <span
         >{{ getRulerName(item) }}
-        {{ $store.state.debug ? ` (${item.id})` : '' }}
+        <span v-if="$store.state.debug" class="debug">({{ item.id }})</span>
         <span v-if="getDynasty(item)" class="dynasty">{{
           getDynasty(item)
         }}</span></span

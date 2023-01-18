@@ -40,6 +40,10 @@
             :total="group.items.length"
           >
             {{ group.label }}
+
+            <span v-if="$store.state.debug" class="debug"
+              >({{ group.key }})</span
+            >
           </selectable-list-header>
         </template>
         <ruler-list-section
@@ -90,11 +94,6 @@ export default {
     SelectableListHeader,
   },
   methods: {
-    getDynasty(item) {
-      if (item?.dynasty?.name && item?.dynasty?.id != 1) {
-        return item?.dynasty?.name;
-      } else return null;
-    },
     getRulerName(ruler) {
       return Person.getName(ruler);
     },

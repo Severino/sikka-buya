@@ -10,7 +10,7 @@
         <nav>
           <ul>
             <li
-              class="button"
+              class="button debug-fill"
               id="debug-notification"
               v-if="$store.state.debug"
               @click="() => $store.commit('disableDebugging')"
@@ -314,7 +314,6 @@ a {
   font-weight: bold;
   border-radius: $padding;
   padding: $padding;
-  color: $white;
-  background-color: $red;
+  margin: 0 $padding;
 }
 </style>

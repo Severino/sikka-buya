@@ -18,7 +18,9 @@
             :total="group.items.length"
           >
             {{ group.name }}
-            <span v-if="$store.state.debug">({{ group.id }})</span>
+            <span v-if="$store.state.debug" class="debug"
+              >({{ group.id }})</span
+            >
           </selectable-list-header>
         </template>
         <ul>
@@ -31,8 +33,13 @@
             :class="{ available: item.available }"
             :style="{ color: item.color, borderColor: item.color }"
           >
-            <span>{{ item.name }}</span>
-            <span v-if="$store.state.debug">{{ item.id }}</span>
+            <span
+              >{{ item.name }}
+
+              <span v-if="$store.state.debug" class="debug"
+                >({{ item.id }})</span
+              >
+            </span>
           </MultiSelectListItem>
         </ul>
       </Collapsible>

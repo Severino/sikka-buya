@@ -72,6 +72,21 @@ export default {
     } else {
       this.languageChanged('de');
     }
+
+    /**
+     * Sets the debug mode, if in development mode.
+     *
+     * Debug mode can be enabled by calling 'setDebug()'
+     */
+    const debug = process.env.NODE_ENV !== 'development' ? false : true;
+    window.debug = debug;
+    if (process.env.NODE_ENV === 'development') {
+      let store = this.$store;
+      if (debug) store.commit('setDebug');
+      window.setDebug = function () {
+        store.commit('setDebug');
+      };
+    }
   },
   methods: {
     languageChanged: function (lang) {
@@ -137,6 +152,15 @@ input[type='color'] {
   padding: 0;
   min-width: 200px;
   min-height: 40px;
+}
+
+$debug-color: orangered !important;
+.debug {
+  color: $debug-color;
+}
+.debug-fill {
+  color: $white !important;
+  background-color: $debug-color;
 }
 
 .emph {

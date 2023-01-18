@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 let version = require("../../package.json").version;
 
+
 const store = new Vuex.Store({
   state: {
     user: null,
@@ -14,11 +15,18 @@ const store = new Vuex.Store({
     showConfirmation: true,
     version,
     errors: [],
-    debug: true
+    debug: false
   },
   mutations: {
+    setDebug(state) {
+      if (process.env.NODE_ENV === 'development') {
+        state.debug = true
+        window.debug = true
+      }
+    },
     disableDebugging(state) {
       state.debug = false
+      window.debug = false
     },
     login(state, user) {
       state.user = user
