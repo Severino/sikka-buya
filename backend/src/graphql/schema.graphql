@@ -281,7 +281,7 @@ type Query {
   mintMaterials: [MintMaterials]
   getMaterialColor(id: ID!): String
 
-  getPersonMints: [MintPersons]
+  getPersonMints(mints: [ID], persons:[ID]): [MintPersons]
 
   province: [Name]
   searchProvince(text: String): [Name]

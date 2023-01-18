@@ -1,5 +1,5 @@
 
-const { Database } = require('../utils/database.js')
+const { Database, pgp } = require('../utils/database.js')
 const Person = require('../utils/person.js')
 const fs = require('fs').promises
 const Auth = require("../auth.js")
@@ -373,44 +373,86 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
             }).filter(year => !isNaN(year))
         }
     },
-    async getPersonMints() {
+    async getPersonMints(_, { mints = [], persons = [] } = {}) {
+
+
+        let whereFilters = []
+        if (mints.length > 0) whereFilters.push('mint IN ($[mints:csv])')
+        if (persons.length > 0) whereFilters.push(`ruler_id::text[] && ${pgp.as.array(persons)}`)
+
+
         const results = await Database.manyOrNone(`
-        WITH issuers AS (
-            SELECT type, person.id as id, jsonb_build_object('id', person.id, 'shortName', person.short_name, 'name', person.name, 'color', person_color.color, 'dynasty', dynastyObject.json) as json FROM issuer 
-            LEFT JOIN person ON person.id = issuer.person
-            LEFT JOIN person_color ON person_color.person = person.id
-            LEFT JOIN (SELECT id, jsonb_build_object('id', dynasty.id, 'name', dynasty.name) as json FROM dynasty) as dynastyObject ON dynastyObject.id = person.dynasty    
-            ORDER BY short_name
-            ), overlords AS (
-                SELECT type, person.id as id, jsonb_build_object('id', person.id, 'shortName', person.short_name, 'name', person.name,'color', person_color.color, 'dynasty', dynastyObject.json) as json FROM overlord 
-                LEFT JOIN person ON person.id = overlord.person
-                LEFT JOIN person_color ON person_color.person = person.id
-                LEFT JOIN (SELECT id, jsonb_build_object('id', dynasty.id, 'name', dynasty.name) as json FROM dynasty) as dynastyObject ON dynastyObject.id = person.dynasty    
-                ORDER BY short_name
+        WITH persons AS(
+            WITH types AS (
+                WITH persons AS (
+                SELECT person.* as id, person_color.color as color, 
+                    
+                    jsonb_build_object(
+                        'id', person.id,  
+                        'shortName', person.short_name,
+                        'name', person.name,
+                        'color', person_color.color,
+                        'dynasty', jsonb_build_object(
+                            'id', dynasty.id,
+                            'name', dynasty.name
+                        )
+                    ) as json FROM person
+                    
+                    LEFT JOIN person_color ON person_color.person = person.id
+                    LEFT JOIN dynasty ON dynasty.id = person.dynasty
                 )
-            SELECT 
-                to_json(mint.*) as mint,
-                coalesce(jsonb_agg(distinct overlords.json) filter (where overlords.json is not null) ,'[]')as overlords,
-                coalesce(jsonb_agg(distinct issuers.json) filter (where issuers.json is not null) ,'[]')as issuers,
-                coalesce(jsonb_agg(distinct caliphObject.json) filter (where caliphObject.json is not null) ,'[]')as caliphs
+                
+            SELECT  type.id, type.mint, 
+                    coalesce(array_agg(caliph_person.json) filter (where caliph_person.id is not null) , '{}') as caliphs, 
+                -- Note here we implemente some special behavior the numismatics wanted:
+                -- When there is no issuer, but a caliph, then we use the caliph as issuer.
+                coalesce(array_agg(issuer_person.json) filter (where issuer_person.id is not null), 
+                         array_agg(caliph_person.json) filter (where caliph_person.id is not null) ,'{}' ) as issuers, 
+                coalesce(array_agg(overlord_person.json)  filter (where caliph_person.id is not null), '{}')  as overlords,
 
-            FROM type
-            LEFT JOIN overlords ON overlords.type = type.id
-            LEFT JOIN issuers ON issuers.type = type.id
-            LEFT JOIN mint ON mint.id = type.mint
-            LEFT JOIN 
-                (
-                    SELECT person.id as id, jsonb_build_object('id', person.id, 'shortName', person.short_name, 'name', person.name,'color', person_color.color, 'dynasty', dynastyObject.json) as json 
-                FROM person 
-                LEFT JOIN person_color ON person_color.person = person.id
-                LEFT JOIN (SELECT id, jsonb_build_object('id', dynasty.id, 'name', dynasty.name) as json FROM dynasty) as dynastyObject ON dynastyObject.id = person.dynasty    
-                ORDER BY short_name
-                ) as caliphObject ON caliphObject.id = type.caliph
+                coalesce(array_agg(issuer.id) filter (where issuer.id is not null), '{}') as issuer_id,
+                coalesce(array_agg(overlord.id) filter (where overlord.id is not null), '{}') as overlord_id,
+                coalesce(array_agg(type.caliph) filter (where type.caliph is not null), '{}') as caliphs_id
+            FROM type 
+            LEFT JOIN issuer ON issuer.type = type.id
+            LEFT JOIN overlord ON overlord.type = type.id
+            LEFT JOIN persons caliph_person ON caliph_person.id = type.caliph
+            LEFT JOIN persons issuer_person ON issuer_person.id = issuer.person 
+            LEFT JOIN persons overlord_person ON overlord_person.id = overlord.person
+            GROUP BY type.id
+                
+                ) SELECT 
+                
+                mint,
+                coalesce(array_agg(DISTINCT issuers) filter (where issuers is not null), '{}') as issuers, 
+                coalesce(array_agg(DISTINCT overlords) filter (where overlords is not null), '{}') as overlords, 
+                coalesce(array_agg(DISTINCT caliphs) filter (where caliphs is not null), '{}') as caliphs
 
-            WHERE exclude_from_map_app = false AND type.mint IS NOT NULL
-            GROUP BY type.mint, mint.*
-            ;
-            `)
+
+                
+                FROM (SELECT DISTINCT mint, UNNEST(issuers) as issuers, UNNEST(overlords) as overlords, UNNEST(caliphs) as caliphs,  issuer_id || overlord_id || caliphs_id  as ruler_id FROM types) persons
+                JOIN mint m ON m.id = mint
+                JOIN province p ON m.province = p.id
+                ${(whereFilters.length > 0) ? `WHERE ${whereFilters.join(" AND ")}` : ''}
+                GROUP BY persons.mint
+                ) SELECT  
+                    issuers, 
+                    overlords, 
+                    caliphs, 
+                    jsonb_build_object(
+                        'id', m.id,
+                        'name', m.name,
+                        'location', m.location,
+                        'uncertain', coalesce(m.uncertain,false),
+                        'uncertainArea', m.uncertain_area,
+                        'province', jsonb_build_object(
+                            'id', p.id,
+                            'name', p.name
+                        ) 
+                    ) as mint FROM persons
+                    JOIN mint m ON m.id = mint
+                    JOIN province p ON m.province = p.id                    
+            `, { mints })
 
         return results
     },
