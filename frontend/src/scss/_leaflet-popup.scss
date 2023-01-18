@@ -10,7 +10,6 @@
         padding: 10px 0;
     }
 
-
     .leaflet-popup-content .popup-body {
         padding-top: 0;
 
@@ -36,11 +35,11 @@
         margin: 0;
         min-height: 34px;
 
-        >*:not(hr) {
+        > *:not(hr) {
             padding: $padding 2 * $padding $padding 2 * $padding;
         }
 
-        >:last-child {
+        > :last-child {
             margin-bottom: 0 !important;
         }
     }
@@ -49,7 +48,9 @@
         color: $gray;
         opacity: 1;
         font-size: 1.5em !important;
-        padding: 9px !important;
+        //padding: 9px !important;
+        font-family: $font;
+        padding: 3px !important;
     }
 
     h2,
@@ -120,7 +121,5 @@
             color: $black;
             font-style: italic;
         }
-
-
     }
 }
