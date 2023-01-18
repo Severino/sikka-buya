@@ -57,7 +57,7 @@ jobs:
          echo MAX_SEARCH=100 >> test/.env
          cat test/.env
 #    - run: npm run build --if-present
-      - run: cd test && grunt test
+      - run: grunt test
         working-directory: ./test
         env:
           # use postgres for the host here because we have specified a container for the job.
