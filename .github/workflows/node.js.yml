@@ -66,3 +66,9 @@ jobs:
           DB_PORT: ${{ job.services.postgres.ports[5432] }}
       - run: cat test/.env
       - run: cd test && grunt test
+        working-directory: ./test
+        env:
+          # use postgres for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be localhost
+          DB_HOST: postgres
+          DB_PORT: ${{ job.services.postgres.ports[5432] }}
