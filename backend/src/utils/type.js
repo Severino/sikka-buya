@@ -671,7 +671,18 @@ class Type {
                 year_uncertain,
                 mint_uncertain as guessed_mint,
                 p.id AS caliph_id,
-                pc.color AS caliph_color`
+                pc.color AS caliph_color,
+
+                CASE WHEN type_completed.type is null
+                then False
+                else True 
+				END as completed,
+
+                CASE WHEN type_reviewed.type is null
+                then False
+                else True
+                END as reviewed
+                `
     }
 
     static get joins() {
@@ -688,6 +699,9 @@ class Type {
         ON t.caliph = p.id
         LEFT JOIN person_color pc
         ON p.id = pc.person
+        LEFT JOIN type_completed ON type_completed.type = t.id
+        LEFT JOIN type_reviewed ON type_reviewed.type = t.id
+
         `
     }
 

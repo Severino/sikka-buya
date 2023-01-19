@@ -30,6 +30,10 @@
     </div>
     <div v-else class="blank gm4"></div>
 
+    <info :alwaysShow="true" type="warning" id="not-reviewed-warning">
+      Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!
+    </info>
+
     <router-link
       v-if="$store.state.user"
       id="edit-button"
@@ -205,6 +209,7 @@ import StringUtils from '../../utils/StringUtils';
 import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
 import URLParams from '../../utils/URLParams';
 import { DefaultSettings } from '../../settings';
+import Info from '../forms/Info.vue';
 
 export default {
   name: 'TypeView',
@@ -226,6 +231,7 @@ export default {
     PersonView,
     PersonList,
     SikkaBuyaButton,
+    Info,
   },
   methods: {
     dynamicHeading() {
@@ -448,6 +454,10 @@ $columns: 4;
   display: grid;
   gap: $padding;
   grid-template-columns: repeat($columns, 1fr);
+}
+
+#not-reviewed-warning {
+  grid-column: span $columns;
 }
 
 #mint-container {

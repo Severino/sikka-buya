@@ -86,6 +86,8 @@ type CoinType {
   treadwellId: String
   yearOfMint: String
   yearUncertain: Boolean
+  reviewed: Boolean
+  completed: Boolean
 }
 
 type MintMaterials {
