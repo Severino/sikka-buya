@@ -16,7 +16,7 @@
             selectedMints: [type.mint.id],
           },
         }"
-        >zu Karte</sikka-buya-button
+        >Kartenansicht</sikka-buya-button
       >
     </header>
 
@@ -57,7 +57,7 @@
                 selectedRulers: [],
               },
             }"
-            >zu Karte</sikka-buya-button
+            >Kartenansicht</sikka-buya-button
           >
         </div>
       </catalog-property>
