@@ -20,17 +20,17 @@
       >
     </header>
 
-    <div v-if="type.donativ" class="box gm4">
-      <div>Geschenkmünze</div>
+    <div v-if="type.donativ" id="donativ" class="box property gm4">
+      <span>Geschenkmünze</span>
     </div>
     <div v-else class="blank gm4"></div>
 
-    <div v-if="type.procedure != 'pressed'" class="box gm4">
-      <div>gegossen</div>
+    <div v-if="type.procedure != 'pressed'" class="box property gm4">
+      <span>gegossen</span>
     </div>
     <div v-else class="blank gm4"></div>
 
-    <info :alwaysShow="true" type="warning" id="not-reviewed-warning">
+    <info :alwaysShow="!type.reviewed" type="warning" id="not-reviewed-warning">
       Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!
     </info>
 
@@ -469,6 +469,12 @@ $columns: 4;
   // background-color: $white;
 }
 
+#donativ {
+  border: $big-border;
+  border-color: $primary_color;
+  box-sizing: border-box;
+}
+
 h1 {
   margin: 0;
   margin-left: $padding;
@@ -566,6 +572,7 @@ header {
 
 .property {
   display: flex;
+  border-radius: $small-border-radius;
 }
 
 .catalog-property {

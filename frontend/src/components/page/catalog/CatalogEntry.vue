@@ -170,6 +170,7 @@ export default {
                 excludeFromTypeCatalogue
                 excludeFromMapApp
                 internalNotes
+                reviewed
         }
       }
       `

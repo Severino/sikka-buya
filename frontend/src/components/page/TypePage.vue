@@ -169,7 +169,7 @@ export default {
       },
     };
   },
-  created: function () {
+  mounted: function () {
     Query.raw(
       `{
             getCoinType(id:${this.$route.params.id}){
