@@ -375,11 +375,9 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
     },
     async getPersonMints(_, { mints = [], persons = [] } = {}) {
 
-
         let whereFilters = []
         if (mints.length > 0) whereFilters.push('mint IN ($[mints:csv])')
         if (persons.length > 0) whereFilters.push(`ruler_id::text[] && ${pgp.as.array(persons)}`)
-
 
         const results = await Database.manyOrNone(`
         WITH persons AS(
@@ -419,6 +417,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
             LEFT JOIN persons caliph_person ON caliph_person.id = type.caliph
             LEFT JOIN persons issuer_person ON issuer_person.id = issuer.person 
             LEFT JOIN persons overlord_person ON overlord_person.id = overlord.person
+            WHERE type.exclude_from_map_app = FALSE
             GROUP BY type.id
                 
                 ) SELECT 
