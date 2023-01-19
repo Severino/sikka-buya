@@ -204,6 +204,7 @@ import PersonList from '../Person/PersonList.vue';
 import StringUtils from '../../utils/StringUtils';
 import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
 import URLParams from '../../utils/URLParams';
+import { DefaultSettings } from '../../settings';
 
 export default {
   name: 'TypeView',
@@ -417,7 +418,7 @@ export default {
     },
     mintLocation() {
       if (!this?.type?.mint?.location?.coordinates)
-        return URLParams.toStringArray([0, 0]);
+        return URLParams.toStringArray(DefaultSettings.Map.location);
       return URLParams.toStringArray(this.type.mint.location.coordinates);
     },
     linkZoom() {
