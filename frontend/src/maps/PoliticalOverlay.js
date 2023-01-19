@@ -89,10 +89,11 @@ export default class PoliticalOverlay extends Overlay {
       }
         `
 
+      console.log(filters)
 
       result = await Query.raw(query, {
         persons: filters.persons,
-        mints: filters.mints
+        mints: filters.mint
       }, true)
     }
 
