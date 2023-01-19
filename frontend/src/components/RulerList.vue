@@ -120,8 +120,23 @@ export default {
           return prev;
         }, {})
       ).sort(function (a, b) {
-        if (a.label === '?' || b.label === '?') return 1;
-        else return Sort.stringPropAlphabetically('label')(a, b);
+        const toBack = ['?'];
+        const toFront = ['Būyide'];
+
+        a = a.label;
+        b = b.label;
+
+        if (
+          (toFront.indexOf(a) !== -1 && toFront.indexOf(b) === -1) ||
+          (toBack.indexOf(a) === -1 && toBack.indexOf(b) !== -1)
+        ) {
+          return -1;
+        } else if (
+          (toBack.indexOf(a) !== -1 && toBack.indexOf(b) === -1) ||
+          (toFront.indexOf(a) === -1 && toFront.indexOf(b) !== -1)
+        ) {
+          return 1;
+        } else return Sort.stringAlphabetically(a, b);
       });
 
       groups.forEach((group) =>
