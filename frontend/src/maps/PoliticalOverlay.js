@@ -43,6 +43,9 @@ export default class PoliticalOverlay extends Overlay {
 
     let result;
     if (filters.yearOfMint) {
+
+      delete filters.person
+
       const pagination = {
         page: 0,
         count: 100000
