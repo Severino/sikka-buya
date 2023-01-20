@@ -168,6 +168,10 @@ $debug-color: orangered !important;
   font-weight: bold;
 }
 
+.spinner {
+  color: $primary-color;
+}
+
 .content-wrapper {
   width: 1080px;
   max-width: 100%;

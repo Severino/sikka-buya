@@ -180,7 +180,9 @@ export default {
         Object.assign(this.$data.type, data);
         this.loading = false;
       })
-      .catch(console.error);
+      .catch(() => {
+        this.$router.push({ name: 'PageNotFound' });
+      });
   },
 };
 </script>

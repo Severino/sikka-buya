@@ -260,11 +260,11 @@ const routes = [
             name: "Editor",
             component: EditorPanel,
             meta: { auth: true },
-          },{
-            path:"expert_search",
-            name:"ExpertSearch",
+          }, {
+            path: "expert_search",
+            name: "ExpertSearch",
             component: ExpertSearch,
-            meta: {auth: true}
+            meta: { auth: true }
           },
           {
             path: "fixdiff",
@@ -409,13 +409,18 @@ const routes = [
             component: ProvinceForm
           }
         ]
+      },
+      {
+        path: "/404",
+        name: "PageNotFound",
+        component: PageNotFoundPage
+      },
+      {
+        path: "*",
+        name: "PageNotFoundFallback",
+        component: PageNotFoundPage
       }
     ]
-  },
-  {
-    path: "*",
-    name: "PageNotFound",
-    component: PageNotFoundPage
   }
 ]
 
