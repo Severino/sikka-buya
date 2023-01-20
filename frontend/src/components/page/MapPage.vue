@@ -100,12 +100,16 @@ export default {
 .map-page {
   .spinner {
     position: absolute;
-    top: 50%;
+    top: 0;
     left: 50%;
     z-index: 10000;
     color: white;
 
-    transform: translateY(-50%) scale(4);
+    transform: scale(0.5) translateX(-50%, -50%);
+
+    > * {
+      box-shadow: 0 0 3px red;
+    }
   }
 
   .side-bar {
