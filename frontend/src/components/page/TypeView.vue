@@ -16,19 +16,23 @@
             selectedMints: [type.mint.id],
           },
         }"
-        >zu Karte</sikka-buya-button
+        >Kartenansicht</sikka-buya-button
       >
     </header>
 
-    <div v-if="type.donativ" class="box gm4">
-      <div>Geschenkmünze</div>
+    <div v-if="type.donativ" id="donativ" class="box property gm4">
+      <span>Geschenkmünze</span>
     </div>
     <div v-else class="blank gm4"></div>
 
-    <div v-if="type.procedure != 'pressed'" class="box gm4">
-      <div>gegossen</div>
+    <div v-if="type.procedure != 'pressed'" class="box property gm4">
+      <span>gegossen</span>
     </div>
     <div v-else class="blank gm4"></div>
+
+    <info :alwaysShow="!type.reviewed" type="warning" id="not-reviewed-warning">
+      Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!
+    </info>
 
     <router-link
       v-if="$store.state.user"
@@ -57,7 +61,7 @@
                 selectedRulers: [],
               },
             }"
-            >zu Karte</sikka-buya-button
+            >Kartenansicht</sikka-buya-button
           >
         </div>
       </catalog-property>
@@ -204,6 +208,8 @@ import PersonList from '../Person/PersonList.vue';
 import StringUtils from '../../utils/StringUtils';
 import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
 import URLParams from '../../utils/URLParams';
+import { DefaultSettings } from '../../settings';
+import Info from '../forms/Info.vue';
 
 export default {
   name: 'TypeView',
@@ -225,6 +231,7 @@ export default {
     PersonView,
     PersonList,
     SikkaBuyaButton,
+    Info,
   },
   methods: {
     dynamicHeading() {
@@ -417,7 +424,7 @@ export default {
     },
     mintLocation() {
       if (!this?.type?.mint?.location?.coordinates)
-        return URLParams.toStringArray([0, 0]);
+        return URLParams.toStringArray(DefaultSettings.Map.location);
       return URLParams.toStringArray(this.type.mint.location.coordinates);
     },
     linkZoom() {
@@ -449,6 +456,10 @@ $columns: 4;
   grid-template-columns: repeat($columns, 1fr);
 }
 
+#not-reviewed-warning {
+  grid-column: span $columns;
+}
+
 #mint-container {
   display: grid;
   grid-template-rows: 1fr 1fr;
@@ -456,6 +467,12 @@ $columns: 4;
 
   align-items: stretch;
   // background-color: $white;
+}
+
+#donativ {
+  border: $big-border;
+  border-color: $primary_color;
+  box-sizing: border-box;
 }
 
 h1 {
@@ -555,6 +572,7 @@ header {
 
 .property {
   display: flex;
+  border-radius: $small-border-radius;
 }
 
 .catalog-property {

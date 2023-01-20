@@ -240,6 +240,7 @@ export default {
     },
     filters() {
       return {
+        person: this.selectedRulers,
         yearOfMint: this.timelineActive ? this.timeline.value.toString() : null,
         mint: this.selectedMints,
       };
@@ -374,17 +375,15 @@ export default {
     async drawTimeline() {
       if (this.timelineChart) {
         this.timelineChart.clear();
-        if (this.timelineActive) {
-          if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
-            const ranges = await this.drawRulersOntoTimeline(true);
-            await this.drawMintCountOntoTimeline(
-              ranges.length > 0 ? ranges : null
-            );
-          } else if (this.selectedMints.length > 0)
-            await this.drawMintCountOntoTimeline();
-          else if (this.selectedRulers.length > 0)
-            await this.drawRulersOntoTimeline();
-        }
+        if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
+          const ranges = await this.drawRulersOntoTimeline(true);
+          await this.drawMintCountOntoTimeline(
+            ranges.length > 0 ? ranges : null
+          );
+        } else if (this.selectedMints.length > 0)
+          await this.drawMintCountOntoTimeline();
+        else if (this.selectedRulers.length > 0)
+          await this.drawRulersOntoTimeline();
       }
     },
     async drawRulersOntoTimeline(drawAsHorizontals = false) {

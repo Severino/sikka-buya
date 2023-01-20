@@ -77,22 +77,6 @@ export default {
 </script>
 
 
-<style lang="scss">
-.catalog-filter-search {
-  .pagination {
-    align-self: flex-start;
-  }
-
-  .yearOfMint,
-  .mint,
-  .cursiveScript,
-  .procedure,
-  .donativ {
-    grid-column: span 6;
-  }
-}
-</style>
-
 <style lang="scss" scoped>
 #text-search {
   margin-bottom: 3 * $padding;

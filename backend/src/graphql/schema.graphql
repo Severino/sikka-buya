@@ -86,6 +86,8 @@ type CoinType {
   treadwellId: String
   yearOfMint: String
   yearUncertain: Boolean
+  reviewed: Boolean
+  completed: Boolean
 }
 
 type MintMaterials {
@@ -527,6 +529,7 @@ input TypeFilter {
   projectId: String
   ruler: [ID]
   ruler_and: [ID]
+  small:Boolean
   title: [ID]
   title_and: [ID]
   treadwellId: String

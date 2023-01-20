@@ -28,7 +28,12 @@
 
         <segmented-row>
           <template v-slot:right>
-            <Button id="submit-button" @click="submit">Submit</Button>
+            <Button
+              id="submit-button"
+              class="colored big-button"
+              @click="submit"
+              >Submit</Button
+            >
           </template>
         </segmented-row>
       </div>

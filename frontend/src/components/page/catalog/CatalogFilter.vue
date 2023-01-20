@@ -167,6 +167,11 @@ const unfilteredThreeWayFilters = [
     order: 4,
   },
   {
+    label: 'kleine Münze',
+    name: 'small',
+    order: 8.5,
+  },
+  {
     label: 'Jahr sicher',
     name: 'yearUncertain',
     invert: true,
@@ -259,8 +264,14 @@ addType(unfilteredMultiSelectFilters, 'multi-select');
 
 const unfilteredMultiDataSelect2D = [
   {
-    label: 'Münzzeichen/Einzelworte',
+    label: 'Münz- und Beizeichen',
     name: 'coinMark',
+    order: 5,
+    mode: Mode.And,
+  },
+  {
+    label: 'besondere Einzelworte, Formeln, Koranverse',
+    name: 'coinVerse',
     order: 5,
     mode: Mode.And,
   },

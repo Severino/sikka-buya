@@ -193,7 +193,7 @@ export default {
         if (this.value + 1 <= this.to) {
           this.up(true);
         } else this.stop();
-      }, 750);
+      }, 1500);
     },
     stop() {
       clearInterval(this.playInterval);

@@ -19,8 +19,6 @@ export default class Sort {
             if (b == null) sort = -1
             else sort = a.localeCompare(b)
 
-            console.log(a, b, sort)
-
             // Flip if not asc.
             if (!asc) sort *= -1
             return sort

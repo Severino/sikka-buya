@@ -22,7 +22,7 @@ export default class Mint {
     static popupMintHeader(mint, headerClasses = [], debug = false) {
         return `<header class="${headerClasses.join(" ")}">
             <span class="subtitle no-padding-bottom">${mint.name}
-            ${(window.debug) ? `  (${mint.id})` : ''}
+            ${(window.debug === true) ? `<span class="debug">(${mint.id})</span>` : ''}
             
             </span>    
             ${(mint.uncertain) ? `
@@ -33,7 +33,7 @@ export default class Mint {
                 : ""
             }
 
-            ${(window.debug) ? `${mint.province.name} (${mint.province.id})` : ''} 
+            ${(window.debug === true) ? `<span class="debug">(${mint.province.name} (${mint.province.id}))</span>` : ''} 
         
         
         </header > `

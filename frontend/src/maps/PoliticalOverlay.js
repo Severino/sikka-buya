@@ -43,6 +43,9 @@ export default class PoliticalOverlay extends Overlay {
 
     let result;
     if (filters.yearOfMint) {
+
+      delete filters.person
+
       const pagination = {
         page: 0,
         count: 100000
@@ -89,10 +92,9 @@ export default class PoliticalOverlay extends Overlay {
       }
         `
 
-
       result = await Query.raw(query, {
-        persons: filters.persons,
-        mints: filters.mints
+        persons: filters.person,
+        mints: filters.mint
       }, true)
     }
 
@@ -383,7 +385,7 @@ export default class PoliticalOverlay extends Overlay {
   } = {}) {
     let layer;
     let innerRadius = MintLocationMarker.defaultSize
-    let spacing = this.settings.settings.maxRadius / 15
+    let spacing = this.settings.settings.maxRadius / 30
     let stroke = 2
 
     let personMint = feature.data?.personMints || new PersonMint()

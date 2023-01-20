@@ -74,6 +74,7 @@ export default {
   font-size: $small-font;
   box-sizing: border-box;
   text-align: center;
+  border-radius: $small-border-radius;
 }
 
 .warning {

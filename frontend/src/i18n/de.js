@@ -137,7 +137,7 @@ const property = {
     specialities_and_variants:
         "Besonderheiten / Varianten",
     small:
-        "Kleine Münze",
+        "kleine Münze",
     title:
         "Titel",
     type:

@@ -19,7 +19,7 @@ const Validators = {
     }
 }
 
-const DefaultSettings = {
+export const DefaultSettings = {
     Map: {
         location: [30.521645759075508, 48.890055500146026],
         zoom: 6
