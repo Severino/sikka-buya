@@ -382,7 +382,7 @@ export default class PoliticalOverlay extends Overlay {
   } = {}) {
     let layer;
     let innerRadius = MintLocationMarker.defaultSize
-    let spacing = this.settings.settings.maxRadius / 15
+    let spacing = this.settings.settings.maxRadius / 30
     let stroke = 2
 
     let personMint = feature.data?.personMints || new PersonMint()

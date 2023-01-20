@@ -4,6 +4,12 @@ const { default: Color } = require('../../utils/Color');
 const backgroundColor = Color.White
 const inactiveColor = Color.getInactiveColor()
 
+function normalizeRadii(arr) {
+    let sum = arr.reduce((prev, i) => prev + i, 0)
+    arr = arr.map(a => a / sum * arr.length)
+    return arr
+}
+
 function ringsFromPersonMint(latlng, feature, selections, {
     radius = 10,
     innerRadius = 60,
@@ -15,6 +21,11 @@ function ringsFromPersonMint(latlng, feature, selections, {
     if (innerRadius >= outerRadius) throw new Error("Inner Radius needs to be smaller than outer radius.")
 
     let outerRadius = radius
+
+    // You can change the relative width of the single
+    // rings by modifying the ringRadii. 
+    let ringRadii = normalizeRadii([8, 5, 5])
+
     let ringSpan = outerRadius - innerRadius
 
     function excludeUnselected(val) {
@@ -27,14 +38,16 @@ function ringsFromPersonMint(latlng, feature, selections, {
         prev.push(...next)
         return prev
     }, []).length
+
     if (count > 0) {
         L.circleMarker(latlng, { radius: outerRadius, stroke: false, fillColor: backgroundColor }).addTo(group)
 
-        let ringWidth = (ringSpan - 2 * spacing) / 3
-
+        let startPosition = innerRadius
         lists.forEach((list, index) => {
-            let radius = innerRadius + ringWidth * (index + 1) + spacing * index
-            drawRing(latlng, list, radius, radius - ringWidth, selections, { stroke }).addTo(group)
+            let ringWidth = ((ringSpan - 2 * spacing) / 3) * ringRadii[index]
+
+            drawRing(latlng, list, startPosition + ringWidth, startPosition, selections, { stroke }).addTo(group)
+            startPosition += ringWidth + spacing
         })
     }
     return group
