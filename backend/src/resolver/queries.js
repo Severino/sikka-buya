@@ -406,10 +406,10 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                 -- When there is no issuer, but a caliph, then we use the caliph as issuer.
                 coalesce(array_agg(issuer_person.json) filter (where issuer_person.id is not null), 
                          array_agg(caliph_person.json) filter (where caliph_person.id is not null) ,'{}' ) as issuers, 
-                coalesce(array_agg(overlord_person.json)  filter (where caliph_person.id is not null), '{}')  as overlords,
+                coalesce(array_agg(overlord_person.json)  filter (where overlord_person.id is not null), '{}')  as overlords,
 
-                coalesce(array_agg(issuer.id) filter (where issuer.id is not null), '{}') as issuer_id,
-                coalesce(array_agg(overlord.id) filter (where overlord.id is not null), '{}') as overlord_id,
+                coalesce(array_agg(issuer.person) filter (where issuer.person is not null), '{}') as issuer_id,
+                coalesce(array_agg(overlord.person) filter (where overlord.person is not null), '{}') as overlord_id,
                 coalesce(array_agg(type.caliph) filter (where type.caliph is not null), '{}') as caliphs_id
             FROM type 
             LEFT JOIN issuer ON issuer.type = type.id

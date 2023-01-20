@@ -90,7 +90,7 @@ export default class PoliticalOverlay extends Overlay {
         `
 
       result = await Query.raw(query, {
-        persons: filters.persons,
+        persons: filters.person,
         mints: filters.mint
       }, true)
     }

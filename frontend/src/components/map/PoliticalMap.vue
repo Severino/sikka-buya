@@ -240,6 +240,7 @@ export default {
     },
     filters() {
       return {
+        person: this.selectedRulers,
         yearOfMint: this.timelineActive ? this.timeline.value.toString() : null,
         mint: this.selectedMints,
       };
