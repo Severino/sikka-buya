@@ -167,6 +167,11 @@ const unfilteredThreeWayFilters = [
     order: 4,
   },
   {
+    label: 'kleine Münze',
+    name: 'small',
+    order: 8.5,
+  },
+  {
     label: 'Jahr sicher',
     name: 'yearUncertain',
     invert: true,

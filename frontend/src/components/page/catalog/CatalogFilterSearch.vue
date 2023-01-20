@@ -87,7 +87,8 @@ export default {
   .mint,
   .cursiveScript,
   .procedure,
-  .donativ {
+  .donativ,
+  .small {
     grid-column: span 6;
   }
 }
