@@ -92,11 +92,14 @@ export default class PoliticalOverlay extends Overlay {
       }
         `
 
+
       result = await Query.raw(query, {
         persons: filters.person,
         mints: filters.mint
-      })
+      }, true)
     }
+
+    console.log(result.data.data)
 
     return result.data.data
   }
@@ -282,8 +285,6 @@ export default class PoliticalOverlay extends Overlay {
 
 
           } else if (this.mode === "no_year") {
-
-
             /**
              * Sort by: not selected > selected & no rulers > selected and rulers
              */
@@ -435,7 +436,7 @@ export default class PoliticalOverlay extends Overlay {
     const selectedRulers = selections?.selectedRulers?.active || []
     const isMintSelected = this.isSelected(mint, selectedMints)
 
-
+    console.log(this.isSelectionActive(selections.selectedMints))
     if (!PersonMint.isEmpty(personMint)
       && (!this.isSelectionActive(selections.selectedMints) || isMintSelected)
       && PersonMint.containsSelectedRulers(personMint, selectedRulers)) {
@@ -463,7 +464,7 @@ export default class PoliticalOverlay extends Overlay {
   }
 
   isSelectionActive(selections) {
-    return (selections.length !== 0)
+    return (selections.active.length !== 0)
   }
 
 
@@ -481,8 +482,6 @@ export default class PoliticalOverlay extends Overlay {
     } else {
       throw new Error(`Marker mode is not implemented: ${this.mode}`)
     }
-
-    console.log(layer.isSpecial)
 
     if (layer.isSpecial) {
       setTimeout(() => { MintLocationMarker.addBringToFrontBehaviour(layer) }, animationTime)
