@@ -10,7 +10,8 @@
 export default {
   computed: {
     matched() {
-      const matched = this.$route.matched;
+      const matched = this.$route.matched.filter((r) => r.name);
+
       const parts = [];
       if (matched.length > 0) {
         for (let i = 1; i < matched.length; i++) {

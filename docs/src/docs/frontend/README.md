@@ -22,7 +22,7 @@ Overlay is a baseclass that is intended to streamline the leaflet overlay handli
 To create an overlay, you extend the class and overload all relevant methods. 
 The class and it's associated methods are displayed in the next image.
 
-![overlay png](./img/overlay.png)
+![overlay png](./image/overlay.png)
 
 ## Data Persistency
 

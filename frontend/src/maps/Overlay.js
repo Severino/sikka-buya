@@ -38,6 +38,7 @@ export default class Overlay {
     /**
      * Takes the transformed data and translates it into GeoJSON format.
      * The additional data of each feature should be stored at the object at'feature.data'.
+     * Called on ever repaint.
      */
     toMapObject() {
         console.error("Error in Overlay: Abstract method not overloaded: toMapObject().")

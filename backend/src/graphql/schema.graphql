@@ -337,6 +337,9 @@ type Query {
     text: String
     pagination: Pagination
   ): PaginationTypeTextSearch
+
+  getPage(type:String, id:Int): Page
+  getPageList(type:String): [Page]
 }
 
 type MintPersons {
@@ -469,6 +472,60 @@ type Mutation {
 
   promoteUser(email:String): Void
   demoteUser(email:String): Void
+
+  createPage(title: String, type:String!): ID
+  updatePage(id: ID!, page: PageInput):Void
+  createBlock(parent: ID!, block: PageBlockInput):ID
+  updateBlock(id:ID!, block: PageBlockInput):Void
+  deleteBlock(id:ID!):Void
+
+}
+
+input PageInput {
+  id: ID
+  title: String
+  subtitle:String
+  summary:String
+  body: String
+  image: String
+  published: Boolean
+  createdTimestamp: String
+  publishedTimestamp: String
+  modifiedTimestamp: String
+}
+
+type Page {
+  id: ID
+  title: String
+  subtitle:String
+  summary:String
+  body: String
+  image: String
+  published: Boolean
+  createdTimestamp: String
+  publishedTimestamp: String
+  modifiedTimestamp: String
+  author: String
+  blocks: [PageBlock]
+}
+
+input PageBlockInput {
+  subBlock:Boolean
+  parent: ID
+  type:String!
+  position: Int!
+  text: String
+  image: String
+  children: [PageBlockInput]
+}
+
+type PageBlock {
+  id: ID
+  type:String
+  position: Int
+  text: String
+  image: String
+  children: [PageBlock]
 }
 
 input Pagination {

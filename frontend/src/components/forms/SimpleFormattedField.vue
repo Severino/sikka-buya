@@ -31,7 +31,7 @@
       ref="field"
       class="formatted-text-area"
       spellcheck="true"
-      @paste="pasted($event)"
+      @input="input"
       contenteditable
     ></div>
     <dynamic-delete-button @delete="setContent()" />
@@ -53,6 +53,8 @@ import TextRightToLeft from 'vue-material-design-icons/FormatTextdirectionRToL.v
 import TextFormatClear from 'vue-material-design-icons/FormatClear.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 
+import CopyAndPasteMixin from '../mixins/copy-and-paste';
+
 export default {
   components: {
     Row,
@@ -67,6 +69,7 @@ export default {
     DynamicDeleteButton,
   },
   name: 'SimpleFormattedField',
+  mixins: [CopyAndPasteMixin],
   data: function () {
     return {
       range: null,
@@ -189,16 +192,6 @@ export default {
           range.select();
         }
       }
-    },
-    pasted: function (event) {
-      event.preventDefault();
-
-      let paste = (event.clipboardData || window.clipboardData).getData('text');
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return false;
-      selection.deleteFromDocument();
-      selection.getRangeAt(0).insertNode(document.createTextNode(paste));
-      selection.removeAllRanges();
     },
   },
 };

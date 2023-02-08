@@ -78,11 +78,9 @@ export default {
      *
      * Debug mode can be enabled by calling 'setDebug()'
      */
-    const debug = process.env.NODE_ENV !== 'development' ? false : true;
-    window.debug = debug;
     if (process.env.NODE_ENV === 'development') {
       let store = this.$store;
-      if (debug) store.commit('setDebug');
+      if (window.debug) store.commit('setDebug');
       window.setDebug = function () {
         store.commit('setDebug');
       };
@@ -173,10 +171,10 @@ $debug-color: orangered !important;
 }
 
 .content-wrapper {
-  width: 1080px;
+  width: 95%;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 30px;
+  padding: 0 100px;
   box-sizing: border-box;
 }
 
@@ -201,7 +199,9 @@ $debug-color: orangered !important;
 
 h1 {
   font-weight: bold;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  margin-top: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 h2 {
@@ -218,12 +218,69 @@ h6 {
   margin-block-end: 1rem;
 }
 
+.subtitled {
+  margin-bottom: 2 * $regular-font;
+
+  h1 {
+    margin-bottom: $xtra-small-font;
+  }
+}
 .subtitle {
   display: block;
   color: $black;
   border-color: $black !important;
-  font-size: $regular-font;
+  font-size: $large-font;
+  text-transform: uppercase;
   // font-weight: bold;
+}
+
+.circle-marker {
+  transform-box: fill-box;
+  transform-origin: center;
+
+  transition: transform 0.3s, background-color 0.3s;
+  transform: scale(1);
+}
+
+.circle-marker.added,
+.circle-marker.removed {
+  pointer-events: none;
+}
+
+.circle-marker.added {
+  animation: growing 1s 1;
+}
+
+.circle-marker.removed {
+  animation: shrinking 0.5s 1;
+}
+
+@keyframes growing {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes shrinking {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.8);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .hero {
@@ -238,6 +295,15 @@ section {
     font-size: 1.5em;
     font-weight: bold;
   }
+}
+
+.bling hr {
+  border-color: $light-gray;
+  border-style: dotted;
+  border-width: 5px;
+  border-bottom: none;
+
+  margin: $large-padding * 4 0;
 }
 
 #app-name {
@@ -292,6 +358,10 @@ button {
   > .material-design-icon:not(:last-child) {
     width: 1.3em;
     margin-right: $padding;
+  }
+
+  .flip {
+    transform: scaleX(-1);
   }
 
   &.rounded {

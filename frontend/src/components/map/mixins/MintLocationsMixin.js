@@ -51,6 +51,8 @@ export function mintLocationsMixin({
                 selectedMints,
                 availableMints: [],
                 unavailableMints: [],
+                addedMints: [],
+                removedMints: [],
             }
         },
         unmounted: function () {
@@ -118,8 +120,10 @@ export function mintLocationsMixin({
                 this.mintLocationLayer = this.mintLocation.createGeometryLayer(features, this.selectedMints);
                 this.mintLocationLayer.addTo(this.featureGroup);
             },
-            mintSelectionChanged(selected, { preventUpdate = false } = {}) {
-                this.selectedMints = selected;
+            mintSelectionChanged({ active = [], added = [], removed = [], }, { preventUpdate = false } = {}) {
+                this.selectedMints = active;
+                this.addedMints = added
+                this.removedMints = removed
 
                 try {
                     window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
@@ -131,10 +135,28 @@ export function mintLocationsMixin({
                 if (!preventUpdate) this.update();
             },
             clearMintSelection({ preventUpdate = false } = {}) {
-                this.mintSelectionChanged([], { preventUpdate });
+                this.mintSelectionChanged({ active: [], removed: this.selectedMints }, { preventUpdate });
             },
             selectAllMints() {
-                this.mintSelectionChanged(this.mints.map((mint) => mint.id));
+                const allIds = this.mints.map((mint) => mint.id)
+                const selection = this.generateAddedAndRemovedSelection(allIds)
+                this.mintSelectionChanged(selection);
+            },
+            generateAddedAndRemovedSelection(nextSelection) {
+                let added = nextSelection.slice()
+                let removed = []
+
+                this.selectedMints.forEach(mintId => {
+                    const index = nextSelection.indexOf(mintId)
+                    if (index != -1) {
+                        added.splice(index, 1)
+                    } else {
+                        removed.push(mintId)
+                    }
+                })
+
+
+                return { active: nextSelection, added, removed }
             }
         },
         computed: {

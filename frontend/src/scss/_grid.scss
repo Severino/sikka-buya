@@ -9,3 +9,14 @@
 .grid-col-2 {
     grid-template-columns: 1fr 1fr;
 }
+
+.grid-d-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+@include media-tablet {
+    .grid-d-2 {
+        grid-template-columns: 1fr;
+
+    }
+}

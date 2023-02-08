@@ -42,7 +42,6 @@ export default class MintLocation {
         let layer = new L.geoJSON(features, {
             pointToLayer: function (feature, latlng) {
                 const mintId = feature?.data?.mint?.id
-                console.log(feature)
                 const active = (mintId) ? mintId : false
                 return that.createMarker.call(that, latlng, feature, { active })
             },
@@ -54,14 +53,14 @@ export default class MintLocation {
         return layer
     }
 
-    createMarker(latlng, feature, { active = false } = {}) {
+    createMarker(latlng, feature, { active = false, added = false, removed = false } = {}) {
         let marker = null
 
         if (this.createMarkerCallback)
             marker = this.createMarkerCallback(latlng, feature)
         else {
             let locationMarker = new MintLocationMarker(feature.mint)
-            marker = locationMarker.create(latlng, { active })
+            marker = locationMarker.create(latlng, { active, added, removed })
         }
         if (this.bindPopupCallback)
             marker.bindPopup(this.bindPopupCallback(feature))
@@ -83,15 +82,36 @@ export class MintLocationMarker {
         return 6
     }
 
-    create(latlng, { size = MintLocationMarker.defaultSize, active = false } = {}) {
+    create(latlng, { size = MintLocationMarker.defaultSize, active = false, added = false, removed = false } = {}) {
         const MintLocationMarkerSettings = new Settings(window, "MintLocationMarker")
 
-        let marker = L.circleMarker(latlng, Object.assign(MintLocationMarkerSettings.load(), {
+        let classList = ["circle-marker"]
+
+        const isSpecial = (added || removed)
+
+        if (isSpecial) {
+            if (added) classList.push("added")
+            else if (removed) classList.push("removed")
+        }
+
+        const circleMarker = L.circleMarker(latlng, Object.assign(MintLocationMarkerSettings.load(), {
             radius: size,
             fillColor: (active) ? Color.DarkGray : Color.White,
             color: (active) ? Color.White : Color.DarkGray,
-            weight: 1
+            weight: 1,
+            className: classList.join(" ")
         }))
+
+
+        if (isSpecial) {
+            setTimeout(() => {
+                if (circleMarker._path) {
+                    circleMarker._path.classList.remove("added")
+                    circleMarker._path.classList.remove("removed")
+                }
+            }, 1000)
+        }
+
 
         if (this.mint.uncertain) {
             const uncertainIcon = L.svgIcon(latlng, {
@@ -108,9 +128,11 @@ export class MintLocationMarker {
             uncertainIcon.setStyle(MintLocationMarkerUncertainIconSettings.load())
 
             uncertainIcon.bringToFront()
-            marker = L.featureGroup([marker, uncertainIcon])
+            this.marker = L.featureGroup([circleMarker, uncertainIcon])
+        } else {
+            this.marker = circleMarker
         }
-        return marker
+        return this.marker
     }
 }
 

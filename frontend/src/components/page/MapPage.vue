@@ -98,6 +98,8 @@ export default {
 
 <style lang="scss">
 .map-page {
+  height: 100vh;
+
   .spinner {
     position: absolute;
     top: 0;
@@ -125,9 +127,10 @@ export default {
 
       h3 {
         color: $gray;
-        font-size: 1em;
+        text-align: center;
+        font-size: $regular-font;
         margin-bottom: 0;
-        margin-right: auto;
+        flex: 1;
       }
     }
 

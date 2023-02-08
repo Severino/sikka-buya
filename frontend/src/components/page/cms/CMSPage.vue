@@ -1,0 +1,297 @@
+<template>
+  <div class="page cms-page">
+    <section class="content-wrapper" v-if="!loading">
+      <!-- <button>Edit</button> -->
+      <h1
+        :contenteditable="editmode"
+        @input="update"
+        data-property="title"
+        v-once
+      >
+        {{ page.title }}
+      </h1>
+
+      <h2
+        class="subtitle"
+        v-if="hasSubtitle"
+        :contenteditable="editmode"
+        @input="update"
+        data-property="subtitle"
+        v-once
+      >
+        {{ page.subtitle }}
+      </h2>
+      <div class="info grid col-3">
+        <div class="cell">
+          <label for="">Erstellt am</label>
+          {{ timeMixinFormatDate(page.createdTimestamp) }}
+        </div>
+        <div class="cell">
+          <label for="">Zuletzt geändert am</label>
+          {{ timeMixinFormatDate(page.modifiedTimestamp) }}
+        </div>
+        <div class="cell">
+          <label for="">Veröffentlicht am</label>
+          {{ timeMixinFormatDate(page.publishedTimestamp) }}
+        </div>
+      </div>
+      <textarea
+        v-if="hasBody"
+        :contenteditable="editmode"
+        @input="update"
+        data-property="body"
+        v-model="page.body"
+      />
+      <h2>Blocks</h2>
+
+      <textarea
+        v-for="block of page.blocks"
+        class="page-block"
+        :contenteditable="editmode"
+        @keydown="($event) => handleSpecialKeys($event, block)"
+        @input="($event) => updateBlockText($event, block)"
+        :key="`page-block-${block.id}`"
+        :ref="`page-block-${block.id}`"
+        v-model="block.text"
+      />
+      <div class="content-wrapper">
+        <async-button @click="addEmptyBlock()">Add</async-button>
+      </div>
+    </section>
+    <CMSStatusIndicator :saving="saving" />
+  </div>
+</template>
+
+<script>
+import Query from '../../../database/query';
+import CMSPage from '../../../models/CMSPage';
+import RequestBuffer from '../../../models/request-buffer';
+import AsyncButton from '../../layout/buttons/AsyncButton.vue';
+import CMSStatusIndicator from './CMSStatusIndicator.vue';
+
+import TimeMixin from '../../mixins/time';
+import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
+
+export default {
+  components: { CMSStatusIndicator, AsyncButton },
+  mixins: [TimeMixin, MountedAndLoadedMixin],
+  created() {
+    CMSPage.get(this.id)
+      .then((page) => {
+        this.page = Object.assign({}, this.page, page);
+      })
+      .finally(() => {
+        this.loading = false;
+        this.isLoaded();
+      });
+
+    this.updateBuffer = new RequestBuffer(3000, true);
+  },
+  data() {
+    return {
+      updateBuffer: null,
+      loading: true,
+      saving: false,
+      editmode: true,
+      page: {
+        title: null,
+        subtitle: null,
+        summary: null,
+        body: null,
+        image: null,
+        published: null,
+        createdTimestamp: null,
+        publishedTimestamp: null,
+        modifiedTimestamp: null,
+        blocks: [],
+      },
+    };
+  },
+  methods: {
+    mountedAndLoaded() {
+      this.$nextTick(() => {
+        console.log(this.$refs);
+      });
+    },
+    async handleSpecialKeys($event, block) {
+      if ($event.key === 'Enter') {
+        $event.preventDefault();
+        $event.stopPropagation();
+      }
+
+      if ($event.key === 'Backspace') {
+        const target = $event.currentTarget;
+        const value = target.textContent || target.value;
+        if (value === '') {
+          await Query.raw(
+            `
+          mutation DeleteBlock($id:ID!){deleteBlock(id: $id)}
+        `,
+            { id: block.id },
+            true
+          );
+
+          const idx = this.page.blocks.findIndex(
+            (otherBlock) => block.id === otherBlock.id
+          );
+
+          this.$delete(this.page.blocks, idx);
+        }
+      }
+    },
+    updateBlockText($event, block) {
+      block = Object.assign({}, block);
+      const id = block.id;
+      delete block.id;
+
+      const target = $event.currentTarget;
+      this.adjustHeight(target);
+
+      block.text = target.value;
+
+      this.saving = true;
+      this.updateBuffer.update(block, async () => {
+        await Query.raw(
+          `
+        mutation UpdatePageBlock($id: ID!, $block: PageBlockInput){
+          updateBlock(id: $id, block: $block)
+          }
+        `,
+          { id, block }
+        );
+        this.saving = false;
+      });
+    },
+    adjustHeight(target) {
+      const comptutedStyle = window.getComputedStyle(target);
+      const paddingTop = comptutedStyle.getPropertyValue('padding-top');
+      const paddingBottom = comptutedStyle.getPropertyValue('padding-bottom');
+
+      // const actualHeight =
+      //   target.scrollHeight - parseInt(paddingTop) - parseInt(paddingBottom);
+
+      // console.log(target.scrollHeight, target.offsetHeight);
+
+      const targetHeight =
+        target.scrollHeight >= target.clientHeight
+          ? target.scrollHeight + 'px'
+          : '60px';
+
+      console.log(
+        parseInt(targetHeight),
+        parseInt(paddingTop),
+        parseInt(paddingBottom)
+      );
+
+      target.style.height = targetHeight;
+    },
+    // adjustHeightCss(ref) {
+    //   let target = this.$refs[ref];
+
+    //   if (target) {
+    //     target = target[0];
+    //     const height = this.adjustHeight(target);
+    //     console.log(height);
+    //     return { height };
+    //   }
+    //   return {};
+    // },
+    update($event) {
+      const target = $event.currentTarget;
+      const property = target.getAttribute('data-property');
+      if (!property)
+        throw new Error(`Attribute 'data-property' is missing on component!`);
+      else {
+        this.page[property] = target.value;
+      }
+
+      const page = {
+        title: this.page.title,
+        subtitle: this.page.subtitle,
+        summary: this.page.summary,
+        body: this.page.body,
+        image: this.page.image,
+        published: this.page.published,
+        createdTimestamp: this.page.createdTimestamp,
+        publishedTimestamp: this.page.publishedTimestamp,
+        modifiedTimestamp: this.page.modifiedTimestamp,
+      };
+
+      this.saving = true;
+      this.updateBuffer.update(page, () => {
+        CMSPage.update(this.id, page);
+        this.saving = false;
+      });
+    },
+    async addEmptyBlock() {
+      const position = 10;
+      const type = 'empty';
+      const result = await Query.raw(
+        `
+mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
+  createBlock(parent: $id, block: {type: $type, position: $position})
+}
+
+      `,
+        {
+          id: this.id,
+          position,
+          type,
+        },
+        true
+      );
+
+      const id = result.data.data.createBlock;
+      const block = {
+        id,
+        type,
+        position,
+        image: null,
+        text: '',
+        parent: null,
+        page: this.id,
+      };
+      let i = 0;
+      while (
+        i < this.page.blocks.length &&
+        position <= this.page.blocks[i].position
+      ) {
+        i++;
+      }
+
+      this.page.blocks.splice(i, 0, block);
+      this.$forceUpdate();
+    },
+  },
+  computed: {
+    id() {
+      return this.$route.params.id;
+    },
+    hasBody() {
+      return this.editmode || this.page.subtitle != '';
+    },
+    hasSubtitle() {
+      return this.editmode || this.page.subtitle != '';
+    },
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+*[contenteditable],
+input,
+textarea {
+  border: none;
+  display: block;
+  width: 100%;
+  resize: none;
+  padding: 0.3rem;
+  background-color: $dark-white;
+  border-radius: $border-radius;
+  box-shadow: inset $shadow;
+  box-sizing: border-box;
+}
+.page-block {
+  margin: 1rem 0;
+}
+</style>

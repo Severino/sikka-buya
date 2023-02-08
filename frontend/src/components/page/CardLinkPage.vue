@@ -8,11 +8,11 @@
           :key="`link-to-${link.title}`"
           :to="link.to"
         >
-          <card :img="link.image">
+          <card-link :img="link.image">
             <template v-slot:header>
               <h2>{{ $t(link.title) }}</h2>
             </template>
-          </card>
+          </card-link>
         </router-link>
       </div>
     </header>
@@ -20,10 +20,10 @@
 </template>
 
 <script>
-import Card from '../navigation/Card.vue';
+import CardLink from '../navigation/CardLink.vue';
 export default {
   components: {
-    Card,
+    CardLink,
   },
   props: {
     title: String,

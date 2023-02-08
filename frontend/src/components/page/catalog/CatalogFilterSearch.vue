@@ -1,7 +1,6 @@
 <template>
   <div class="catalog-filter-search">
     <h1>{{ $t('routes.Catalog Search') }}</h1>
-
     <div class="grid col-2">
       <aside>
         <search-field id="text-search" v-model="text" />
@@ -100,5 +99,10 @@ export default {
 }
 p {
   max-width: 512px;
+}
+
+.col-2 {
+  grid-template-columns: 1fr 2fr;
+  gap: $big-padding * 5;
 }
 </style>

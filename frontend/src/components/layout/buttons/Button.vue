@@ -7,7 +7,10 @@
     <!-- 
       @slot Default slot to render the button contents.
      -->
-    <slot />
+    <slot v-if="!to" />
+    <router-link v-else :to="to">
+      <slot />
+    </router-link>
   </button>
 </template>
 
@@ -37,6 +40,10 @@ export default {
      * Displays multiple elements below each other.
      */
     multiline: Boolean,
+    /**
+     * You can just put the to in the button to get a navigation going.
+     */
+    to: Object,
   },
   methods: {
     /**
@@ -55,6 +62,16 @@ export default {
 
 <style lang="scss">
 .button {
+  box-sizing: border-box;
+
+  &.row-button {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: $border;
+    border-bottom: $border;
+  }
+
   a {
     @include resetLinkStyle();
     color: currentColor;
@@ -62,6 +79,14 @@ export default {
 
   &.big-button {
     padding: $padding $padding * 2;
+  }
+
+  &.huge-button {
+    padding: $large-padding $large-padding * 2;
+    font-size: $large-font;
+    .material-design-icon {
+      margin-right: $large-padding;
+    }
   }
 }
 </style>
@@ -73,6 +98,15 @@ export default {
   align-items: center;
   text-align: center;
   box-sizing: border-box;
+
+  a {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: center;
+    box-sizing: border-box;
+    flex: 1;
+  }
 
   &.multiline {
     flex-direction: column;
@@ -92,5 +126,9 @@ export default {
 .button.content-button {
   background-color: transparent;
   border: none;
+}
+
+a {
+  display: block;
 }
 </style>

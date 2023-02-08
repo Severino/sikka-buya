@@ -9,7 +9,7 @@
       <span class="text">Copied!</span>
     </div>
     <input ref="input" :value="value" readonly />
-    <CopyIcon :size="14" />
+    <CopyIcon :size="IconSize.Normal" />
   </div>
 </template>
 

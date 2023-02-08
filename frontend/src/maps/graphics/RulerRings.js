@@ -29,7 +29,7 @@ function ringsFromPersonMint(latlng, feature, selections, {
     let ringSpan = outerRadius - innerRadius
 
     function excludeUnselected(val) {
-        return selections.selectedRulers.indexOf(val.id) !== -1
+        return selections.selectedRulers.active.indexOf(val.id) !== -1
     }
 
     const lists = [personMints.issuers.filter(excludeUnselected), personMints.overlords.filter(excludeUnselected), personMints.caliphs.filter(excludeUnselected)]
@@ -87,7 +87,8 @@ function drawRingPart(latlng, from, to, ruler, selections, {
     radius,
     stroke
 }) {
-    let fillColor = selections.selectedRulers.length === 0 || selections.selectedRulers.indexOf(ruler.id) != -5 ? ruler.color : "#ddd"
+    const activeRulers = selections.selectedRulers.active || []
+    let fillColor = activeRulers.length === 0 || activeRulers.indexOf(ruler.id) != -5 ? ruler.color : "#ddd"
     return L.semiCircleMarker(latlng, {
         radius,
         innerRadius,

@@ -3,7 +3,7 @@
     <div class="content-wrapper">
       <div class="brand">
         <router-link :to="{ name: 'Home' }">
-          <img src="/img/logos/sikka-buya-logo.svg" alt="" />
+          <img src="/image/logos/sikka-buya-logo.svg" alt="" />
         </router-link>
       </div>
       <div class="nav-menu" :class="{ active: active }">
@@ -68,8 +68,10 @@ export default {
       minimized: false,
       items: [
         // { name: "Home", target: "undefined" },
+
         { name: 'routes.Map', target: { name: 'Map Landing' }, auth: true },
         { name: 'routes.Catalog', target: { name: 'Catalog' }, auth: true },
+        { name: 'News', target: { name: 'NewsOverview' }, auth: true },
         { name: 'routes.Analytics', target: { name: 'Analytics' }, auth: true },
       ],
     };

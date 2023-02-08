@@ -245,7 +245,10 @@ export default class PoliticalOverlay extends Overlay {
   }
 
   toMapObject(data, selection) {
-    const geoJSON = []
+    const first = []
+    const second = []
+    const third = []
+
     let patterns = this._buildHeirStripes(data, selection)
     //Build mint map and parse GeoJSON
     Object.values(data.mints).forEach(mint => {
@@ -262,18 +265,46 @@ export default class PoliticalOverlay extends Overlay {
             mint
           }
 
-          //We sort the locationsdata so that the concentric circles
-          // will be drawn on top of the locations markers.
-          if (types.length > 0) {
-            geoJSON.push(mint.location)
+          const mintSelected = (selection?.selectedMints?.active?.length != null && (selection.selectedMints.active.length === 0 || selection.selectedMints.active.indexOf(mint.id) != -1))
+          if (this.mode === "year") {
+
+            /**
+             * Sort by: not selected > selected & no types > selected and types
+             */
+            if (!mintSelected) {
+              third.push(mint.location)
+            } else if (types.length === 0) {
+              second.push(mint.location)
+            } else {
+              first.push(mint.location)
+            }
+
+
+
+          } else if (this.mode === "no_year") {
+
+
+            /**
+             * Sort by: not selected > selected & no rulers > selected and rulers
+             */
+            const containsSelectedRuler = [...personMints.caliphs, ...personMints.issuers, ...personMints.overlords].length > 0
+            if (!mintSelected) {
+              third.push(mint.location)
+            } else if (containsSelectedRuler) {
+              first.push(mint.location)
+            } else {
+              second.push(mint.location)
+            }
+
           } else {
-            geoJSON.unshift(mint.location)
+            throw new Error(`Marker mode is not implemented: ${this.mode}`)
           }
 
         } catch (e) { console.error("Could not parse location", e) /* If location is invalid, we don't care.*/ }
       }
     })
 
+    const geoJSON = [...third, ...second, ...first]
     return { geoJSON, patterns }
   }
 
@@ -328,15 +359,18 @@ export default class PoliticalOverlay extends Overlay {
     const { data, selected } = coinsToRulerData(
       feature.data.types,
       {
-        selected: selections.selectedRulers,
+        selected: selections.selectedRulers.active,
         patterns: this.heirStripes,
         options: this.settings.settings
       }
     );
 
-    const selection = selections?.selectedMints
+    const selectedMints = selections?.selectedMints
+    const selection = selectedMints.active
     const mint = feature.data?.mint
     const isMintSelected = this.isSelected(mint, selection)
+    const mintAdded = selectedMints.added.indexOf(mint.id) != -1
+    const mintRemoved = selectedMints.removed.indexOf(mint.id) != -1
 
     let layer;
     if (data.length > 0 && (!this.isSelectionActive(selection) || isMintSelected)) {
@@ -361,7 +395,7 @@ export default class PoliticalOverlay extends Overlay {
        * was intentionally removed by request of the numismatics 
        * //14-12-2022
        */
-      const locationMarker = this.createMintLocationMarker(latlng, feature)
+      const locationMarker = this.createMintLocationMarker(latlng, feature, { added: mintAdded, removed: mintRemoved })
       const objects = [concentricCirclesMarker, locationMarker]
 
 
@@ -371,30 +405,40 @@ export default class PoliticalOverlay extends Overlay {
 
       layer = L.featureGroup(objects);
     } else {
-      layer = this.createMintLocationMarker(latlng, feature)
-      layer.bringToBack()
-    }
+      layer = this.createMintLocationMarker(latlng, feature, { added: mintAdded, removed: mintRemoved })
 
+    }
+    layer.bringToFront()
     layer.selected = selected;
 
     return layer
   }
 
   createMintWithoutYearMarker(latlng, feature, {
-    selections = {}
+    selections = {},
   } = {}) {
     let layer;
+    const mint = feature.data.mint
     let innerRadius = MintLocationMarker.defaultSize
     let spacing = this.settings.settings.maxRadius / 30
     let stroke = 2
 
     let personMint = feature.data?.personMints || new PersonMint()
 
-    const isMintSelected = this.isSelected(feature.data.mint, selections.selectedMints)
+    const addedMints = selections?.selectedMints?.added || []
+    const wasAdded = addedMints.indexOf(mint.id) != -1
+
+    const removedMints = selections?.selectedMints?.removed || []
+    const wasRemoved = removedMints.indexOf(mint.id) != -1
+
+    const selectedMints = selections?.selectedMints?.active || []
+    const selectedRulers = selections?.selectedRulers?.active || []
+    const isMintSelected = this.isSelected(mint, selectedMints)
+
 
     if (!PersonMint.isEmpty(personMint)
       && (!this.isSelectionActive(selections.selectedMints) || isMintSelected)
-      && PersonMint.containsSelectedRulers(personMint, selections.selectedRulers)) {
+      && PersonMint.containsSelectedRulers(personMint, selectedRulers)) {
 
       layer = ringsFromPersonMint(latlng, feature, selections, {
         innerRadius,
@@ -403,13 +447,12 @@ export default class PoliticalOverlay extends Overlay {
         stroke
       })
 
-      this.createMintLocationMarker(latlng, feature, { active: isMintSelected }).addTo(layer)
-      layer.bringToFront()
+      this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved }).addTo(layer)
     } else {
-      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected })
-      layer.bringToBack()
+      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved })
     }
 
+    layer.bringToFront()
     return layer
   }
 
@@ -425,6 +468,7 @@ export default class PoliticalOverlay extends Overlay {
   createMarker(latlng, feature, {
     selections = {}
   } = {}) {
+
 
     let layer;
     if (this.mode === "year") {

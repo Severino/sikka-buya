@@ -22,6 +22,14 @@ import LoginPage from "@/components/page/auth/LoginPage"
 import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
 
 /**
+ * CMS
+ */
+
+
+import CMSPage from '@/components/page/cms/CMSPage'
+
+
+/**
  * Analytics
  */
 import YearMintTablePage from "@/components/page/analytics/YearMintTablePage"
@@ -35,14 +43,12 @@ import CardLinkPage from "@/components/page/CardLinkPage.vue"
 import CatalogFilterSearch from "@/components/page/catalog/CatalogFilterSearch.vue"
 import PersonPage from "@/components/page/catalog/PersonPage.vue"
 
-
-import PersonExplorer from "@/components/page/catalog/PersonExplorer.vue"
-
 /**
  * Editor Page
  */
 import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
+import PlaceholderLandingPage from "@/components/page/PlaceholderLandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
 import CoinVerseOverview from "@/components/page/CoinVerseOverview.vue"
@@ -50,6 +56,7 @@ import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import FixDiff from "@/components/page/FixDiff.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
+import NewsPage from "@/components/page/News.vue"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import ExpertSearch from "@/components/page/editor/ExpertSearch.vue"
@@ -126,6 +133,35 @@ const routes = [
     component: TemplatePage
   },
   {
+    path: "/map/",
+    name: "MapPage",
+    component: MapPage,
+    meta: { smallNav: true },
+    redirect: {
+      name: "Political Map"
+    },
+    children: [
+      {
+        path: '',
+        name: 'Political Map',
+        component: PoliticalMap,
+        meta: { smallNav: true }
+      },
+      {
+        path: "additional",
+        name: "Additional Maps",
+        component: MaterialMap,
+        meta: { smallNav: true },
+      },
+      {
+        path: "playground",
+        name: "Playground",
+        component: PlaygroundPage,
+        meta: { smallNav: true },
+      },
+    ]
+  },
+  {
     path: "",
     component: CommonMain,
     name: "Home",
@@ -133,14 +169,28 @@ const routes = [
     children: [
       {
         path: "/home",
+        name: "PlaceholderLanding",
+        component: PlaceholderLandingPage
+      },
+      {
+        meta: { auth: true },
+        path: "/landing",
+        name: "Landing",
         component: LandingPage
       },
-      analyticsRoutes,
       {
-        path: "/persons/",
-        name: "OverlordAccordeon",
-        component: PersonExplorer
+        meta: { auth: true },
+        path: "/news",
+        name: "NewsOverview",
+        component: NewsPage,
       },
+      {
+        meta: { auth: true },
+        path: "/news/:id",
+        name: "NewsPage",
+        component: CMSPage,
+      },
+      analyticsRoutes,
       {
         path: '/catalog/',
         component: RouterContainer,
@@ -156,12 +206,12 @@ const routes = [
             links: [
               {
                 title: 'routes.Catalog Ruler Explorer',
-                image: "/img/button-images/catalog-person-tree-preview.png",
+                image: "/image/button-images/catalog-person-tree-preview.png",
                 to: { name: "Catalog Ruler Explorer" }
               },
               {
                 title: "routes.Catalog Search",
-                image: "/img/button-images/catalog-search-preview.png",
+                image: "/image/button-images/catalog-search-preview.png",
                 to: { name: "Catalog Search" }
               }
             ]
@@ -195,44 +245,16 @@ const routes = [
               links: [{
                 title: "routes.Political Map",
                 to: { name: 'Political Map' },
-                image: "/img/button-images/political-map-preview.jpg",
+                image: "/image/button-images/political-map-preview.jpg",
               },
               {
                 title: "routes.Additional Maps",
                 to: { name: 'Additional Maps' },
-                image: "/img/button-images/material-map-preview.jpg",
+                image: "/image/button-images/material-map-preview.jpg",
               },
               ]
             },
           }]
-      }, {
-        path: "/map/",
-        name: "MapPage",
-        component: MapPage,
-        meta: { smallNav: true },
-        redirect: {
-          name: "Political Map"
-        },
-        children: [
-          {
-            path: '',
-            name: 'Political Map',
-            component: PoliticalMap,
-            meta: { smallNav: true }
-          },
-          {
-            path: "additional",
-            name: "Additional Maps",
-            component: MaterialMap,
-            meta: { smallNav: true },
-          },
-          {
-            path: "playground",
-            name: "Playground",
-            component: PlaygroundPage,
-            meta: { smallNav: true },
-          },
-        ]
       },
       {
         path: '/setup',

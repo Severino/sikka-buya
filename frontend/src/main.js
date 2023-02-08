@@ -5,6 +5,7 @@ import i18n from './i18n/i18n'
 import store from "./store"
 import capitalize from 'capitalize';
 import Settings from './settings'
+import { ConfigMixin } from './config'
 
 /**Initializes the settings on the first page visit. */
 if (Settings.init(window) > 0) {
@@ -16,6 +17,8 @@ Vue.config.productionTip = false
 Vue.prototype.$utils = {
   capitalize
 }
+
+Vue.mixin(ConfigMixin)
 
 new Vue({
   router,

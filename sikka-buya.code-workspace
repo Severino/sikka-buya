@@ -17,7 +17,13 @@
     "javascript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
     "compile-hero.disable-compile-files-on-did-save-code": true,
-    "editor.defaultFormatter": "ms-vscode.js-debug"
+    "editor.defaultFormatter": "ms-vscode.js-debug",
+    "[sql]": {
+      "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
+    },
+    "[postgres]": {
+      "editor.defaultFormatter": "bradymholt.pgformatter"
+    }
   },
   "tasks": {
     "version": "2.0.0",

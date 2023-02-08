@@ -1,6 +1,6 @@
 <template>
-  <div class="card" :class="className">
-    <img v-if="img" class="card-background-image" :src="img" />
+  <div class="card-link" :class="className">
+    <img v-if="img" class="card-link-background-image" :src="img" />
     <header>
       <slot name="header" />
     </header>
@@ -24,14 +24,14 @@ export default {
   },
   computed: {
     className() {
-      return this.img ? 'image-card' : '';
+      return this.img ? 'card-link-image' : '';
     },
   },
 };
 </script>
 
 <style lang='scss' scoped>
-.card {
+.card-link {
   display: flex;
   flex-direction: column;
   min-height: 360px;
@@ -50,7 +50,7 @@ export default {
   // filter: grayscale(50%);
 }
 
-.image-card {
+.card-link-image {
   header {
     position: absolute;
     bottom: 0;
@@ -75,7 +75,7 @@ footer {
   justify-content: flex-end;
 }
 
-.card-background-image {
+.card-link-background-image {
   position: absolute;
   top: 0;
   left: 0;

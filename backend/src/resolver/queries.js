@@ -5,6 +5,7 @@ const fs = require('fs').promises
 const Auth = require("../auth.js")
 const Type = require('../utils/type.js')
 const Mint = require('../models/mint.js')
+const PageGQL = require('./klasses/PageGQL.js')
 
 const Queries = {
     ping: () => Date.now(),
@@ -533,4 +534,4 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
     }
 }
 
-module.exports = Queries
+module.exports = Object.assign(Queries, PageGQL.Queries)

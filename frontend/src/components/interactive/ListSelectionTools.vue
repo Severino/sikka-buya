@@ -2,15 +2,12 @@
   <div class="list-selection-tools">
     <div
       v-if="!hideAll"
-      @click.prevent.stop="() => $emit('select-all')"
+      @click.prevent.stop="selectAll"
       :class="{ disabled: allSelected }"
     >
       <select-all-icon :size="18" />
     </div>
-    <div
-      @click.prevent.stop="() => $emit('unselect-all')"
-      :class="{ disabled: !noneSelected }"
-    >
+    <div @click.prevent.stop="unselectAll" :class="{ disabled: noneSelected }">
       <select-remove-icon :size="18" />
     </div>
   </div>
@@ -28,6 +25,14 @@ export default {
     allSelected: { type: Boolean, required: true },
     noneSelected: { type: Boolean, required: true },
     hideAll: Boolean,
+  },
+  methods: {
+    selectAll() {
+      if (!this.allSelected) this.$emit('select-all');
+    },
+    unselectAll() {
+      if (!this.noneSelected) this.$emit('unselect-all');
+    },
   },
 };
 </script>

@@ -1,5 +1,9 @@
 <template>
   <div class="type-view">
+    <info :alwaysShow="!type.reviewed" type="warning" id="not-reviewed-warning">
+      Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!
+    </info>
+
     <header>
       <h1 class="gm2">{{ type.projectId }}</h1>
 
@@ -29,10 +33,6 @@
       <span>gegossen</span>
     </div>
     <div v-else class="blank gm4"></div>
-
-    <info :alwaysShow="!type.reviewed" type="warning" id="not-reviewed-warning">
-      Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!
-    </info>
 
     <router-link
       v-if="$store.state.user"
@@ -347,7 +347,7 @@ export default {
     getLogoFromPath(path) {
       const site = Web.extractDomainName(path);
       return site
-        ? `/img/logos/${site}.png`
+        ? `/image/logos/${site}.png`
         : 'https://www.fint-ikmk.uni-tuebingen.de/ikmk/special/favicons/android-chrome-256x256.png';
     },
 
@@ -470,7 +470,7 @@ $columns: 4;
 }
 
 #donativ {
-  border: $big-border;
+  border: $border;
   border-color: $primary_color;
   box-sizing: border-box;
 }

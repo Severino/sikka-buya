@@ -14,3 +14,7 @@ test/_excluded_data/**
 test/token.txt
 test/api-test-log.txt
 
+frontend/public/image/logos/thyssen_stiftung.jpg
+frontend/public/image/logos/Logo_Universitaet_Tuebingen.svg
+
+

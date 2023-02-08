@@ -2,6 +2,8 @@ const Auth = require('../auth')
 const { guardFunctionObject: guard } = require('../utils/guard.js')
 const { WriteableDatabase, pgp } = require('../utils/database.js')
 const Type = require('../utils/type')
+const PageGQL = require('./klasses/PageGQL')
+const BlockGQL = require('./klasses/BlockGQL')
 
 /**
  * Most mutations require the user to be logged in to
@@ -91,6 +93,31 @@ const SuperUserMutations = {
 
 
 const UserMutations = {
+    async createPage(_, { title = "", type } = {}, context) {
+
+        let returnedValue = await WriteableDatabase.oneOrNone("SELECT id FROM web_page_group WHERE name=$1 LIMIT 1", type)
+        if (returnedValue == null)
+            returnedValue = await WriteableDatabase.one("INSERT INTO web_page_group (name) VALUES ($1) RETURNING id", type)
+
+
+        const groupId = returnedValue.id
+
+        try {
+            let pageResult = await WriteableDatabase.one(`
+        INSERT INTO web_page 
+        (title, page_group, created_timestamp, modified_timestamp) 
+        VALUES 
+        ($[title], $[groupId], NOW(), NOW()) 
+        RETURNING id`, { title, groupId })
+        } catch (e) {
+            console.log(e)
+
+        }
+
+
+
+        return pageResult.id
+    },
     async moveCoinTypeToCoinVerse(_, { id } = {}) {
         await WriteableDatabase.tx(async t => {
             let res = await t.oneOrNone(`SELECT * FROM coin_marks WHERE id=$1`, id)
@@ -211,11 +238,18 @@ const UserMutations = {
     }
 }
 
+
+
 const Mutations = Object.assign({},
     UnguardedMutations,
-    guard(UserMutations, (_, __, context) => {
-        return Auth.requireAuthContext(context)
-    }),
+    guard(
+        Object.assign(
+            UserMutations,
+            PageGQL.Mutations,
+            BlockGQL.Mutations
+        ), (_, __, context) => {
+            return Auth.requireAuthContext(context)
+        }),
     guard(SuperUserMutations, (_, __, context) => Auth.requireSuperUser(context))
 )
 

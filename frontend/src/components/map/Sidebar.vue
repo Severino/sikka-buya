@@ -11,6 +11,9 @@
         <slot />
       </scroll-view>
     </div>
+    <footer>
+      <slot name="footer" />
+    </footer>
   </div>
 </template>
 

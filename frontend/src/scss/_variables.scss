@@ -8,6 +8,7 @@ $tiny-padding: 0.15em;
 $small-padding: 0.3em;
 $padding: 0.5em;
 $big-padding: 0.8em;
+$large-padding: 1.4em;
 $big-box-padding: $big-padding $big-padding * 1.2;
 
 $page-bottom-spacing: 20rem;
@@ -35,7 +36,7 @@ $dark-red: darken($red, 10%);
 $primary-color: $green;
 $dark-primary-color: #255725;
 
-
+$big-font: 1.5rem;
 $large-font: 1.2rem;
 $regular-font: 0.9rem;
 $small-font: 0.75rem;
@@ -52,9 +53,12 @@ $big-border: $big-border-width solid $border-color;
 $transition-time: 0.3s;
 $long-transition-time: 0.6s;
 
+$shadow-spread: 5px;
 $shadow-offset: 1px 2px;
-$shadow: $shadow-offset 5px rgba(0, 0, 0, 0.03);
-$strong-shadow: $shadow-offset 5px rgba(66, 66, 66, 0.2);
+$shadow-color: rgba(0, 0, 0, 0.03);
+$strong-shadow-color: rgba(0, 0, 0, 0.03);
+$shadow: $shadow-offset $shadow-spread $shadow-color;
+$strong-shadow: $shadow-offset $shadow-spread $strong-shadow-color;
 
 @mixin box {
   background-color: $white;

@@ -7,18 +7,18 @@ export default {
         isSelected(item) {
             return this.selectedIds.indexOf(item.id) != -1;
         },
-        selectionChanged(items) {
-            this.$emit('selectionChanged', items);
+        selectionChanged({ active = [], added = [], removed = [] } = {}) {
+            this.$emit('selectionChanged', { active, added, removed });
         },
         checkboxSelected(item) {
             let selection = this.selectedIds;
             const idx = selection.indexOf(item.id);
             if (idx == -1) {
                 selection.push(item.id);
-                this.selectionChanged(selection);
+                this.selectionChanged({ active: selection, addeed: [item.id], removed: [] });
             } else {
                 selection.splice(idx, 1);
-                this.selectionChanged(selection);
+                this.selectionChanged({ active: selection, addeed: [], removed: [item.id] });
             }
         },
 
@@ -34,20 +34,29 @@ export default {
             return group.items.every((item) => this.isSelected(item));
         },
         noneSelected(group) {
-            return group.items.some((item) => this.isSelected(item));
+            return !group.items.some((item) => this.isSelected(item));
         },
         selectAllInGroup(group) {
-            let selection = this.selectedIds;
-            let set = new Set([...selection, ...group.items.map((item) => item.id)]);
-            selection = Array.from(set);
-            this.selectionChanged(selection);
+            const groupItems = group.items.map((item) => item.id)
+            let added = groupItems.filter(id =>
+                this.selectedIds.indexOf(id) == -1
+            )
+
+            const set = new Set([...this.selectedIds, ...groupItems]);
+            const active = Array.from(set);
+            this.selectionChanged({ active, added });
         },
         removeAllFromGroup(group) {
-            let selection = this.selectedIds;
-            selection = selection.filter(
-                (id) => group.items.find((item) => item.id === id) === undefined
+            let removed = []
+            let active = this.selectedIds.filter(
+                (id) => {
+                    let inGroup = group.items.find((item) => item.id === id) !== undefined
+                    if (inGroup) removed.push(id)
+                    return !inGroup
+                }
             );
-            this.selectionChanged(selection);
+
+            this.selectionChanged({ active, removed });
         },
     },
 }

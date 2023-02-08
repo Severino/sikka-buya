@@ -11,7 +11,7 @@
           @select-all="selectAllMints"
           @unselect-all="clearMintSelection"
           :allSelected="allMintsSelected"
-          :noneSelected="mintsSelected"
+          :noneSelected="!mintsSelected"
         />
       </template>
 
@@ -20,6 +20,17 @@
         :selectedIds="selectedMints"
         @selectionChanged="mintSelectionChanged"
       />
+      <template v-slot:footer>
+        <nav>
+          <Button
+            class="huge-button row-button transparent-button"
+            :to="{ name: 'Map Overview' }"
+          >
+            <ExitIcon :size="IconSize.Big" class="flip" />
+            Verlassen
+          </Button>
+        </nav>
+      </template>
     </Sidebar>
 
     <div class="center-ui center-ui-top">
@@ -129,6 +140,7 @@ import timeline from './mixins/timeline';
 import slideshow from '../mixins/slideshow';
 
 // Components
+import Button from '../layout/buttons/Button.vue';
 import Checkbox from '../forms/Checkbox.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import ListSelectionTools from '../interactive/ListSelectionTools.vue';
@@ -144,6 +156,7 @@ import Timeline from './control/Timeline.vue';
 
 // Icons
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
+import ExitIcon from 'vue-material-design-icons/ExitToApp.vue';
 
 // Other
 import PoliticalOverlay from '../../maps/PoliticalOverlay';
@@ -180,7 +193,9 @@ try {
 export default {
   name: 'PoliticalMap',
   components: {
+    Button,
     Checkbox,
+    ExitIcon,
     LabeledInputContainer,
     ListSelectionTools,
     MapSettingsBox,
@@ -207,6 +222,8 @@ export default {
       rulerListStyles: [],
       rulers: [],
       selectedRulers,
+      addedRulers: [],
+      removedRulers: [],
       unavailableRulers: [],
       selectedUnavailableRulers: [],
       unlocatedTypes: [],
@@ -230,9 +247,7 @@ export default {
       const options = {};
       options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
       options.selectedMints = URLParams.toStringArray(this.selectedMints);
-
       Object.assign(options, this.timelineOptions, this.mapOptions);
-
       return options;
     },
     shareLink() {
@@ -247,8 +262,16 @@ export default {
     },
     selections() {
       return {
-        selectedRulers: this.selectedRulers,
-        selectedMints: this.selectedMints,
+        selectedRulers: {
+          active: this.selectedRulers,
+          removed: this.removedRulers,
+          added: this.addedRulers,
+        },
+        selectedMints: {
+          active: this.selectedMints,
+          removed: this.removedMints,
+          added: this.addedMints,
+        },
       };
     },
     filtersActive: function () {
@@ -336,10 +359,20 @@ export default {
     });
 
     let selectedRulers = URLParams.getArray('selectedRulers');
-    if (selectedRulers) this.rulerSelectionChanged(selectedRulers, true);
+    if (selectedRulers)
+      this.rulerSelectionChanged(selectedRulers, {
+        added: selectedRulers,
+        preventUpdate: true,
+      });
 
     let selectedMints = URLParams.getArray('selectedMints');
-    if (selectedMints) this.mintSelectionChanged(selectedMints, true);
+    if (selectedMints)
+      this.mintSelectionChanged(
+        { active: selectedMints, added: selectedMints },
+        {
+          preventUpdate: true,
+        }
+      );
   },
 
   mounted: async function () {
@@ -506,8 +539,11 @@ export default {
       this.update();
     },
     resetFilters: function () {
-      this.rulerSelectionChanged([], true);
-      this.mintSelectionChanged([], true);
+      this.rulerSelectionChanged([], { preventUpdate: true });
+      this.mintSelectionChanged(
+        { active: [], remove: this.selectedMints },
+        { preventUpdate: true }
+      );
       this.update();
     },
     async update() {
@@ -536,9 +572,17 @@ export default {
       }
 
       if (options.selectedMints) {
-        this.mintSelectionChanged(
-          URLParams.fromStringArray(options.selectedMints)
-        );
+        let active = URLParams.fromStringArray(options.selectedMints);
+        let added = [];
+        let removed = [];
+        this.selectedMints.forEach((mintId) => {
+          if (active.indexOf(mintId) == -1) {
+            removed.push(mintId);
+          } else {
+            added.push(mintId);
+          }
+        });
+        this.mintSelectionChanged({ active, added, removed });
       }
 
       if (options.year && options.year != 'null') {
@@ -578,7 +622,7 @@ export default {
       );
     },
     clearMintSelection() {
-      this.mintSelectionChanged([]);
+      this.mintSelectionChanged({ active: [], removed: this.selectedMints });
     },
     clearRulerSelection(preventUpdate = false) {
       this.rulerSelectionChanged([], preventUpdate);
@@ -588,7 +632,7 @@ export default {
     },
     updateAvailableMints() {},
     rulerSelectionChanged(selected, preventUpdate = false) {
-      this.selectedRulers = selected;
+      this.selectedRulers = selected.active;
 
       try {
         localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
@@ -652,6 +696,11 @@ export default {
     transform: translateX(calc(-50% + #{-$margin}));
     width: 420px;
     max-width: calc(100% - 4 *#{$padding});
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>
