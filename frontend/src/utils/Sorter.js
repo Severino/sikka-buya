@@ -68,7 +68,8 @@ export default class Sort {
     }
 
     static _removeCharactersThatObstructSorting(str) {
-        str = StringUtils.removeLeftHalfRing(str)
+        str = StringUtils.removeSpecialCharacters(str)
+
         str = StringUtils.removePrefix(str, "AL-")
         str = StringUtils.removePrefix(str, "AD-")
         str = StringUtils.removePrefix(str, "AR-")

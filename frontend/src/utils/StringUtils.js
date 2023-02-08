@@ -11,12 +11,12 @@ export default class StringUtils {
     }
 
     static removePrefix(str, prefix) {
-        const regex = new RegExp(`(?:^|[^a-zA-Z]+)(${prefix})`, "g")
+        const regex = new RegExp(`^(?:^|[^a-zA-Z]+)(${prefix})`, "g")
         let strWihtoutPrefix = str.replace(regex, "")
         return strWihtoutPrefix
     }
 
-    static removeLeftHalfRing(str) {
-        return str.replace("ʿ", "")
+    static removeSpecialCharacters(str) {
+        return str.replace(/[ʿ*]/g, "")
     }
 }

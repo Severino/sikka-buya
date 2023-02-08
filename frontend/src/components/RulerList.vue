@@ -47,7 +47,7 @@
           </selectable-list-header>
         </template>
         <ruler-list-section
-          :items="group.items"
+          :items="sorted(group.items)"
           :selectedIds="selectedIds"
           :styler="availableStyler"
           @selection-changed="checkboxSelected"
@@ -94,6 +94,15 @@ export default {
     SelectableListHeader,
   },
   methods: {
+    sorted(items) {
+      items.sort((a, b) => {
+        let nameA = Person.getName(a);
+        let nameB = Person.getName(b);
+
+        return Sort.stringAlphabetically()(nameA, nameB);
+      });
+      return items;
+    },
     getRulerName(ruler) {
       return Person.getName(ruler);
     },
@@ -140,7 +149,7 @@ export default {
       });
 
       groups.forEach((group) =>
-        group.items.sort(Sort.stringPropAlphabetically('name'))
+        group.items.sort(Sort.stringPropAlphabetically('shortName'))
       );
 
       return groups;
