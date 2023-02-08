@@ -214,6 +214,18 @@ let unfilteredMultiSelectFilters = [
     order: 5.8,
   },
   {
+    label: 'Thronfolger d. Kalifen',
+    name: 'heir',
+    mode: Mode.Or,
+    attribute: 'shortName',
+    queryCommand: 'searchPersonsWithRole',
+    queryParams: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
+    additionalParameters: {
+      include: ['heir'],
+    },
+    order: 5.8,
+  },
+  {
     label: 'sonstige Personen',
     name: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',

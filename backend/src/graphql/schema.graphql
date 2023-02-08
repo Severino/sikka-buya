@@ -559,10 +559,11 @@ input TypeFilter {
   id:ID
 
   caliph: [ID]
+  heir: [ID]
   coinMark: [ID]
   coinMark_and_or: [[ID]]
   coinMark_and: [ID]
-  coinMark_or_and: [[ID]]
+  coinMark_or_and: [[ID]] 
 
   coinVerse: [ID]
   coinVerse_and_or: [[ID]]

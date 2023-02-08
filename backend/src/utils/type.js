@@ -569,6 +569,9 @@ class Type {
         this._processComplexOtherPersonFilter(queryBuilder, filter)
         this._processComplexTitleFilter(queryBuilder, filter)
         this._processComplexRulerFilter(queryBuilder, filter)
+        this._processComplexHeirFilter(queryBuilder, filter)
+
+
 
 
         if (Object.hasOwnProperty.bind(filter)("completed")) {
@@ -1266,6 +1269,27 @@ class Type {
             }
 
             delete filter[activeRulerFilter]
+        }
+    }
+
+    static _processComplexHeirFilter(queryBuilder, filter) {
+
+        if (filter.heir) {
+            if (!(Array.isArray(filter.heir) && filter.heir.length > 0)) {
+                throw new Error(`Filter "heir" needs to be an array with at least 1 element.`)
+            }
+            queryBuilder.addJoin(`
+        LEFT JOIN(SELECT HEIR_OP.TYPE,
+			COALESCE(array_agg(HEIR_OP.PERSON),'{}') AS HEIRS
+		FROM OTHER_PERSON HEIR_OP
+		LEFT JOIN PERSON ON PERSON.ID = HEIR_OP.PERSON
+		LEFT JOIN PERSON_ROLE ON PERSON_ROLE.ID = PERSON.ROLE
+		WHERE PERSON_ROLE.NAME = 'heir'
+		GROUP BY HEIR_OP.TYPE) heir_op_query ON heir_op_query.type = t.id`)
+
+            queryBuilder.addWhere(pgp.as.format(`(heir_op_query.heirs && $[heir]:: int[])`, filter))
+
+            delete filter.heir
         }
     }
 }
