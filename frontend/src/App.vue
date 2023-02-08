@@ -234,6 +234,12 @@ h6 {
   // font-weight: bold;
 }
 
+.mint-label {
+  color: $gray;
+  font-size: $regular-font;
+  font-weight: bold;
+}
+
 .circle-marker {
   transform-box: fill-box;
   transform-origin: center;

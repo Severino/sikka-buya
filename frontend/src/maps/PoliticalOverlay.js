@@ -67,7 +67,7 @@ export default class PoliticalOverlay extends Overlay {
       }
         `
 
-      result = await Query.raw(query, { pagination, filters }, true)
+      result = await Query.raw(query, { pagination, filters })
 
     } else {
       const query = `query ($persons:[ID], $mints: [ID]) {
@@ -95,7 +95,7 @@ export default class PoliticalOverlay extends Overlay {
       result = await Query.raw(query, {
         persons: filters.person,
         mints: filters.mint
-      }, true)
+      })
     }
 
     return result.data.data

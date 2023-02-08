@@ -112,7 +112,7 @@ export class PersonExplorerTree {
 
       type.issuers.forEach(i => {
         if (i.id === this.person.id) {
-          this.set(type.yearOfMint, type.mint.id, type.id, true)
+          this.set(type.yearOfMint, type.mint.id, type.id)
         }
       })
       type.overlords.forEach(i => {

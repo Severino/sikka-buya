@@ -35,7 +35,7 @@
         margin: 0;
         min-height: 34px;
 
-        > *:not(hr) {
+        >*:not(hr) {
             padding: $padding 2 * $padding $padding 2 * $padding;
         }
 
@@ -48,9 +48,9 @@
         color: $gray;
         opacity: 1;
         font-size: 1.5em !important;
-        //padding: 9px !important;
+        padding: 7px !important;
         font-family: $font;
-        padding: 3px !important;
+        // padding: 3px !important;
     }
 
     h2,

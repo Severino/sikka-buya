@@ -213,7 +213,7 @@ export default {
       if (this.mint.id == -1) {
         try {
           console.log(data);
-          id = await this.query('addMint', data, true);
+          id = await this.query('addMint', data);
         } catch (e) {
           console.error(e);
           this.error += e;

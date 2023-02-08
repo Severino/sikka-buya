@@ -95,8 +95,8 @@
         :allowToggle="true"
         :timelineActive="timelineActive"
         timelineName="political-map"
-        @input="timelineChanged"
-        @change="timelineChanged"
+        @input="timeChanged"
+        @change="timeChanged"
         @toggle="toggleTimeline"
       >
         <template #background>
@@ -398,6 +398,8 @@ export default {
   },
   methods: {
     toggleTimeline() {
+      this.selections.added = [];
+      this.selections.removed = [];
       timeline.methods.toggleTimeline.call(this);
       this.update();
     },
@@ -532,10 +534,9 @@ export default {
       this.timelineChart.updateSize();
       this.drawTimeline();
     },
-    timelineChanged(value) {
-      this.timeChanged(value);
-    },
     timelineUpdated: async function () {
+      this.selections.added = [];
+      this.selections.removed = [];
       this.update();
     },
     resetFilters: function () {

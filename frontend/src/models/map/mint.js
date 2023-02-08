@@ -21,7 +21,7 @@ export default class Mint {
 
     static popupMintHeader(mint, headerClasses = [], debug = false) {
         return `<header class="${headerClasses.join(" ")}">
-            <span class="subtitle no-padding-bottom">${mint.name}
+            <span class="mint-label no-padding-bottom">${mint.name}
             ${(window.debug === true) ? `<span class="debug">(${mint.id})</span>` : ''}
             
             </span>    

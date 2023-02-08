@@ -34,7 +34,7 @@ export function rulerPopup(coin, clickedRuler, debug = false) {
     let overlordsText;
     if (coin.overlords) {
         let sorted = coin.overlords.sort((a, b) => a.rank > b.rank);
-        overlordsText = buildRulerList(sorted, clickedRuler, true);
+        overlordsText = buildRulerList(sorted, clickedRuler);
     } else {
         overlordsText = StringUtils.missingText;
     }

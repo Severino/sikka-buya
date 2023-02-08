@@ -20,7 +20,7 @@ export default class CMSPage {
 
         await Query.raw(`mutation UpdatePage($id:ID!, $page: PageInput){
             updatePage(id: $id,page: $page)
-        }`, { id, page: pageObject }, true
+        }`, { id, page: pageObject }
         )
     }
 
