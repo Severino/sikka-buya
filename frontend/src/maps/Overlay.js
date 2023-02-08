@@ -89,7 +89,6 @@ export default class Overlay {
         selections = {},
         markerOptions = {},
     } = {}) {
-
         this.clearLayer()
 
         const { geoJSON = [], patterns = [] } = this.toMapObject(this.data, selections)

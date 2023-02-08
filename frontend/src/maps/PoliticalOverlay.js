@@ -6,7 +6,7 @@ import { coinsToRulerData } from "../models/rulers"
 import { rulerPopup } from '../models/map/political';
 import { concentricCircles } from '../maps/graphics/ConcentricCircles';
 import Color from '../utils/Color';
-import { MintLocationMarker } from '../models/mintlocation';
+import MintLocation, { MintLocationMarker } from '../models/mintlocation';
 import { ringsFromPersonMint } from './graphics/RulerRings';
 import PersonMint from '../models/person-mint';
 
@@ -447,7 +447,9 @@ export default class PoliticalOverlay extends Overlay {
         stroke
       })
 
-      this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved }).addTo(layer)
+      let marker = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved })
+      marker.addTo(layer)
+      if (marker.isSpecial) layer.isSpecial = true
     } else {
       layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved })
     }
@@ -471,20 +473,23 @@ export default class PoliticalOverlay extends Overlay {
 
 
     let layer;
+    const animationTime = 1000
     if (this.mode === "year") {
       layer = this.createMintTypesMarker(...arguments)
     } else if (this.mode === "no_year") {
-      layer = this.createMintWithoutYearMarker(...arguments)
+      layer = this.createMintWithoutYearMarker(latlng, feature, { selections, animationTime })
     } else {
       throw new Error(`Marker mode is not implemented: ${this.mode}`)
     }
 
-    layer.on('mouseover', () => {
-      layer.bringToFront()
-    });
-    layer.on('click', () => {
-      layer.bringToFront()
-    });
+    console.log(layer.isSpecial)
+
+    if (layer.isSpecial) {
+      setTimeout(() => { MintLocationMarker.addBringToFrontBehaviour(layer) }, animationTime)
+    } else {
+      MintLocationMarker.addBringToFrontBehaviour(layer)
+    }
+
 
     return layer
   }

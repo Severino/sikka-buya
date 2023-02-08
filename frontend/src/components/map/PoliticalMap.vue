@@ -239,6 +239,8 @@ export default {
     mintLocationsMixin({
       onMintSelectionChanged: async function () {
         await this.drawTimeline();
+        this.addedMints = [];
+        this.removedMints = [];
       },
     }),
   ],
@@ -398,8 +400,6 @@ export default {
   },
   methods: {
     toggleTimeline() {
-      this.selections.added = [];
-      this.selections.removed = [];
       timeline.methods.toggleTimeline.call(this);
       this.update();
     },
@@ -535,8 +535,6 @@ export default {
       this.drawTimeline();
     },
     timelineUpdated: async function () {
-      this.selections.added = [];
-      this.selections.removed = [];
       this.update();
     },
     resetFilters: function () {

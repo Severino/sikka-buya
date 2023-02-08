@@ -82,7 +82,7 @@ export class MintLocationMarker {
         return 6
     }
 
-    create(latlng, { size = MintLocationMarker.defaultSize, active = false, added = false, removed = false } = {}) {
+    create(latlng, { size = MintLocationMarker.defaultSize, active = false, added = false, removed = false, animationTime = 1000 } = {}) {
         const MintLocationMarkerSettings = new Settings(window, "MintLocationMarker")
 
         let classList = ["circle-marker"]
@@ -109,7 +109,7 @@ export class MintLocationMarker {
                     circleMarker._path.classList.remove("added")
                     circleMarker._path.classList.remove("removed")
                 }
-            }, 1000)
+            }, animationTime)
         }
 
 
@@ -132,7 +132,20 @@ export class MintLocationMarker {
         } else {
             this.marker = circleMarker
         }
+
+        if (isSpecial) {
+            this.marker.isSpecial = true
+        }
         return this.marker
+    }
+
+    static addBringToFrontBehaviour(layer) {
+        layer.on('mouseover', () => {
+            layer.bringToFront()
+        });
+        layer.on('click', () => {
+            layer.bringToFront()
+        });
     }
 }
 
