@@ -1,11 +1,12 @@
 <template>
-  <div class="page">
+  <div id="landing-page" class="page">
     <header>
       <img
         src="/image/article/landing/political_map.png"
         alt="Vorschaubild der politischen Karte"
       />
     </header>
+    <navigation :hideLogo="true" />
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
@@ -189,6 +190,7 @@
 import LoginVariant from 'vue-material-design-icons/LoginVariant';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
+import Navigation from '../Navigation.vue';
 import PageFooter from './PageFooter.vue';
 
 export default {
@@ -198,9 +200,61 @@ export default {
     Row,
     Button,
     PageFooter,
+    Navigation,
   },
 };
 </script>
+
+<style lang="scss">
+#landing-page {
+  .navigation {
+    position: relative;
+    .brand {
+      display: none;
+    }
+
+    .nav-menu {
+      flex: 1;
+      padding: 0;
+    }
+
+    nav {
+      width: 100%;
+      ul {
+        display: flex;
+        width: 100%;
+
+        > * {
+          flex: 1;
+          text-align: center;
+
+          $light-border: 1px solid whitesmoke;
+          &:first-of-type {
+            border-left: $light-border;
+          }
+          border-right: $light-border;
+
+          transition: all 0.3s;
+          a {
+            font-weight: bold;
+            box-sizing: border-box;
+            padding: 0.8em 0;
+            color: $gray;
+            border-bottom: 2px solid $white;
+
+            transition: all 0.3s;
+            &:hover {
+              color: $dark-gray;
+              background-color: whitesmoke;
+              border-bottom: 2px solid $primary-color;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 .page > header {

@@ -10,7 +10,7 @@
         >
           <card-link :img="link.image">
             <template v-slot:header>
-              <h2>{{ $t(link.title) }}</h2>
+              <h2>{{ $tc(link.title) }}</h2>
             </template>
           </card-link>
         </router-link>

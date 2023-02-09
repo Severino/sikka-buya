@@ -1,8 +1,8 @@
 export default {
     "Home": "Startseite",
-    "Map": "Karte",
-    "Map Overview": "Karte",
-    "Map Landing": "Karte",
+    "Map": "Karten",
+    "Map Overview": "Karten",
+    "Map Landing": "Karten",
 
     "Analytics": "Analyse",
     "AnalyticsOverview": "Analyse",

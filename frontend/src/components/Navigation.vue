@@ -1,8 +1,8 @@
 <template>
-  <header :class="{ minimized }">
+  <header class="navigation" :class="{ minimized }">
     <div class="content-wrapper">
       <div class="brand">
-        <router-link :to="{ name: 'Home' }">
+        <router-link :to="{ name: 'Home' }" v-if="!hideLogo">
           <img src="/image/logos/sikka-buya-logo.svg" alt="" />
         </router-link>
       </div>
@@ -21,23 +21,17 @@
               v-for="(item, index) in visibleItems"
               :key="`nav-item-${index}`"
             >
-              <router-link :to="item.target">{{ $t(item.name) }}</router-link>
+              <router-link :to="item.target">{{
+                $tc(item.name, item.count || 1)
+              }}</router-link>
             </li>
           </ul>
         </nav>
-        <div class="lang-version-grp">
+        <!-- <div class="lang-version-grp">
           <span class="version">{{ version }}</span>
           <div class="languages">DE</div>
-        </div>
+        </div> -->
 
-        <div v-if="loggedIn" class="user" id="user-toolbar">
-          <router-link :to="{ name: 'Editor' }">
-            <AccountShield :size="18" />
-          </router-link>
-          <div id="nav-logout-button" @click="logout">
-            {{ $t('system.logout') }}
-          </div>
-        </div>
         <div class="nav-toggle" @click="toggleMenu()">
           <Close v-if="active" />
           <Menu v-else />
@@ -62,6 +56,9 @@ export default {
     Menu,
     Close,
   },
+  props: {
+    hideLogo: Boolean,
+  },
   data: function () {
     return {
       active: false,
@@ -69,10 +66,28 @@ export default {
       items: [
         // { name: "Home", target: "undefined" },
 
-        { name: 'routes.Map', target: { name: 'Map Landing' }, auth: true },
-        { name: 'routes.Catalog', target: { name: 'Catalog' }, auth: true },
-        { name: 'News', target: { name: 'NewsOverview' }, auth: true },
-        { name: 'routes.Analytics', target: { name: 'Analytics' }, auth: true },
+        {
+          name: 'routes.Map',
+          target: { name: 'Map Landing' },
+          auth: true,
+          count: 2,
+        },
+        {
+          name: 'routes.Catalog',
+          target: { name: 'Catalog' },
+          auth: true,
+        },
+        {
+          name: 'Beiträge',
+          target: { name: 'NewsOverview' },
+          auth: true,
+          count: 2,
+        },
+        {
+          name: 'routes.Analytics',
+          target: { name: 'Analytics' },
+          auth: true,
+        },
       ],
     };
   },

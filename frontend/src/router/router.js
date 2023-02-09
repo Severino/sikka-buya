@@ -162,6 +162,12 @@ const routes = [
     ]
   },
   {
+    meta: { auth: true },
+    path: "/landing",
+    name: "Landing",
+    component: LandingPage
+  },
+  {
     path: "",
     component: CommonMain,
     name: "Home",
@@ -171,12 +177,6 @@ const routes = [
         path: "/home",
         name: "PlaceholderLanding",
         component: PlaceholderLandingPage
-      },
-      {
-        meta: { auth: true },
-        path: "/landing",
-        name: "Landing",
-        component: LandingPage
       },
       {
         meta: { auth: true },
