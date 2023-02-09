@@ -10,7 +10,7 @@
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
-          <div class="cell">
+          <div id="uni-logo" class="cell smaller">
             <img
               src="/image/logos/Logo_Universitaet_Tuebingen.svg"
               alt="Logo der Universität Tübingen"
@@ -22,7 +22,7 @@
               alt="Logo des Sikka-Buya Projektes"
             />
           </div>
-          <div class="cell">
+          <div id="thyssen-logo" class="cell smaller">
             <img
               src="/image/logos/thyssen_stiftung.jpg"
               alt="Logo der Thyssen Stiftung"
@@ -86,100 +86,17 @@
           </p>
         </section>
       </div>
-      <aside>
-        <h2>Karten</h2>
-
-        <div class="grid col-d-2 box-group">
-          <div class="box">
-            <header>
-              <h3>Politische Karte</h3>
-            </header>
-            <div class="body">
-              <p>
-                Eine Karte auf der die Machtverhältnisse an Prägeorten an Hand
-                von konzentrischen Kreisen visualisiert werden, wie Sie auf den
-                Münzen der Zeit festgehalten wurden.
-              </p>
-              <p>
-                Diese bietet einen neuen und einzigartigen Zugang um islamische
-                Münzen und deren historischen Zusammenhang zu untersuchen.
-              </p>
-            </div>
-            <footer>
-              <div class="button big-button">
-                <router-link :to="{ name: 'Political Map' }">
-                  Karte anzeigen
-                </router-link>
-              </div>
-            </footer>
-          </div>
-          <div class="box">
-            <header>
-              <h3>Sonstige Karten</h3>
-            </header>
-            <div class="body">
-              <p>
-                Die 'sonstigen Karten' ermöglichen es, die erfassten Münztypen
-                auf sehr detaillierte Weise zu durchsuchen und sich diese
-                Ergebnisse direkt auf der Karte anzeigen zu lassen.
-              </p>
-            </div>
-            <footer>
-              <div class="button big-button">
-                <router-link :to="{ name: 'Additional Maps' }">
-                  Karte anzeigen
-                </router-link>
-              </div>
-            </footer>
-          </div>
-        </div>
-
-        <h2>Typenkatalog</h2>
-        <div class="grid col-d-2 box-group">
-          <div class="box">
-            <header>
-              <h3>Herrscherliste</h3>
-            </header>
-            <div class="body">
-              <p>
-                Die Herrscherliste bietet einen einzigartigen Zugang um einzelne
-                Būyiden genauer zu Untersuchen. Die Listenansicht zeigt alle
-                erfassten Typen des Herrschers, und Sie können die Auswahl je
-                nach Jahr und Münzstätte verfeinern.
-              </p>
-            </div>
-            <footer>
-              <div class="button big-button">
-                <router-link :to="{ name: 'Catalog Ruler Explorer' }">
-                  Herrscherliste anzeigen
-                </router-link>
-              </div>
-            </footer>
-          </div>
-          <div class="box">
-            <header>
-              <h3>Filtersuche</h3>
-            </header>
-            <div class="body">
-              <p>
-                Die Filtersuche bietet einen klassischen Zugang zum
-                Typenkatalog. Ähnlich wie bei den 'sonstigen Karten' können hier
-                alle Typen durchsucht und gefiltert werden.
-              </p>
-              <p>
-                Die gefundenen Typen können in einem separaten Typeneintrag
-                genauer untersucht werden.
-              </p>
-            </div>
-            <footer>
-              <div class="button big-button">
-                <router-link :to="{ name: 'Catalog Search' }">
-                  Filtersuche anzeigen
-                </router-link>
-              </div>
-            </footer>
-          </div>
-        </div>
+      <aside class="grid col-d-2">
+        <router-link :to="{ name: 'Map Overview' }" class="box">
+          <header>
+            <h3>Karten</h3>
+          </header>
+        </router-link>
+        <router-link :to="{ name: 'Catalog Overview' }" class="box">
+          <header>
+            <h3>Typenkatalog</h3>
+          </header>
+        </router-link>
       </aside>
     </div>
     <page-footer />
@@ -283,11 +200,6 @@ section:first-of-type {
   margin-top: 0;
 }
 
-section {
-  margin-top: 4rem;
-  margin-bottom: 4rem;
-}
-
 .logo-showcase {
   position: relative;
   background-color: white;
@@ -295,6 +207,27 @@ section {
   height: 150px;
   padding: 10px;
   box-sizing: border-box;
+
+  .content-wrapper {
+    padding: 0 150px;
+
+    @include media_tablet {
+      padding: 0 20px;
+    }
+  }
+
+  .cell {
+    align-self: center;
+    max-height: 80%;
+  }
+
+  #thyssen-logo {
+    max-height: 80%;
+  }
+
+  #uni-logo {
+    max-height: 50%;
+  }
 
   &:before {
     content: '';
@@ -331,10 +264,6 @@ section {
   }
 }
 
-.box-group {
-  gap: $large-padding;
-}
-
 .box {
   display: flex;
   flex-direction: column;
@@ -342,9 +271,11 @@ section {
   border-radius: $small-border-radius;
   border: $border;
 
+  color: $black;
+
   .body {
     padding: $large-padding;
-    flex: 1;
+    // flex: 1;
   }
 
   header {
@@ -352,6 +283,7 @@ section {
     background-color: $gray;
     min-height: 200px;
     padding: $large-padding;
+    flex: 1;
 
     h3 {
       position: absolute;
@@ -380,9 +312,12 @@ section {
 aside {
   // background-color: $dark-gray;
   padding: 50px;
+  padding-right: 0;
+
+  gap: $large-padding;
   // border-radius: $border-radius;
   // box-shadow: inset $shadow;
-  border-left: 5px dotted $primary-color;
+  border-left: 5px dotted $white;
 
   h2 {
     color: gray;
