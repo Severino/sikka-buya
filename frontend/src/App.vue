@@ -184,6 +184,14 @@ $debug-color: orangered !important;
   }
 }
 
+.centered {
+  text-align: center;
+}
+
+.center {
+  align-self: center;
+}
+
 .center-box {
   position: fixed;
   top: 0;
@@ -577,10 +585,6 @@ a {
 }
 
 @include grid-even-columns();
-
-.center {
-  align-self: center;
-}
 
 .error-popup.show {
   bottom: $padding;

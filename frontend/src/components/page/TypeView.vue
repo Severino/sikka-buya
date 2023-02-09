@@ -24,13 +24,13 @@
       >
     </header>
 
-    <div v-if="type.donativ" id="donativ" class="box property gm4">
-      <span>Geschenkmünze</span>
+    <div v-if="type.donativ" id="donativ" class="box centered property gm4">
+      <catalog-property> Geschenkmünze </catalog-property>
     </div>
     <div v-else class="blank gm4"></div>
 
-    <div v-if="type.procedure != 'pressed'" class="box property gm4">
-      <span>gegossen</span>
+    <div v-if="type.procedure != 'pressed'" class="box centered property gm4">
+      <catalog-property> gegossen </catalog-property>
     </div>
     <div v-else class="blank gm4"></div>
 
@@ -494,8 +494,9 @@ header {
   display: flex;
   align-items: center;
   grid-column: span 2;
+  height: 80px;
 
-  margin-bottom: 1rem;
+  // margin-bottom: 1rem;
   > * {
     margin-right: $padding;
   }
