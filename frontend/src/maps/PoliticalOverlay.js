@@ -98,9 +98,6 @@ export default class PoliticalOverlay extends Overlay {
         mints: filters.mint
       }, true)
     }
-
-    console.log(result.data.data)
-
     return result.data.data
   }
 
@@ -436,9 +433,8 @@ export default class PoliticalOverlay extends Overlay {
     const selectedRulers = selections?.selectedRulers?.active || []
     const isMintSelected = this.isSelected(mint, selectedMints)
 
-    console.log(this.isSelectionActive(selections.selectedMints))
     if (!PersonMint.isEmpty(personMint)
-      && (!this.isSelectionActive(selections.selectedMints) || isMintSelected)
+      && (!this.isSelectionActive(selections.selectedMints.active) || isMintSelected)
       && PersonMint.containsSelectedRulers(personMint, selectedRulers)) {
 
       layer = ringsFromPersonMint(latlng, feature, selections, {
@@ -464,7 +460,7 @@ export default class PoliticalOverlay extends Overlay {
   }
 
   isSelectionActive(selections) {
-    return (selections.active.length !== 0)
+    return (selections.length !== 0)
   }
 
 
