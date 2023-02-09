@@ -50,11 +50,13 @@ $crumb-background-color: $white;
 }
 
 .crumb {
+  $crumb-size: 15px;
+
   @mixin common {
     content: '';
     height: 0;
     display: inline-block;
-    border: 17px solid transparent;
+    border: $crumb-size solid transparent;
   }
 
   display: flex;
@@ -64,16 +66,21 @@ $crumb-background-color: $white;
   margin-left: -12px;
 
   a {
+    display: inline-flex;
+    align-items: center;
     color: $gray;
     background-color: $crumb-background-color;
-    padding: $padding;
+    padding: $padding 3 * $padding;
+
+    height: $crumb-size * 2;
+    box-sizing: border-box;
   }
 
-  &:first-child {
-    a {
-      padding-left: 3 * $padding;
-    }
-  }
+  // &:first-child {
+  //   a {
+  //     padding-left: 3 * $padding;
+  //   }
+  // }
 
   &:not(:first-child) {
     &:before {
@@ -96,10 +103,10 @@ $crumb-background-color: $white;
     }
     &:after {
       @include common;
-      border-right-width: 17px;
+      border-right-width: $crumb-size;
       border-color: $crumb-background-color;
-      border-top-right-radius: 17px;
-      border-bottom-right-radius: 17px;
+      border-top-right-radius: $crumb-size;
+      border-bottom-right-radius: $crumb-size;
     }
   }
 }
