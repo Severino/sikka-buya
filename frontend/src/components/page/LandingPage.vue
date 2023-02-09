@@ -296,6 +296,14 @@ section {
   padding: 10px;
   box-sizing: border-box;
 
+  &:before {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    width: 100%;
+    border-bottom: 6px dotted whitesmoke;
+  }
+
   .grid {
     grid-template-columns: 1fr 2fr 1fr;
 

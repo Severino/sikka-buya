@@ -178,6 +178,12 @@ $debug-color: orangered !important;
   box-sizing: border-box;
 }
 
+@media (max-width: 1080px) {
+  .content-wrapper {
+    padding: 0 $padding;
+  }
+}
+
 .center-box {
   position: fixed;
   top: 0;
