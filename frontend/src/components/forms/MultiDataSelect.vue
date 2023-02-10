@@ -273,7 +273,7 @@ $min-height: 24px;
   color: $gray;
 
   &.interactive {
-    background-color: $blue;
+    background-color: $dark-green;
 
     min-width: 32px;
     justify-content: center;

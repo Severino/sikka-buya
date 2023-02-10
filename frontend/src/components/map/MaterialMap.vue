@@ -20,7 +20,14 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <div class="toolbar top-right-toobar"></div>
+      <div class="toolbar top-right-toobar">
+        <nav>
+          <Button id="back-button" class="ugly" :to="{ name: 'Map Overview' }">
+            <ExitIcon :size="IconSize.Big" class="flip" />
+            Startseite
+          </Button>
+        </nav>
+      </div>
       <map-settings-box
         :open="overlaySettings.uiOpen"
         @toggle="toggleSettings"

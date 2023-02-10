@@ -4,11 +4,7 @@
       <div></div>
       <div>© 2023</div>
       <div>
-        <ul>
-          <li>
-            <router-link> Mitarbeiter Login</router-link>
-          </li>
-        </ul>
+        <router-link :to="{ name: 'Login' }">Mitarbeiter Login</router-link>
       </div>
     </div>
   </footer>
@@ -29,6 +25,16 @@ footer {
 
   > * {
     text-align: center;
+  }
+
+  .grid > * {
+    display: flex;
+    flex-direction: column;
+  }
+
+  a {
+    color: white;
+    font-style: italic;
   }
 }
 </style>

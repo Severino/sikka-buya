@@ -1,8 +1,6 @@
-$sans-serif: 'Arimo';
-$arabic: 'Amiri';
-$font: $sans-serif,
-  $arabic,
-  sans-serif;
+$sans-serif: "Arimo";
+$arabic: "Amiri";
+$font: $sans-serif, $arabic, sans-serif;
 
 $tiny-padding: 0.15em;
 $small-padding: 0.3em;
@@ -26,15 +24,15 @@ $background-color: whitesmoke;
 $blue: #4873ac;
 $bright-blue: hsl(214, 60%, 60%);
 
-$yellow: #FFD21F;
+$yellow: #ffd21f;
 $green: #48ac48;
-$dark-green: #255725;
+$dark-green: #6b996b;
 
 $red: #da4133;
 $dark-red: darken($red, 10%);
 
 $primary-color: $green;
-$dark-primary-color: #255725;
+$dark-primary-color: $dark-green;
 
 $big-font: 1.5rem;
 $large-font: 1.2rem;
