@@ -86,17 +86,21 @@
           </p>
         </section>
       </div>
-      <aside class="grid col-d-2">
-        <router-link :to="{ name: 'Map Overview' }" class="box">
-          <header>
-            <h3>Karten</h3>
-          </header>
-        </router-link>
-        <router-link :to="{ name: 'Catalog Overview' }" class="box">
-          <header>
-            <h3>Typenkatalog</h3>
-          </header>
-        </router-link>
+      <aside>
+        <card-link
+          :to="{ name: 'Map Overview' }"
+          img="/image/pages/globe_square.jpg"
+          :contain="true"
+        >
+          Karten
+        </card-link>
+        <card-link
+          :to="{ name: 'Catalog Overview' }"
+          img="/image/pages/coin_square.jpg"
+          :contain="true"
+        >
+          Typenkatalog
+        </card-link>
       </aside>
     </div>
     <news />
@@ -109,6 +113,7 @@ import LoginVariant from 'vue-material-design-icons/LoginVariant';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import Navigation from '../Navigation.vue';
+import CardLink from '../navigation/CardLink.vue';
 import News from './News.vue';
 import PageFooter from './PageFooter.vue';
 
@@ -121,6 +126,7 @@ export default {
     PageFooter,
     Navigation,
     News,
+    CardLink,
   },
 };
 </script>
@@ -316,6 +322,9 @@ aside {
   // background-color: $dark-gray;
   padding: 50px;
   padding-right: 0;
+
+  display: flex;
+  flex-direction: column;
 
   gap: $large-padding;
   // border-radius: $border-radius;

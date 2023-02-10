@@ -3,17 +3,14 @@
     <header>
       <h1>{{ $t(title) }}</h1>
       <div class="nav-grid grid">
-        <router-link
+        <card-link
           v-for="link of links"
           :key="`link-to-${link.title}`"
           :to="link.to"
+          :img="link.image"
         >
-          <card-link :img="link.image">
-            <template v-slot:header>
-              <h2>{{ $tc(link.title) }}</h2>
-            </template>
-          </card-link>
-        </router-link>
+          {{ $tc(link.title) }}
+        </card-link>
       </div>
     </header>
   </div>
@@ -43,7 +40,7 @@ export default {
 <style lang="scss" scoped>
 .nav-grid {
   height: 420px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 3 * $padding;
 }
 </style>

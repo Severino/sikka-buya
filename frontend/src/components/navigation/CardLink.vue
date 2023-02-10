@@ -1,16 +1,22 @@
 <template>
-  <div class="card-link" :class="className">
-    <img v-if="img" class="card-link-background-image" :src="img" />
-    <header>
-      <slot name="header" />
-    </header>
-    <div class="body">
-      <slot />
-    </div>
-    <footer>
-      <ArrowRight />
-    </footer>
-  </div>
+  <router-link :to="to" class="card-link" :class="className">
+    <img
+      v-if="img"
+      class="card-link-background-image"
+      :src="img"
+      :class="imageClass"
+    />
+    <article>
+      <header><arrow-right class="ugly" /> <slot /></header>
+
+      <div class="body">
+        <slot name="body" />
+      </div>
+    </article>
+    <!-- <footer>
+      
+    </footer> -->
+  </router-link>
 </template>
 
 <script>
@@ -20,11 +26,16 @@ export default {
     ArrowRight,
   },
   props: {
+    to: Object || String,
     img: String,
+    contain: Boolean,
   },
   computed: {
     className() {
       return this.img ? 'card-link-image' : '';
+    },
+    imageClass() {
+      return this.contain ? 'contain' : 'cover';
     },
   },
 };
@@ -33,15 +44,17 @@ export default {
 <style lang='scss' scoped>
 .card-link {
   display: flex;
-  flex-direction: column;
-  min-height: 360px;
+  flex-wrap: wrap;
+
+  flex-direction: row;
+  flex-wrap: wrap;
   color: $white;
-  background-size: cover;
   position: relative;
   background-color: $primary-color;
   border: $border;
   border-radius: 5px;
-  padding: $big-box-padding;
+  // max-height: 300px;
+  // padding: $big-box-padding;
 
   footer {
     z-index: 100;
@@ -50,24 +63,14 @@ export default {
   // filter: grayscale(50%);
 }
 
-.card-link-image {
-  header {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    min-height: 25%;
-    box-sizing: border-box;
-    padding: $padding * 2;
-    background-color: rgba($primary-color, 0.75);
-    backdrop-filter: blur(3px);
-  }
-}
-
-.body {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
+header {
+  display: inline-flex;
+  font-size: $large-font;
+  padding: $big-box-padding;
+  align-items: center;
+  text-align: right;
+  min-width: 100px;
+  align-self: flex-end;
 }
 
 footer {
@@ -75,12 +78,28 @@ footer {
   justify-content: flex-end;
 }
 
+article {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
 .card-link-background-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+
+  max-width: 100%;
+  max-height: 100%;
   object-fit: cover;
+  &.contain {
+    max-width: none;
+    max-height: none;
+    width: 20vw;
+    height: 20vw;
+    object-fit: contain;
+    object-position: top right;
+  }
 }
 </style>

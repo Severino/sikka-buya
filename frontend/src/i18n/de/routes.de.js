@@ -3,6 +3,8 @@ export default {
     "Map": "Karten",
     "Map Overview": "Karten",
     "Map Landing": "Karten",
+    "Treasure Map": "Schatzfundkarte",
+
 
     "Analytics": "Analyse",
     "AnalyticsOverview": "Analyse",
@@ -14,5 +16,5 @@ export default {
     "Catalog Entry": "Eintrag",
     "Catalog Ruler Explorer": "Herrscherliste",
     "Catalog Search": "Katalogsuche",
-    "Catalog Overview": "Typenkatalog"
+    "Catalog Overview": "Typenkatalog",
 }

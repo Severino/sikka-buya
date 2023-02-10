@@ -98,33 +98,6 @@ import store from '../store.js'
 
 Vue.use(VueRouter)
 
-const analyticsRoutes = {
-  path: "/analytics/",
-  component: RouterContainer,
-  name: "Analytics",
-  redirect: { name: "AnalyticsOverview" },
-  children: [
-    {
-      path: "",
-      name: "AnalyticsOverview",
-      component: CardLinkPage,
-      props: {
-        title: "routes.Analytics",
-        links: [
-          {
-            title: "routes.Analytics Table",
-            to: { name: "Analytics Table" }
-          }
-        ]
-      }
-    },
-    {
-      path: "/table/",
-      name: "Analytics Table",
-      component: YearMintTablePage
-    },
-  ]
-}
 
 
 const routes = [
@@ -191,7 +164,6 @@ const routes = [
         name: "NewsPage",
         component: CMSPage,
       },
-      analyticsRoutes,
       {
         path: '/catalog/',
         component: RouterContainer,
@@ -214,6 +186,10 @@ const routes = [
                 title: "routes.Catalog Search",
                 image: "/image/button-images/catalog-search-preview.png",
                 to: { name: "Catalog Search" }
+              },
+              {
+                title: "routes.Analytics Table",
+                to: { name: "Analytics Table" }
               }
             ]
           }
@@ -230,7 +206,13 @@ const routes = [
           path: ':id',
           name: 'Catalog Entry',
           component: CatalogEntry
-        }]
+        },
+        {
+          path: "/analytics",
+          name: "Analytics Table",
+          component: YearMintTablePage
+        },
+        ]
       }, {
         path: "/map-overview",
         name: "Map Overview",
@@ -253,6 +235,11 @@ const routes = [
                 to: { name: 'Additional Maps' },
                 image: "/image/button-images/material-map-preview.jpg",
               },
+
+              {
+                title: "routes.Treasure Map",
+                to: { name: "Treasure Map" }
+              }
               ]
             },
           }]
