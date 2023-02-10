@@ -10,8 +10,11 @@
         >
       </header>
       <div class="grid col-3">
-        <div class="article" v-for="page of pages" :key="`page-${page.id}`">
-          <h2>{{ page.title }}</h2>
+        <article v-for="page of pages" :key="`page-${page.id}`">
+          <Button :to="{ name: 'NewsPage', params: { id: page.id } }"
+            ><PencilCircle :size="IconSize.Huge"
+          /></Button>
+          <h2 :class="getPageTitleClass(page)">{{ getPageTitle(page) }}</h2>
           <h3 class="subtitle">{{ page.subtitle }}</h3>
           <div>
             <label for="">Erstellt am:</label>
@@ -21,7 +24,7 @@
           <router-link :to="{ name: 'NewsPage', params: { id: page.id } }"
             >Weiterlesen</router-link
           >
-        </div>
+        </article>
       </div>
     </section>
   </div>
@@ -30,9 +33,11 @@
 <script>
 import Query from '../../database/query';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
+import Button from '../layout/buttons/Button.vue';
 import TimeMixin from '../mixins/time';
+import PencilCircle from 'vue-material-design-icons/PencilCircle.vue';
 export default {
-  components: { AsyncButton },
+  components: { AsyncButton, Button, PencilCircle },
   mixins: [TimeMixin],
   data() {
     return {
@@ -43,6 +48,13 @@ export default {
     this.fetchPages();
   },
   methods: {
+    getPageTitleClass(page) {
+      if (!page.title) return 'errorous';
+      else return '';
+    },
+    getPageTitle(page) {
+      return page.title || 'TITEL FEHLT';
+    },
     createPageAndRedirect: async function () {
       const id = await Query.raw(
         `mutation{createPage(title:"_Unnamed", type:"news")}`
@@ -65,5 +77,24 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+article {
+  position: relative;
+}
+article:first-of-type {
+  grid-column: span 3;
+}
+
+.errorous {
+  color: $red;
+}
+
+.button {
+  position: absolute;
+  background-color: transparent;
+  border: none;
+  top: 0;
+  right: 0;
+  color: $primary-color;
+}
 </style>

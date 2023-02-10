@@ -1,7 +1,7 @@
 <template>
   <section class="hero">
     <Box>
-      <h3>Setup</h3>
+      <h2>Setup</h2>
 
       <div v-if="!databaseExists">
         <p class="error">

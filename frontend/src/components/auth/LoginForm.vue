@@ -15,7 +15,7 @@
         <div>
           <async-button
             ref="loginBtn"
-            @click="login"
+            @click="buttonLogin"
             class="colored big-button"
             :pending="buttonDisabled"
             id="submit-button"
@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import Auth from '../../utils/Auth';
 import Box from '../layout/Box.vue';
 import UserForm from '../auth/UserForm';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
@@ -37,8 +36,11 @@ import ErrorMessage from '../ErrorMessage.vue';
 import Async from '../../utils/Async.mjs';
 import SegmentedRow from '../layout/SegmentedRow.vue';
 
+import AuthMixin from '../mixins/auth';
+
 export default {
   components: { Box, UserForm, AsyncButton, ErrorMessage, SegmentedRow },
+  mixins: [AuthMixin],
   name: 'LoginForm',
   data: function () {
     return {
@@ -61,14 +63,14 @@ export default {
         password,
       });
     },
-    login: function () {
+    buttonLogin: function () {
       if (this.$refs.form.checkValidity()) {
         this.loginError = '';
         this.buttonDisabled = true;
         const startTime = Date.now();
         const minSecondsToWait = 1.5;
-        Auth.login(this.email, this.password)
-          .then(async ({ message, success, user }) => {
+        this.login(this.email, this.password)
+          .then(async ({ message, success }) => {
             /**
              * It's weird and looks junky, when the button is resolved too
              * quickly. So we introduce an artifical delay to improve the UX.
@@ -76,12 +78,7 @@ export default {
             const timeLeft = minSecondsToWait * 1000 - (Date.now() - startTime);
             await Async.sleep(timeLeft);
 
-            if (!success) {
-              this.loginError = message;
-            } else {
-              this.$store.commit('login', user);
-              this.$emit('login');
-            }
+            if (!success) this.loginError = message;
           })
           .catch((err) => {
             console.error('ERROR: ', err);

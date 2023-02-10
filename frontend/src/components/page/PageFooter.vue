@@ -3,6 +3,13 @@
     <div class="content-wrapper grid col-3">
       <div></div>
       <div>© 2023</div>
+      <div>
+        <ul>
+          <li>
+            <router-link> Mitarbeiter Login</router-link>
+          </li>
+        </ul>
+      </div>
     </div>
   </footer>
 </template>

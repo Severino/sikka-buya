@@ -1,5 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import Auth from './utils/Auth';
+import router from './router/router'
+
 
 Vue.use(Vuex)
 

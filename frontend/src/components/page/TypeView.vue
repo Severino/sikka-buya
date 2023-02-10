@@ -457,6 +457,8 @@ $columns: 4;
 }
 
 #not-reviewed-warning {
+  position: sticky;
+  top: 10px;
   grid-column: span $columns;
 }
 

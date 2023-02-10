@@ -67,5 +67,5 @@ $strong-shadow: $shadow-offset $shadow-spread $strong-shadow-color;
   overflow: hidden;
 
   background-color: $white;
-  @include box-padding($big-padding);
+  @include box-padding($large-padding);
 }

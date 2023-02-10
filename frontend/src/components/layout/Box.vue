@@ -23,6 +23,11 @@ $side-pad: $padding * 4;
 
 $top-bottom-spacing: math.div($side-pad, 2);
 
+h2 {
+  padding-top: 0.5em;
+  padding-bottom: 1em;
+}
+
 header {
   > * {
     margin-top: 0;

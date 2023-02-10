@@ -27,7 +27,7 @@
             :to="{ name: 'Map Overview' }"
           >
             <ExitIcon :size="IconSize.Big" class="flip" />
-            Verlassen
+            Startseite
           </Button>
         </nav>
       </template>

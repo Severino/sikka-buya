@@ -115,20 +115,26 @@ export default {
   .material-design-icon:not(:last-child) {
     margin-right: $padding;
   }
-}
 
-.button.colored {
-  border-radius: 3px;
+  &.colored {
+    border-radius: 3px;
 
-  @include buttonColor($white, $primary-color);
-}
+    @include buttonColor($white, $primary-color);
+  }
 
-.button.content-button {
-  background-color: transparent;
-  border: none;
-}
+  &.content-button {
+    background-color: transparent;
+    border: none;
+  }
 
-a {
-  display: block;
+  &.borderless {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  a {
+    display: block;
+  }
 }
 </style>

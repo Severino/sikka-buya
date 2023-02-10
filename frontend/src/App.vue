@@ -5,6 +5,8 @@
       {{ getCount }}
     </modal>
 
+    <user-hub v-if="$store.getters.loggedIn" />
+
     <router-view></router-view>
 
     <div class="error-popup error" :class="{ show: $store.getters.hasErrors }">
@@ -23,11 +25,14 @@
 import LoginForm from './components/auth/LoginForm.vue';
 import ButtonGroup from './components/forms/ButtonGroup.vue';
 import Modal from './components/layout/Modal.vue';
-import Auth from './utils/Auth';
 import PopupHandler from './popup';
+import UserHub from './components/auth/UserHub.vue';
+
+import AuthMixin from './components/mixins/auth';
 
 export default {
-  components: { ButtonGroup, LoginForm, Modal },
+  components: { ButtonGroup, LoginForm, Modal, UserHub },
+  mixins: [AuthMixin],
   name: 'App',
   data: function () {
     return {
@@ -36,14 +41,7 @@ export default {
     };
   },
   created: async function () {
-    try {
-      let user = await Auth.init();
-      this.$store.commit('login', user);
-    } catch (e) {
-      //Fail silently
-      console.log('Not authenticated');
-    }
-
+    await this.authenticateIfAvailable();
     this.popupHandler = new PopupHandler(this);
     this.popupHandler.init(document.body);
   },
