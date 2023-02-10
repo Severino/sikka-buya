@@ -99,6 +99,7 @@
         </router-link>
       </aside>
     </div>
+    <news />
     <page-footer />
   </div>
 </template>
@@ -108,6 +109,7 @@ import LoginVariant from 'vue-material-design-icons/LoginVariant';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import Navigation from '../Navigation.vue';
+import News from './News.vue';
 import PageFooter from './PageFooter.vue';
 
 export default {
@@ -118,6 +120,7 @@ export default {
     Button,
     PageFooter,
     Navigation,
+    News,
   },
 };
 </script>

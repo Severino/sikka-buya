@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div>
     <section class="content-wrapper">
       <header>
         <h1>News</h1>
