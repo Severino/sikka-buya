@@ -77,17 +77,6 @@ export default {
           target: { name: 'Catalog' },
           auth: true,
         },
-        {
-          name: 'Beiträge',
-          target: { name: 'NewsOverview' },
-          auth: true,
-          count: 2,
-        },
-        {
-          name: 'routes.Analytics',
-          target: { name: 'Analytics' },
-          auth: true,
-        },
       ],
     };
   },

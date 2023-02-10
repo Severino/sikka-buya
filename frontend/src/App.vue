@@ -1,10 +1,5 @@
 <template>
-  <div id="app" ref="app">
-    <modal :active="$store.state.showLoginForm" @close="closeLoginForm">
-      <login-form @login="closeLoginForm" />
-      {{ getCount }}
-    </modal>
-
+  <div id="app" :class="loggedInClass" ref="app">
     <user-hub v-if="$store.getters.loggedIn" />
 
     <router-view></router-view>
@@ -22,16 +17,14 @@
 </template>
 
 <script>
-import LoginForm from './components/auth/LoginForm.vue';
 import ButtonGroup from './components/forms/ButtonGroup.vue';
-import Modal from './components/layout/Modal.vue';
 import PopupHandler from './popup';
 import UserHub from './components/auth/UserHub.vue';
 
 import AuthMixin from './components/mixins/auth';
 
 export default {
-  components: { ButtonGroup, LoginForm, Modal, UserHub },
+  components: { ButtonGroup, UserHub },
   mixins: [AuthMixin],
   name: 'App',
   data: function () {
@@ -103,8 +96,8 @@ export default {
     },
   },
   computed: {
-    getCount() {
-      return this.$store.state.test;
+    loggedInClass() {
+      return this.$store.getters.loggedIn ? 'logged-in' : '';
     },
   },
 };
@@ -118,6 +111,13 @@ body {
   background-color: $background-color;
   color: $text-color;
 }
+
+.ugly {
+  background-color: red !important;
+  color: rgb(155, 15, 15) !important;
+  border: 1px solid rgb(155, 15, 15) !important;
+}
+
 body {
   font-family: $font;
   font-size: $regular-font;

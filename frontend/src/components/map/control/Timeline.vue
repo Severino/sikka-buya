@@ -29,6 +29,10 @@
           ></popup-activator>
         </div>
 
+        <div class="center">
+          <slot name="center" />
+        </div>
+
         <div class="right">
           <div v-if="allowToggle">
             <div
@@ -365,7 +369,7 @@ export default {
 
   header {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     justify-content: space-between;
     position: absolute;
     width: 100%;

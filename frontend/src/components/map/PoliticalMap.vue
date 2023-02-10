@@ -20,27 +20,16 @@
         :selectedIds="selectedMints"
         @selectionChanged="mintSelectionChanged"
       />
-      <template v-slot:footer>
-        <nav>
-          <Button
-            class="huge-button row-button transparent-button"
-            :to="{ name: 'Map Overview' }"
-          >
-            <ExitIcon :size="IconSize.Big" class="flip" />
-            Startseite
-          </Button>
-        </nav>
-      </template>
     </Sidebar>
 
     <div class="center-ui center-ui-top">
       <div class="toolbar top-right-toobar">
-        <Button
-          v-if="filtersActive"
-          class="clear-filter-btn"
-          @click="resetFilters()"
-          >Filter aufheben</Button
-        >
+        <nav>
+          <Button id="back-button" class="ugly" :to="{ name: 'Map Overview' }">
+            <ExitIcon :size="IconSize.Big" class="flip" />
+            Startseite
+          </Button>
+        </nav>
       </div>
       <map-settings-box
         :open="overlaySettings.uiOpen"
@@ -101,6 +90,15 @@
       >
         <template #background>
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
+        </template>
+
+        <template #center>
+          <Button
+            v-if="filtersActive"
+            class="clear-filter-btn"
+            @click="resetFilters()"
+            >Filter aufheben</Button
+          >
         </template>
       </timeline>
     </div>
@@ -538,7 +536,10 @@ export default {
       this.update();
     },
     resetFilters: function () {
-      this.rulerSelectionChanged([], { preventUpdate: true });
+      this.rulerSelectionChanged(
+        { active: [], remove: this.selectedRulers },
+        { preventUpdate: true }
+      );
       this.mintSelectionChanged(
         { active: [], remove: this.selectedMints },
         { preventUpdate: true }
@@ -684,6 +685,12 @@ export default {
 </script>
 
 <style  lang="scss" >
+#app {
+  .political-map.ui .center-ui-top {
+    margin-top: 30px;
+  }
+}
+
 .political-map.ui {
   .notice {
     $margin: 100px;

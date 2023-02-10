@@ -20,14 +20,7 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <div class="toolbar top-right-toobar">
-        <Button
-          v-if="filtersActive"
-          class="clear-filter-btn"
-          @click="resetFilters()"
-          >Filter aufheben</Button
-        >
-      </div>
+      <div class="toolbar top-right-toobar"></div>
       <map-settings-box
         :open="overlaySettings.uiOpen"
         @toggle="toggleSettings"
@@ -63,6 +56,15 @@
       >
         <template #background>
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
+        </template>
+
+        <template #center>
+          <Button
+            v-if="filtersActive"
+            class="clear-filter-btn"
+            @click="resetFilters()"
+            >Filter aufheben</Button
+          >
         </template>
       </timeline>
     </div>
@@ -430,7 +432,7 @@ export default {
       this.overwriteFilters.mint = this.selectedMints;
       // this.$refs.catalogFilter.resumeWatching();
 
-      // this.update();
+      this.update();
     },
     async update() {
       await this.updateMints();

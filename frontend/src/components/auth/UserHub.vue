@@ -1,6 +1,6 @@
 <template>
   <div class="user-hub">
-    <span>Eingeloggt</span>
+    <span>Benutzer</span>
     <div class="toolbox">
       <Button :to="{ name: 'Editor' }" class="borderless"
         ><account-icon :size="IconSize.Large"

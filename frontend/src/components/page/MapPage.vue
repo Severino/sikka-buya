@@ -100,6 +100,15 @@ export default {
 .map-page {
   height: 100vh;
 
+  #back-button a {
+    display: inline-flex;
+    .material-design-icon {
+      margin-right: 2 * $padding;
+    }
+
+    padding-right: $padding;
+  }
+
   .spinner {
     position: absolute;
     top: 0;
