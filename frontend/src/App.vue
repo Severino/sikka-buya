@@ -112,11 +112,11 @@ body {
   color: $text-color;
 }
 
-.ugly {
-  background-color: red !important;
-  color: rgb(155, 15, 15) !important;
-  border: 1px solid rgb(155, 15, 15) !important;
-}
+// .ugly {
+//   background-color: red !important;
+//   color: rgb(155, 15, 15) !important;
+//   border: 1px solid rgb(155, 15, 15) !important;
+// }
 
 body {
   font-family: $font;
