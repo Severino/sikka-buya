@@ -161,22 +161,23 @@ const routes = [
       },
     ]
   },
-  {
-    meta: { auth: true },
-    path: "/landing",
-    name: "Landing",
-    component: LandingPage
-  },
+
   {
     path: "",
     component: CommonMain,
-    name: "Home",
     redirect: "home",
     children: [
       {
-        path: "/home",
-        name: "PlaceholderLanding",
+
+        path: "/landing",
+        name: "Landing",
         component: PlaceholderLandingPage
+      },
+      {
+        meta: { auth: true },
+        path: "/home",
+        name: "Home",
+        component: LandingPage
       },
       {
         meta: { auth: true },
@@ -495,21 +496,26 @@ router.beforeEach(async (to, from, next) => {
     next({ name: "Home" })
   }
 
-  if (to.fullPath == "/") next({ name: "Home" })
+  if (to.fullPath === "/") next({ name: "Home" })
   else {
     if (to.matched.some(record => record.meta.auth)) {
       let auth = await Auth.check()
       if (auth) {
         next()
       } else {
-        const error = "Bitte loggen Sie sich ein!"
-        router.push({
-          name: "Login", params: {
-            error
-          }
-        })
+        console.log(to.name)
+        if (to.name === "Home") {
+          router.push({ name: "Landing" })
+        } else {
+          const error = "Bitte loggen Sie sich ein!"
+          router.push({
+            name: "Login", params: {
+              error
+            }
+          })
 
-        store.commit("printError", error)
+          store.commit("printError", error)
+        }
       }
     }
 
