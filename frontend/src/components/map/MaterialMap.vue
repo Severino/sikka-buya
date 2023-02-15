@@ -53,7 +53,6 @@
         :to="timeline.to"
         :value="raw_timeline.value"
         :valid="timelineValid"
-        :allowToggle="true"
         :timelineActive="timelineActive"
         :shareLink="shareLink"
         timelineName="additional-map"

@@ -102,8 +102,6 @@ export default {
       const groupArray = Object.values(groups);
       groupArray.sort(Sort.stringPropAlphabetically('name'));
 
-      console.log(groupArray.map((i) => i.name).join(', '));
-
       return groupArray;
     },
   },

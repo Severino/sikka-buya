@@ -29,23 +29,27 @@
           ></popup-activator>
         </div>
 
-        <div class="center">
-          <slot name="center" />
-        </div>
-
-        <div class="right">
-          <div v-if="allowToggle">
+        <div class="center-ui">
+          <div v-if="allowToggle" class="timeline-button-container">
             <div
-              class="button button rounded"
+              class="timeline-toggle-button button button rounded"
               @click="toggleTimeline"
               v-if="timelineActive"
             >
               Zeitleiste deaktivieren
             </div>
-            <div class="button button rounded" @click="toggleTimeline" v-else>
+            <div
+              class="timeline-toggle-button button button rounded"
+              @click="toggleTimeline"
+              v-else
+            >
               Zeitleiste aktivieren
             </div>
           </div>
+        </div>
+
+        <div class="right">
+          <slot name="right" />
         </div>
       </header>
 
@@ -69,7 +73,7 @@
       <timeline-slider
         :min="from"
         :max="to"
-        :value="value"
+        :value="clampedValue"
         @change.stop="change"
         @input.stop="change"
         :labeledValue="10"
@@ -82,6 +86,7 @@
             :value="value"
             style="text-align: center"
             @input="input"
+            @blur="insertClampedValue"
           />
           <Info :alwaysShow="!valid" type="warning" class="info">
             Der eingegebene Wert befindet sich außerhalb der Zeitleiste
@@ -122,6 +127,7 @@ import PopupActivator from '../../Popup/PopupActivator.vue';
 import CopyField from '../../forms/CopyField.vue';
 import Slideshow from './Slides/Slideshow.vue';
 import Settings from '../../../settings';
+import { clamp } from '../../../utils/Math';
 
 let slideshowSettings = new Settings(window, 'Slideshow');
 const slideshow = slideshowSettings.load();
@@ -149,16 +155,29 @@ export default {
     from: Number,
     to: Number,
     value: Number,
-    valid: Boolean,
+
+    /**
+     * The 'toggle' state of the timeline.
+     * Hidden when false
+     */
     timelineActive: {
       default: true,
       type: Boolean,
     },
+    /**
+     * Used as a prefix to save the timeline independently from other timelines.
+     */
     timelineName: String,
+    /**
+     * Don't display the toggle if toggling should be prohibited.
+     */
     allowToggle: {
-      default: false,
+      default: true,
       type: Boolean,
     },
+    /**
+     * The link that can be shared to reproduce the current view of the application.
+     */
     shareLink: {
       type: String,
       require: true,
@@ -179,6 +198,12 @@ export default {
     },
   },
   computed: {
+    valid() {
+      return this.value >= this.from && this.value <= this.to;
+    },
+    clampedValue() {
+      return clamp(this.value, this.from, this.to);
+    },
     playing() {
       return this.playInterval != null;
     },
@@ -213,6 +238,9 @@ export default {
     changed(val, isPlaying = false) {
       if (!isPlaying) this.stop();
       this.$emit('change', val);
+    },
+    insertClampedValue() {
+      this.$emit('input', this.clampedValue);
     },
     enableMap() {
       this.map.dragging.enable();
@@ -279,6 +307,23 @@ export default {
     flex: 1;
     border-radius: 0;
   }
+}
+
+.timeline-button-container {
+  position: relative;
+  align-self: stretch;
+  height: 100%;
+  flex: 1;
+}
+
+.timeline-toggle-button {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  text-align: center;
+  justify-self: center;
+  // padding-bottom: 40px;
+  transform: translateX(-50%);
 }
 .timeline {
   position: relative;
@@ -388,6 +433,10 @@ export default {
 
     .right {
       justify-self: flex-end;
+    }
+
+    .center {
+      justify-content: center;
     }
   }
 }
