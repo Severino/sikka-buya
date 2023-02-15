@@ -81,7 +81,6 @@
         :value="raw_timeline.value"
         :valid="timelineValid"
         :shareLink="shareLink"
-        :allowToggle="true"
         :timelineActive="timelineActive"
         timelineName="political-map"
         @input="timeChanged"
@@ -284,8 +283,12 @@ export default {
       }
 
       let sorted = [
-        ...this.availableMints.map((mint) => addAvailability(mint, true)),
-        ...this.unavailableMints.map((mint) => addAvailability(mint, false)),
+        ...this.availableMints
+          .filter((mint) => mint)
+          .map((mint) => addAvailability(mint, true)),
+        ...this.unavailableMints
+          .filter((mint) => mint)
+          .map((mint) => addAvailability(mint, false)),
       ];
 
       sorted = sorted

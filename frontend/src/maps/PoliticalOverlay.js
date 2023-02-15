@@ -109,38 +109,45 @@ export default class PoliticalOverlay extends Overlay {
 
     // Sort the types by mints
     data.forEach(type => {
-      if (!type.mint.location)
-        unlocatedTypes.push(type)
+      try {
+        if (!type.mint.location)
+          unlocatedTypes.push(type)
 
-      const mintId = type?.mint?.id
-      if (mintId) {
-        if (!availableMints[mintId]) {
-          availableMints[mintId] = mintMap[mintId]
-        }
+        const mintId = type?.mint?.id
+        if (mintId) {
+          if (!availableMints[mintId]) {
+            availableMints[mintId] = mintMap[mintId]
 
-        availableMints[mintId].data.types.push(type)
-        const rulersOnType = [...type.overlords, ...type.issuers]
-        if (type.caliph)
-          rulersOnType.push(type.caliph)
-
-
-        type.otherPersons.forEach(person => {
-          if (person.role) {
-            type[person.role.name] = person
-
-            if (person.role.name === "heir") {
-              rulersOnType.push(person)
+            if (!mintMap[mintId]) {
+              throw new Error(`Invalid mint is not excluded from map: ${mintId}`)
             }
-          } else {
-            console.warn("No role found on other person!", person)
           }
-        })
 
-        rulersOnType.forEach(person => {
-          rulers[person.id] = person
-        })
+          availableMints[mintId].data.types.push(type)
+          const rulersOnType = [...type.overlords, ...type.issuers]
+          if (type.caliph)
+            rulersOnType.push(type.caliph)
+
+
+          type.otherPersons.forEach(person => {
+            if (person.role) {
+              type[person.role.name] = person
+
+              if (person.role.name === "heir") {
+                rulersOnType.push(person)
+              }
+            } else {
+              console.warn("No role found on other person!", person)
+            }
+          })
+
+          rulersOnType.forEach(person => {
+            rulers[person.id] = person
+          })
+        }
+      } catch (e) {
+        console.error(e)
       }
-
     })
 
 
