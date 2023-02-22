@@ -91,7 +91,12 @@ export default class MaterialOverlay extends Overlay {
             <div class="popup-content grid col-3">
         ${types
                 .map((type) => {
-                    return `<a href="${type.route.href}" style="color: ${type.material.color}" target="_blank">${type.projectId}</a>`;
+                    if (type.excludeFromTypeCatalogue) {
+                        return `<span class="no-catalog-entry" style="color: ${type.material.color}">
+                            ${type.projectId}
+                        </span>`
+                    } else
+                        return `<a href="${type.route.href}" style="color: ${type.material.color}" target="_blank">${type.projectId}</a>`;
                 })
                 .join('')}
                 </div>

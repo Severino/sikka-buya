@@ -2,21 +2,13 @@
   <div class="material-map ui">
     <Sidebar title="Prägeorte">
       <template v-slot:tools>
-        <list-selection-tools
-          @select-all="selectAllMints"
-          @unselect-all="clearMintSelection"
-          :allSelected="allMintsSelected"
-          :noneSelected="mintsSelected"
-        />
+        <list-selection-tools @select-all="selectAllMints" @unselect-all="clearMintSelection"
+          :allSelected="allMintsSelected" :noneSelected="mintsSelected" />
       </template>
 
-      <mint-list
-        :items="mintList"
-        :selectedIds="selectedMints"
-        @selectionChanged="
-          (val) => mintSelectionChanged(val, { preventUpdate: true })
-        "
-      />
+      <mint-list :items="mintList" :selectedIds="selectedMints" @selectionChanged="
+        (val) => mintSelectionChanged(val, { preventUpdate: true })
+      " />
     </Sidebar>
 
     <div class="center-ui center-ui-top">
@@ -28,93 +20,59 @@
           </Button>
         </nav>
       </div>
-      <map-settings-box
-        :open="overlaySettings.uiOpen"
-        @toggle="toggleSettings"
-        @reset="resetSettings"
-      >
+      <map-settings-box :open="overlaySettings.uiOpen" @toggle="toggleSettings" @reset="resetSettings">
         <labeled-input-container label="Kreisgröße">
-          <slider
-            name="maxRadius"
-            :value="overlaySettings.maxRadius"
-            @input="overlaySettingsChanged"
-            :min="overlaySettings.maxRadiusMinimum"
-            :max="overlaySettings.maxRadiusMaximum"
-          />
+          <slider name="maxRadius" :value="overlaySettings.maxRadius" @input="overlaySettingsChanged"
+            :min="overlaySettings.maxRadiusMinimum" :max="overlaySettings.maxRadiusMaximum" />
         </labeled-input-container>
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
-      <timeline
-        ref="timeline"
-        :map="map"
-        :from="timeline.from"
-        :to="timeline.to"
-        :value="raw_timeline.value"
-        :valid="timelineValid"
-        :timelineActive="timelineActive"
-        :shareLink="shareLink"
-        timelineName="additional-map"
-        @input="timelineChanged"
-        @change="timelineChanged"
-        @toggle="timelineToggled"
-      >
+      <timeline ref="timeline" :map="map" :from="timeline.from" :to="timeline.to" :value="raw_timeline.value"
+        :valid="timelineValid" :timelineActive="timelineActive" :shareLink="shareLink" timelineName="additional-map"
+        @input="timelineChanged" @change="timelineChanged" @toggle="timelineToggled">
         <template #background>
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
         </template>
 
         <template #center>
-          <Button
-            v-if="filtersActive"
-            class="clear-filter-btn"
-            @click="resetFilters()"
-            >Filter aufheben</Button
-          >
+          <Button v-if="filtersActive" class="clear-filter-btn" @click="resetFilters()">Filter aufheben</Button>
         </template>
       </timeline>
     </div>
 
     <Sidebar title="Filter" side="right" ref="catalogSidebar">
       <div class="padding-box">
-        <catalog-filter
-          ref="catalogFilter"
-          :initData="initialCatalogFilters"
-          @loading="setLoading"
-          @update="dataUpdated"
-          @dynamic-change="recalculateCatalogSidebar"
-          @toggled="save"
-          :forceAll="true"
-          :pageInfo="pageInfo"
-          :exclude="[
+        <catalog-filter ref="catalogFilter" :initData="initialCatalogFilters" @loading="setLoading" @update="dataUpdated"
+          @dynamic-change="recalculateCatalogSidebar" @toggled="save" :forceAll="true" :pageInfo="pageInfo" :exclude="[
             'mint',
             'yearOfMint',
             'ruler',
             'caliph',
             'treadwellId',
             'projectId',
-          ]"
-          :overwriteFilters="overwriteFilters"
-          typeBody="
-              id
-              projectId
-              yearOfMint
-              material {
-                id
-                name
-                color
-              }
-              mint {
-                id
-                name
-                location 
-                uncertain
-                province {
+          ]" :overwriteFilters="overwriteFilters" typeBody="
                   id
-                  name
-                }
-              }"
-        />
+                  projectId
+                  yearOfMint
+                  material {
+                    id
+                    name
+                    color
+                  }
+                  mint {
+                    id
+                    name
+                    location 
+                    uncertain
+                    province {
+                      id
+                      name
+                    }
+                  }
+                  excludeFromTypeCatalogue
+                  " />
       </div>
     </Sidebar>
   </div>
@@ -143,6 +101,7 @@ import Timeline from './control/Timeline.vue';
 
 //Icons
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
+import ExitIcon from 'vue-material-design-icons/ExitToApp.vue'
 
 // Other
 import MapSettingsBox from '../MapSettingsBox.vue';
@@ -173,6 +132,7 @@ export default {
     Button,
     CatalogFilter,
     Checkbox,
+    ExitIcon,
     FilterIcon,
     LabeledInputContainer,
     MapSettingsBox,
@@ -197,6 +157,7 @@ export default {
       overwriteFilters: {
         yearOfMint: null,
         mint: selectedMints,
+        excludeFromMapApp: false
       },
       pageInfo: { page: 0, count: 100000 },
       painter: null,
@@ -398,7 +359,7 @@ export default {
       this.updateYearOverwrite(value);
       this.timeChanged(value);
     },
-    timelineUpdated() {},
+    timelineUpdated() { },
     updateTimeline: async function (initial = false) {
       const triggered = this.updateYearOverwrite(this.timeline.value);
       if (!triggered && !initial) this.update();
@@ -449,7 +410,14 @@ export default {
 </script>
 
 <style lang="scss">
+.leaflet-popup   .no-catalog-entry {
+  opacity: 0.65;
+  cursor: default;
+}
+
 .material-map {
+
+
   .catalog-filters {
     $smaller-input-pad: $small-padding 2 * $small-padding;
 
@@ -473,26 +441,9 @@ export default {
       min-height: 20px;
     }
 
-    > * {
+    >* {
       grid-column: span 6;
     }
   }
 }
-</style>
-
-<style lang="scss" scoped>
-// .active-list {
-//   display: flex;
-//   flex-wrap: wrap;
-
-//   button {
-//     margin: $small-padding/2;
-//     font-size: $small-font;
-//     border-radius: $border-radius;
-//     padding: $small-padding/2 $small-padding;
-//     background-color: $primary-color;
-//     color: white;
-//     font-weight: bold;
-//   }
-// }
 </style>
