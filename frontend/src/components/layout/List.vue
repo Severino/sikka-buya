@@ -1,6 +1,6 @@
 <template>
   <div class="list">
-    <LoadingSpinner class="loading-spinner" :size="50" v-if="loading" />
+    <LoadingSpinner class="loading-spinner" v-if="loading" />
 
     <header v-if="properties">
       <div

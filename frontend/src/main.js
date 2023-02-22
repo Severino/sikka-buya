@@ -19,6 +19,13 @@ Vue.prototype.$utils = {
 }
 
 Vue.mixin(ConfigMixin)
+Vue.mixin({
+  methods: {
+    log(...args) {
+      console.log(...args)
+    }
+  }
+})
 
 new Vue({
   router,

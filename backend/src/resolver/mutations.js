@@ -4,6 +4,7 @@ const { WriteableDatabase, pgp } = require('../utils/database.js')
 const Type = require('../utils/type')
 const PageGQL = require('./klasses/PageGQL')
 const BlockGQL = require('./klasses/BlockGQL')
+const CMS = require('../cms')
 
 /**
  * Most mutations require the user to be logged in to
@@ -88,36 +89,18 @@ const SuperUserMutations = {
         let user = Auth.verifyContext(context)
         if (user.email === email) throw new Error("You can't demote yourself!")
         return WriteableDatabase.none("UPDATE app_user SET super=FALSE WHERE email=$1", email)
+    },
+    async grantPrivilege(_, { user, privilege }) {
+        WriteableDatabase.none("INSERT INTO app_user_privilege (app_user, privilege) VALUES ($[user], $[privilege])", { user, privilege })
+    },
+    async revokePrivilege(_, { user, privilege }) {
+        WriteableDatabase.none("DELETE FROM app_user_privilege WHERE app_user=$[user] AND privilege=$[privilege]", { user, privilege })
     }
 }
 
 
 const UserMutations = {
-    async createPage(_, { title = "", type } = {}, context) {
 
-        let returnedValue = await WriteableDatabase.oneOrNone("SELECT id FROM web_page_group WHERE name=$1 LIMIT 1", type)
-        if (returnedValue == null)
-            returnedValue = await WriteableDatabase.one("INSERT INTO web_page_group (name) VALUES ($1) RETURNING id", type)
-
-
-        const groupId = returnedValue.id
-
-        try {
-            let pageResult = await WriteableDatabase.one(`
-        INSERT INTO web_page 
-        (title, page_group, created_timestamp, modified_timestamp) 
-        VALUES 
-        ($[title], $[groupId], NOW(), NOW()) 
-        RETURNING id`, { title, groupId })
-        } catch (e) {
-            console.log(e)
-
-        }
-
-
-
-        return pageResult.id
-    },
     async moveCoinTypeToCoinVerse(_, { id } = {}) {
         await WriteableDatabase.tx(async t => {
             let res = await t.oneOrNone(`SELECT * FROM coin_marks WHERE id=$1`, id)
@@ -234,8 +217,53 @@ const UserMutations = {
             await WriteableDatabase.none("DELETE FROM type_reviewed WHERE type=$1", id)
         }
         return reviewed
+    },
+}
 
-    }
+/**
+ * Editors are users that have the 'editor' privilege set.
+ * 
+ * 
+ * Generally any priovilege (just a string) can be stored in the 'app_user_privilege' table 
+ * and be used to guard specific routes like it's done with the editor mutations.
+ */
+const EditorMutations = {
+    async uploadFile(_, { identity, file: filePromise }) {
+        if (!identity) throw new Error("Identity field is required!")
+        if (!filePromise) throw new Error("File field is required!")
+
+        const { parts, filename } = CMS.decomposeIdentity(identity)
+        await CMS.removeExistingFiles(parts, filename)
+        try {
+            const fileURI = await CMS.writeFileFromPromise(parts, filename, filePromise)
+            console.log("File was uploaded to: " + fileURI)
+        } catch (e) {
+            console.log("ERROR OCCURED: ", e)
+        }
+
+    },
+    async createPage(_, { title = "", type } = {}, context) {
+
+        let returnedValue = await WriteableDatabase.oneOrNone("SELECT id FROM web_page_group WHERE name=$1 LIMIT 1", type)
+        if (returnedValue == null)
+            returnedValue = await WriteableDatabase.one("INSERT INTO web_page_group (name) VALUES ($1) RETURNING id", type)
+
+        const groupId = returnedValue.id
+
+        try {
+            let pageResult = await WriteableDatabase.one(`
+        INSERT INTO web_page 
+        (title, page_group, created_timestamp, modified_timestamp) 
+        VALUES 
+        ($[title], $[groupId], NOW(), NOW()) 
+        RETURNING id`, { title, groupId })
+        } catch (e) {
+            console.log(e)
+
+        }
+
+        return pageResult.id
+    },
 }
 
 
@@ -250,6 +278,7 @@ const Mutations = Object.assign({},
         ), (_, __, context) => {
             return Auth.requireAuthContext(context)
         }),
+    guard(EditorMutations, async (_, __, context) => await Auth.requirePrivilege(context, 'editor')),
     guard(SuperUserMutations, (_, __, context) => Auth.requireSuperUser(context))
 )
 

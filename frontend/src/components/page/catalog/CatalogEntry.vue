@@ -3,7 +3,7 @@
     <notes v-if="hasInternalNotes" :html="type.internalNotes" />
     <type-view v-if="!loading" :type="type" />
     <div class="center-frame" v-else>
-      <loading-spinner :size="100" />
+      <loading-spinner :size="LoadingSpinnerSize.Big" />
     </div>
   </div>
 </template>

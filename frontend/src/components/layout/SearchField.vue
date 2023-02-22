@@ -8,7 +8,11 @@
       ref="searchField"
     />
     <div v-if="isInputSearch" class="search-indicator">
-      <loading-spinner v-if="pending" class="spinner" :size="30" />
+      <loading-spinner
+        v-if="pending"
+        class="spinner"
+        :size="LoadingSpinnerSize.Small"
+      />
       <Magnify v-else />
     </div>
     <async-button v-else :pending="pending" @click="buttonSearch"

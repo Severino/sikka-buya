@@ -1,5 +1,3 @@
-
-import axios from "axios"
 import AxiosHelper from "@/utils/AxiosHelper.js";
 import Auth from "../utils/Auth";
 import { graphqlEndpoint } from './host';
@@ -29,48 +27,6 @@ export default class Query {
 
     async raw(query, variables) {
         return Query.raw(query, variables)
-    }
-
-
-    static async gql(query, variables) {
-        const string = print(query)
-        return this.raw(string, variables)
-    }
-
-    static async raw(query, variables = {}, debug = false) {
-        if (debug)
-            console.log(query, JSON.stringify(variables))
-        return new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                reject('Operation timed out.')
-            }, 15000)
-            axios({
-                url: graphqlEndpoint,
-                method: "post",
-                headers: { "auth": Auth.loadToken() },
-                data: {
-                    query,
-                    variables
-                },
-            }).then(result => {
-                if (AxiosHelper.ok(result)) {
-                    resolve(result)
-                } else {
-                    let errors = AxiosHelper.getErrors(result)
-                    reject(errors)
-                }
-            }).catch((e) => {
-                if (e.isAxiosError) {
-                    if (e.response) {
-                        console.error(e.response.data.errors[0])
-                        reject(e.response.data.errors.map(item => item.message).join(" --- "))
-                    } else {
-                        reject("Server ist derzeit nicht erreichbar. Versuchen Sie es später nochmal.")
-                    }
-                } else reject(e)
-            })
-                .finally(() => clearTimeout(timeout))
-        })
     }
 
     async update(data) {
@@ -112,5 +68,79 @@ export default class Query {
       `
 
         return Query.raw(query)
+    }
+
+    static async gql(query, variables) {
+        const string = print(query)
+        return this.raw(string, variables)
+    }
+
+    /**
+     * The graphql upload is using this specification for GraphQL file uploads:
+     * https://github.com/jaydenseric/graphql-multipart-request-spec
+     * 
+     * Found via: https://www.floriangaechter.com/posts/graphql-file-uploading/
+     * 
+     * @param {} identity 
+     * @param {*} file 
+     * @returns 
+     */
+    static async uploadFile(identity, file) {
+
+        const formData = new FormData()
+        const operations = `{
+            "query": "mutation ($identity: String!, $file: Upload!) { uploadFile(identity: $identity, file: $file)}",
+            "variables": {
+                "file": null,
+                "identity": "${identity}"
+            }
+        }`
+        formData.append("operations", operations)
+
+        const map = `{ "0": ["variables.file"]}`
+        formData.append("map", map)
+
+        formData.append("0", file)
+
+        // Display the key/value pairs
+        for (const pair of formData.entries()) {
+            console.log(`${pair[0]}, ${pair[1]}`);
+        }
+
+        return AxiosHelper.request({
+            url: graphqlEndpoint,
+            method: "post",
+            headers: Headers.join(Headers.ContentTypeFormData, Headers.Auth),
+            data: formData
+        })
+    }
+
+    static async raw(query, variables = {}, debug = false) {
+        if (debug)
+            console.log(query, JSON.stringify(variables))
+        return AxiosHelper.request({
+            url: graphqlEndpoint,
+            method: "post",
+            headers: Headers.join(Headers.Auth),
+            data: {
+                query,
+                variables
+            },
+        })
+    }
+}
+
+export class Headers {
+
+    static join(...args) {
+        return Object.assign({}, ...args)
+    }
+
+    static get Auth() {
+        return { "auth": Auth.loadToken() }
+    }
+
+    static get ContentTypeFormData() {
+        return { "Content-Type": "multipart/form-data" }
     }
 }

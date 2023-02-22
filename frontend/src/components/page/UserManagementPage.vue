@@ -17,12 +17,20 @@
       <div class="user-list">
         <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
           <span class="email">{{ user.email }}</span>
-          <toggle
-            :value="user.super"
-            @input="(_super) => togglePermission(user, _super)"
-          >
-            <template v-slot:active><KingIcon /></template>
-            <template v-slot:inactive><PawnIcon /></template>
+          <toggle :value="user.editor" @input="() => togglePermission(user, 'editor')"><template v-slot:active>
+              <Newspaper />
+            </template>
+            <template v-slot:inactive>
+              <Newspaper />
+            </template>
+          </toggle>
+          <toggle :value="user.super" @input="(_super) => toggleSuperUser(user, _super)">
+            <template v-slot:active>
+              <KingIcon />
+            </template>
+            <template v-slot:inactive>
+              <PawnIcon />
+            </template>
           </toggle>
           <copy-field :value="getInvitePath(user.email)" />
 
@@ -44,6 +52,8 @@ import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 import KingIcon from 'vue-material-design-icons/ChessKing.vue';
 import PawnIcon from 'vue-material-design-icons/ChessPawn.vue';
 
+import Newspaper from 'vue-material-design-icons/Newspaper.vue';
+
 export default {
   name: 'UserManagement',
   components: {
@@ -54,6 +64,7 @@ export default {
     KingIcon,
     PawnIcon,
     Toggle,
+    Newspaper,
   },
   data: function () {
     return {
@@ -79,18 +90,36 @@ export default {
                 email
                 id
                 super
+                permissions
             }
         }`);
 
       if (result && result.data && result.data.data && result.data.data.users) {
-        this.users = result.data.data.users;
+        console.log(result.data.data.users)
+        this.users = result.data.data.users.map((user) => {
+          return {
+            email: user.email,
+            id: user.id,
+            super: user.super,
+            editor: user.permissions.includes("editor"),
+            permissions: user.permissions
+          }
+        })
+
         this.listError = '';
       } else {
         this.users = [];
         this.listError = 'Nutzerliste konnte nicht geladen werden!';
       }
     },
-    togglePermission: async function (user, _super) {
+    togglePermission: async function (user, permissionName) {
+      const method = (user.permissions.includes(permissionName)) ? "revokePrivilege" : "grantPrivilege"
+      await Query.raw(`mutation TogglePrivilege($user: ID!, $privilege:String!){
+        ${method}(user: $user, privilege: $privilege)
+      }`, { user: user.id, privilege: permissionName })
+      await this.refreshUserList()
+    },
+    toggleSuperUser: async function (user, _super) {
       if (_super) {
         await Query.raw(
           `mutation Promote($email: String){
@@ -131,14 +160,15 @@ export default {
 form {
   @include box;
 }
-form > * {
+
+form>* {
   display: block;
   margin-top: $padding;
 }
 
 .user {
   display: grid;
-  grid-template-columns: 3fr auto 5fr 40px;
+  grid-template-columns: 3fr 40px 40px 5fr 40px;
   gap: $padding;
   align-items: center;
   margin: $padding 0;

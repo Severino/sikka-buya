@@ -1,8 +1,10 @@
-const { GraphQLScalarType, GraphQLError } = require('graphql')
+
 const { GeoJSON } = require('./src/models/geojson.js')
 const Mutation = require('./src/resolver/mutations.js')
 const Query = require('./src/resolver/queries.js')
 const fs = require("fs")
+
+const CMS = require('./src/cms.js')
 
 async function start({
     expressPort,
@@ -10,6 +12,7 @@ async function start({
 } = {}) {
 
 
+    const { default: graphqlUploadExpress } = await import("graphql-upload/graphqlUploadExpress.mjs");
     /**
      * Express packages
      */
@@ -34,8 +37,7 @@ async function start({
     const PersonResolver = require("./src/resolver/personresolver.js");
     const MaterialResolver = require("./src/resolver/materialresolver.js");
 
-
-
+    CMS.init()
 
     return new Promise(resolve => {
         const app = express()
@@ -107,14 +109,15 @@ async function start({
             }
         })
 
-
         /**
          * Route of the GraphQL endpoint.
          */
-        app.use('/graphql', graphqlHTTP({
-            schema,
-            graphiql: true
-        }))
+        app.use('/graphql',
+            graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }),
+            graphqlHTTP({
+                schema,
+                graphiql: true
+            }))
 
         for (let route of routes) {
             const method = route.method || "all"

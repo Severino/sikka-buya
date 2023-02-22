@@ -139,6 +139,20 @@ class Auth {
         }
         throw new Error(`Only a super user can do this!`)
     }
+
+    static async requirePrivilege(context, name) {
+        const { id } = Auth.verifyContext(context)
+
+        let allow = false
+        if (id) {
+            const result = await Database.oneOrNone(`SELECT * FROM app_user_privilege WHERE app_user=$[id] AND privilege=$[name]`, { id, name })
+            allow = Boolean(result)
+        }
+
+        if (!allow)
+            throw new Error(`Ihnen fehlt die Berechtigung: '${name}'`)
+
+    }
 }
 
 module.exports = Auth

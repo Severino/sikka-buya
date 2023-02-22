@@ -1,32 +1,25 @@
 <template>
   <div id="landing-page" class="page">
-    <header>
-      <img
-        src="/image/article/landing/political_map.png"
-        alt="Vorschaubild der politischen Karte"
-      />
+    <header id="hero-header">
+      <div class="content-wrapper">
+        <div class="content">
+          <CMSImage id="header-left-image" mode="contain" identity="landing-page-header-left-image" />
+        </div>
+      </div>
+      <CMSImage id="hero-image" identity="landing-page-hero-image" alt="Vorschaubild der politischen Karte" />
     </header>
     <navigation :hideLogo="true" />
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
           <div id="uni-logo" class="cell smaller">
-            <img
-              src="/image/logos/Logo_Universitaet_Tuebingen.svg"
-              alt="Logo der Universität Tübingen"
-            />
+            <img src="/image/logos/Logo_Universitaet_Tuebingen.svg" alt="Logo der Universität Tübingen" />
           </div>
           <div class="cell">
-            <img
-              src="/image/logos/sikka-buya-big-old-logo.svg"
-              alt="Logo des Sikka-Buya Projektes"
-            />
+            <img src="/image/logos/sikka-buya-big-old-logo.svg" alt="Logo des Sikka-Buya Projektes" />
           </div>
           <div id="thyssen-logo" class="cell smaller">
-            <img
-              src="/image/logos/thyssen_stiftung.jpg"
-              alt="Logo der Thyssen Stiftung"
-            />
+            <img src="/image/logos/thyssen_stiftung.jpg" alt="Logo der Thyssen Stiftung" />
           </div>
         </div>
       </div>
@@ -37,9 +30,7 @@
         <section>
           <div class="subtitled">
             <h1>Willkommen bei sikka:būya</h1>
-            <span class="subtitle"
-              >Ein Online-Portal zur Münzprägung der Būyiden</span
-            >
+            <span class="subtitle">Ein Online-Portal zur Münzprägung der Būyiden</span>
           </div>
 
           <p>
@@ -50,13 +41,8 @@
             Informationsfülle geboten werden, welche insbesondere in den
             umfangreichen Inschriften islamischer Münzen gespeichert ist.
             Ausgewählt wurden hierfür die Prägungen der
-            <a
-              href="https://de.wikipedia.org/wiki/Buyiden"
-              target="_blank"
-              class="external-link"
-              rel="noreferrer"
-              >Būyiden-Dynastie</a
-            >, welche im 10. und 11. Jh. über weite Teile Irans und des Iraks
+            <a href="https://de.wikipedia.org/wiki/Buyiden" target="_blank" class="external-link"
+              rel="noreferrer">Būyiden-Dynastie</a>, welche im 10. und 11. Jh. über weite Teile Irans und des Iraks
             gebot (ca. 100 bekannte Prägeorte). Ihr Reich stellte einen
             komplexen Herrschaftsverband dar, in dem unter wechselnder Führung
             verschiedene, oft rivalisierende Būyiden-Linien regierten und auch
@@ -87,18 +73,11 @@
         </section>
       </div>
       <aside>
-        <card-link
-          :to="{ name: 'Map Overview' }"
-          img="/image/pages/globe_square.jpg"
-          :contain="true"
-        >
+        <card-link :to="{ name: 'Map Overview' }" identity="landing-page-map-link"  direction="row">
           Karten
         </card-link>
-        <card-link
-          :to="{ name: 'Catalog Overview' }"
-          img="/image/pages/coin_square.jpg"
-          :contain="true"
-        >
+        <card-link :to="{ name: 'Catalog Overview' }" identity="landing-page-catalog-link" 
+          direction="row">
           Typenkatalog
         </card-link>
       </aside>
@@ -110,6 +89,7 @@
 
 <script>
 import LoginVariant from 'vue-material-design-icons/LoginVariant';
+import CMSImage from '../cms/CMSImage.vue';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import Navigation from '../Navigation.vue';
@@ -127,14 +107,25 @@ export default {
     Navigation,
     News,
     CardLink,
+    CMSImage,
   },
 };
 </script>
 
 <style lang="scss">
 #landing-page {
+
+  .card-link {
+    max-height: 300px;
+
+    >* {
+      flex: 1;
+    }
+  }
+
   .navigation {
     position: relative;
+
     .brand {
       display: none;
     }
@@ -146,21 +137,25 @@ export default {
 
     nav {
       width: 100%;
+
       ul {
         display: flex;
         width: 100%;
 
-        > * {
+        >* {
           flex: 1;
           text-align: center;
 
           $light-border: 1px solid whitesmoke;
+
           &:first-of-type {
             border-left: $light-border;
           }
+
           border-right: $light-border;
 
           transition: all 0.3s;
+
           a {
             font-weight: bold;
             box-sizing: border-box;
@@ -169,6 +164,7 @@ export default {
             border-bottom: 2px solid $white;
 
             transition: all 0.3s;
+
             &:hover {
               color: $dark-gray;
               background-color: whitesmoke;
@@ -183,9 +179,37 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.page > header {
+#header-left-image {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 66%;
+  min-width: 300px;
+  transform: translateY(-50%);
+  pointer-events: all;
+}
+
+#hero-header {
+  display: flex;
+  min-height: 100px;
+  max-height: 35vh;
+  background-color: pink;
+
+  .image {
+    flex: 1;
+  }
+
+  .content-wrapper {
+    z-index: 1;
+  }
+
+  .content {
+    height: 100%;
+  }
+
   position: relative;
   overflow: hidden;
+
   &::before {
     content: '';
     box-shadow: inset 0 0 $shadow-spread $strong-shadow-color;
@@ -195,13 +219,14 @@ export default {
     bottom: 0;
     right: -10px;
     z-index: 1;
+    pointer-events: none;
   }
 
-  img {
-    display: block;
+  .content-wrapper {
+    position: absolute;
     width: 100%;
-    height: 400px;
-    object-fit: cover;
+    height: 100%;
+    pointer-events: none;
   }
 }
 
@@ -263,7 +288,7 @@ section:first-of-type {
       display: flex;
       overflow: hidden;
 
-      > img {
+      >img {
         display: block;
         width: 100%;
         // height: 100%;
@@ -292,6 +317,7 @@ section:first-of-type {
     background-color: $gray;
     min-height: 200px;
     padding: $large-padding;
+
     flex: 1;
 
     h3 {

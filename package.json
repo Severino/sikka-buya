@@ -34,10 +34,12 @@
         "dotenv": "^10.0.0",
         "graphql": "^15.5.1",
         "graphql-2-json-schema": "^0.7.0",
+        "graphql-upload": "^16.0.2",
         "leaflet.pattern": "^0.1.0",
         "pg-promise": "10.11.1"
     },
     "devDependencies": {
+        "@vue/runtime-dom": "^3.2.47",
         "chai": "^4.3.4",
         "chai-as-promised": "^7.1.1",
         "chai-graphql": "^4.0.0",

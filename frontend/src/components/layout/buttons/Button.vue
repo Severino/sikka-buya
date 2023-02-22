@@ -1,9 +1,5 @@
 <template>
-  <button
-    class="button"
-    :class="{ colored, multiline, 'content-button': contentButton }"
-    @click.stop="clicked"
-  >
+  <button class="button" :class="{ colored, multiline, 'content-button': contentButton }" @click="clicked">
     <!-- 
       @slot Default slot to render the button contents.
      -->
@@ -44,12 +40,20 @@ export default {
      * You can just put the to in the button to get a navigation going.
      */
     to: Object,
+    /**
+     * Prevent the default stopPropagation
+     */
+    noStop: Boolean,
   },
   methods: {
     /**
      * Called when the button is clicked.
      */
-    clicked: function () {
+    clicked: function (event) {
+
+      if (!this.noStop)
+        event.stopPropagation()
+
       if (!this.disabled)
         /**
          * Click event.
@@ -84,6 +88,7 @@ export default {
   &.huge-button {
     padding: $large-padding $large-padding * 2;
     font-size: $large-font;
+
     .material-design-icon {
       margin-right: $large-padding;
     }

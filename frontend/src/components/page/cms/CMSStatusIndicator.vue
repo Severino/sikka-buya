@@ -1,8 +1,12 @@
 <template>
   <div class="cms-status-indicator" :class="{ saving: saving }">
-    <loading-spinner :size="20" class="spinner" :class="{ show: saving }" />
+    <loading-spinner
+      :size="LoadingSpinnerSize.Small"
+      class="spinner"
+      :class="{ show: saving }"
+    />
     {{ savingText }}
-    <loading-spinner :size="20" class="spinner" />
+    <loading-spinner :size="LoadingSpinnerSize.Small" class="spinner" />
   </div>
 </template>
 

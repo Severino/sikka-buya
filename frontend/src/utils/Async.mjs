@@ -61,3 +61,18 @@ export class RequestGuard {
 
 }
 
+export class Timeout {
+    constructor() {
+        this.timeout = null
+    }
+
+    async set(callback, ms) {
+        if (this.timeout !== null) throw new Error("Timeout already set! Maybe you missed to clear it?")
+        this.timeout = setTimeout(callback, ms)
+    }
+
+    clear() {
+        clearTimeout(this.timeout)
+        this.timeout = null
+    }
+}

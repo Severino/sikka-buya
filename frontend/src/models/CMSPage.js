@@ -3,7 +3,6 @@ import Query from "../database/query"
 export default class CMSPage {
 
     static async update(id, page) {
-        console.log(id, page)
 
         let pageObject = Object.assign({
             id: null,

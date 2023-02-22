@@ -174,6 +174,10 @@ $debug-color: orangered !important;
   margin: 0 auto;
   padding: 0 100px;
   box-sizing: border-box;
+
+  .content {
+    position: relative;
+  }
 }
 
 @media (max-width: 1080px) {

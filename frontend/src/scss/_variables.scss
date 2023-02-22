@@ -58,6 +58,8 @@ $strong-shadow-color: rgba(0, 0, 0, 0.03);
 $shadow: $shadow-offset $shadow-spread $shadow-color;
 $strong-shadow: $shadow-offset $shadow-spread $strong-shadow-color;
 
+
+
 @mixin box {
   background-color: $white;
   border-radius: 15px;

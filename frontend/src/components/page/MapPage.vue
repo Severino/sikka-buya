@@ -97,6 +97,12 @@ export default {
 </script>
 
 <style lang="scss">
+.logged-in {
+  .map-page .spinner {
+    margin-top: 32px;
+  }
+}
+
 .map-page {
   height: 100vh;
 

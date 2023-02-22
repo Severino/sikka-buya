@@ -6,10 +6,20 @@ export const IconSize = {
     Gigantic: 100
 }
 
+export const LoadingSpinnerSize = {
+    Small: 30,
+    Normal: 50,
+    Big: 100
+}
+
 export const ConfigMixin = {
     computed: {
         IconSize() {
             return IconSize
+        },
+        LoadingSpinnerSize() {
+            return LoadingSpinnerSize
         }
     }
 }
+

@@ -1,5 +1,5 @@
 <template>
-  <div class="catalog-landing">
+  <div class="card-link-page">
     <header>
       <h1>{{ $t(title) }}</h1>
       <div class="nav-grid grid">
@@ -7,7 +7,8 @@
           v-for="link of links"
           :key="`link-to-${link.title}`"
           :to="link.to"
-          :img="link.image"
+          :identity="link.identity"
+          :contain="Boolean(link.contain)"
         >
           {{ $tc(link.title) }}
         </card-link>
@@ -30,10 +31,11 @@ export default {
 </script>
 
 <style lang="scss">
-.catalog-landing {
+.card-link-page {
   h2 {
     margin-top: 0;
   }
+
 }
 </style>
 

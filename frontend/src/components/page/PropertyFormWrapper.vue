@@ -1,7 +1,7 @@
 <template>
   <div class="property-page">
     <h1>{{ title }}</h1>
-    <LoadingSpinner class="loading-spinner" :size="50" v-if="loading" />
+    <LoadingSpinner class="loading-spinner" v-if="loading" />
     <form v-if="!loading" @submit.prevent>
       <slot></slot>
       <div v-if="error" class="information error">

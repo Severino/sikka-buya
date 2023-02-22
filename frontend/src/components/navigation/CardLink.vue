@@ -1,13 +1,10 @@
 <template>
-  <router-link :to="to" class="card-link" :class="className">
-    <img
-      v-if="img"
-      class="card-link-background-image"
-      :src="img"
-      :class="imageClass"
-    />
+  <div class="card-link" :class="className" @click="() => $router.push(to)">
+    <CMSImage class="image" :identity="identity" :mode="imageClass" />
     <article>
-      <header><arrow-right class="ugly" /> <slot /></header>
+      <header><arrow-right class="ugly" />
+        <slot />
+      </header>
 
       <div class="body">
         <slot name="body" />
@@ -16,51 +13,84 @@
     <!-- <footer>
       
     </footer> -->
-  </router-link>
+  </div>
 </template>
 
 <script>
 import ArrowRight from 'vue-material-design-icons/ArrowRight.vue';
+import CMSImage from '../cms/CMSImage.vue';
 export default {
   components: {
     ArrowRight,
+    CMSImage
   },
   props: {
     to: Object || String,
-    img: String,
+    identity: {
+      required: true,
+      type: String
+    },
     contain: Boolean,
+    direction: {
+      validator(value) {
+        if (value == null) return true
+        else return ["row", "column"].includes(value)
+      }
+    }
   },
   computed: {
     className() {
-      return this.img ? 'card-link-image' : '';
+      const imgClass = this.img ? 'card-link-image' : ''
+      return [imgClass, this.directionClass].join(" ");
     },
     imageClass() {
       return this.contain ? 'contain' : 'cover';
     },
+    directionClass() {
+      return this.direction === "row" ? "row" : "column"
+    }
   },
 };
 </script>
 
+<style lang="scss">
+.card-link {
+
+  .image {
+    min-height: 50px;
+  }
+}
+</style>
+
 <style lang='scss' scoped>
 .card-link {
   display: flex;
-  flex-wrap: wrap;
-
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
   color: $white;
   position: relative;
   background-color: $primary-color;
   border: $border;
   border-radius: 5px;
-  // max-height: 300px;
-  // padding: $big-box-padding;
+  cursor: pointer;
+  user-select: none;
+
+  .image {
+    flex: 1;
+  }
 
   footer {
     z-index: 100;
   }
 
-  // filter: grayscale(50%);
+  &.row {
+    flex-direction: row;
+  }
+}
+
+
+
+img {
+  flex: 1;
 }
 
 header {
@@ -80,7 +110,6 @@ footer {
 
 article {
   display: flex;
-  flex: 1;
   flex-direction: column;
   justify-content: flex-end;
 }
@@ -93,6 +122,7 @@ article {
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
+
   &.contain {
     max-width: none;
     max-height: none;

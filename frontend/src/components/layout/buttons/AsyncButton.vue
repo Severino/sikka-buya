@@ -1,7 +1,7 @@
 <template>
   <Button :class="{ pending }" @click="clicked" class="async-button">
     <div v-if="pending" class="spinner" :class="{ show: pending }">
-      <loading-spinner :size="38" />
+      <loading-spinner :size="LoadingSpinnerSize.Small" />
     </div>
     <div class="text" :class="{ show: !pending }">
       <slot />

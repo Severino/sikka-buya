@@ -93,8 +93,6 @@ class PageGQL extends GQL {
                     console.log(e)
                 }
 
-                console.log(results)
-
                 return resultsToGraphQLPage(results)
             }
         }

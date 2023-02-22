@@ -179,16 +179,17 @@ const routes = [
             links: [
               {
                 title: 'routes.Catalog Ruler Explorer',
-                image: "/image/button-images/catalog-person-tree-preview.png",
+                identity: "catalog-link-page-ruler-explorer",
                 to: { name: "Catalog Ruler Explorer" }
               },
               {
                 title: "routes.Catalog Search",
-                image: "/image/button-images/catalog-search-preview.png",
+                identity: "catalog-link-page-search",
                 to: { name: "Catalog Search" }
               },
               {
                 title: "routes.Analytics Table",
+                identity: "catalog-link-page-table",
                 to: { name: "Analytics Table" }
               }
             ]
@@ -228,17 +229,18 @@ const routes = [
               links: [{
                 title: "routes.Political Map",
                 to: { name: 'Political Map' },
-                image: "/image/button-images/political-map-preview.jpg",
+                identity: "map-landing-political-map-link",
               },
               {
                 title: "routes.Additional Maps",
                 to: { name: 'Additional Maps' },
-                image: "/image/button-images/material-map-preview.jpg",
+                identity: "map-landing-additional-map-link"
               },
 
               {
                 title: "routes.Treasure Map",
-                to: { name: "Treasure Map" }
+                to: { name: "Treasure Map" },
+                identity: "map-landing-treasure-map-link"
               }
               ]
             },

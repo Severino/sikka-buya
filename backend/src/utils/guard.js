@@ -8,10 +8,11 @@ function guardFunctionObject(obj, guardingFunction) {
 
 function guard(func, guardingFunction) {
     return async function () {
-        guardingFunction(...arguments)
+        await guardingFunction(...arguments)
         return await func(...arguments)
     }
 }
+
 
 module.exports = {
     guard,
