@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "frontend",
+            "type": "shell",
+            "command": "npm run frontend",
+            "isBackground": true
+        },
+        {
+            "label": "backend",
+            "type": "shell",
+            "command": "npm run backend",
+            "isBackground": true
+        },
+        {
+            "label": "application",
+            "type": "shell",
+            "command": "npm run frontend",
+            "dependsOn": [
+                "backend",
+                "frontend"
+            ],
+            "dependsOrder": "parallel",
+            "isBackground": true
+        }
+    ]
+}

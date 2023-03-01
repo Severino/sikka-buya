@@ -524,7 +524,7 @@ class Type {
 
 
         const SELECT = [this.rows, this.getAuthRows(context), ...additionalRows].join(",")
-        const JOINS = [this.joins, this.getAuthJoins(context), ...queryBuilder.join, additionalJoin].join("\n")
+        const JOINS = [this.joins, this.getAuthJoins(context), ...queryBuilder._joins, additionalJoin].join("\n")
         const WHERE = this.buildWhereFilter([...conditions, ...queryBuilder.where])
 
         const totalQuery = `

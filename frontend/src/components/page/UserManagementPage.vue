@@ -117,7 +117,7 @@ export default {
       await Query.raw(`mutation TogglePrivilege($user: ID!, $privilege:String!){
         ${method}(user: $user, privilege: $privilege)
       }`, { user: user.id, privilege: permissionName })
-      await this.refreshUserList()
+      this.$nextTick(() => this.refreshUserList())
     },
     toggleSuperUser: async function (user, _super) {
       if (_super) {

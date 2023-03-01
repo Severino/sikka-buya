@@ -17,14 +17,13 @@
 </template>
 
 <script>
-import ButtonGroup from './components/forms/ButtonGroup.vue';
 import PopupHandler from './popup';
 import UserHub from './components/auth/UserHub.vue';
 
 import AuthMixin from './components/mixins/auth';
 
 export default {
-  components: { ButtonGroup, UserHub },
+  components: {  UserHub },
   mixins: [AuthMixin],
   name: 'App',
   data: function () {
@@ -141,6 +140,11 @@ input::placeholder {
   color: $light-gray;
   font-style: italic;
 }
+
+.flex {
+  display: flex;
+}
+
 
 input[type='color'] {
   flex: unset !important;

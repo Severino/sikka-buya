@@ -1,8 +1,18 @@
 <template>
   <footer>
     <div class="content-wrapper grid col-3">
-      <div></div>
-      <div>© 2023</div>
+      <div>
+        <div>© 2023</div>
+      </div>
+      <div>
+        <div>
+          <router-link :to="{
+            name: 'CMSList', params: {
+              group: 'bibliography'
+            }
+          }">Bibliographie</router-link>
+        </div>
+      </div>
       <div>
         <router-link :to="{ name: 'Login' }">Mitarbeiter Login</router-link>
       </div>
@@ -23,11 +33,11 @@ footer {
   min-height: 500px;
   background-color: $gray;
 
-  > * {
+  >* {
     text-align: center;
   }
 
-  .grid > * {
+  .grid>* {
     display: flex;
     flex-direction: column;
   }

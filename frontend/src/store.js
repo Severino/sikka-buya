@@ -1,13 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import Auth from './utils/Auth';
-import router from './router/router'
-
 
 Vue.use(Vuex)
 
 let version = require("../../package.json").version;
-
 
 const store = new Vuex.Store({
   state: {
@@ -62,6 +58,11 @@ const store = new Vuex.Store({
   }, getters: {
     loggedIn: state => {
       return !!state.user
+    },
+    loggedInAs(state, getters) {
+      return (name) => {
+        return getters.loggedIn && state.user.permissions.includes(name)
+      }
     },
     hasErrors(state) {
       return state.errors.length > 0

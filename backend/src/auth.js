@@ -3,6 +3,7 @@ const { RegExValidationRule, FunctionValidationRule } = require("./validation")
 const jwt = require("jsonwebtoken")
 const { Database } = require("./utils/database")
 const validator = require("email-validator")
+const { User } = require('./models/user')
 
 class Auth {
     static get saltIterations() {
@@ -43,10 +44,11 @@ class Auth {
         */
 
         try {
-            let user = await Database.oneOrNone("SELECT * FROM app_user WHERE email=$1", email)
+            let user = await User.byMail(email)
 
             if (user && user.password) {
                 let result = await Auth.checkPassword(password, user.password)
+                delete user.password
                 if (result) {
                     return {
                         success: true,
@@ -54,13 +56,10 @@ class Auth {
                         token: this.sign({
                             superUser: user.super,
                             id: user.id,
-                            email: user.email
-                        }),
-                        user: {
-                            id: user.id,
                             email: user.email,
-                            super: user.super
-                        }
+                            permissions: user.permissions
+                        }),
+                        user
                     }
                 }
             }
@@ -77,11 +76,12 @@ class Auth {
         }
     }
 
-    static sign({ id = null, email = null, superUser = null } = {}) {
+    static sign({ id = null, email = null, superUser = null, permissions = [] } = {}) {
         return jwt.sign({
             id,
             email,
-            super: superUser
+            super: superUser,
+            permissions
         }, process.env.JWT_SECRET, {
             expiresIn: "12h"
         })

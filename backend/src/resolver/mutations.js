@@ -240,29 +240,6 @@ const EditorMutations = {
         } catch (e) {
             console.log("ERROR OCCURED: ", e)
         }
-
-    },
-    async createPage(_, { title = "", type } = {}, context) {
-
-        let returnedValue = await WriteableDatabase.oneOrNone("SELECT id FROM web_page_group WHERE name=$1 LIMIT 1", type)
-        if (returnedValue == null)
-            returnedValue = await WriteableDatabase.one("INSERT INTO web_page_group (name) VALUES ($1) RETURNING id", type)
-
-        const groupId = returnedValue.id
-
-        try {
-            let pageResult = await WriteableDatabase.one(`
-        INSERT INTO web_page 
-        (title, page_group, created_timestamp, modified_timestamp) 
-        VALUES 
-        ($[title], $[groupId], NOW(), NOW()) 
-        RETURNING id`, { title, groupId })
-        } catch (e) {
-            console.log(e)
-
-        }
-
-        return pageResult.id
     },
 }
 

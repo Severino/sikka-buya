@@ -60,6 +60,7 @@ export default class Auth {
                     id
                     email
                     super
+                    permissions
                 }
             }`)
 
@@ -106,6 +107,7 @@ export default class Auth {
                     id
                     email
                     super
+                    permissions
                 }
               }
             }`);

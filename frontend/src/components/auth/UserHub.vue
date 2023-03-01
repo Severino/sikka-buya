@@ -1,6 +1,7 @@
 <template>
   <div class="user-hub">
-    <span>Benutzer</span>
+    <span>{{ permission }}</span>
+    
     <div class="toolbox">
       <Button :to="{ name: 'Editor' }" class="borderless"
         ><account-icon :size="IconSize.Large"
@@ -23,6 +24,15 @@ import LogoutVariantIcon from 'vue-material-design-icons/LogoutVariant.vue';
 export default {
   components: { Button, AccountIcon, LogoutVariantIcon },
   mixins: [AuthMixin],
+  computed: {
+    permission(){
+      const user = this.$store.state.user
+      let permissions = []
+      if(user.super) permissions.push("super")
+      if(user.permissions?.length > 0) permissions.push(... user.permissions)
+      return (permissions.length > 0)? `${permissions.join(", ")}` : "Nutzer"
+    }
+  }
 };
 </script>
 
@@ -34,8 +44,7 @@ export default {
 
   span {
     flex: 1;
-
-    padding: 0 $padding/2;
+    padding: 0 math.div($padding, 2);
   }
 
   .button {
@@ -52,7 +61,7 @@ export default {
   transform: translateX(-50%);
   z-index: 99999;
   background-color: $primary-color;
-  width: 200px;
+  min-width: 300px;
   max-width: 100%;
   text-align: center;
   color: white;

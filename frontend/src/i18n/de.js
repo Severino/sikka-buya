@@ -1,4 +1,5 @@
 const { default: routesDe } = require('./de/routes.de')
+const { default: cmsDe } = require('./de/cms.de')
 
 const general = {
     type:
@@ -247,6 +248,7 @@ const system = {
 
 module.exports = {
     attribute,
+    cms: cmsDe,
     editor,
     error,
     form,

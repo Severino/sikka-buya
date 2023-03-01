@@ -145,7 +145,7 @@ import ListItemIdField from '../layout/list/ListItemIdField.vue';
 import ListItemCell from '../layout/list/ListItemCell.vue';
 
 import ListFilterContainer from '../layout/list/ListFilterContainer.vue';
-import ButtonGroup from '../forms/ButtonGroup.vue';
+import RadioButtonGroup from '../forms/RadioButtonGroup.vue';
 import AxiosHelper from '@/utils/AxiosHelper.js';
 import ReviewedToggle from '../layout/buttons/ReviewedToggle.vue';
 import Button from '../layout/buttons/Button.vue';
@@ -188,7 +188,7 @@ export default {
     ListItemIdField,
     ListItemCell,
     ListFilterContainer,
-    ButtonGroup,
+    RadioButtonGroup,
     ReviewedToggle,
     Button,
     Row,

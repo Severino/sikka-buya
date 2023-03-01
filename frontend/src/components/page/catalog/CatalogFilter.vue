@@ -28,7 +28,7 @@
         :class="[input.name]"
         class="three-way-wrapper"
       >
-        <button-group
+        <radio-button-group
           :id="input.name"
           :labels="input.labels"
           :options="input.options"
@@ -110,7 +110,7 @@ import Filter, { FilterList } from '../../../models/Filter';
 import LabeledInputContainer from '../../LabeledInputContainer.vue';
 import Sorter from '../../../utils/Sorter';
 import ThreeWayToggle from '../../forms/ThreeWayToggle.vue';
-import ButtonGroup from '../../forms/ButtonGroup.vue';
+import RadioButtonGroup from '../../forms/RadioButtonGroup.vue';
 import { RequestGuard } from '../../../utils/Async.mjs';
 import Type from '../../../utils/Type';
 import PageInfo, { Pagination } from '../../../models/pageinfo';
@@ -344,7 +344,7 @@ export default {
     MultiDataSelect,
     LabeledInputContainer,
     ThreeWayToggle,
-    ButtonGroup,
+    RadioButtonGroup,
     ErrorBox,
     MultiDataSelect2D,
   },

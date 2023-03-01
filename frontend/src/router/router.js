@@ -27,6 +27,7 @@ import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
 
 
 import CMSPage from '@/components/page/cms/CMSPage'
+import CMSListPage from '@/components/page/cms/CMSListPage'
 
 
 /**
@@ -133,6 +134,11 @@ const routes = [
         meta: { smallNav: true },
       },
     ]
+  }, {
+    meta: { auth: true },
+    path: "/home",
+    name: "Home",
+    component: LandingPage
   },
 
   {
@@ -141,16 +147,24 @@ const routes = [
     redirect: "home",
     children: [
       {
-
-        path: "/landing",
-        name: "Landing",
-        component: PlaceholderLandingPage
+        meta: { auth: true },
+        path: "cms/:group/:id",
+        name: "CMSPage",
+        props: true,
+        component: CMSPage,
       },
       {
         meta: { auth: true },
-        path: "/home",
-        name: "Home",
-        component: LandingPage
+        path: "cms/:group",
+        props: true,
+        name: "CMSList",
+        component: CMSListPage
+      },
+
+      {
+        path: "/landing",
+        name: "Landing",
+        component: PlaceholderLandingPage
       },
       {
         meta: { auth: true },
@@ -162,6 +176,9 @@ const routes = [
         meta: { auth: true },
         path: "/news/:id",
         name: "NewsPage",
+        props: {
+          include: ["title", "body"]
+        },
         component: CMSPage,
       },
       {

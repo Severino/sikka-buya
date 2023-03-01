@@ -1,32 +1,27 @@
 <template>
-  <div>
-    <section class="content-wrapper">
-      <header>
-        <h1>News</h1>
-        <async-button
-          v-if="$store.getters.loggedIn"
-          @click="createPageAndRedirect"
-          >Neue Seite Erstellen</async-button
-        >
-      </header>
-      <div class="grid col-3">
-        <article v-for="page of pages" :key="`page-${page.id}`">
-          <Button :to="{ name: 'NewsPage', params: { id: page.id } }"
-            ><PencilCircle :size="IconSize.Huge"
-          /></Button>
-          <h2 :class="getPageTitleClass(page)">{{ getPageTitle(page) }}</h2>
-          <h3 class="subtitle">{{ page.subtitle }}</h3>
-          <div>
-            <label for="">Erstellt am:</label>
-            <p>{{ timeMixinFormatDate(page.createdTimestamp) }}</p>
-          </div>
-          <p>{{ page.body }}</p>
-          <router-link :to="{ name: 'NewsPage', params: { id: page.id } }"
-            >Weiterlesen</router-link
-          >
-        </article>
-      </div>
-    </section>
+  <div class="news">
+    <header>
+      <h1>News</h1>
+      <async-button class="create-page-button" v-if="$store.getters.loggedIn" @click="createPageAndRedirect">Neue Seite
+        Erstellen</async-button>
+    </header>
+    <div>
+      <article v-for="(page) of pages" :key="`page-${page.id}`">
+
+        <h2 :class="getPageTitleClass(page)">{{ getPageTitle(page) }}</h2>
+        <div class="time-row">
+          <span class="time">{{ timeMixinFormatDate(page.publishedTimestamp) }}</span>
+          <multi-button class="toolbox">
+            <Button @click="publish(page)" :disabled="loading">veröffentlichen</Button>
+            <Button :to="{ name: 'NewsPage', params: { id: page.id } }" :disabled="loading">bearbeiten</Button>
+          </multi-button>
+        </div>
+
+
+
+        <p>{{ page.body }}</p>
+      </article>
+    </div>
   </div>
 </template>
 
@@ -36,18 +31,28 @@ import AsyncButton from '../layout/buttons/AsyncButton.vue';
 import Button from '../layout/buttons/Button.vue';
 import TimeMixin from '../mixins/time';
 import PencilCircle from 'vue-material-design-icons/PencilCircle.vue';
+import MultiButton from '../layout/buttons/MultiButton.vue'
+import CMSPage from '../../models/CMSPage';
 export default {
-  components: { AsyncButton, Button, PencilCircle },
+  components: { AsyncButton, Button, PencilCircle, MultiButton },
   mixins: [TimeMixin],
   data() {
     return {
       pages: [],
+      loading: false
     };
   },
   created() {
     this.fetchPages();
   },
   methods: {
+    async publish(page) {
+      page.publishedTimestamp = Date.now().toString()
+      this.loading = true
+      await CMSPage.update(page.id, page)
+      await this.fetchPages()
+      this.loading = false
+    },
     getPageTitleClass(page) {
       if (!page.title) return 'errorous';
       else return '';
@@ -66,33 +71,65 @@ export default {
   title
   subtitle
   createdTimestamp
+  publishedTimestamp
   body
 } }`);
 
       this.pages = result.data.data.getPageList;
-
-      console.log(this.pages);
     },
   },
 };
 </script>
 
+<style lang="scss">
+.news {
+
+  article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .toolbox {
+
+    align-self: flex-end;
+
+    label {
+      font-size: $small-font;
+    }
+  }
+}
+</style>
+
 <style lang="scss" scoped>
-article {
+h2 {
+  margin-bottom:0.5rem;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+header {
   position: relative;
 }
-article:first-of-type {
-  grid-column: span 3;
+
+article {
+  position: relative;
+
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .errorous {
   color: $red;
 }
 
-.button {
+.create-page-button {
   position: absolute;
-  background-color: transparent;
-  border: none;
   top: 0;
   right: 0;
   color: $primary-color;

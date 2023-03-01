@@ -341,8 +341,9 @@ type Query {
   ): PaginationTypeTextSearch
 
   getPage(type:String, id:Int): Page
-  getPageList(type:String): [Page]
+  getPageList(type:String!): [Page]
   getImage(identity:String!):String
+  getPageGroup(name:String):ID
 }
 
 type MintPersons {
@@ -478,9 +479,11 @@ type Mutation {
 
   createPage(title: String, type:String!): ID
   updatePage(id: ID!, page: PageInput):Void
+  deletePage(id: ID!):Void
   createBlock(parent: ID!, block: PageBlockInput):ID
   updateBlock(id:ID!, block: PageBlockInput):Void
   deleteBlock(id:ID!):Void
+  createPageGroup(name:String):ID
   
   uploadFile(identity:String!, file:Upload!):Void
 
@@ -495,7 +498,6 @@ input PageInput {
   summary:String
   body: String
   image: String
-  published: Boolean
   createdTimestamp: String
   publishedTimestamp: String
   modifiedTimestamp: String
@@ -508,7 +510,6 @@ type Page {
   summary:String
   body: String
   image: String
-  published: Boolean
   createdTimestamp: String
   publishedTimestamp: String
   modifiedTimestamp: String

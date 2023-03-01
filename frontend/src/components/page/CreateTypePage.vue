@@ -108,12 +108,12 @@
           :label="$tc('property.procedure')"
           id="type-procedure-container"
         >
-          <ButtonGroup
+          <RadioButtonGroup
             id="type-procedure"
             :labels="productionLabels"
             :options="productionOptions"
             v-model="coin.procedure"
-          ></ButtonGroup>
+          ></RadioButtonGroup>
         </LabeledInputContainer>
       </Row>
 
@@ -407,7 +407,7 @@ import LabeledInputContainer from '@/components/LabeledInputContainer.vue';
 import Row from '@/components/layout/Row.vue';
 import RestrictedInputField from '../forms/RestrictedInputField.vue';
 import Checkbox from '../forms/Checkbox.vue';
-import ButtonGroup from '../forms/ButtonGroup.vue';
+import RadioButtonGroup from '../forms/RadioButtonGroup.vue';
 import List from '../forms/List.vue';
 import ListItem from '../forms/ListItem.vue';
 import TitledPersonSelect from '../forms/TitledPersonSelect.vue';
@@ -436,7 +436,7 @@ export default {
     Row,
     RestrictedInputField,
     Checkbox,
-    ButtonGroup,
+    RadioButtonGroup,
     List,
     ListItem,
     TitledPersonSelect,

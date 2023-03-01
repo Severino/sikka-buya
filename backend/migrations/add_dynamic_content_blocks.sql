@@ -21,7 +21,6 @@ CREATE TABLE web_page (
     image INTEGER references web_page_image(id),
     summary TEXT,
     body TEXT,
-    published Boolean,
     page_group INTEGER references web_page_group(id),
     created_timestamp TIMESTAMP NOT NULL,
     modified_timestamp TIMESTAMP NOT NULL,

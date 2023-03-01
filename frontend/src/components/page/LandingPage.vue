@@ -73,16 +73,16 @@
         </section>
       </div>
       <aside>
-        <card-link :to="{ name: 'Map Overview' }" identity="landing-page-map-link"  direction="row">
+        <card-link :to="{ name: 'Map Overview' }" identity="landing-page-map-link" direction="row">
           Karten
         </card-link>
-        <card-link :to="{ name: 'Catalog Overview' }" identity="landing-page-catalog-link" 
-          direction="row">
+        <card-link :to="{ name: 'Catalog Overview' }" identity="landing-page-catalog-link" direction="row">
           Typenkatalog
         </card-link>
+
+        <news />
       </aside>
     </div>
-    <news />
     <page-footer />
   </div>
 </template>
@@ -98,7 +98,6 @@ import News from './News.vue';
 import PageFooter from './PageFooter.vue';
 
 export default {
-  name: 'PlaceholderLandingPage',
   components: {
     LoginVariant,
     Row,

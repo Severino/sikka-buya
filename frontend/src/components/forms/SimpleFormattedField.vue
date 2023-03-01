@@ -1,6 +1,6 @@
 <template>
-  <div class="simple-formatted-field">
-    <Row class="toolbar" style="margin-bottom: 10px">
+  <div class="simple-formatted-field" @mouseenter="() => this.active = true" @mouseleave="()=>this.active = false">
+    <Row class="toolbar" style="margin-bottom: 10px" v-if="this.active">
       <button type="button" @click.prevent="align('left')">
         <FormatAlignLeft />
       </button>
@@ -21,19 +21,15 @@
         <TextLeftToRight />
       </button>
       <div class="spacer"></div>
-      <button type="button" @click.prevent="toggleBold"><FormatBold /></button>
+      <button type="button" @click.prevent="toggleBold">
+        <FormatBold />
+      </button>
       <button type="button" @click.prevent="toggleCursive">
         <FormatItalic />
       </button>
     </Row>
 
-    <div
-      ref="field"
-      class="formatted-text-area"
-      spellcheck="true"
-      @input="input"
-      contenteditable
-    ></div>
+    <div ref="field" class="formatted-text-area" spellcheck="true" @input="input" contenteditable></div>
     <dynamic-delete-button @delete="setContent()" />
   </div>
 </template>
@@ -72,8 +68,16 @@ export default {
   mixins: [CopyAndPasteMixin],
   data: function () {
     return {
+      active: false,
       range: null,
     };
+  },
+  mounted() {
+    this.$refs.field.addEventListener("paste", this.pastePlainText)
+  },
+  onBeforeUnmount() {
+    console.log("bye")
+    this.$refs.field.removeEventListener("paste", this.pastePlainText)
   },
   methods: {
     setContent: function (str) {
@@ -200,6 +204,7 @@ export default {
 <style lang="scss">
 .simple-formatted-field {
   position: relative;
+
   .dynamic-delete-button {
     position: absolute;
     bottom: 3px;
@@ -255,20 +260,29 @@ export default {
 
 <style lang="scss" scoped>
 .toolbar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  z-index: 1;
   background-color: $gray;
   margin-bottom: 0 !important;
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+  transform: translateY(-100%);
+
 
   button {
     border: none;
     margin-right: 2px;
   }
 
-  > *:not(.spacer) {
+  >*:not(.spacer) {
     width: unset;
     margin: 0px 1px !important;
     padding: 0;
     padding-top: 3px;
     background-color: rgb(100, 100, 100);
+
     .material-design-icon__svg {
       height: 18px;
       color: $white;
@@ -278,6 +292,9 @@ export default {
 
 .formatted-text-area {
   @include input();
+
+  padding: $padding;
+
   font-size: 1.3em;
   min-height: 3rem;
 

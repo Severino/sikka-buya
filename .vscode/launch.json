@@ -10,7 +10,8 @@
             "breakOnLoad": true,
             "sourceMapPathOverrides": {
                 "webpack:///src/*": "${webRoot}/*"
-            }
+            },
+            "preLaunchTask":"application"
         },
         {
             "type": "firefox",
@@ -18,12 +19,22 @@
             "name": "vuejs: firefox",
             "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}/frontend/src",
+            "preLaunchTask": "application",
             "pathMappings": [
                 {
                     "url": "webpack:///src/",
                     "path": "${webRoot}/"
                 }
             ]
+        },
+        {
+            "name": "Launch localhost",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://localhost8080/index.html",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "application"
         }
     ]
 }

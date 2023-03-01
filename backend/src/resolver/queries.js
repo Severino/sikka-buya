@@ -10,6 +10,7 @@ const { readdir } = require('fs/promises')
 const path = require('path')
 const CMS = require('../cms.js')
 const { findFilesAt } = require('../cms.js')
+const { User } = require('../models/user.js')
 
 const Queries = {
     ping: () => Date.now(),
@@ -224,17 +225,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         if (!auth) {
             throw new Error('You are not authenticated!')
         } else {
-            let users = await Database.manyOrNone(`
-            SELECT id, email, super, coalesce(array_agg(app_user_privilege.privilege) filter (where app_user_privilege.privilege is not null),'{}') as permissions FROM app_user
-            LEFT JOIN app_user_privilege ON app_user.id = app_user_privilege.app_user
-            GROUP BY (id, email, super)
-            `)
-            console.log(users)
-            users = users.map(user => {
-                if (user.super == null) user.super = false
-                return user
-            })
-            return users
+            return User.list()
         }
     },
     getComments: async function (_, args, context) {
