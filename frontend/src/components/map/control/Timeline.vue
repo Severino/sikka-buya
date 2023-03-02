@@ -414,7 +414,7 @@ export default {
 
   header {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 5fr 1fr;
     justify-content: space-between;
     position: absolute;
     width: 100%;

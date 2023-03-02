@@ -1,14 +1,14 @@
 <template>
   <div class="three-way-toggle">
-    <Button @click="select(false)" class="no" :class="isActive(false)"
-      ><Close
-    /></Button>
-    <Button @click="select(null)" :class="isActive(null)"
-      ><SlashForward
-    /></Button>
-    <Button @click="select(true)" class="yes" :class="isActive(true)"
-      ><Check
-    /></Button>
+    <Button @click="select(false)" class="no" :class="isActive(false)">
+      <Close />
+    </Button>
+    <Button @click="select(null)" :class="isActive(null)">
+      <SlashForward />
+    </Button>
+    <Button @click="select(true)" class="yes" :class="isActive(true)">
+      <Check />
+    </Button>
   </div>
 </template>
 

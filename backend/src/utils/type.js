@@ -515,8 +515,6 @@ class Type {
 
         pagination.count = (pagination.count < process.env.MAX_SEARCH) ? pagination.count : process.env.MAX_SEARCH
 
-
-
         const queryBuilder = new QueryBuilder()
         this.complexFilters(queryBuilder, filters, context)
         const conditions = this.objectToFilters(filters)
@@ -525,7 +523,7 @@ class Type {
 
         const SELECT = [this.rows, this.getAuthRows(context), ...additionalRows].join(",")
         const JOINS = [this.joins, this.getAuthJoins(context), ...queryBuilder._joins, additionalJoin].join("\n")
-        const WHERE = this.buildWhereFilter([...conditions, ...queryBuilder.where])
+        const WHERE = this.buildWhereFilter([...conditions, ...queryBuilder._wheres])
 
         const totalQuery = `
         SELECT count(*)
@@ -559,6 +557,7 @@ class Type {
             result[idx] = await this.postprocessType(type, postProcessFields)
         }
 
+        console.log(result)
         return { types: result, pageInfo }
     }
 

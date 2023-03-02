@@ -1,105 +1,46 @@
 <template>
   <div class="catalog-filters">
     <template v-for="input of filteredInput">
-      <labeled-input-container
-        v-if="input.type === 'text'"
-        :key="input.name"
-        :label="input.label"
-        :class="[input.name]"
-        class="three-way-wrapper"
-      >
+      <labeled-input-container v-if="input.type === 'text'" :key="`${input.name}-text`" :label="input.label"
+        :class="[input.name]" class="input-wrapper">
         <input type="text" v-model="filters[input.name]" />
       </labeled-input-container>
 
-      <labeled-input-container
-        v-else-if="input.type === 'number'"
-        :key="input.name"
-        :label="input.label"
-        :class="[input.name]"
-        class="three-way-wrapper"
-      >
+      <labeled-input-container v-else-if="input.type === 'number'" :key="`${input.name}-number`" :label="input.label"
+        :class="[input.name]" class="input-wrapper">
         <input type="number" v-model="filters[input.name]" />
       </labeled-input-container>
 
-      <labeled-input-container
-        v-else-if="input.type === 'button-group'"
-        :key="input.name"
-        :label="input.label"
-        :class="[input.name]"
-        class="three-way-wrapper"
-      >
-        <radio-button-group
-          :id="input.name"
-          :labels="input.labels"
-          :options="input.options"
-          :unselectable="true"
-          v-model="filters[input.name]"
-        />
+      <labeled-input-container v-else-if="input.type === 'button-group'" :key="`${input.name}-button-group`"
+        :label="input.label" :class="[input.name]" class="input-wrapper">
+        <radio-button-group :id="input.name" :labels="input.labels" :options="input.options" :unselectable="true"
+          v-model="filters[input.name]" />
       </labeled-input-container>
 
-      <labeled-input-container
-        v-else-if="input.type === 'three-way'"
-        :key="input.name"
-        :label="input.label"
-        :class="[input.name]"
-        class="three-way-wrapper"
-      >
-        <three-way-toggle
-          v-model="filters[input.name]"
-          :invert="input.invert"
-        />
+      <labeled-input-container v-else-if="input.type === 'three-way'" :key="`${input.name}-three-way`"
+        :label="input.label" :class="[input.name]" class="input-wrapper">
+        <three-way-toggle v-model="filters[input.name]" :invert="input.invert" />
       </labeled-input-container>
 
-      <labeled-input-container
-        v-else-if="input.type === 'multi-select'"
-        :label="input.label"
-        :class="[input.name]"
-        :key="input.name"
-        class="multi-select-wrapper"
-      >
-        <multi-data-select
-          :active="filters[input.name]"
-          :additionalParameters="input.additionalParameters"
-          :allowModeChange="input.allowModeChange"
-          :attribute="input.attribute"
-          :disableRemoveButton="true"
-          :displayTextCallback="input.displayTextCallback"
-          :mode="input.mode"
-          :queryCommand="input.queryCommand"
-          :queryParams="input.queryParams"
-          :table="input.name"
-          :text="input.text"
-          v-model="filters[searchVariableName(input.name)]"
-          @select="(el) => selectFilter(input.name, el)"
-          @remove="(el) => removeFilter(input.name, el)"
-          @change-mode="() => dataSelectToggled(input)"
-          @dynamic-change="() => $emit('dynamic-change')"
-        />
+      <labeled-input-container v-else-if="input.type === 'multi-select'" :label="input.label" :class="[input.name]"
+        :key="`${input.name}-multi-select`" class="multi-select-wrapper">
+        <multi-data-select :active="filters[input.name]" :additionalParameters="input.additionalParameters"
+          :allowModeChange="input.allowModeChange" :attribute="input.attribute" :disableRemoveButton="true"
+          :displayTextCallback="input.displayTextCallback" :mode="input.mode" :queryCommand="input.queryCommand"
+          :queryParams="input.queryParams" :table="input.name" :text="input.text"
+          v-model="filters[searchVariableName(input.name)]" @select="(el) => selectFilter(input.name, el)"
+          @remove="(el) => removeFilter(input.name, el)" @change-mode="() => dataSelectToggled(input)"
+          @dynamic-change="() => $emit('dynamic-change')" />
       </labeled-input-container>
-      <labeled-input-container
-        v-else-if="input.type === 'multi-select-2d'"
-        :label="input.label"
-        :class="[input.name]"
-        :key="input.name"
-        class="multi-select-wrapper"
-      >
-        <multi-data-select-2-d
-          :active="filters[input.name]"
-          :input="input"
-          :mode="input.mode"
-          @add="() => addToFilterList(input.name)"
-          @select="(value, idx) => selectFilter(input.name, value, idx)"
-          @remove="(el, idx) => removeFilter(input.name, el, idx)"
-          @dynamic-change="() => $emit('dynamic-change')"
-          @remove-group="(idx) => removeFilterGroup(input.name, idx)"
-          @change-mode="() => dataSelectToggled(input)"
-        />
+      <labeled-input-container v-else-if="input.type === 'multi-select-2d'" :label="input.label" :class="[input.name]"
+        :key="`${input.name}-multi-select-2d`" class="multi-select-wrapper">
+        <multi-data-select-2-d :active="filters[input.name]" :input="input" :mode="input.mode"
+          @add="() => addToFilterList(input.name)" @select="(value, idx) => selectFilter(input.name, value, idx)"
+          @remove="(el, idx) => removeFilter(input.name, el, idx)" @dynamic-change="() => $emit('dynamic-change')"
+          @remove-group="(idx) => removeFilterGroup(input.name, idx)" @change-mode="() => dataSelectToggled(input)" />
       </labeled-input-container>
-      <error-box
-        v-else
-        :key="input.name"
-        :message="`Unbekannter Eingabetyp '${input.type}': EingabeFeld kann nicht angezeigt werden!`"
-      />
+      <error-box v-else :key="input.name"
+        :message="`Unbekannter Eingabetyp '${input.type}': EingabeFeld kann nicht angezeigt werden!`" />
     </template>
   </div>
 </template>
@@ -304,7 +245,7 @@ let filterMethods = {};
   ...unfilteredNumberFilters,
 ].forEach((item) => {
   filterData = Object.assign(filterData, {
-    [item.name]: item.defaultValue || null,
+    [item.name]: item.defaultValue == null ? null : item.defaultValue,
   });
 });
 
@@ -320,6 +261,8 @@ unfilteredMultiSelectFilters.forEach((item) => {
 
 unfilteredMultiDataSelect2D.forEach((item) => {
   const filter = new FilterList(item.name);
+  console.log(filterData)
+
   filterData = Object.assign(filterData, filter.mapData([[]]));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
   filterMode[item.name] = item.mode ? item.mode : Mode.And;
@@ -407,7 +350,7 @@ export default {
   mounted() {
     this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this));
     if (this.initData) {
-      [...unfilteredMultiSelectFilters, ...unfilteredMultiDataSelect2D].forEach(
+      unfilteredMultiSelectFilters.forEach(
         (input) => {
           if (this.initData[input.name]) {
             input.mode = this.initData[input.name].mode || input.mode;
@@ -416,6 +359,14 @@ export default {
         }
       );
 
+      unfilteredMultiDataSelect2D.forEach((input) => {
+        if (this.initData[input.name]) {
+          input.mode = this.initData[input.name].mode || input.mode;
+          this.initData[input.name] = this.initData[input.name].value || [[]];
+        }
+      })
+
+      console.log(this.initData.donativ)
       this.filters = Object.assign({}, this.filters, this.initData);
     }
   },
@@ -537,6 +488,8 @@ export default {
           this.$set(this.filters, key, val);
         }
       });
+
+      this.search()
     },
     _getMethodFromFilter(methodName, inputName, idx = null) {
       const filterClass = idx == null ? Filter : FilterList;
@@ -621,6 +574,9 @@ export default {
           return obj;
         }, {});
     },
+    filtersActive() {
+      return Object.keys(this.activeFilters).length > 0
+    },
     filteredInput() {
       return this.inputs.filter(
         (item) => this.exclude.indexOf(item.name) === -1
@@ -641,7 +597,7 @@ export default {
         ...unfilteredButtonGroupFilters,
         ...unfilteredNumberFilters,
       ].forEach((item) => {
-        if (activeFilters[item.name]) {
+        if (activeFilters[item.name] != null) {
           storage[item.name] = activeFilters[item.name];
         }
       });
@@ -676,7 +632,7 @@ export default {
   grid-template-columns: repeat(6, 1fr);
 }
 
-.three-way-wrapper {
+.input-wrapper {
   grid-column: span 3;
 }
 

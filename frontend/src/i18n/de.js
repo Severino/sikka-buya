@@ -246,8 +246,13 @@ const system = {
         "Registrierung"
 }
 
+const catalog = {
+    reset_filters: "Filter zurücksetzen"
+}
+
 module.exports = {
     attribute,
+    catalog,
     cms: cmsDe,
     editor,
     error,

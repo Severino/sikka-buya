@@ -44,7 +44,7 @@
 
     <Sidebar title="Filter" side="right" ref="catalogSidebar">
       <div class="padding-box">
-        <catalog-filter ref="catalogFilter" :initData="initialCatalogFilters" @loading="setLoading" @update="dataUpdated"
+        <catalog-filter ref="catalogFilter" :initData="catalog_filter_mixin_initData" @loading="setLoading" @update="dataUpdated"
           @dynamic-change="recalculateCatalogSidebar" @toggled="save" :forceAll="true" :pageInfo="pageInfo" :exclude="[
             'mint',
             'yearOfMint',
@@ -53,26 +53,26 @@
             'treadwellId',
             'projectId',
           ]" :overwriteFilters="overwriteFilters" typeBody="
-                  id
-                  projectId
-                  yearOfMint
-                  material {
                     id
-                    name
-                    color
-                  }
-                  mint {
-                    id
-                    name
-                    location 
-                    uncertain
-                    province {
+                    projectId
+                    yearOfMint
+                    material {
                       id
                       name
+                      color
                     }
-                  }
-                  excludeFromTypeCatalogue
-                  " />
+                    mint {
+                      id
+                      name
+                      location 
+                      uncertain
+                      province {
+                        id
+                        name
+                      }
+                    }
+                    excludeFromTypeCatalogue
+                    " />
       </div>
     </Sidebar>
   </div>
@@ -111,20 +111,13 @@ import Sorter from '../../utils/Sorter';
 import URLParams from '../../utils/URLParams';
 import slideshow from '../mixins/slideshow';
 import ListSelectionTools from '../interactive/ListSelectionTools.vue';
+import catalogFilterMixin from '../mixins/catalog-filter';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
 const selectedMints = loadSelectedMints();
 
-let filterLocalStorageName = `sikka-buya-material-map-filters`;
-let filterLocalStorageString = localStorage.getItem(filterLocalStorageName);
-let initialCatalogFilters = {};
-try {
-  initialCatalogFilters = JSON.parse(filterLocalStorageString);
-} catch (e) {
-  console.warn('Could not load stored filter values!');
-}
 
 export default {
   name: 'MaterialMap',
@@ -144,8 +137,6 @@ export default {
   },
   data: function () {
     return {
-      initialCatalogFilters,
-      catalogFilterActive: false,
       filteredMintLayer: null,
       filteredMintLocation: null,
       materialLayer: null,
@@ -175,6 +166,7 @@ export default {
         this.overwriteFilters.mint = selection;
       },
     }),
+    catalogFilterMixin("sikka-buya-material-map-filters")
   ],
   computed: {
     options() {
@@ -216,7 +208,7 @@ export default {
       ];
     },
     filtersActive() {
-      return this.selectedMints.length > 0 || this.catalogFilterActive;
+      return this.selectedMints.length > 0 || this.catalog_filter_mixin_filterActive;
     },
   },
   created() {
@@ -329,28 +321,13 @@ export default {
       this.$emit('reset');
     },
     dataUpdated(data) {
-      const catalogFilters = Object.entries(
-        this.$refs.catalogFilter.activeFilters
-      ).filter(([key, val]) => {
-        if (['excludeFromMapApp', 'mint'].indexOf(key) != -1) {
-          return false;
-        } else if (key === 'yearOfMint') {
-          return false;
-        }
-
-        return true;
-      });
-      this.catalogFilterActive = catalogFilters.length > 0;
-
+      this.catalog_filter_mixin_updateActive(this.$refs.catalogFilter, ['excludeFromMapApp', 'mint', 'yearOfMint'])
       this.overlay.setData(data);
       this.overlay.repaint();
       this.save();
     },
     save() {
-      localStorage.setItem(
-        filterLocalStorageName,
-        this.$refs.catalogFilter.storageString
-      );
+      this.catalog_filter_mixin_save(this.$refs.catalogFilter)
     },
     async updateMints() {
       await this.$refs.catalogFilter.search();
@@ -410,7 +387,7 @@ export default {
 </script>
 
 <style lang="scss">
-.leaflet-popup   .no-catalog-entry {
+.leaflet-popup .no-catalog-entry {
   opacity: 0.65;
   cursor: default;
 }
