@@ -70,7 +70,7 @@ export default class PoliticalOverlay extends Overlay {
       result = await Query.raw(query, { pagination, filters })
 
     } else {
-      const query = `query ($persons:[ID], $mints: [ID]) {
+      const query = `query ($mints: [ID]) {
         person {
           id
           name
@@ -81,7 +81,7 @@ export default class PoliticalOverlay extends Overlay {
             name
           }
         }
-        getPersonMints(mints: $mints, persons: $persons) {
+        getPersonMints(mints: $mints) {
           mint { id, name, location }
           caliphs {id shortName name color dynasty {id name } }
           issuers {id shortName name color dynasty {id name } }
@@ -91,7 +91,6 @@ export default class PoliticalOverlay extends Overlay {
           ${Mint.mintGraphQL()}  
       }
         `
-
 
       result = await Query.raw(query, {
         persons: filters.person,

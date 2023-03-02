@@ -62,11 +62,11 @@
           </h4>
           <div class="mint-grid grid col-3">
             <router-link
-              v-for="type of obj.types"
+              v-for="typ of obj.types"
               target="_blank"
-              :to="{ name: 'Catalog Entry', params: { id: type.id } }"
-              :key="`unlocated-mint-${type.projectId}`"
-              >{{ type.projectId }}</router-link
+              :to="{ name: 'Catalog Entry', params: { id: typ.id } }"
+              :key="`unlocated-mint-${typ.projectId}`"
+              >{{ typ.projectId }}</router-link
             >
           </div>
         </section>
