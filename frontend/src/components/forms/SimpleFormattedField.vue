@@ -44,8 +44,8 @@ import FormatAlignRight from 'vue-material-design-icons/FormatAlignRight';
 import FormatBold from 'vue-material-design-icons/FormatBold';
 import FormatItalic from 'vue-material-design-icons/FormatItalic';
 
-import TextLeftToRight from 'vue-material-design-icons/FormatTextdirectionLToR.vue';
-import TextRightToLeft from 'vue-material-design-icons/FormatTextdirectionRToL.vue';
+import TextLeftToRight from 'vue-material-design-icons/FormatPilcrowArrowRight.vue';
+import TextRightToLeft from 'vue-material-design-icons/FormatPilcrowArrowLeft.vue';
 import TextFormatClear from 'vue-material-design-icons/FormatClear.vue';
 import DynamicDeleteButton from '../layout/DynamicDeleteButton.vue';
 

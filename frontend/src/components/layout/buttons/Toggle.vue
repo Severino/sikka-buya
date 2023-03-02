@@ -1,5 +1,6 @@
 <template>
-  <div class="button toggle-button" @click.stop.prevent="toggle">
+  <div class="button toggle-button" @click.stop.prevent="toggle" >
+    <Tooltip v-if="tooltip" >{{ tooltip }}</Tooltip>
     <div v-if="value" class="active">
       <slot name="active"></slot>
     </div>
@@ -10,23 +11,27 @@
 </template>
 
 <script>
+import Tooltip from '../../forms/Tooltip.vue';
+
 export default {
-  name: 'Toggle',
-  props: {
-    value: {
-      type: Boolean,
-      required: true,
+    name: "Toggle",
+    props: {
+        value: {
+            type: Boolean,
+            required: true,
+        },
+        tooltip: String
     },
-  },
-  methods: {
-    toggle: function () {
-      this.$emit('input', !this.value);
+    methods: {
+        toggle: function () {
+            this.$emit("input", !this.value);
+        },
+        stop(event) {
+            event.stopPropagation();
+            event.preventDefault();
+        },
     },
-    stop(event) {
-      event.stopPropagation();
-      event.preventDefault();
-    },
-  },
+    components: { Tooltip }
 };
 </script>
 

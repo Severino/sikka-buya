@@ -1,5 +1,6 @@
 const { default: routesDe } = require('./de/routes.de')
 const { default: cmsDe } = require('./de/cms.de')
+const { default: permissionsDe } = require('./de/permissions.de')
 
 const general = {
     type:
@@ -261,6 +262,7 @@ module.exports = {
     general,
     message,
     navigation,
+    permissions: permissionsDe,
     property,
     role,
     warning,

@@ -17,7 +17,16 @@
       <div class="user-list">
         <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
           <span class="email">{{ user.email }}</span>
-          <toggle :value="user.editor" @input="() => togglePermission(user, 'editor')"><template v-slot:active>
+          <toggle :value="user.creator" @input="() => togglePermission(user, 'creator')" tooltip="THIS IS  A TOOLTIP">
+            <template v-slot:active>
+              <ListBox />
+            </template>
+            <template v-slot:inactive>
+              <ListBox />
+            </template>
+          </toggle>
+          <toggle :value="user.editor" @input="() => togglePermission(user, 'editor')" tooltip="THIS IS  A TOOLTIP"><template
+              v-slot:active>
               <Newspaper />
             </template>
             <template v-slot:inactive>
@@ -53,6 +62,8 @@ import KingIcon from 'vue-material-design-icons/ChessKing.vue';
 import PawnIcon from 'vue-material-design-icons/ChessPawn.vue';
 
 import Newspaper from 'vue-material-design-icons/Newspaper.vue';
+import ListBox from "vue-material-design-icons/ListBox.vue"
+
 
 export default {
   name: 'UserManagement',
@@ -65,6 +76,7 @@ export default {
     PawnIcon,
     Toggle,
     Newspaper,
+    ListBox
   },
   data: function () {
     return {
@@ -102,6 +114,7 @@ export default {
             id: user.id,
             super: user.super,
             editor: user.permissions.includes("editor"),
+            creator: user.permissions.includes("creator"),
             permissions: user.permissions
           }
         })
@@ -168,7 +181,7 @@ form>* {
 
 .user {
   display: grid;
-  grid-template-columns: 3fr 40px 40px 5fr 40px;
+  grid-template-columns: 3fr 40px 40px 40px 5fr 40px;
   gap: $padding;
   align-items: center;
   margin: $padding 0;
