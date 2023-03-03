@@ -1,7 +1,7 @@
 <template>
   <div class="page user-management-page">
     <back-header :to="{ name: 'Editor' }" />
-    <h1>User Management</h1>
+    <h1>{{ $t('test') }}</h1>
     <section>
       <form submit.stop.prevent="">
         <h2>Add New User</h2>
@@ -17,7 +17,11 @@
       <div class="user-list">
         <div v-for="user in users" class="user" :key="`user-id-${user.id}`">
           <span class="email">{{ user.email }}</span>
-          <toggle :value="user.creator" @input="() => togglePermission(user, 'creator')" tooltip="THIS IS  A TOOLTIP">
+          <toggle
+            :value="user.creator"
+            @input="() => togglePermission(user, 'creator')"
+            :tooltip="$t('tooltip.user.creator')"
+          >
             <template v-slot:active>
               <ListBox />
             </template>
@@ -25,15 +29,22 @@
               <ListBox />
             </template>
           </toggle>
-          <toggle :value="user.editor" @input="() => togglePermission(user, 'editor')" tooltip="THIS IS  A TOOLTIP"><template
-              v-slot:active>
+          <toggle
+            :value="user.editor"
+            @input="() => togglePermission(user, 'editor')"
+            :tooltip="$t('tooltip.user.editor')"
+            ><template v-slot:active>
               <Newspaper />
             </template>
             <template v-slot:inactive>
               <Newspaper />
             </template>
           </toggle>
-          <toggle :value="user.super" @input="(_super) => toggleSuperUser(user, _super)">
+          <toggle
+            :value="user.super"
+            @input="(_super) => toggleSuperUser(user, _super)"
+            :tooltip="$t('tooltip.user.super')"
+          >
             <template v-slot:active>
               <KingIcon />
             </template>
@@ -62,8 +73,7 @@ import KingIcon from 'vue-material-design-icons/ChessKing.vue';
 import PawnIcon from 'vue-material-design-icons/ChessPawn.vue';
 
 import Newspaper from 'vue-material-design-icons/Newspaper.vue';
-import ListBox from "vue-material-design-icons/ListBox.vue"
-
+import ListBox from 'vue-material-design-icons/ListBox.vue';
 
 export default {
   name: 'UserManagement',
@@ -76,7 +86,7 @@ export default {
     PawnIcon,
     Toggle,
     Newspaper,
-    ListBox
+    ListBox,
   },
   data: function () {
     return {
@@ -107,17 +117,17 @@ export default {
         }`);
 
       if (result && result.data && result.data.data && result.data.data.users) {
-        console.log(result.data.data.users)
+        console.log(result.data.data.users);
         this.users = result.data.data.users.map((user) => {
           return {
             email: user.email,
             id: user.id,
             super: user.super,
-            editor: user.permissions.includes("editor"),
-            creator: user.permissions.includes("creator"),
-            permissions: user.permissions
-          }
-        })
+            editor: user.permissions.includes('editor'),
+            creator: user.permissions.includes('creator'),
+            permissions: user.permissions,
+          };
+        });
 
         this.listError = '';
       } else {
@@ -126,11 +136,16 @@ export default {
       }
     },
     togglePermission: async function (user, permissionName) {
-      const method = (user.permissions.includes(permissionName)) ? "revokePrivilege" : "grantPrivilege"
-      await Query.raw(`mutation TogglePrivilege($user: ID!, $privilege:String!){
+      const method = user.permissions.includes(permissionName)
+        ? 'revokePrivilege'
+        : 'grantPrivilege';
+      await Query.raw(
+        `mutation TogglePrivilege($user: ID!, $privilege:String!){
         ${method}(user: $user, privilege: $privilege)
-      }`, { user: user.id, privilege: permissionName })
-      this.$nextTick(() => this.refreshUserList())
+      }`,
+        { user: user.id, privilege: permissionName }
+      );
+      this.$nextTick(() => this.refreshUserList());
     },
     toggleSuperUser: async function (user, _super) {
       if (_super) {
@@ -174,7 +189,7 @@ form {
   @include box;
 }
 
-form>* {
+form > * {
   display: block;
   margin-top: $padding;
 }

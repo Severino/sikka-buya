@@ -489,6 +489,8 @@ type Mutation {
 
   grantPrivilege(user:ID!, privilege:String!):Void
   revokePrivilege(user:ID!, privilege:String!):Void
+
+  setLang(path:String!, lang:String!, singular:String!, plural:String):Void
 }
 
 input PageInput {

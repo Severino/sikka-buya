@@ -1,11 +1,3 @@
-DROP TABLE web_page CASCADE;
-
-DROP TABLE web_page_image CASCADE;
-
-DROP TABLE web_page_group CASCADE;
-
-DROP TABLE web_page_block CASCADE;
-
 CREATE TABLE web_page_image (
     id SERIAL PRIMARY KEY,
     url TEXT,

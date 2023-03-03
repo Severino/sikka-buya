@@ -5,6 +5,8 @@ const Type = require('../utils/type')
 const PageGQL = require('./klasses/PageGQL')
 const BlockGQL = require('./klasses/BlockGQL')
 const CMS = require('../cms')
+const Argument = require('../argument')
+const Language = require('../language')
 
 /**
  * Most mutations require the user to be logged in to
@@ -218,6 +220,10 @@ const UserMutations = {
         }
         return reviewed
     },
+    setLang(_, { path, lang, singular, plural } = {}) {
+        Argument.require({ path, lang, singular })
+        Language.set(path, lang, singular, plural)
+    }
 }
 
 /**

@@ -2,6 +2,7 @@ const path = require("path")
 const fs = require("fs")
 const { createDirectoryStructure } = require('./utils/dir-builder')
 const { finished } = require('stream/promises')
+const Frontend = require('./frontend')
 
 class CMS {
 
@@ -16,18 +17,7 @@ class CMS {
     }
 
     static init() {
-        if (process.env.RELATIVE_FRONTEND_PUBLIC_LOCATION) {
-            process.env.FRONTEND_PUBLIC_LOCATION = path.join(__dirname, "..", process.env.RELATIVE_FRONTEND_PUBLIC_LOCATION)
-        } else if (!process.env.FRONTEND_PUBLIC_LOCATION) {
-            throw new Error("Frontend location not set in .env file. Please set either RELATIVE_FRONTEND_PUBLIC_LOCATION or FRONTEND_PUBLIC_LOCATION")
-        }
-
-        if (!fs.existsSync(process.env.FRONTEND_PUBLIC_LOCATION)) {
-            throw new Error("Frontend location is invalid this path does not exist: " + process.env.FRONTEND_PUBLIC_LOCATION)
-        }
-
-        createDirectoryStructure(process.env.FRONTEND_PUBLIC_LOCATION, this.config)
-
+        createDirectoryStructure(Frontend.publicPath, this.config)
     }
 
     static getPublicPath(...parts) {
@@ -35,7 +25,7 @@ class CMS {
     }
 
     static get dataPath() {
-        return path.join(process.env.FRONTEND_PUBLIC_LOCATION, "data")
+        return path.join(Frontend.publicPath, "data")
     }
 
     /**
