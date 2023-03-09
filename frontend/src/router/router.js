@@ -74,6 +74,7 @@ import CoinMarkForm from "@/components/page/property/CoinMarkForm"
 import CoinVerseForm from "@/components/page/property/CoinVerseForm"
 import HonorificForm from "@/components/page/property/HonorificForm"
 import DynastyForm from "@/components/page/property/DynastyForm"
+import LocaleForm from "@/components/page/property/LocaleForm"
 import MaterialForm from "@/components/page/property/MaterialForm"
 import MintForm from "@/components/page/property/MintForm"
 import NominalForm from "@/components/page/property/NominalForm"
@@ -192,15 +193,15 @@ const routes = [
           name: "Catalog Overview",
           component: CardLinkPage,
           props: {
-            title: "routes.Catalog",
+            title: "routes.catalog",
             links: [
               {
-                title: 'routes.Catalog Ruler Explorer',
+                title: 'routes.catalog Ruler Explorer',
                 identity: "catalog-link-page-ruler-explorer",
                 to: { name: "Catalog Ruler Explorer" }
               },
               {
-                title: "routes.Catalog Search",
+                title: "routes.catalog Search",
                 identity: "catalog-link-page-search",
                 to: { name: "Catalog Search" }
               },
@@ -242,7 +243,7 @@ const routes = [
             name: "Map Landing",
             component: CardLinkPage,
             props: {
-              title: "routes.Map",
+              title: "routes.map",
               links: [{
                 title: "routes.Political Map",
                 to: { name: 'Political Map' },
@@ -308,7 +309,6 @@ const routes = [
             meta: { auth: true, super: true }
           },
           {
-
             path: "type",
             name: "TypeOverview",
             component: TypeOverview,
@@ -436,6 +436,11 @@ const routes = [
             path: "province/:id",
             name: "EditProvince",
             component: ProvinceForm
+          },
+          {
+            path: "locale/:lang/:path",
+            name: "Locale",
+            component: LocaleForm
           }
         ]
       },

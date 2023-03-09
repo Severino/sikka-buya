@@ -1,16 +1,13 @@
 <template>
   <div class="card-link-page">
     <header>
-      <h1>{{ $t(title) }}</h1>
+      <h1>
+        <locale :path="title" />
+      </h1>
       <div class="nav-grid grid">
-        <card-link
-          v-for="link of links"
-          :key="`link-to-${link.title}`"
-          :to="link.to"
-          :identity="link.identity"
-          :contain="Boolean(link.contain)"
-        >
-          {{ $tc(link.title) }}
+        <card-link v-for="link of links" :key="`link-to-${link.title}`" :to="link.to" :identity="link.identity"
+          :contain="Boolean(link.contain)">
+          <locale :path="link.title" />
         </card-link>
       </div>
     </header>
@@ -18,10 +15,12 @@
 </template>
 
 <script>
+import Locale from '../cms/Locale.vue';
 import CardLink from '../navigation/CardLink.vue';
 export default {
   components: {
     CardLink,
+    Locale
   },
   props: {
     title: String,

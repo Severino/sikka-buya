@@ -37,10 +37,9 @@ class CMS {
     }
 
     static async findFilesAt(parts, key, extensions = ["png", "jpg", "jpeg"]) {
+        console.trace("Find files at: ")
         const path = CMS.getDataPath(...parts)
-        console.log(path)
         const files = await fs.promises.readdir(path)
-        console.log(files)
         let regex = new RegExp(`^${key}.(${extensions.join("|")})$`, 'g')
         const matches = files.filter((fileName) => {
             return fileName.match(regex)

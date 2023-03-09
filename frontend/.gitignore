@@ -4,6 +4,7 @@ node_modules
 
 /public/data/cms/*
 /public/lang/*
+!/public/lang/index.js
 
 
 # local env files

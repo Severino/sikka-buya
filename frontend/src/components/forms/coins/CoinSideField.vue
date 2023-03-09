@@ -1,7 +1,10 @@
 <template>
   <div class="coin-side-field">
     <Heading v-if="title">{{ title }}</Heading>
-    <LabeledInputContainer :label="prefix + $tc('property.field_text')">
+    <LabeledInputContainer >
+      <template #label>
+        {{ prefix }}<Locale path="property.field_text" />
+      </template>
       <SimpleFormattedField class="field-text" ref="fieldTextField" />
     </LabeledInputContainer>
 
@@ -9,13 +12,8 @@
       <SimpleFormattedField class="inner-inscript" ref="innerInscriptField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer
-      :label="prefix + $t('property.intermediate_inscript')"
-    >
-      <SimpleFormattedField
-        class="intermediate-inscript"
-        ref="intermediateInscriptField"
-      />
+    <LabeledInputContainer :label="prefix + $t('property.intermediate_inscript')">
+      <SimpleFormattedField class="intermediate-inscript" ref="intermediateInscriptField" />
     </LabeledInputContainer>
 
     <LabeledInputContainer :label="prefix + $t('property.outer_inscript')">
@@ -33,9 +31,10 @@ import LabeledInputContainer from '../../LabeledInputContainer';
 
 import Heading from '@/components/Heading.vue';
 import SimpleFormattedField from '../SimpleFormattedField.vue';
+import Locale from '../../cms/Locale.vue';
 
 export default {
-  components: { LabeledInputContainer, Heading, SimpleFormattedField },
+  components: { LabeledInputContainer, Heading, SimpleFormattedField, Locale },
   name: 'CoinSideField',
   data: function () {
     return {};
@@ -84,12 +83,12 @@ export default {
 
 <style lang="scss">
 .coin-side-field {
-  > * {
+  >* {
     margin-bottom: math.div($padding, 2);
   }
 
   header {
-    > * {
+    >* {
       margin: auto;
     }
   }
@@ -100,6 +99,7 @@ export default {
 label {
   font-size: 0.9rem;
 }
+
 ul.circular-list {
   list-style-type: none;
   padding-left: 0;
@@ -107,6 +107,7 @@ ul.circular-list {
   li {
     margin: 0;
     position: relative;
+
     input {
       width: 100%;
     }

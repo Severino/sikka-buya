@@ -1,6 +1,6 @@
 <template>
   <div class="catalog-filter-search">
-    <h1>{{ $t('routes.Catalog Search') }}</h1>
+    <h1>{{ $t('routes.catalog Search') }}</h1>
     <div class="grid col-2">
       <aside>
         <Button class="error" @click="resetFilters" v-if="hasFilters">{{

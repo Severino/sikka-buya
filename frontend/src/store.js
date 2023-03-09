@@ -5,8 +5,19 @@ Vue.use(Vuex)
 
 let version = require("../../package.json").version;
 
+
+let editmode = false
+try {
+  const loadedConfig = localStorage.getItem("sikka-buya-store")
+  const conf = JSON.parse(loadedConfig)
+  if (conf.editmode) editmode = conf.editmode
+} catch (e) {
+  //Silently fail.
+}
+
 const store = new Vuex.Store({
   state: {
+    editmode,
     user: null,
     availableLanguages: ["de", "en"],
     language: "de",
@@ -22,6 +33,11 @@ const store = new Vuex.Store({
         state.debug = true
         window.debug = true
       }
+    },
+    toggleEditMode(state) {
+      state.editmode = !state.editmode
+      localStorage.setItem("sikka-buya-store", JSON.stringify({ editmode: state.editmode }))
+
     },
     disableDebugging(state) {
       state.debug = false
@@ -47,6 +63,7 @@ const store = new Vuex.Store({
       else console.error(`Requested language is not supported: ${lang}.`)
     },
     printError(state, error) {
+      console.log(error)
       if (!Array.isArray(error)) error = [error]
       state.errors.push(...error)
 
@@ -63,6 +80,17 @@ const store = new Vuex.Store({
       return (name) => {
         return getters.loggedIn && state.user.permissions.includes(name)
       }
+    },
+    permissions(state) {
+      let permissions = []
+      if (state.user?.permissions) {
+        permissions = state.user.permissions
+      }
+      if (state.user?.super) permissions.push("super")
+      return permissions
+    },
+    canEdit(state, getters) {
+      return state.editmode && getters.loggedInAs("editor")
     },
     hasErrors(state) {
       return state.errors.length > 0

@@ -30,20 +30,20 @@ class Frontend {
         return this._publicPath
     }
 
-    static getByParts(parts) {
+    static getByParts(...parts) {
         return path.join(this.publicPath, ...parts)
 
     }
 
-    static createByParts(parts) {
-        const filePath = this.getByParts(parts)
+    static createByParts(...parts) {
+        const filePath = this.getByParts(...parts)
         fs.mkdirSync(filePath, { recursive: true })
         return filePath
     }
 
-    static createByPath(path) {
+    static createByPath(...path) {
         let parts = path.split(sep)
-        return this.createByParts(parts)
+        return this.createByParts(...parts)
     }
 }
 

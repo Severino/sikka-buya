@@ -8,7 +8,7 @@
       <h4>Schnellzugriff</h4>
       <div class="items">
         <router-link :to="{ name: 'TypeOverview' }">
-          <button>{{ $tc('general.type', 1) }}</button></router-link
+          <button><locale path="'general.type'" /></button></router-link
         >
       </div>
     </div>
@@ -20,7 +20,7 @@
         :key="'prop-' + idx"
         :to="property.to"
       >
-        <span>{{ $tc('general.' + property.name) }}</span>
+        <span><locale :path="'general.' + property.name" /></span>
       </list-item>
     </list>
 
@@ -32,18 +32,18 @@
         :key="'prop-' + idx"
         :to="property.to"
       >
-        <span>{{ $tc('property.' + property.name) }}</span>
+        <span><locale :path="'property.' + property.name" /></span>
       </list-item>
     </list>
 
     <list :items="supportPrograms">
-      <list-header>{{ $t('editor.assist_tools') }}</list-header>
+      <list-header><locale :path="'editor.assist_tools'" /></list-header>
       <list-item
         v-for="(property, idx) of supportPrograms"
         :key="'prop-' + idx"
         :to="property.to"
       >
-        <span>{{ $tc('editor.' + property.name) }}</span>
+        <span><locale :path="'editor.' + property.name" /></span>
       </list-item>
     </list>
   </div>
@@ -52,6 +52,7 @@
 <script>
 import PlusBox from 'vue-material-design-icons/PlusBox';
 import Auth from '../../utils/Auth';
+import Locale from '../cms/Locale.vue';
 import Button from '../layout/buttons/Button.vue';
 import List from '../layout/List.vue';
 import ListHeader from '../layout/list/ListHeader.vue';
@@ -65,7 +66,8 @@ export default {
     ListItem,
     ListHeader,
     Button,
-  },
+    Locale
+},
   computed: {
     admin_properties() {
       return [{ name: 'user', to: { name: 'UserManagement' } }];

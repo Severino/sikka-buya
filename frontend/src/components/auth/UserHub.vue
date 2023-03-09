@@ -1,20 +1,31 @@
 <template>
   <div class="user-hub">
-    <span>{{ permission }}</span>
-    
+    <toggle :value="$store.state.editmode" @input="() => $store.commit('toggleEditMode')">
+      {{ $t("users.gui.editmode") }}
+      <template v-slot:active>
+        ON
+      </template>
+      <template v-slot:inactive>
+        OFF
+      </template>
+    </toggle>
+
+    <span>
+      <locale v-for="permission of $store.getters.permissions" :path="'user.permission.' + permission" :key="'permission-' + permission" />
+    </span>
+
     <div class="toolbox">
-      <Button :to="{ name: 'Editor' }" class="borderless"
-        ><account-icon :size="IconSize.Large"
-      /></Button>
-      <Button class="borderless" @click="logout"
-        ><logout-variant-icon :size="IconSize.Large"
-      /></Button>
+      <Button :to="{ name: 'Editor' }" class="borderless"><account-icon :size="IconSize.Large" /></Button>
+      <Button class="borderless" @click="logout"><logout-variant-icon :size="IconSize.Large" /></Button>
     </div>
   </div>
 </template>
 
 <script>
 import Button from '../layout/buttons/Button.vue';
+import Toggle from '../layout/buttons/Toggle.vue';
+import Locale from '../cms/Locale.vue';
+
 
 import AuthMixin from '../mixins/auth';
 
@@ -22,22 +33,35 @@ import AccountIcon from 'vue-material-design-icons/Account.vue';
 import LogoutVariantIcon from 'vue-material-design-icons/LogoutVariant.vue';
 
 export default {
-  components: { Button, AccountIcon, LogoutVariantIcon },
+  components: { Button, AccountIcon, Locale, LogoutVariantIcon, Toggle },
   mixins: [AuthMixin],
   computed: {
-    permission(){
-      const user = this.$store.state.user
-      let permissions = []
-      if(user.super) permissions.push("super")
-      if(user.permissions?.length > 0) permissions.push(... user.permissions)
-      return (permissions.length > 0)? `${permissions.join(", ")}` : "Nutzer"
-    }
+    // permissions() {
+    //   const user = this.$store.state.user
+    //   let permissions = []
+    //   if (user.super) permissions.push("super")
+    //   if (user.permissions?.length > 0) permissions.push(...user.permissions)
+    //   return (permissions.length > 0) ? `${permissions.join(", ")}` : "Nutzer"
+    // }
   }
 };
 </script>
 
 <style lang='scss' scoped>
 .user-hub {
+
+  .toggle-button {
+    border-radius: 3px;
+    background-color: whitesmoke;
+    margin: 3px;
+    font-size: 0.65rem;
+
+    .active {
+      background-color: white;
+
+    }
+  }
+
   .material-design-icon {
     color: white;
   }

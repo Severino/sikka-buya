@@ -1,5 +1,5 @@
 <template>
-  <div class="button toggle-button" @click.stop.prevent="toggle" >
+  <div class="button toggle-button" :class="{active:value}" @click.stop.prevent="toggle" >
     <Tooltip v-if="tooltip" >{{ tooltip }}</Tooltip>
     <div v-if="value" class="active">
       <slot name="active"></slot>
@@ -37,7 +37,7 @@ export default {
 
 <style lang="scss" scoped>
 .button {
-  border-radius: 0 !important;
+  border-radius: 0;
   border: none;
   background-color: transparent;
 

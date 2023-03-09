@@ -1,6 +1,6 @@
 <template>
   <div class="image" :class="mode">
-    <div v-if="$store.getters.loggedIn" class="cms-image-container" :class="{ hovered: hover }"
+    <div v-if="$store.getters.canEdit" class="cms-image-container" :class="{ hovered: hover }"
       @mouseenter="() => (hover = true)" @mouseleave="() => (hover = false)">
       <loading-spinner v-if="loading" :size="LoadingSpinnerSize.Big" />
       <img v-if="imageURI" :src="imageURI" alt="" />
@@ -10,7 +10,7 @@
         <input id="file-upload-field" type="file" accept=".png,.jpg,.jpeg,image/*" @input="uploadFile" />
       </label>
     </div>
-    <img v-else src="/images/static/" />
+    <img v-else :src="imageURI" :draggable="false" />
   </div>
 </template>
 

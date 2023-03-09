@@ -1,6 +1,8 @@
 <template>
   <div class="labeled-input-container">
-    <label>{{ label }} {{ warning }}</label>
+    <label>
+      <slot name="label"></slot> {{ label }} {{ warning }}
+    </label>
     <slot></slot>
   </div>
 </template>
@@ -25,7 +27,7 @@ label {
   display: flex;
   flex-direction: column;
 
-  > *:not(:first-child) {
+  >*:not(:first-child) {
     flex: 1;
   }
 

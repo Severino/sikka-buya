@@ -1,27 +1,52 @@
 const Frontend = require('./frontend')
 const { join, sep, normalize } = require("path")
 const fs = require("fs")
+const ES6Builder = require('./utils/es6-builder')
+const { createDefaultImportStatements } = require('./utils/es6-builder')
 
 class Language {
 
+    static DEBUG_NO_WRITE = false
     static baseDir = "lang"
 
-    static createByParts(parts) {
-        let allParts = [this.baseDir, ...parts]
-        let path = Frontend.createByParts(allParts)
+    static createByParts(...parts) {
+        let path = Frontend.createByParts(this.baseDir, ...parts)
         return path
     }
 
+    static getLangLocation(...parts) {
+        return Frontend.getByParts(this.baseDir, ...parts)
+    }
+
+    static updateMainIndex(lang) {
+        const mainFileLocation = this.getLangLocation("index.js")
+        let imports = ES6Builder.getDefaultImports(mainFileLocation)
+        const languages = imports.map(obj => obj.name)
+
+        if (!languages.includes(lang)) {
+            languages.push(lang)
+            imports.push({name: lang, path: `./${this.createIndexFile(lang)}`})
+            const imports = ES6Builder.createDefaultImportStatements(imports)
+            const fileContents = ES6Builder.createFile(imports, languages)
+
+            if (this.DEBUG_NO_WRITE)
+                console.log(mainFileLocation, fileContents)
+            else
+                fs.writeFileSync(mainFileLocation, fileContents)
+        }
+
+    }
+
     static updateIndexFiles(parts, lang) {
+
+        this.updateMainIndex(lang)
+
         parts = parts.slice()
         let previous = null
         while (parts.length > 0) {
             this.setIndexFile(parts, lang, previous)
             previous = parts.pop()
         }
-
-        // this.setIndexFile([], lang, previous)
-
     }
 
     static setIndexFile(parts, lang = null, previous = null) {
@@ -30,59 +55,54 @@ class Language {
 
         let relativeLocation
         if (previous) {
-            relativeLocation = join(this.baseDir, ...parts)
+            relativeLocation = "./" + join(...parts)
+
         } else {
-            let relativeParts = [this.baseDir, ...parts]
+            let relativeParts = [...parts]
+            relativeParts.pop()
             relativeParts.pop()
             relativeLocation = join(...relativeParts)
-
         }
 
         if (sep === "\\") relativeLocation = relativeLocation.replace(/\\/g, "/")
 
 
         parts.pop()
-        let filesystemPath = this.createByParts(parts)
+        let filesystemPath = this.createByParts(...parts)
         const indexFileName = this.createIndexFile(lang)
         filesystemPath = join(filesystemPath, indexFileName)
+
+        const importPath = this.createImportPath(relativeLocation, name, lang, previous)
+        const importStatement = ES6Builder.createDefaultImportStatement(name, importPath)
 
         let content = ""
         if (fs.existsSync(filesystemPath)) {
 
-            const file = fs.readFileSync(filesystemPath, { encoding: "utf-8" })
-            const moduleString = file.match(/export\s+default.+{(.*)}/s)
-
-            const moduleSet = new Set(moduleString[1].split(",").map(mod => mod.trim()).filter(str => str != ""))
-
+            const imports = ES6Builder.getDefaultImports(filesystemPath)
+            const moduleSet = new Set(imports.map((mod => mod.name)))
             if (!moduleSet.has(name)) {
                 moduleSet.add(name)
-
-                const imports = []
-                for (let module of Array.from(moduleSet)) {
-                    imports.push(this.createImportStatement(relativeLocation, module, lang, previous))
-                }
-
-                content = `${imports.join("\n")}\nexport default {\n${Array.from(moduleSet).map(mod => `\t${mod}`).join(",\n")},\n}`
+                imports.push({ name, path: importPath })
+                const importStatements = ES6Builder.createDefaultImportStatements(imports)
+                content = ES6Builder.createFile(importStatements, Array.from(moduleSet))
             }
 
         } else {
-            const importStatement = this.createImportStatement(relativeLocation, name, lang, previous)
-            content = `${importStatement}\nexport default {\n\t${name},\n}`
+            content = ES6Builder.createFile([importStatement], [name])
         }
 
-        if (content != "")
+        if (this.DEBUG_NO_WRITE)
+            console.log(filesystemPath, content)
+        else if (content != "")
             fs.writeFileSync(filesystemPath, content)
-    }
-
-    static createImportStatement(relativeLocation, name, lang, previous) {
-        return (previous) ?
-            `import {default as ${name}} from "${relativeLocation}/index${lang ? `.${lang}` : ""}.js"` :
-            `import {default as ${name}} from "${relativeLocation}/${name}.${lang}.json"`
-    }
-
-    static writeIndexFile() {
 
     }
+
+    static createImportPath(relativeLocation, name, lang, previous) {
+        let filename = (previous) ? `index${lang ? `.${lang}` : ""}.js` : `${name}.${lang}.json`
+        return "./" + join(relativeLocation, filename).replace(/\\/g, "/")
+    }
+
 
     static createIndexFile(lang = null) {
         return `index${(lang) ? `.${lang}` : ""}.js`
@@ -93,7 +113,7 @@ class Language {
         if (pathParts.length < 2) throw new Error(`Path is to short: It needs the form 'some.path.to.file.key' and the file and key part are required.`)
         const key = pathParts.pop()
         const file = pathParts.pop()
-        const dirPath = this.createByParts(pathParts)
+        const dirPath = this.createByParts(...pathParts)
         const filePath = join(dirPath, this.createFileName(file, lang))
         let json = {}
         if (fs.existsSync(filePath)) {
@@ -104,7 +124,12 @@ class Language {
 
         this.updateIndexFiles([...pathParts, file], lang)
         json[key] = (plural) ? `${singular} | ${plural} ` : singular
-        fs.writeFileSync(filePath, JSON.stringify(json))
+
+        if (this.DEBUG_NO_WRITE)
+            console.log(filePath, json)
+        else
+            fs.writeFileSync(filePath, JSON.stringify(json))
+
     }
 
     static createFileName(name, lang) {

@@ -534,7 +534,6 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
     },
     getImage: async function (_, { identity }) {
         if (!identity) throw new Error("Identity must be provided!")
-        console.log({ identity })
         const { parts, filename } = CMS.decomposeIdentity(identity)
         const matchedFiles = await findFilesAt(parts, filename)
         if (matchedFiles.length === 0) throw new Error("No file for filename: ", filename)

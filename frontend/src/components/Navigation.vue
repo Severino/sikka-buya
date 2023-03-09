@@ -19,11 +19,10 @@
             </li>
             <li
               v-for="(item, index) in visibleItems"
-              :key="`nav-item-${index}`"
+              :key="`nav-item-${index}`" 
             >
-              <router-link :to="item.target">{{
-                $tc(item.name, item.count || 1)
-              }}</router-link>
+              <router-link :to="item.target">
+                <Locale :path="item.name" :count="item.count" /></router-link>
             </li>
           </ul>
         </nav>
@@ -48,6 +47,7 @@ import Menu from 'vue-material-design-icons/Menu';
 import Close from 'vue-material-design-icons/Close';
 
 import Auth from '../utils/Auth';
+import Locale from './cms/Locale.vue';
 
 export default {
   name: 'Navigation',
@@ -55,7 +55,8 @@ export default {
     AccountShield,
     Menu,
     Close,
-  },
+    Locale
+},
   props: {
     hideLogo: Boolean,
   },
@@ -67,13 +68,13 @@ export default {
         // { name: "Home", target: "undefined" },
 
         {
-          name: 'routes.Map',
+          name: 'routes.map',
           target: { name: 'Map Landing' },
           auth: true,
           count: 2,
         },
         {
-          name: 'routes.Catalog',
+          name: 'routes.catalog',
           target: { name: 'Catalog' },
           auth: true,
         },
