@@ -11,6 +11,7 @@ const path = require('path')
 const CMS = require('../cms.js')
 const { findFilesAt } = require('../cms.js')
 const { User } = require('../models/user.js')
+const Language = require('../language.js')
 
 const Queries = {
     ping: () => Date.now(),
@@ -541,6 +542,9 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         const match = matchedFiles[0]
         return CMS.getPublicPath(...parts, match)
     },
+    i18n(){
+        return Language.messages
+    }
 }
 
 module.exports = Object.assign(Queries, PageGQL.Queries)

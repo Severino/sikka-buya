@@ -1,21 +1,49 @@
 import Vue from "vue"
 import VueI18n from "vue-i18n";
+import Query from "../database/query"
 
-export async function load() {
-    let messages = { de: {}, en: {} }
-    try {
-        let { default: cmsMessages } = await import("../../public/lang")
-        messages = cmsMessages
-    } catch (e) {
-        console.warn("Could not load messages from public path.", e);
+
+export default class I18n {
+
+    static async reload(vue) {
+        if (!vue.$i18n) throw new Error("No localization was found")
+        else {
+            const messages = await this.loadMessages()
+            const locale = vue.$i18n.locale
+            if (messages[locale]) {
+
+                vue.$i18n.setLocaleMessage(locale, messages[locale])
+
+
+
+            }
+        }
     }
 
-    console.log(messages)
+    static async loadMessages() {
+        let messages = {}
 
-    Vue.use(VueI18n)
+        const result = await Query.raw(`{i18n}`)
+        let data = result.data.data.i18n
 
-    return new VueI18n({
-        locale: "en",
-        messages
-    })
+        try {
+            messages = JSON.parse(data)
+        } catch (e) {
+            console.error(e)
+        }
+        return messages
+    }
+
+
+    static async load() {
+
+        const messages = await this.loadMessages()
+        console.log(messages)
+        Vue.use(VueI18n)
+        return new VueI18n({
+            locale: "en",
+            messages
+        })
+    }
+
 }

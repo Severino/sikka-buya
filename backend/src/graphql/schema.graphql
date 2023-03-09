@@ -330,7 +330,7 @@ type Query {
   login(email: String!, password: String!): AuthResponse
   auth(token: String): User
 
-  getLang(id: ID!, table: String!, lang: String!, attr: String!): String
+  getLang(id: ID!, table: String!, lang: String!, attr: String!): String #TODO REMOVE
 
   getPersonExplorerOrder: [PersonPosition]
   fixDiff: String
@@ -344,6 +344,8 @@ type Query {
   getPageList(type:String!): [Page]
   getImage(identity:String!):String
   getPageGroup(name:String):ID
+
+  i18n:String
 }
 
 type MintPersons {

@@ -1,15 +1,15 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router/router'
-import { load } from './i18n/i18n'
+import I18n from './i18n/i18n'
 import store from "./store"
 import capitalize from 'capitalize';
 import Settings from './settings'
 import { ConfigMixin } from './config'
 
 async function main() {
-  const i18n = await load()
-  console.log(i18n.messages)
+  const i18n = await I18n.load()
+
 
   /**Initializes the settings on the first page visit. */
   if (Settings.init(window) > 0) {

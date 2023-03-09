@@ -6,6 +6,7 @@ const fs = require("fs")
 
 const CMS = require('./src/cms.js')
 const Frontend = require('./src/frontend.js')
+const Language = require('./src/language.js')
 
 async function start({
     expressPort,
@@ -15,6 +16,7 @@ async function start({
 
     const { default: graphqlUploadExpress } = await import("graphql-upload/graphqlUploadExpress.mjs");
     Frontend.init()
+    Language.init()
     /**
      * Express packages
      */

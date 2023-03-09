@@ -192,7 +192,6 @@ export default {
   display: flex;
   min-height: 100px;
   max-height: 35vh;
-  background-color: pink;
 
   .image {
     flex: 1;

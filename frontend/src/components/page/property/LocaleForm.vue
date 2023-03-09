@@ -14,6 +14,7 @@
 
 <script>
 import Query from '../../../database/query';
+import I18n from '../../../i18n/i18n';
 import InputWithReset from '../../forms/InputWithReset.vue';
 
 
@@ -58,6 +59,8 @@ export default {
                     singular: this.singular === "" ? null : this.singular,
                     plural: this.plural === "" ? null : this.plural
                 })
+
+                await I18n.reload(this.$root)
             } catch (e) {
                 this.$store.commit("printError", e)
 
