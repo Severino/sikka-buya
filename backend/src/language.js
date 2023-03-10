@@ -29,7 +29,6 @@ class Language {
 
         let target = obj
         const parts = path.split(".")
-        console.log(parts)
         if (parts.length < 2) throw new Error("Path is too short!")
         let key = parts.pop()
 

@@ -14,6 +14,7 @@ export default class Mode {
                 toggleMode(input) {
                     if (!input.mode) throw new Error("Require mode on input!")
                     input.mode = Mode.toggle(input.mode)
+                    return input.mode
                 }
             }
         }

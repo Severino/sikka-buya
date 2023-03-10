@@ -557,7 +557,6 @@ class Type {
             result[idx] = await this.postprocessType(type, postProcessFields)
         }
 
-        console.log(result)
         return { types: result, pageInfo }
     }
 

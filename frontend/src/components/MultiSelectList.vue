@@ -59,7 +59,6 @@ export default {
   //     });
   //   },
   //   selectionChanged(selection, { added = [], removed = [] } = {}) {
-  //     console.log('HUHU');
   //     this.$emit('selectionChanged', selection, { added, removed });
   //   },
   //   isSelected(item) {

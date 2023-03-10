@@ -117,7 +117,6 @@ export default {
         }`);
 
       if (result && result.data && result.data.data && result.data.data.users) {
-        console.log(result.data.data.users);
         this.users = result.data.data.users.map((user) => {
           return {
             email: user.email,

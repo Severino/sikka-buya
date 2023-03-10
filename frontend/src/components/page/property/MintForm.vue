@@ -190,7 +190,6 @@ export default {
                 uncertainArea.coordinates[0][0]
               );
 
-            console.log(polygon);
             if (polygon.length < 4) {
               // It is three points, as we add the last one if the first and last are not the same.
               this.errors.push('A polygon needs at least 3 points!');
@@ -212,7 +211,6 @@ export default {
       let id;
       if (this.mint.id == -1) {
         try {
-          console.log(data);
           id = await this.query('addMint', data);
         } catch (e) {
           console.error(e);

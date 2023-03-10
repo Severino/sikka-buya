@@ -64,7 +64,7 @@
           :attribute="input.attribute"
           :disableRemoveButton="true"
           :displayTextCallback="input.displayTextCallback"
-          :mode="input.mode"
+          :mode="filterMode[input.name]"
           :queryCommand="input.queryCommand"
           :queryParams="input.queryParams"
           :table="input.name"
@@ -86,7 +86,7 @@
         <multi-data-select-2-d
           :active="filters[input.name]"
           :input="input"
-          :mode="input.mode"
+          :mode="filterMode[input.name]"
           @add="() => addToFilterList(input.name)"
           @select="(value, idx) => selectFilter(input.name, value, idx)"
           @remove="(el, idx) => removeFilter(input.name, el, idx)"
@@ -320,8 +320,6 @@ unfilteredMultiSelectFilters.forEach((item) => {
 
 unfilteredMultiDataSelect2D.forEach((item) => {
   const filter = new FilterList(item.name);
-  console.log(filterData);
-
   filterData = Object.assign(filterData, filter.mapData([[]]));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
   filterMode[item.name] = item.mode ? item.mode : Mode.And;
@@ -423,7 +421,6 @@ export default {
         }
       });
 
-      console.log(this.initData.donativ);
       this.filters = Object.assign({}, this.filters, this.initData);
     }
   },
@@ -433,8 +430,8 @@ export default {
       this.filters[key] = val;
     },
     dataSelectToggled(input) {
-      this.toggleMode(input);
-      this.$emit('toggled');
+      this.filterMode[input.name] = Mode.toggle(this.filterMode[input.name]);
+      this.search();
     },
     async searchCallback({
       filters,
@@ -443,20 +440,20 @@ export default {
     } = {}) {
       this.$emit('loading', true);
 
-      multiSelectFilters.forEach(({ name: name }) => {
+      multiSelectFilters.forEach(({ name }) => {
         if (filters[name]) {
           filters[name] = filters[name].map((item) => item.id);
 
-          if (this.filterMode?.[name] === 'AND') {
+          if (this.filterMode?.[name].toLowerCase() === 'and') {
             filters[name + '_and'] = filters[name];
             delete filters[name];
           }
         }
       });
 
-      multiSelectFilters2D.forEach(({ name: name }) => {
+      multiSelectFilters2D.forEach(({ name }) => {
         if (filters[name]) {
-          if (this.filterMode?.[name] === 'AND') {
+          if (this.filterMode?.[name].toLowerCase() === 'and') {
             filters[name + '_or_and'] = filters[name].map((arr) =>
               arr.map((el) => el.id)
             );
@@ -525,6 +522,7 @@ export default {
     },
     resetFilters() {
       [
+        ...textFilters,
         ...unfilteredThreeWayFilters,
         ...unfilteredButtonGroupFilters,
         ...unfilteredNumberFilters,
@@ -570,12 +568,6 @@ export default {
     },
     removeFilterGroup(name, idx) {
       this.filters[name].splice(idx, 1);
-    },
-    changeFilterMode(name) {
-      let newMode =
-        this.filterMode[name].toLowerCase() === 'and' ? 'or' : 'and';
-      this.filterMode[name] = newMode;
-      this.search();
     },
     addToFilterList(name) {
       const methodName = FilterList.pushMethodName(name);
@@ -645,7 +637,7 @@ export default {
     multiSelectFilters2D() {
       return this.excludeItem(unfilteredMultiDataSelect2D);
     },
-    storageString() {
+    storage() {
       let storage = {};
       let activeFilters = this.activeFilters;
 
@@ -663,13 +655,16 @@ export default {
       [...unfilteredMultiSelectFilters, ...unfilteredMultiDataSelect2D].forEach(
         (filter) => {
           storage[filter.name] = {
-            mode: filter.mode || Mode.And,
+            mode: this.filterMode[filter.name] || Mode.And,
             value: activeFilters[filter.name] || [],
           };
         }
       );
 
-      return JSON.stringify(storage);
+      return storage;
+    },
+    storageString() {
+      return JSON.stringify(this.storage);
     },
   },
 };

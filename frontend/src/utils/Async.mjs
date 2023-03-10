@@ -47,7 +47,7 @@ export class RequestGuard {
                     this.current = current
                     this.locked = false
                 }
-            } while (this.reqCount > this.current && !Compare.deep(this.value, value, 6))
+            } while (this.reqCount > this.current && !Compare.deep(this.value, value, 12))
 
             /**
              * When equilibrium is reached, we can reset the 

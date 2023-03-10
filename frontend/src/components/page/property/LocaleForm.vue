@@ -73,7 +73,6 @@ export default {
       if (!this.submitting) {
         this.submitting = true;
         try {
-          console.log({ singular: this.singular, plural: this.plural });
           await Query.raw(
             `mutation SetLangAttribute($path: String!, $lang:String!, $singular: String!, $plural: String) {
                 setLang(path: $path, lang: $lang, singular: $singular, plural: $plural)

@@ -2,13 +2,21 @@
   <div class="material-map ui">
     <Sidebar title="Prägeorte">
       <template v-slot:tools>
-        <list-selection-tools @select-all="selectAllMints" @unselect-all="clearMintSelection"
-          :allSelected="allMintsSelected" :noneSelected="mintsSelected" />
+        <list-selection-tools
+          @select-all="selectAllMints"
+          @unselect-all="clearMintSelection"
+          :allSelected="allMintsSelected"
+          :noneSelected="mintsSelected"
+        />
       </template>
 
-      <mint-list :items="mintList" :selectedIds="selectedMints" @selectionChanged="
-        (val) => mintSelectionChanged(val, { preventUpdate: true })
-      " />
+      <mint-list
+        :items="mintList"
+        :selectedIds="selectedMints"
+        @selectionChanged="
+          (val) => mintSelectionChanged(val, { preventUpdate: true })
+        "
+      />
     </Sidebar>
 
     <div class="center-ui center-ui-top">
@@ -20,39 +28,74 @@
           </Button>
         </nav>
       </div>
-      <map-settings-box :open="overlaySettings.uiOpen" @toggle="toggleSettings" @reset="resetSettings">
+      <map-settings-box
+        :open="overlaySettings.uiOpen"
+        @toggle="toggleSettings"
+        @reset="resetSettings"
+      >
         <labeled-input-container label="Kreisgröße">
-          <slider name="maxRadius" :value="overlaySettings.maxRadius" @input="overlaySettingsChanged"
-            :min="overlaySettings.maxRadiusMinimum" :max="overlaySettings.maxRadiusMaximum" />
+          <slider
+            name="maxRadius"
+            :value="overlaySettings.maxRadius"
+            @input="overlaySettingsChanged"
+            :min="overlaySettings.maxRadiusMinimum"
+            :max="overlaySettings.maxRadiusMaximum"
+          />
         </labeled-input-container>
       </map-settings-box>
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
-      <timeline ref="timeline" :map="map" :from="timeline.from" :to="timeline.to" :value="raw_timeline.value"
-        :valid="timelineValid" :timelineActive="timelineActive" :shareLink="shareLink" timelineName="additional-map"
-        @input="timelineChanged" @change="timelineChanged" @toggle="timelineToggled">
+      <timeline
+        ref="timeline"
+        :map="map"
+        :from="timeline.from"
+        :to="timeline.to"
+        :value="raw_timeline.value"
+        :valid="timelineValid"
+        :timelineActive="timelineActive"
+        :shareLink="shareLink"
+        timelineName="additional-map"
+        @input="timelineChanged"
+        @change="timelineChanged"
+        @toggle="timelineToggled"
+      >
         <template #background>
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
         </template>
 
         <template #center>
-          <Button v-if="filtersActive" class="clear-filter-btn" @click="resetFilters()">Filter aufheben</Button>
+          <Button
+            v-if="filtersActive"
+            class="clear-filter-btn"
+            @click="resetFilters()"
+            >Filter aufheben</Button
+          >
         </template>
       </timeline>
     </div>
 
     <Sidebar title="Filter" side="right" ref="catalogSidebar">
       <div class="padding-box">
-        <catalog-filter ref="catalogFilter" :initData="catalog_filter_mixin_initData" @loading="setLoading" @update="dataUpdated"
-          @dynamic-change="recalculateCatalogSidebar" @toggled="save" :forceAll="true" :pageInfo="pageInfo" :exclude="[
+        <catalog-filter
+          ref="catalogFilter"
+          :initData="catalog_filter_mixin_initData"
+          @loading="setLoading"
+          @update="dataUpdated"
+          @dynamic-change="recalculateCatalogSidebar"
+          @toggled="save"
+          :forceAll="true"
+          :pageInfo="pageInfo"
+          :exclude="[
             'mint',
             'yearOfMint',
             'ruler',
             'caliph',
             'treadwellId',
             'projectId',
-          ]" :overwriteFilters="overwriteFilters" typeBody="
+          ]"
+          :overwriteFilters="overwriteFilters"
+          typeBody="
                     id
                     projectId
                     yearOfMint
@@ -72,7 +115,8 @@
                       }
                     }
                     excludeFromTypeCatalogue
-                    " />
+                    "
+        />
       </div>
     </Sidebar>
   </div>
@@ -101,7 +145,7 @@ import Timeline from './control/Timeline.vue';
 
 //Icons
 import FilterIcon from 'vue-material-design-icons/Filter.vue';
-import ExitIcon from 'vue-material-design-icons/ExitToApp.vue'
+import ExitIcon from 'vue-material-design-icons/ExitToApp.vue';
 
 // Other
 import MapSettingsBox from '../MapSettingsBox.vue';
@@ -117,7 +161,6 @@ const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
 const overlaySettings = settings.load();
 const selectedMints = loadSelectedMints();
-
 
 export default {
   name: 'MaterialMap',
@@ -148,7 +191,7 @@ export default {
       overwriteFilters: {
         yearOfMint: null,
         mint: selectedMints,
-        excludeFromMapApp: false
+        excludeFromMapApp: false,
       },
       pageInfo: { page: 0, count: 100000 },
       painter: null,
@@ -166,7 +209,7 @@ export default {
         this.overwriteFilters.mint = selection;
       },
     }),
-    catalogFilterMixin("sikka-buya-material-map-filters")
+    catalogFilterMixin('sikka-buya-material-map-filters'),
   ],
   computed: {
     options() {
@@ -208,7 +251,9 @@ export default {
       ];
     },
     filtersActive() {
-      return this.selectedMints.length > 0 || this.catalog_filter_mixin_filterActive;
+      return (
+        this.selectedMints.length > 0 || this.catalog_filter_mixin_filterActive
+      );
     },
   },
   created() {
@@ -271,7 +316,6 @@ export default {
         ) {
           try {
             let parsed = JSON.parse(val);
-            console.log(parsed);
             const filterKey = key.replace(queryPrefix, '');
             this.$refs.catalogFilter.setFilter(filterKey, parsed);
           } catch (e) {
@@ -321,13 +365,17 @@ export default {
       this.$emit('reset');
     },
     dataUpdated(data) {
-      this.catalog_filter_mixin_updateActive(this.$refs.catalogFilter, ['excludeFromMapApp', 'mint', 'yearOfMint'])
+      this.catalog_filter_mixin_updateActive(this.$refs.catalogFilter, [
+        'excludeFromMapApp',
+        'mint',
+        'yearOfMint',
+      ]);
       this.overlay.setData(data);
       this.overlay.repaint();
       this.save();
     },
     save() {
-      this.catalog_filter_mixin_save(this.$refs.catalogFilter)
+      this.catalog_filter_mixin_save(this.$refs.catalogFilter);
     },
     async updateMints() {
       await this.$refs.catalogFilter.search();
@@ -336,7 +384,7 @@ export default {
       this.updateYearOverwrite(value);
       this.timeChanged(value);
     },
-    timelineUpdated() { },
+    timelineUpdated() {},
     updateTimeline: async function (initial = false) {
       const triggered = this.updateYearOverwrite(this.timeline.value);
       if (!triggered && !initial) this.update();
@@ -393,8 +441,6 @@ export default {
 }
 
 .material-map {
-
-
   .catalog-filters {
     $smaller-input-pad: $small-padding 2 * $small-padding;
 
@@ -418,7 +464,7 @@ export default {
       min-height: 20px;
     }
 
-    >* {
+    > * {
       grid-column: span 6;
     }
   }

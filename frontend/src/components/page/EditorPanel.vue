@@ -96,7 +96,6 @@ export default {
   },
   methods: {
     getPropertyByPermission(permission) {
-      console.log(permission);
       if (this.user_properties[permission]) {
         return this.user_properties[permission];
       } else return [];

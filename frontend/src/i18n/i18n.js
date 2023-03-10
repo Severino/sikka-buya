@@ -36,9 +36,7 @@ export default class I18n {
 
 
     static async load() {
-
         const messages = await this.loadMessages()
-        console.log(messages)
         Vue.use(VueI18n)
         return new VueI18n({
             locale: "en",

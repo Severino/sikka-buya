@@ -16,26 +16,48 @@
           {{ timeMixinFormatDate(page.publishedTimestamp) }}
         </div>
       </div>
-      <h1 :contenteditable="editmode" @input="$event => update($event, 'title')" data-property="title"
-        v-if="isPresent('title')" v-once>
+      <h1
+        :contenteditable="editmode"
+        @input="($event) => update($event, 'title')"
+        data-property="title"
+        v-if="isPresent('title')"
+        v-once
+      >
         {{ page.title }}
       </h1>
 
-      <h2 class="subtitle" v-if="hasSubtitle" :contenteditable="editmode" @input="update" data-property="subtitle" v-once>
+      <h2
+        class="subtitle"
+        v-if="hasSubtitle"
+        :contenteditable="editmode"
+        @input="update"
+        data-property="subtitle"
+        v-once
+      >
         {{ page.subtitle }}
       </h2>
 
-
       <p v-if="!editmode" name="" id="" cols="30" rows="10"></p>
-      <SimpleFormattedField ref="body" @hook:mounted="() => selfInitialize('body')"
-        @input="(value) => this.updateFormattedField('body', value)" v-else />
+      <SimpleFormattedField
+        ref="body"
+        @hook:mounted="() => selfInitialize('body')"
+        @input="(value) => this.updateFormattedField('body', value)"
+        v-else
+      />
 
       <section v-if="hasBlocks">
         <h2>Blocks</h2>
 
-        <textarea v-for="block of page.blocks" class="page-block" :contenteditable="editmode"
-          @keydown="($event) => handleSpecialKeys($event, block)" @input="($event) => updateBlockText($event, block)"
-          :key="`page-block-${block.id}`" :ref="`page-block-${block.id}`" v-model="block.text" />
+        <textarea
+          v-for="block of page.blocks"
+          class="page-block"
+          :contenteditable="editmode"
+          @keydown="($event) => handleSpecialKeys($event, block)"
+          @input="($event) => updateBlockText($event, block)"
+          :key="`page-block-${block.id}`"
+          :ref="`page-block-${block.id}`"
+          v-model="block.text"
+        />
         <div class="content-wrapper">
           <async-button @click="addEmptyBlock()">Add</async-button>
         </div>
@@ -51,11 +73,11 @@ import CMSPage from '../../../models/CMSPage';
 import RequestBuffer from '../../../models/request-buffer';
 import AsyncButton from '../../layout/buttons/AsyncButton.vue';
 import CMSStatusIndicator from './CMSStatusIndicator.vue';
-import SimpleFormattedField from "../../forms/SimpleFormattedField.vue"
+import SimpleFormattedField from '../../forms/SimpleFormattedField.vue';
 
 import TimeMixin from '../../mixins/time';
 import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
-import CMSConfig from "../../../../cms.config"
+import CMSConfig from '../../../../cms.config';
 
 export default {
   components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField },
@@ -76,8 +98,8 @@ export default {
     group: String,
     include: {
       type: Array,
-      defaultValue: []
-    }
+      defaultValue: [],
+    },
   },
   data() {
     return {
@@ -100,27 +122,20 @@ export default {
   },
   methods: {
     selfInitialize(name) {
-      if (!this.$refs[name]) console.error(`There is no ref with name ${name}`)
+      if (!this.$refs[name]) console.error(`There is no ref with name ${name}`);
       else {
-        this.$refs[name].setContent(this.page[name])
-        console.log("Set", this.page[name])
+        this.$refs[name].setContent(this.page[name]);
       }
     },
     isPresent(name) {
-      const configsFileInclude = CMSConfig[this.group]?.include || []
-      const componentInclude = this.include || []
-      let include = [...configsFileInclude, ...componentInclude]
-
+      const configsFileInclude = CMSConfig[this.group]?.include || [];
+      const componentInclude = this.include || [];
+      let include = [...configsFileInclude, ...componentInclude];
 
       if (include != []) {
-        return include.includes(name)
+        return include.includes(name);
       }
-      return true
-    },
-    mountedAndLoaded() {
-      this.$nextTick(() => {
-        console.log(this.$refs);
-      });
+      return true;
     },
     async handleSpecialKeys($event, block) {
       if ($event.key === 'Enter') {
@@ -200,8 +215,8 @@ export default {
     //   return {};
     // },
     updateFormattedField(property, value) {
-      this.page[property] = this.$refs[property].getContent()
-      this.save()
+      this.page[property] = this.$refs[property].getContent();
+      this.save();
     },
     update($event) {
       const target = $event.currentTarget;
@@ -209,13 +224,13 @@ export default {
       if (!property)
         throw new Error(`Attribute 'data-property' is missing on component!`);
       else {
-        if (target.hasAttribute("contenteditable")) {
-          this.page[property] = target.innerHTML
+        if (target.hasAttribute('contenteditable')) {
+          this.page[property] = target.innerHTML;
         } else {
           this.page[property] = target.value;
         }
       }
-      this.save()
+      this.save();
     },
     async save() {
       const page = {
@@ -279,19 +294,26 @@ mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
     id() {
       return this.$route.params.id;
     },
-    showTime(){
-      return Boolean(CMSConfig?.["bibliography"]?.page?.showTime)
-    },  
+    showTime() {
+      return Boolean(CMSConfig?.['bibliography']?.page?.showTime);
+    },
     hasBody() {
-      return this.isPresent('body') && (this.editmode || this.page.subtitle != '');
+      return (
+        this.isPresent('body') && (this.editmode || this.page.subtitle != '')
+      );
     },
     hasSubtitle() {
-      return this.isPresent('subtitle') && (this.editmode || this.page.subtitle != '');
+      return (
+        this.isPresent('subtitle') &&
+        (this.editmode || this.page.subtitle != '')
+      );
     },
     hasBlocks() {
-      return this.isPresent('blocks') && (this.editmode || (this.page.blocks && this.page.blocks.length > 0));
-
-    }
+      return (
+        this.isPresent('blocks') &&
+        (this.editmode || (this.page.blocks && this.page.blocks.length > 0))
+      );
+    },
   },
 };
 </script>

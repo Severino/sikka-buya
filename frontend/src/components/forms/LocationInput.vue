@@ -94,7 +94,6 @@ export default {
    * Therefore we may access the mounted map here.
    */
   mounted: function () {
-    console.log(this.$refs);
     this.$refs.input.addEventListener('paste', this.pasteEvtListener);
 
     this.enableMap();

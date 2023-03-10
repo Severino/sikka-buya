@@ -18,7 +18,6 @@ export default {
             this._mountedAndLoadedChanged()
         },
         _mountedAndLoadedChanged() {
-            console.log(this.$data)
             if (this.mounted && this.loaded) {
                 this.mountedAndLoaded()
             }

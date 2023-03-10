@@ -1,5 +1,9 @@
 <template>
-  <div class="simple-formatted-field" @mouseenter="() => this.active = true" @mouseleave="()=>this.active = false">
+  <div
+    class="simple-formatted-field"
+    @mouseenter="() => (this.active = true)"
+    @mouseleave="() => (this.active = false)"
+  >
     <Row class="toolbar" style="margin-bottom: 10px" v-if="this.active">
       <button type="button" @click.prevent="align('left')">
         <FormatAlignLeft />
@@ -29,7 +33,13 @@
       </button>
     </Row>
 
-    <div ref="field" class="formatted-text-area" spellcheck="true" @input="input" contenteditable></div>
+    <div
+      ref="field"
+      class="formatted-text-area"
+      spellcheck="true"
+      @input="input"
+      contenteditable
+    ></div>
     <dynamic-delete-button @delete="setContent()" />
   </div>
 </template>
@@ -73,11 +83,10 @@ export default {
     };
   },
   mounted() {
-    this.$refs.field.addEventListener("paste", this.pastePlainText)
+    this.$refs.field.addEventListener('paste', this.pastePlainText);
   },
   onBeforeUnmount() {
-    console.log("bye")
-    this.$refs.field.removeEventListener("paste", this.pastePlainText)
+    this.$refs.field.removeEventListener('paste', this.pastePlainText);
   },
   methods: {
     setContent: function (str) {
@@ -270,13 +279,12 @@ export default {
   border-top-right-radius: $border-radius;
   transform: translateY(-100%);
 
-
   button {
     border: none;
     margin-right: 2px;
   }
 
-  >*:not(.spacer) {
+  > *:not(.spacer) {
     width: unset;
     margin: 0px 1px !important;
     padding: 0;

@@ -51,8 +51,7 @@ class PageGQL extends GQL {
             },
             deletePage: async function (_, { id } = {}) {
                 Argument.require({ id })
-                console.log("DELETE")
-                await WriteableDatabase.none(`DELETE FROM web_page WHERE id=$[id]`, {id})
+                await WriteableDatabase.none(`DELETE FROM web_page WHERE id=$[id]`, { id })
             },
             updatePage: async function (_, { id, page: pageInput } = args = {}) {
                 Argument.require({ id })

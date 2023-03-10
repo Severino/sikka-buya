@@ -6,25 +6,34 @@ export default function (storage) {
         data() {
             return {
                 catalog_filter_mixin_initData: {},
+                catalog_filter_mixin_filterMode: {},
                 catalog_filter_mixin_filterActive: false
             }
         },
         methods: {
+            // Can be overloaded in component.
+            // E.g. If you want to save an additional object
+            // pass it as second arg to the 'catalog_filter_mixin_save(red, obj)
+            // And remove it from the data after it's loaded. 
+            catalog_filter_mixin_loaded(data) {
+                return;
+            },
             catalog_filter_mixin_reset(catalogFilterRef) {
                 catalogFilterRef.resetFilters()
             },
             catalog_filter_mixin_load() {
                 try {
                     const storedFilters = localStorage.getItem(storage)
-                    this.catalog_filter_mixin_initData = JSON.parse(storedFilters);
+                    const loadedData = JSON.parse(storedFilters)
+                    this.catalog_filter_mixin_loaded(loadedData)
+                    this.catalog_filter_mixin_initData = loadedData
                 } catch (e) {
                     console.warn('Could not load stored filter values!', e);
                 }
-                console.log("LOADED", this.catalog_filter_mixin_initData)
             },
-            catalog_filter_mixin_save(catalogFilterRef) {
-                console.log("SAVE", catalogFilterRef.storageString)
-                localStorage.setItem(storage, catalogFilterRef.storageString)
+            catalog_filter_mixin_save(catalogFilterRef, obj = {}) {
+                const data = Object.assign({}, catalogFilterRef.storage, obj)
+                localStorage.setItem(storage, JSON.stringify(data))
             },
             catalog_filter_mixin_updateActive(catalogFilterRef, excludedKeys = []) {
                 const catalogFilters = Object.keys(
@@ -36,8 +45,6 @@ export default function (storage) {
 
                     return true;
                 });
-
-                console.log(catalogFilters.length)
 
                 this.catalog_filter_mixin_filterActive = catalogFilters.length > 0
             }

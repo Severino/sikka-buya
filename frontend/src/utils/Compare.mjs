@@ -2,7 +2,7 @@ export default class Compare {
 
     static deep(a, b, depth = 4) {
         if (depth <= 0) {
-            console.trace(`Comparison deeper than depth: ${depth}`, a, b);
+            console.warn(`Comparison deeper than depth: ${depth}`, a, b);
             return true
         }
 

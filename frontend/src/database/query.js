@@ -99,13 +99,7 @@ export default class Query {
 
         const map = `{ "0": ["variables.file"]}`
         formData.append("map", map)
-
         formData.append("0", file)
-
-        // Display the key/value pairs
-        for (const pair of formData.entries()) {
-            console.log(`${pair[0]}, ${pair[1]}`);
-        }
 
         return AxiosHelper.request({
             url: graphqlEndpoint,
