@@ -2,7 +2,7 @@ export default class Compare {
 
     static deep(a, b, depth = 4) {
         if (depth <= 0) {
-            console.warn("Comparison deeper than depth!", a, b);
+            console.trace(`Comparison deeper than depth: ${depth}`, a, b);
             return true
         }
 
@@ -14,12 +14,14 @@ export default class Compare {
         if (typeof a === "object") {
             if (Array.isArray(a)) {
                 return a.every((val, idx) => {
-                    return Compare.deep(val, b[idx], depth--)
+                    let d = depth - 1
+                    return Compare.deep(val, b[idx], d)
                 })
             } else {
                 let same = true
                 for (let key of Object.keys(a)) {
-                    if (!Compare.deep(a[key], b[key], depth--)) {
+                    let d = depth - 1
+                    if (!Compare.deep(a[key], b[key], d)) {
                         same = false
                         break
                     }
