@@ -9,7 +9,7 @@
     <error-box :message="errorMessage" />
     <BackHeader :to="{ name: 'TypeOverview' }" />
 
-    <Heading>{{ $tc('general.type') }}</Heading>
+    <Heading>{{ $tc('property.type') }}</Heading>
     <LoadingSpinner v-if="loading" />
     <div v-if="!loading" class="loading-area">
       <input id="type-id" type="hidden" name="" :value="coin.id" />

@@ -76,7 +76,7 @@ const store = new Vuex.Store({
     loggedIn: state => {
       return !!state.user
     },
-    loggedInAs(state, getters) {
+    userHasPermission(state, getters) {
       return (name) => {
         return getters.loggedIn && state.user.permissions.includes(name)
       }
@@ -90,7 +90,7 @@ const store = new Vuex.Store({
       return permissions
     },
     canEdit(state, getters) {
-      return state.editmode && getters.loggedInAs("editor")
+      return state.editmode && getters.userHasPermission("editor")
     },
     hasErrors(state) {
       return state.errors.length > 0

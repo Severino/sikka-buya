@@ -8,15 +8,41 @@
       <h4>Schnellzugriff</h4>
       <div class="items">
         <router-link :to="{ name: 'TypeOverview' }">
-          <button><locale path="'general.type'" /></button></router-link
-        >
+          <button><locale path="property.type" /></button
+        ></router-link>
       </div>
     </div>
 
-    <list :items="admin_properties" v-if="superuser">
-      <list-header>{{ $t('editor.admin_properties') }}</list-header>
+    <template v-for="permission of ['super', 'creator', 'editor']">
+      <list
+        :items="getPropertyByPermission(permission)"
+        v-if="
+          $store.getters.userHasPermission(permission) &&
+          getPropertyByPermission(permission).length > 0
+        "
+        :key="'list-' + permission"
+      >
+        <list-header>{{ $tc('user.permission.' + permission) }}</list-header>
+        <list-item
+          v-for="(property, idx) of getPropertyByPermission(permission)"
+          :key="'prop-' + idx"
+          :to="property.to"
+        >
+          <span><locale :path="'property.' + property.name" /></span>
+        </list-item>
+      </list>
+    </template>
+    <!-- 
+    <list
+      :items="getPropertyByPermission('creator')"
+      v-if="
+        $store.getters.userHasPermission('creator') &&
+        getPropertyByPermission('creator').length > 0
+      "
+    >
+      <list-header>{{ $t('user.permission.creator') }}</list-header>
       <list-item
-        v-for="(property, idx) of admin_properties"
+        v-for="(property, idx) of getPropertyByPermission('creator')"
         :key="'prop-' + idx"
         :to="property.to"
       >
@@ -34,7 +60,7 @@
       >
         <span><locale :path="'property.' + property.name" /></span>
       </list-item>
-    </list>
+    </list> -->
 
     <list :items="supportPrograms">
       <list-header><locale :path="'editor.assist_tools'" /></list-header>
@@ -66,11 +92,22 @@ export default {
     ListItem,
     ListHeader,
     Button,
-    Locale
-},
+    Locale,
+  },
+  methods: {
+    getPropertyByPermission(permission) {
+      console.log(permission);
+      if (this.user_properties[permission]) {
+        return this.user_properties[permission];
+      } else return [];
+    },
+  },
   computed: {
-    admin_properties() {
-      return [{ name: 'user', to: { name: 'UserManagement' } }];
+    user_properties() {
+      return {
+        super: [{ name: 'user', to: { name: 'UserManagement' } }],
+        editor: this.properties,
+      };
     },
     supportPrograms() {
       return [
