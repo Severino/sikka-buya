@@ -44,7 +44,7 @@ export default {
   }
 
   a:hover {
-    background-color: #eee;
+    background-color: #fafafa;
   }
 }
 </style>

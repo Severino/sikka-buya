@@ -17,6 +17,7 @@ describe("Testing Role", function () {
     })
 
     it("Navigate to List", function () {
+        cy.visit('/editor')
         cy.get(".list-item").contains("Rolle").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/role")
@@ -103,7 +104,7 @@ describe("Testing Role", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/role/8')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 

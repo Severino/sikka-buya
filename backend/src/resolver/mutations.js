@@ -84,19 +84,17 @@ const SuperUserMutations = {
         if (!mailValidation.ok) throw new Error(mailValidation.error)
         return await WriteableDatabase.none("INSERT INTO app_user (email) VALUES ($1)", email)
     },
-    async promoteUser(_, { email } = {}) {
-        return WriteableDatabase.none("UPDATE app_user SET super=TRUE WHERE email=$1", email)
+    async grantPermission(_, { user, permission } = {}) {
+        if (permission === "super")
+            WriteableDatabase.none("UPDATE app_user SET super=TRUE WHERE id=$1", user)
+        else
+            WriteableDatabase.none("INSERT INTO app_user_privilege (app_user, privilege) VALUES ($[user], $[permission])", { user, permission })
     },
-    async demoteUser(_, { email } = {}, context) {
-        let user = Auth.verifyContext(context)
-        if (user.email === email) throw new Error("You can't demote yourself!")
-        return WriteableDatabase.none("UPDATE app_user SET super=FALSE WHERE email=$1", email)
-    },
-    async grantPrivilege(_, { user, privilege }) {
-        WriteableDatabase.none("INSERT INTO app_user_privilege (app_user, privilege) VALUES ($[user], $[privilege])", { user, privilege })
-    },
-    async revokePrivilege(_, { user, privilege }) {
-        WriteableDatabase.none("DELETE FROM app_user_privilege WHERE app_user=$[user] AND privilege=$[privilege]", { user, privilege })
+    async revokePermission(_, { user, permission } = {}, context) {
+        if (permission === "super") {
+            return WriteableDatabase.none("UPDATE app_user SET super=FALSE WHERE id=$1", user)
+        } else
+            WriteableDatabase.none("DELETE FROM app_user_privilege WHERE app_user=$[user] AND privilege=$[permission]", { user, permission })
     }
 }
 
@@ -261,7 +259,7 @@ const Mutations = Object.assign({},
         ), (_, __, context) => {
             return Auth.requireAuthContext(context)
         }),
-    guard(EditorMutations, async (_, __, context) => await Auth.requirePrivilege(context, 'editor')),
+    guard(EditorMutations, async (_, __, context) => await Auth.requirePermission(context, 'editor')),
     guard(SuperUserMutations, (_, __, context) => Auth.requireSuperUser(context))
 )
 

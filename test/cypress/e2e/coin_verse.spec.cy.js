@@ -15,11 +15,12 @@ describe("Testing Coin Verse", function () {
 
     it("Item in editor list", function () {
         cy.visit('/editor')
-        cy.get(".list-item").contains("Koranverse und anderes")
+        cy.get(".list-item").contains("besondere Einzelworte, Formeln, Koranverse")
     })
 
     it("Navigate to List", function () {
-        cy.get(".list-item").contains("Koranverse und anderes").click()
+        cy.visit('/editor')
+        cy.get(".list-item").contains("besondere Einzelworte, Formeln, Koranverse").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/coin_verse")
         })
@@ -104,7 +105,7 @@ describe("Testing Coin Verse", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/coin_verse/8')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 

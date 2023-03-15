@@ -26,12 +26,22 @@ export default {};
 
 <style lang="scss"  scoped>
 footer {
-  font-size: $large-font;
+  position: relative;
   padding: $big-padding 0;
-  color: white;
+  color: $white;
   margin-top: 10rem;
-  min-height: 500px;
-  background-color: $gray;
+  min-height: 30vh;
+  padding-top: 3rem;
+  background-color: $light-gray;
+
+  ::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 8px;
+    border-top: 6px dotted whitesmoke;
+  }
 
   >* {
     text-align: center;
@@ -43,8 +53,8 @@ footer {
   }
 
   a {
-    color: white;
-    font-style: italic;
+    text-transform: uppercase;
+    color: currentColor;
   }
 }
 </style>

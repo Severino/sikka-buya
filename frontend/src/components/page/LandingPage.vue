@@ -141,7 +141,7 @@ export default {
         display: flex;
         width: 100%;
 
-        >* {
+        > li {
           flex: 1;
           text-align: center;
 
@@ -155,7 +155,7 @@ export default {
 
           transition: all 0.3s;
 
-          a {
+          > a {
             font-weight: bold;
             box-sizing: border-box;
             padding: 0.8em 0;
@@ -343,7 +343,6 @@ section:first-of-type {
 }
 
 aside {
-  // background-color: $dark-gray;
   padding: 50px;
   padding-right: 0;
 
@@ -351,9 +350,7 @@ aside {
   flex-direction: column;
 
   gap: $large-padding;
-  // border-radius: $border-radius;
-  // box-shadow: inset $shadow;
-  border-left: 5px dotted $white;
+  // border-left: 5px dotted $white;
 
   h2 {
     color: gray;

@@ -62,8 +62,8 @@
 
 <script>
 import DataSelectField from './DataSelectField.vue';
-import List from './List.vue';
-import ListItem from './ListItem.vue';
+import List from './FormList.vue';
+import ListItem from './FormListItem.vue';
 
 export default {
   name: 'TitledPersonSelect',

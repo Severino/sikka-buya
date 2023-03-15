@@ -15,11 +15,12 @@ describe("Testing Coin Marks", function () {
 
     it("Item in editor list", function () {
         cy.visit('/editor')
-        cy.get(".list-item").contains("Mzz. und Einzelworte")
+        cy.get(".list-item").contains("Münz- und Beizeichen")
     })
 
     it("Navigate to List", function () {
-        cy.get(".list-item").contains("Mzz. und Einzelworte").click()
+        cy.visit('/editor')
+        cy.get(".list-item").contains("Münz- und Beizeichen").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/coin_mark")
         })
@@ -97,7 +98,7 @@ describe("Testing Coin Marks", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/coin_mark/8')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 

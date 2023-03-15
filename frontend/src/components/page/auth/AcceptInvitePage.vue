@@ -1,27 +1,24 @@
 <template>
   <section>
     <Box>
-      <form action="">
-        <h3>{{ $t('system.register_title') }}</h3>
-        <label for="">{{ $tc('system.email') }}</label>
+      <form action="" @submit.prevent="submit">
+        <h3>
+          <Locale path="system.signup_title" />
+        </h3>
+        <label for="">
+          <Locale path="system.email" />
+        </label>
         <input type="text" id="email" :value="email" readonly />
-        <label for="password">{{ $tc('system.password') }}</label>
-        <input
-          type="password"
-          v-model="password"
-          name="new-password"
-          id="password"
-        />
+        <label for="password">
+          <Locale path="system.password" />
+        </label>
+        <input type="password" v-model="password" name="new-password" id="password" />
         <error-message :error="error" />
         <segmented-row>
           <template v-slot:right>
-            <button
-              class="button big-button"
-              :disabled="disabled"
-              @click.prevent="submit"
-            >
-              {{ $t('system.register') }}
-            </button>
+            <Button class="button big-button signup-button" :disabled="disabled" >
+              <Locale path="system.signup" />
+            </Button>
           </template>
         </segmented-row>
       </form>
@@ -31,12 +28,14 @@
 
 <script>
 import Query from '../../../database/query';
+import Locale from '../../cms/Locale.vue';
+import Button from '../../layout/buttons/Button.vue';
 import ErrorMessage from '../../ErrorMessage.vue';
 import Box from '../../layout/Box.vue';
 import SegmentedRow from '../../layout/SegmentedRow.vue';
 export default {
   name: 'AcceptInvitePage',
-  components: { Box, ErrorMessage, SegmentedRow },
+  components: { Box, Button, ErrorMessage, SegmentedRow, Locale },
   data: function () {
     return {
       password: '',
@@ -45,7 +44,7 @@ export default {
     };
   },
   methods: {
-    submit: function (args) {
+    submit: function () {
       this.disabled = true;
       Query.raw(
         `mutation AcceptInvite($email:String, $password:String) {
@@ -66,6 +65,7 @@ export default {
         .finally(() => {
           this.disabled = false;
         });
+        return false
     },
   },
   computed: {
@@ -97,6 +97,7 @@ section {
   justify-content: center;
   align-items: center;
 }
+
 .box {
   align-items: stretch;
   max-width: 100%;
@@ -113,7 +114,7 @@ form {
     width: 100%;
   }
 
-  > * {
+  >* {
     display: block;
     margin-top: $padding;
   }

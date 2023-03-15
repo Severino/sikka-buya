@@ -17,6 +17,7 @@ describe("Testing Honorifics", function () {
     })
 
     it("Navigate to List", function () {
+        cy.visit('/editor')
         cy.get(".list-item").contains("Ehrenname").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/honorific")
@@ -95,7 +96,7 @@ describe("Testing Honorifics", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/honorific/8')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 

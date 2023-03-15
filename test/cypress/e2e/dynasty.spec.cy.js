@@ -18,6 +18,7 @@ describe("Testing Dynasty", function () {
     })
 
     it("Navigate to List", function () {
+        cy.visit('/editor')
         cy.get(".list-item").contains("Dynastie").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/dynasty")
@@ -99,7 +100,7 @@ describe("Testing Dynasty", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/dynasty/8')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 

@@ -13,11 +13,12 @@ describe("Testing Title", function () {
 
     it("Item in editor list", function () {
         cy.visit('/editor')
-        cy.get(".list-item").contains("Titel")
+        cy.get(".list-item").contains("Herrschertitel")
     })
 
     it("Navigate to List", function () {
-        cy.get(".list-item").contains("Titel").click()
+        cy.visit('/editor')
+        cy.get(".list-item").contains("Herrschertitel").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/title")
         })
@@ -44,7 +45,7 @@ describe("Testing Title", function () {
 
 
 
-    describe("Create Honorific", function () {
+    describe("Create Title", function () {
         it("Can reach create page", function () {
             cy.visit("/editor/title")
             cy.get("#create-button").click()
@@ -94,7 +95,7 @@ describe("Testing Title", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/title/8')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
         it("Correct id set", function () {

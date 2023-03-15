@@ -15,8 +15,8 @@
     </span>
 
     <div class="toolbox">
-      <Button :to="{ name: 'Editor' }" class="borderless"><account-icon :size="IconSize.Large" /></Button>
-      <Button class="borderless" @click="logout"><logout-variant-icon :size="IconSize.Large" /></Button>
+      <Button :to="{ name: 'Editor' }" class="editor-button borderless"><account-icon :size="IconSize.Large" /></Button>
+      <Button class="logout-button borderless" @click="logout"><logout-variant-icon :size="IconSize.Large" /></Button>
     </div>
   </div>
 </template>

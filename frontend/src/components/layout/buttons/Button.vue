@@ -1,5 +1,5 @@
 <template>
-  <button class="button" :class="{ colored, multiline, 'content-button': contentButton }" @click="clicked" >
+  <button class="button" :type="type" :class="{ colored, multiline, 'content-button': contentButton }" @click="clicked" >
     <!-- 
       @slot Default slot to render the button contents.
      -->
@@ -44,6 +44,7 @@ export default {
      * Prevent the default stopPropagation
      */
     noStop: Boolean,
+    type:String
   },
   methods: {
     /**

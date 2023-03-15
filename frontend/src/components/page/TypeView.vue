@@ -1,31 +1,28 @@
 <template>
   <div class="type-view">
     <info :alwaysShow="!type.reviewed" type="warning" id="not-reviewed-warning">
-      Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!
+      <Locale path="warning.not_reviewed_warning" />
     </info>
 
     <header>
       <h1 class="gm2">{{ type.projectId }}</h1>
 
-      <sikka-buya-button
-        v-if="!type.excludeFromMapApp"
-        :to="{
-          name: 'Political Map',
-          query: {
-            year: type.yearOfMint,
-            zoom: linkZoom,
-            location: mintLocation,
-            timelineActive: true,
-            selectedRulers: [],
-            selectedMints: [type.mint.id],
-          },
-        }"
-        >Kartenansicht</sikka-buya-button
-      >
+      <sikka-buya-button v-if="!type.excludeFromMapApp" :to="{
+        name: 'Political Map',
+        query: {
+          year: type.yearOfMint,
+          zoom: linkZoom,
+          location: mintLocation,
+          timelineActive: true,
+          selectedRulers: [],
+          selectedMints: [type.mint.id],
+        },
+      }"><Locale path="map.show_map" /></sikka-buya-button>
     </header>
 
     <div v-if="type.donativ" id="donativ" class="box centered property gm4">
-      <catalog-property> Geschenkmünze </catalog-property>
+      <catalog-property>
+        <Locale path="property.donativ" /> </catalog-property>
     </div>
     <div v-else class="blank gm4"></div>
 
@@ -34,11 +31,7 @@
     </div>
     <div v-else class="blank gm4"></div>
 
-    <router-link
-      v-if="$store.state.user"
-      id="edit-button"
-      :to="{ name: 'EditType', params: { id: type.id } }"
-    >
+    <router-link v-if="$store.state.user" id="edit-button" :to="{ name: 'EditType', params: { id: type.id } }">
       <button type="button">
         <EditIcon />
       </button>
@@ -48,25 +41,20 @@
       <catalog-property :label="mapText('mint')">
         <div style="display: flex">
           {{ printMintProperty() }}
-          <sikka-buya-button
-            v-if="mintHasLocation"
-            style="margin-left: auto"
-            :to="{
-              name: 'Political Map',
-              query: {
-                timelineActive: false,
-                location: mintLocation,
-                zoom: linkZoom,
-                selectedMints: [type.mint.id],
-                selectedRulers: [],
-              },
-            }"
-            >Kartenansicht</sikka-buya-button
-          >
+          <sikka-buya-button v-if="mintHasLocation" style="margin-left: auto" :to="{
+            name: 'Political Map',
+            query: {
+              timelineActive: false,
+              location: mintLocation,
+              zoom: linkZoom,
+              selectedMints: [type.mint.id],
+              selectedRulers: [],
+            },
+          }"><Locale path="map.show_map" /></sikka-buya-button>
         </div>
       </catalog-property>
       <div class="property">
-        <catalog-property label="Prägeort wie auf Münze">
+        <catalog-property localeLabel="Prägeort wie auf Münze">
           {{ printTypeProperty('mintAsOnCoin') }}
         </catalog-property>
       </div>
@@ -79,93 +67,57 @@
     </div>
 
     <div class="force-grid grid-col-2 property gm2">
-      <div
-        v-for="(val, idx) of ['material', 'nominal']"
-        v-bind:key="`property-${val}-${idx}`"
-      >
+      <div v-for="(val, idx) of ['material', 'nominal']" v-bind:key="`property-${val}-${idx}`">
         <catalog-property :label="mapText(val)">
-          {{ printTypeProperty(val, 'name') }}</catalog-property
-        >
+          {{ printTypeProperty(val, 'name') }}</catalog-property>
       </div>
     </div>
 
     <div class="person-container gm1">
-      <person-view
-        :overlords="type.overlords"
-        :issuers="type.issuers"
-        :caliph="type.caliph"
-        :heir="heir"
-      />
+      <person-view :overlords="type.overlords" :issuers="type.issuers" :caliph="type.caliph" :heir="heir" />
     </div>
 
     <div class="person-container gm1" v-if="hasOtherPersons">
-      <catalog-property v-if="cutter.length > 0" label="Stempelschneider">
+      <catalog-property v-if="cutter.length > 0" localeLabel="Stempelschneider">
         <person-list :value="cutter" />
       </catalog-property>
 
-      <catalog-property
-        v-if="warden.length > 0"
-        :label="dynamicHeading('Münzwardein', 'Münzwardeien', warden)"
-      >
+      <catalog-property v-if="warden.length > 0" :label="dynamicHeading('Münzwardein', 'Münzwardeien', warden)">
         <person-list :value="warden" />
       </catalog-property>
 
-      <catalog-property v-if="donator.length > 0" label="Donator">
+      <catalog-property v-if="donator.length > 0" localeLabel="Donator">
         <person-list :value="donator" />
       </catalog-property>
     </div>
 
-    <div
-      v-for="(sideObj, sideIdx) in existingCoinSideProperties"
-      :key="`coin-sides-${sideIdx}`"
-      :class="coinSideClass(sideObj, existingCoinSideProperties.length)"
-    >
-      <catalog-property
-        class="property coin-side-field"
-        v-if="getFilledFields(sideObj.name).length > 0"
-      >
-        <catalog-property
-          v-for="(val, idx) of getFilledFields(sideObj.name)"
-          :key="`property-${val}-${idx}`"
-          :label="getCoinSideLabel(val, sideObj)"
-        >
+    <div v-for="(sideObj, sideIdx) in existingCoinSideProperties" :key="`coin-sides-${sideIdx}`"
+      :class="coinSideClass(sideObj, existingCoinSideProperties.length)">
+      <catalog-property class="property coin-side-field" v-if="getFilledFields(sideObj.name).length > 0">
+        <catalog-property v-for="(val, idx) of getFilledFields(sideObj.name)" :key="`property-${val}-${idx}`"
+          :label="getCoinSideLabel(val, sideObj)">
           <div v-html="type[sideObj.name][val]"></div>
         </catalog-property>
       </catalog-property>
     </div>
 
-    <catalog-property
-      v-if="type.cursive"
-      :label="$t('property.cursive')"
-      class="coin-marks gm2"
-    >
-      {{ $t('general.yes') }}
+    <catalog-property v-if="type.cursive" localeLabel="property.cursive" class="coin-marks gm2">
+      <locale path="general.yes" />
     </catalog-property>
 
-    <catalog-property
-      v-if="htmlHasContent(type.specials)"
-      :label="$t('property.specialities_and_variants')"
-      :html="type.specials"
-      class="gm1"
-    >
+    <catalog-property v-if="htmlHasContent(type.specials)" localeLabel="property.specialities_and_variants"
+      :html="type.specials" class="gm1">
+    
       {{ this.missingText }}
     </catalog-property>
 
     <div v-if="!type.literature" class="error">
       Literatur und Anmerkungen konnte nicht geladen werden
     </div>
-    <catalog-property
-      v-else-if="htmlHasContent(type.literature)"
-      :label="$t('property.literature_and_remarks')"
-      :html="type.literature"
-      class="gm2"
-    />
-    <catalog-property
-      v-else
-      :label="$t('property.literature_and_remarks')"
-      class="gm2"
-      >{{ this.missingText }}</catalog-property
-    >
+    <catalog-property v-else-if="htmlHasContent(type.literature)" localeLabel="property.literature_and_remarks"
+      :html="type.literature" class="gm2" />
+    <catalog-property v-else localeLabel="property.literature_and_remarks" class="gm2">{{ this.missingText
+    }}</catalog-property>
 
     <catalog-property :label="$tc('property.piece', 2)" class="gm2">
       <div v-if="!type.pieces" class="error">Stücke wurden nicht geladen!</div>
@@ -173,9 +125,9 @@
         {{ this.missingText }}
       </div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
-        <a :href="piece" target="_blank"
-          >{{ piece }}<ExternalIcon :size="16"
-        /></a>
+        <a :href="piece" target="_blank">{{ piece }}
+          <ExternalIcon :size="16" />
+        </a>
       </div>
     </catalog-property>
 
@@ -210,6 +162,7 @@ import SikkaBuyaButton from '../layout/buttons/SikkaBuyaButton.vue';
 import URLParams from '../../utils/URLParams';
 import { DefaultSettings } from '../../settings';
 import Info from '../forms/Info.vue';
+import Locale from '../cms/Locale.vue';
 
 export default {
   name: 'TypeView',
@@ -232,6 +185,7 @@ export default {
     PersonList,
     SikkaBuyaButton,
     Info,
+    Locale
   },
   methods: {
     dynamicHeading() {
@@ -441,6 +395,7 @@ export default {
     margin: 0;
   }
 }
+
 .type-view .coin-side .nameerty-label {
   text-align: center;
   margin: 0 auto;
@@ -449,6 +404,7 @@ export default {
 
 <style lang="scss" scoped>
 $columns: 4;
+
 .type-view {
   margin-top: 2 * $padding;
   display: grid;
@@ -478,6 +434,7 @@ $columns: 4;
 }
 
 h1 {
+  font-size: 2rem;
   margin: 0;
   margin-left: $padding;
 
@@ -499,7 +456,7 @@ header {
   height: 80px;
 
   // margin-bottom: 1rem;
-  > * {
+  >* {
     margin-right: $padding;
   }
 }
@@ -555,6 +512,7 @@ header {
 
 .piece {
   font-size: 1rem;
+
   &:not(:last-child) {
     margin-bottom: $padding;
   }

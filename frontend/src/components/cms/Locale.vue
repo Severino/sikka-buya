@@ -1,9 +1,9 @@
 <template>
-    <span class="locale-comp" :class="{ edit: $store.getters.canEdit }" @click.stop="">
+    <span class="locale-comp" :class="{ editable: $store.getters.canEdit }">
         <template v-if="$store.getters.canEdit">
 
             {{ $tc(path, count) }}
-            <router-link :to="{
+            <router-link class="locale-link" @click.stop.prevent="" :to="{
                 name: 'Locale',
                 force: true,
                 params: {
@@ -11,7 +11,13 @@
                     path
                 }
             }">
-                <EarthIcon :size="10" :class="{ active }" />
+                <div @mouseenter="() => mouseover = true" @mouseleave="() => mouseover = false">
+                    <EarthIcon :size="10" :class="{ active }" />
+
+                    <Tooltip v-if="mouseover">
+                        {{ path }}
+                    </Tooltip>
+                </div>
             </router-link>
         </template>
         <template v-else>
@@ -27,6 +33,7 @@ import Toggle from '../layout/buttons/Toggle.vue';
 
 import EarthIcon from "vue-material-design-icons/Earth"
 import EarthCloseIcon from "vue-material-design-icons/EarthRemove"
+import Tooltip from '../forms/Tooltip.vue';
 
 
 export default {
@@ -43,7 +50,8 @@ export default {
     data() {
         return {
             active: false,
-            plural: false
+            plural: false,
+            mouseover: false
         }
     },
     computed: {
@@ -51,42 +59,30 @@ export default {
             return this.$root.$i18n.locale
         }
     },
-    components: { Button, EarthIcon, EarthCloseIcon, Toggle }
+    components: { Button, EarthIcon, EarthCloseIcon, Toggle, Tooltip }
 };
 </script>
 
 <style lang='scss' scoped>
+a.locale-link {
+    position: absolute;
+    color: currentColor !important;
+    top: 0;
+    right: 0;
+
+}
+
 .locale-comp {
     position: relative;
 
-    .material-design-icon {
-        position: absolute;
-        top: 0;
-        right: 0;
-
-    }
-
-    &.edit {
+    &.editable {
         padding-right: 12px;
     }
 }
 
+
+
 a {
     color: currentColor !important;
-}
-
-.toolbox {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    transform: translateY(100%);
-    z-index: 100000;
-    padding: 3px;
-    border-radius: 3px;
-    background-color: gray;
-
-    .toggle-button {
-        background-color: white;
-    }
 }
 </style>

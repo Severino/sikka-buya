@@ -377,7 +377,7 @@ describe(`Type Queries`, function () {
       deleteCoinType(id: 3)
     }`, {}, User1.token)
 
-    expect(promise).to.be.fulfilled
+    await expect(promise).to.be.fulfilled
   })
 
   it("Was deleted succesfully", async function () {
@@ -387,7 +387,7 @@ describe(`Type Queries`, function () {
       }
     }`)
 
-    expect(result).to.be.rejected
+    await expect(result).to.be.rejected
   })
 })
 

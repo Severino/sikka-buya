@@ -6,19 +6,30 @@ const Auth = require("../auth.js")
 const Type = require('../utils/type.js')
 const Mint = require('../models/mint.js')
 const PageGQL = require('./klasses/PageGQL.js')
-const { readdir } = require('fs/promises')
-const path = require('path')
 const CMS = require('../cms.js')
 const { findFilesAt } = require('../cms.js')
 const { User } = require('../models/user.js')
 const Language = require('../language.js')
+const Argument = require('../argument.js')
+const { guardFunctionObject: guard } = require('../utils/guard.js')
+
+
+
+const SuperUserQueries = {
+    users: async function (_, args, context) {
+        return User.list()
+    },
+    getUser: async function (_, { id } = {}) {
+        Argument.require(id)
+        return User.byId(id)
+    }
+}
 
 const Queries = {
     ping: () => Date.now(),
     environment: () => {
         return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
     },
-
     isSuperUserSet: async function () {
         let result
         try {
@@ -220,14 +231,6 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
     },
     auth: async function (_, args) {
         return Auth.verify(args.token)
-    },
-    users: async function (_, args, context) {
-        let auth = Auth.verifyContext(context)
-        if (!auth) {
-            throw new Error('You are not authenticated!')
-        } else {
-            return User.list()
-        }
     },
     getComments: async function (_, args, context) {
         let auth = Auth.verifyContext(context)
@@ -542,9 +545,11 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         const match = matchedFiles[0]
         return CMS.getPublicPath(...parts, match)
     },
-    i18n(){
+    i18n() {
         return Language.messages
     }
 }
 
-module.exports = Object.assign(Queries, PageGQL.Queries)
+module.exports = Object.assign(Queries,
+    guard(SuperUserQueries, (_, __, context) => Auth.requirePermission(context, "super")),
+    PageGQL.Queries)

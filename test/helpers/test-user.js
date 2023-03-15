@@ -27,7 +27,7 @@ class TestUser {
             let { id, super: superUser } = data.user
             this.superUser = superUser
             this.id = id
-        } else warn(`Could not login test user ${this.email}!`, response)
+        } else warn(`Could not login test user ${this.email}!`, response?.data?.data?.login)
         return response
     }
 

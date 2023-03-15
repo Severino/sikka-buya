@@ -15,7 +15,7 @@
         id="coin-mark-name"
         type="text"
         v-model="value.name"
-        :placeholder="$tc('attribute.name')"
+        :placeholder="$tc('general.name')"
         autofocus
         required
       />

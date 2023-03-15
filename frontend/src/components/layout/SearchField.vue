@@ -2,7 +2,7 @@
   <div class="search" :class="{ active, 'input-search': isInputSearch }">
     <input
       type="search"
-      :placeholder="$t('message.filter_list')"
+      :placeholder="$t('message.input_to_filter')"
       @input="input"
       :value="value"
       ref="searchField"
@@ -13,10 +13,10 @@
         class="spinner"
         :size="LoadingSpinnerSize.Small"
       />
-      <Magnify v-else />
+      <Magnify :size="iconSize" v-else />
     </div>
     <async-button v-else :pending="pending" @click="buttonSearch"
-      ><Magnify
+      ><Magnify :size="iconSize"
     /></async-button>
   </div>
 </template>
@@ -42,6 +42,7 @@ export default {
       pending: false,
       pendingI: 0,
       i: 0,
+      iconSize: 16
     };
   },
   props: {
@@ -133,7 +134,7 @@ export default {
   }
 
   &.input-search input {
-    padding-left: 45px;
+    padding-left: 30px;
   }
 
   > input {

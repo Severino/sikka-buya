@@ -2,28 +2,26 @@
     <div class="page content-wrapper">
         <div class="content">
             <h2>
-                {{ $t(`cms.${this.group}`) }}
+                <Locale :path="`cms.${this.group}`" />
             </h2>
-            <Button @click="() => cms_createAndVisit('bibliography', { include: this.include })">Neuer Eintrag</Button>
+            <Button v-if="$store.getters.canEdit" @click="() => cms_createAndVisit('bibliography', { include: this.include })">Neuer Eintrag</Button>
             <div class="list">
-                <CMSListElement 
-                v-for="page of pages" :key="page.id" :value="page" 
-                :group="group" 
-                :include="include"
-                @deleted="update" />
+                <CMSListElement v-for="page of pages" :key="page.id" :value="page" :group="group" :include="include"
+                    @deleted="update" />
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import Locale from '../../cms/Locale.vue';
 import Button from '../../layout/buttons/Button.vue';
 import CMSMixin from "../../mixins/cms"
 import CMSListElement from './CMSListElement.vue';
 
 
 export default {
-    components: { Button, CMSListElement },
+    components: { Button, CMSListElement, Locale },
     mixins: [CMSMixin],
     props: {
         include: Array,

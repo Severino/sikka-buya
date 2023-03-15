@@ -6,30 +6,30 @@
   >
     <Row class="toolbar" style="margin-bottom: 10px" v-if="this.active">
       <button type="button" @click.prevent="align('left')">
-        <FormatAlignLeft />
+        <FormatAlignLeft :size="iconSize"/>
       </button>
       <button type="button" @click.prevent="align('center')">
-        <FormatAlignCenter />
+        <FormatAlignCenter :size="iconSize"/>
       </button>
       <button type="button" @click.prevent="align('right')">
-        <FormatAlignRight />
+        <FormatAlignRight :size="iconSize"/>
       </button>
       <div class="spacer"></div>
       <button type="button" @click.prevent="formatRightToLeft">
-        <TextRightToLeft />
+        <TextRightToLeft :size="iconSize"/>
       </button>
       <button type="button" @click.prevent="clearFormat">
-        <TextFormatClear />
+        <TextFormatClear :size="iconSize"/>
       </button>
       <button type="button" @click.prevent="formatLeftToRight">
-        <TextLeftToRight />
+        <TextLeftToRight :size="iconSize"/>
       </button>
       <div class="spacer"></div>
       <button type="button" @click.prevent="toggleBold">
-        <FormatBold />
+        <FormatBold :size="iconSize"/>
       </button>
       <button type="button" @click.prevent="toggleCursive">
-        <FormatItalic />
+        <FormatItalic :size="iconSize"/>
       </button>
     </Row>
 
@@ -80,6 +80,7 @@ export default {
     return {
       active: false,
       range: null,
+      iconSize: 16
     };
   },
   mounted() {
@@ -284,6 +285,10 @@ export default {
     margin-right: 2px;
   }
 
+  .material-design-icon {
+    color: $white;
+  }
+
   > *:not(.spacer) {
     width: unset;
     margin: 0px 1px !important;
@@ -291,10 +296,10 @@ export default {
     padding-top: 3px;
     background-color: rgb(100, 100, 100);
 
-    .material-design-icon__svg {
-      height: 18px;
-      color: $white;
-    }
+    // .material-design-icon__svg {
+    //   height: 18px;
+    //   color: $white;
+    // }
   }
 }
 

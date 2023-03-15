@@ -2,8 +2,8 @@
   <div class="list">
     <div class="wrapper">
       <Row class="title-row">
-        <label v-if="title" class="title"
-          >{{ title }} {{ length !== null ? `(${length})` : '' }}</label
+        <label v-if="title || $slots.title" class="title"
+          ><slot name="title"></slot>{{ title }} {{ length !== null ? `(${length})` : '' }}</label
         >
         <button
           class="list-add-button-besides"
@@ -15,7 +15,7 @@
       </Row>
     </div>
 
-    <p v-if="description" class="description">{{ description }}</p>
+    <p v-if="description || $slots.description" class="description"><slot name="description" />{{ description }}</p>
     <div class="list-container">
       <slot />
     </div>
@@ -33,7 +33,6 @@
 import Row from '../layout/Row.vue';
 export default {
   components: { Row },
-  name: 'List',
   props: {
     title: String,
     description: String,
@@ -56,7 +55,7 @@ export default {
 .list-container {
   box-sizing: border-box;
 
-  $left: 19px;
+  $left: 12px;
   padding-left: $left * 2;
   position: relative;
 
@@ -140,9 +139,9 @@ export default {
 }
 
 button {
-  max-width: 38px;
-  width: 38px;
-  height: 38px;
+  max-width: 24px;
+  width: 24px;
+  height: 24px;
 }
 
 .title-row {

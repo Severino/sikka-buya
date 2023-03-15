@@ -42,7 +42,7 @@
           </toggle>
           <toggle
             :value="user.super"
-            @input="(_super) => toggleSuperUser(user, _super)"
+            @input="() => togglePermission(user, 'super')"
             :tooltip="$t('tooltip.user.super')"
           >
             <template v-slot:active>
@@ -76,7 +76,6 @@ import Newspaper from 'vue-material-design-icons/Newspaper.vue';
 import ListBox from 'vue-material-design-icons/ListBox.vue';
 
 export default {
-  name: 'UserManagement',
   components: {
     BackHeader,
     CopyField,
@@ -136,33 +135,15 @@ export default {
     },
     togglePermission: async function (user, permissionName) {
       const method = user.permissions.includes(permissionName)
-        ? 'revokePrivilege'
-        : 'grantPrivilege';
+        ? 'revokePermission'
+        : 'grantPermission';
       await Query.raw(
-        `mutation TogglePrivilege($user: ID!, $privilege:String!){
-        ${method}(user: $user, privilege: $privilege)
+        `mutation TogglePermission($user: ID!, $permission:String!){
+        ${method}(user: $user, permission: $permission)
       }`,
-        { user: user.id, privilege: permissionName }
+        { user: user.id, permission: permissionName }
       );
       this.$nextTick(() => this.refreshUserList());
-    },
-    toggleSuperUser: async function (user, _super) {
-      if (_super) {
-        await Query.raw(
-          `mutation Promote($email: String){
-            promoteUser(email: $email)
-          }`,
-          { email: user.email }
-        );
-      } else {
-        await Query.raw(
-          `mutation Demote($email: String){
-            demoteUser(email: $email)
-          }`,
-          { email: user.email }
-        );
-      }
-      user.super = _super;
     },
     inviteUser: async function () {
       Query.raw(

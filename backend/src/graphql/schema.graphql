@@ -326,6 +326,7 @@ type Query {
 
   isSuperUserSet: Boolean
   databaseExists: Boolean
+  getUser(id:ID!): User
   users: [User]
   login(email: String!, password: String!): AuthResponse
   auth(token: String): User
@@ -392,6 +393,8 @@ type Mutation {
   # Tested in 003_user
   inviteUser(email: String): Boolean
   acceptInvite(email: String, password: String): Void
+  grantPermission(user:ID!, permission:String!):Void
+  revokePermission(user:ID!, permission:String!):Void
 
   # Tested in 004_coin_mark
   addCoinMark(name: String!): Void
@@ -476,9 +479,6 @@ type Mutation {
   updateMaterialColor(id: ID!, color: String!): Void
   deleteMaterialColor(id: ID): Void
 
-  promoteUser(email:String): Void
-  demoteUser(email:String): Void
-
   createPage(title: String, type:String!): ID
   updatePage(id: ID!, page: PageInput):Void
   deletePage(id: ID!):Void
@@ -488,10 +488,6 @@ type Mutation {
   createPageGroup(name:String):ID
   
   uploadFile(identity:String!, file:Upload!):Void
-
-  grantPrivilege(user:ID!, privilege:String!):Void
-  revokePrivilege(user:ID!, privilege:String!):Void
-
   setLang(path:String!, lang:String!, singular:String!, plural:String):Void
 }
 

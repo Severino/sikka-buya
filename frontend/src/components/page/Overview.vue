@@ -12,7 +12,7 @@
         @keydown.enter="create"
       >
         <PlusCircleOutline />
-        <span>{{ $t('form.create') }}</span>
+        <span><locale path="form.create" /></span>
       </div>
     </header>
 
@@ -70,6 +70,7 @@ import { camelCase } from 'change-case';
 
 import DeleteButtonMixin from '../mixins/deletebutton';
 import Button from '../layout/buttons/Button.vue';
+import Locale from '../cms/Locale.vue';
 
 export default {
   name: 'OverviewPage',
@@ -82,7 +83,8 @@ export default {
     ListItem,
     ListItemCell,
     Button,
-  },
+    Locale
+},
   mixins: [DeleteButtonMixin],
   created: function () {
     this.list();

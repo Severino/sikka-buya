@@ -27,20 +27,36 @@ async function createTestDatabaseIfNecessary() {
 async function createReadOnlyUserIfNecessary() {
     if (!await hasReadOnlyUser()) {
         await createReadOnlyUser()
+        console.log(`Created read-only user`)
+
     }
 }
 
 async function dropReadOnlyUserIfNecessary() {
     if (await hasReadOnlyUser()) {
         await dropReadOnlyUser()
+        console.log(`Dropped read-only user`)
+
     }
 }
 
 async function createTestDatabase() {
     await SuperDatabase.none("CREATE DATABASE $1:name", WriteableDatabase.$cn.database)
+    console.log(`Created test database`)
 }
 
-async function resetTestDatabase(backupFile) {
+async function resetSchema() {
+    await WriteableDatabase.tx(async t => {
+        await t.none("DROP SCHEMA IF EXISTS public CASCADE")
+        await t.none("CREATE SCHEMA IF NOT EXISTS public")
+        await t.none("GRANT ALL ON SCHEMA public TO postgres")
+        await t.none("GRANT ALL ON SCHEMA public TO public")
+    })
+    console.log(`Reset schema`)
+
+}
+
+async function resetTestDatabase(schemaFile) {
 
     const { default: Async } = await import('../../frontend/src/utils/Async.mjs')
 
@@ -58,22 +74,25 @@ async function resetTestDatabase(backupFile) {
             } catch (e) {
                 console.log(e)
             }
-
-            await WriteableDatabase.tx(async t => {
-
-                await t.none("DROP SCHEMA IF EXISTS public CASCADE")
-                await t.none("CREATE SCHEMA IF NOT EXISTS public")
-                await t.none("GRANT ALL ON SCHEMA public TO postgres")
-                await t.none("GRANT ALL ON SCHEMA public TO public")
-            })
-
+            try {
+                await resetSchema()
+            } catch (e) {
+                console.log("Could not reset schema", e)
+            }
 
             const migrationPath = joinPath(__dirname, "..", "..", "backend")
-            backupFilePath = backupFile || joinPath(migrationPath, "schema.sql")
-            await applySchemaFile(WriteableDatabase, backupFilePath)
+            let schemaFilePath = schemaFile || joinPath(migrationPath, "schema.sql")
+            console.log("Apply schema file: " + schemaFilePath)
+            try {
+                await applySchemaFile(WriteableDatabase, schemaFilePath)
+                console.log(`Successfully applied schema file!`)
+            } catch (e) {
+                console.log(`Could not apply schema file: ` , e)
+            }
 
             try {
                 await grantPersmissionsToReadOnlyUser()
+                console.log(`Grant permissions to read only user`)
             } catch (e) {
                 console.log(e)
             }
@@ -85,6 +104,7 @@ async function resetTestDatabase(backupFile) {
             throw new Error(`Could not reset database: ${e}`)
         }
 
+        console.log(`Successfully reset database!`)
     } else {
         throw new Error("Resetting is locked!")
     }

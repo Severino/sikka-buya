@@ -17,6 +17,7 @@ describe("Testing Province", function () {
     })
 
     it("Navigate to List", function () {
+        cy.visit('/editor')
         cy.get(".list-item").contains("Region").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/province")
@@ -101,7 +102,7 @@ describe("Testing Province", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/province/123')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 

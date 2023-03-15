@@ -24,7 +24,7 @@ class RegExValidationRule extends ValidationRule {
     }
 
     validate(string) {
-        if (!string) throw new Error("The 'string' parameter must be passed.")
+        if (!string) return false
         return new Validation(string.match(this.regex), this.errorMessage)
     }
 }

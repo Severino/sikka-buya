@@ -17,6 +17,7 @@ describe("Testing Materials", function () {
     })
 
     it("Navigate to List", function () {
+        cy.visit('/editor')
         cy.get(".list-item").contains("Material").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/material")
@@ -59,7 +60,7 @@ describe("Testing Materials", function () {
 
         it("Can cancel create", function () {
             cy.visit("/editor/material/create")
-            cy.get("button").contains("abbrechen").click()
+            cy.get("#cancel-button").click()
             cy.location("pathname").should((pathname) => {
                 expect(pathname).to.eq("/editor/material")
             })
@@ -68,7 +69,7 @@ describe("Testing Materials", function () {
         it("Can create new material", function () {
             cy.visit("/editor/material/create")
             cy.get("#material-name").type("Bronze")
-            cy.get("button").contains("senden").click()
+            cy.get("#submit-button").click()
             cy.get(".list-item").contains("Bronze")
             cy.get(".list-item").contains("Silber")
             cy.get(".list-item").contains("Gold")
@@ -91,7 +92,7 @@ describe("Testing Materials", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/material/42')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
         it("Correct id set for update", function () {
@@ -101,7 +102,7 @@ describe("Testing Materials", function () {
 
         it("Can cancel", function () {
             cy.visit("/editor/material/1")
-            cy.get("button").contains("abbrechen").click()
+            cy.get("#cancel-button").click()
             cy.location("pathname").should((pathname) => {
                 expect(pathname).to.eq("/editor/material")
             })
@@ -115,7 +116,7 @@ describe("Testing Materials", function () {
             cy.visit("/editor/material/3")
             cy.get("#material-name").clear().type("Blassgold")
             cy.get("#material-color").clear().type("00ccff")
-            cy.get("button").contains("senden").click()
+            cy.get("#submit-button").click()
             cy.get(".list-item").contains("Gold")
             cy.get(".list-item").contains("Silber")
             cy.get(".list-item").contains("Blassgold").parents(".list-item-row").find(".color-indicator").should("have.css", "background-color", "rgb(0, 204, 255)")

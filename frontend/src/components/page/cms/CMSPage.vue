@@ -1,7 +1,9 @@
 <template>
   <div class="page cms-page">
     <section class="content-wrapper" v-if="!loading">
-      <h2>{{ $t(`cms.${this.group}`) }}</h2>
+      <h2>
+        <Locale :path="`cms.${this.group}`" />
+      </h2>
       <div class="info grid col-3" v-if="showTime">
         <div class="cell">
           <label for="">Erstellt am</label>
@@ -16,48 +18,25 @@
           {{ timeMixinFormatDate(page.publishedTimestamp) }}
         </div>
       </div>
-      <h1
-        :contenteditable="editmode"
-        @input="($event) => update($event, 'title')"
-        data-property="title"
-        v-if="isPresent('title')"
-        v-once
-      >
+      <h1 :contenteditable="editmode" @input="($event) => update($event, 'title')" data-property="title"
+        v-if="isPresent('title')" v-once>
         {{ page.title }}
       </h1>
 
-      <h2
-        class="subtitle"
-        v-if="hasSubtitle"
-        :contenteditable="editmode"
-        @input="update"
-        data-property="subtitle"
-        v-once
-      >
+      <h2 class="subtitle" v-if="hasSubtitle" :contenteditable="editmode" @input="update" data-property="subtitle" v-once>
         {{ page.subtitle }}
       </h2>
 
       <p v-if="!editmode" name="" id="" cols="30" rows="10"></p>
-      <SimpleFormattedField
-        ref="body"
-        @hook:mounted="() => selfInitialize('body')"
-        @input="(value) => this.updateFormattedField('body', value)"
-        v-else
-      />
+      <SimpleFormattedField ref="body" @hook:mounted="() => selfInitialize('body')"
+        @input="(value) => this.updateFormattedField('body', value)" v-else />
 
       <section v-if="hasBlocks">
         <h2>Blocks</h2>
 
-        <textarea
-          v-for="block of page.blocks"
-          class="page-block"
-          :contenteditable="editmode"
-          @keydown="($event) => handleSpecialKeys($event, block)"
-          @input="($event) => updateBlockText($event, block)"
-          :key="`page-block-${block.id}`"
-          :ref="`page-block-${block.id}`"
-          v-model="block.text"
-        />
+        <textarea v-for="block of   page.blocks" class="page-block" :contenteditable="editmode"
+          @keydown="($event) => handleSpecialKeys($event, block)" @input="($event) => updateBlockText($event, block)"
+          :key="`page-block-${block.id}`" :ref="`page-block-${block.id}`" v-model="block.text" />
         <div class="content-wrapper">
           <async-button @click="addEmptyBlock()">Add</async-button>
         </div>
@@ -78,9 +57,10 @@ import SimpleFormattedField from '../../forms/SimpleFormattedField.vue';
 import TimeMixin from '../../mixins/time';
 import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
 import CMSConfig from '../../../../cms.config';
+import Locale from '../../cms/Locale.vue';
 
 export default {
-  components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField },
+  components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField, Locale },
   mixins: [TimeMixin, MountedAndLoadedMixin],
   mounted() {
     CMSPage.get(this.id)

@@ -1,42 +1,50 @@
-const axios = require('axios')
+const axios = require("axios");
 
 module.exports = {
   // The rest of the Cypress config options go here...
   projectId: "jzfi3q",
+
   e2e: {
     baseUrl: "http://localhost:8080",
     setupNodeEvents(on, config) {
       // implement node event listeners here
-      on('task', {
+      on("task", {
         async ResetDatabase() {
           axios.post("http://localhost:4000/test-database", {
-            method: "ResetDatabase"
-          })
+            method: "ResetDatabase",
+          });
 
-          return true
+          return true;
         },
         async MountMinimalDatabase() {
           await axios.post("http://localhost:4000/test-database", {
-            method: "MountMinimalDatabase"
-          })
+            method: "MountMinimalDatabase",
+          });
 
-          return true
+          return true;
         },
         async MountMinimalDatabaseWithCreatedType() {
           await axios.post("http://localhost:4000/test-database", {
-            method: "MountMinimalDatabaseWithCreatedType"
-          })
+            method: "MountMinimalDatabaseWithCreatedType",
+          });
 
-          return true
+          return true;
         },
         async MountMinimalDatabaseWithCreatedMint() {
           await axios.post("http://localhost:4000/test-database", {
-            method: "MountMinimalDatabaseWithCreatedMint"
-          })
+            method: "MountMinimalDatabaseWithCreatedMint",
+          });
 
-          return true
-        }
-      })
+          return true;
+        },
+      });
+    },
+  },
+
+  component: {
+    devServer: {
+      framework: "vue",
+      bundler: "webpack",
     },
   },
 };

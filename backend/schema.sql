@@ -82,6 +82,16 @@ ALTER SEQUENCE public.app_user_id_seq OWNED BY public.app_user.id;
 
 
 --
+-- Name: app_user_privilege; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.app_user_privilege (
+    app_user integer NOT NULL,
+    privilege text NOT NULL
+);
+
+
+--
 -- Name: coin_marks; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -781,6 +791,142 @@ CREATE TABLE public.type_reviewed (
 
 
 --
+-- Name: web_page; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.web_page (
+    id integer NOT NULL,
+    title text,
+    subtitle text,
+    image integer,
+    summary text,
+    body text,
+    published boolean,
+    page_group integer,
+    created_timestamp timestamp without time zone NOT NULL,
+    modified_timestamp timestamp without time zone NOT NULL,
+    published_timestamp timestamp without time zone,
+    author integer
+);
+
+
+--
+-- Name: web_page_block; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.web_page_block (
+    id integer NOT NULL,
+    type text NOT NULL,
+    "position" integer NOT NULL,
+    text text,
+    image integer,
+    page integer,
+    parent integer
+);
+
+
+--
+-- Name: web_page_block_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.web_page_block_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: web_page_block_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.web_page_block_id_seq OWNED BY public.web_page_block.id;
+
+
+--
+-- Name: web_page_group; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.web_page_group (
+    id integer NOT NULL,
+    name text
+);
+
+
+--
+-- Name: web_page_group_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.web_page_group_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: web_page_group_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.web_page_group_id_seq OWNED BY public.web_page_group.id;
+
+
+--
+-- Name: web_page_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.web_page_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: web_page_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.web_page_id_seq OWNED BY public.web_page.id;
+
+
+--
+-- Name: web_page_image; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.web_page_image (
+    id integer NOT NULL,
+    url text,
+    uploaded timestamp without time zone
+);
+
+
+--
+-- Name: web_page_image_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.web_page_image_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: web_page_image_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.web_page_image_id_seq OWNED BY public.web_page_image.id;
+
+
+--
 -- Name: app_user id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -907,6 +1053,34 @@ ALTER TABLE ONLY public.type ALTER COLUMN id SET DEFAULT nextval('public.type_id
 
 
 --
+-- Name: web_page id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page ALTER COLUMN id SET DEFAULT nextval('public.web_page_id_seq'::regclass);
+
+
+--
+-- Name: web_page_block id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_block ALTER COLUMN id SET DEFAULT nextval('public.web_page_block_id_seq'::regclass);
+
+
+--
+-- Name: web_page_group id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_group ALTER COLUMN id SET DEFAULT nextval('public.web_page_group_id_seq'::regclass);
+
+
+--
+-- Name: web_page_image id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_image ALTER COLUMN id SET DEFAULT nextval('public.web_page_image_id_seq'::regclass);
+
+
+--
 -- Name: app_user app_user_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -928,6 +1102,14 @@ ALTER TABLE ONLY public.app_user
 
 ALTER TABLE ONLY public.app_user
     ADD CONSTRAINT app_user_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: app_user_privilege app_user_privilege_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.app_user_privilege
+    ADD CONSTRAINT app_user_privilege_pkey PRIMARY KEY (app_user, privilege);
 
 
 --
@@ -1163,10 +1345,50 @@ ALTER TABLE ONLY public.type_reviewed
 
 
 --
+-- Name: web_page_block web_page_block_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_block
+    ADD CONSTRAINT web_page_block_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: web_page_group web_page_group_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_group
+    ADD CONSTRAINT web_page_group_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: web_page_image web_page_image_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_image
+    ADD CONSTRAINT web_page_image_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: web_page web_page_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page
+    ADD CONSTRAINT web_page_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: idx_search_vectors; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_search_vectors ON public.type USING gin (search_vectors);
+
+
+--
+-- Name: app_user_privilege app_user_privilege_app_user_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.app_user_privilege
+    ADD CONSTRAINT app_user_privilege_app_user_fkey FOREIGN KEY (app_user) REFERENCES public.app_user(id);
 
 
 --
@@ -1247,14 +1469,6 @@ ALTER TABLE ONLY public.issuer_titles
 
 ALTER TABLE ONLY public.issuer_titles
     ADD CONSTRAINT it_title_fk FOREIGN KEY (title) REFERENCES public.title(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: material_color material_color_material_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.material_color
-    ADD CONSTRAINT material_color_material_fkey FOREIGN KEY (material) REFERENCES public.material(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -1423,6 +1637,54 @@ ALTER TABLE ONLY public.type
 
 ALTER TABLE ONLY public.type_reviewed
     ADD CONSTRAINT type_reviewed_type_id_fk FOREIGN KEY (type) REFERENCES public.type(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: web_page web_page_author_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page
+    ADD CONSTRAINT web_page_author_fkey FOREIGN KEY (author) REFERENCES public.app_user(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: web_page_block web_page_block_image_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_block
+    ADD CONSTRAINT web_page_block_image_fkey FOREIGN KEY (image) REFERENCES public.web_page_image(id);
+
+
+--
+-- Name: web_page_block web_page_block_page_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_block
+    ADD CONSTRAINT web_page_block_page_fkey FOREIGN KEY (page) REFERENCES public.web_page(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: web_page_block web_page_block_parent_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page_block
+    ADD CONSTRAINT web_page_block_parent_fkey FOREIGN KEY (parent) REFERENCES public.web_page_block(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: web_page web_page_image_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page
+    ADD CONSTRAINT web_page_image_fkey FOREIGN KEY (image) REFERENCES public.web_page_image(id);
+
+
+--
+-- Name: web_page web_page_page_group_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.web_page
+    ADD CONSTRAINT web_page_page_group_fkey FOREIGN KEY (page_group) REFERENCES public.web_page_group(id);
 
 
 --

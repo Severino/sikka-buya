@@ -1,7 +1,7 @@
 <template>
   <section class="hero">
     <Box>
-      <h2>Setup</h2>
+      <h2><Locale path="system.setup"/></h2>
 
       <div v-if="!databaseExists">
         <p class="error">
@@ -32,7 +32,9 @@
               id="submit-button"
               class="colored big-button"
               @click="submit"
-              >Submit</Button
+              >
+              <Locale path="form.submit" />
+              </Button
             >
           </template>
         </segmented-row>
@@ -44,13 +46,14 @@
 <script>
 import Query from '../../database/query';
 import UserForm from '../auth/UserForm';
+import Locale from '../cms/Locale.vue';
 import Box from '../layout/Box.vue';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import SegmentedRow from '../layout/SegmentedRow.vue';
 export default {
-  components: { UserForm, Box, Button, Row, SegmentedRow, AsyncButton },
+  components: { UserForm, Box, Button, Row, SegmentedRow, AsyncButton, Locale },
   data: function () {
     return {
       email: '',

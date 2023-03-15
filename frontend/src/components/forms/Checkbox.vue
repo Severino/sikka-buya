@@ -8,7 +8,9 @@
       @input="input"
     />
 
-    <span class="label">{{ label }}</span>
+    <span class="label">
+      <slot name="label" />
+      {{ label }} (?)</span>
     <label :for="'checkbox-' + id" v-if="label">
       <div class="check">
         <CheckboxMarked v-if="value" />

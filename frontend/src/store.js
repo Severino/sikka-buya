@@ -78,7 +78,7 @@ const store = new Vuex.Store({
     },
     userHasPermission(state, getters) {
       return (name) => {
-        return getters.loggedIn && state.user.permissions.includes(name)
+        return getters.loggedIn && (state.user.super || state.user.permissions.includes(name))
       }
     },
     permissions(state) {

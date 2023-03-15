@@ -9,15 +9,10 @@
       </div>
       <Row class="button-bar">
         <button id="cancel-button" type="button" @click.prevent.stop="cancel">
-          {{ $t('form.cancel') }}
+          <Locale path="form.cancel" />
         </button>
-        <button
-          id="submit-button"
-          type="submit"
-          @click="submit"
-          :disabled="disabled"
-        >
-          {{ $t('form.submit') }}
+        <button id="submit-button" type="submit" @click="submit" :disabled="disabled">
+          <Locale path="form.submit" />
         </button>
       </Row>
     </form>
@@ -25,6 +20,7 @@
 </template>
 
 <script>
+import Locale from '../cms/Locale.vue';
 import Row from '../layout/Row.vue';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
 
@@ -47,6 +43,7 @@ export default {
   components: {
     LoadingSpinner,
     Row,
+    Locale
   },
   methods: {
     submit: function () {
@@ -71,7 +68,7 @@ form {
   display: flex;
   flex-direction: column;
 
-  > * {
+  >* {
     margin-bottom: $padding;
   }
 }

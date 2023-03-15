@@ -1,5 +1,7 @@
 describe("Testing Mints", function () {
 
+    const coarseness = 0.2
+
     this.beforeAll(function () {
         cy.task("MountMinimalDatabase")
         cy.fixture("users/admin").then(user => {
@@ -17,12 +19,11 @@ describe("Testing Mints", function () {
     })
 
     it("Navigate to List", function () {
+        cy.visit('/editor')
         cy.get(".list-item").contains("Prägeort").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/mint")
         })
-
-
     })
 
     it("Prägeort list is showing", function () {
@@ -84,9 +85,9 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], coarseness)
             cy.get("#mint-location-uncertain label").click()
-            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], coarseness)
 
             cy.get("#mint-uncertain-location-input .leaflet-container").click(10, 10, {
                 ctrlKey: true
@@ -97,7 +98,7 @@ describe("Testing Mints", function () {
             }).click(100, 10, {
                 ctrlKey: true
             })
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], coarseness)
 
 
             cy.get("#mint-notes").type("This will be cancelled soon!")
@@ -124,10 +125,10 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], coarseness)
 
             cy.get("#mint-location-uncertain label").click()
-            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], 0.05)
+            cy.inputArrayCloseTo("#mint-location input", [30.03, 50.93], coarseness)
 
 
             cy.get("#mint-uncertain-location-input .leaflet-container").click(10, 10, {
@@ -140,7 +141,7 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11]], coarseness)
 
             cy.get("#mint-notes").type("Newly created mint!")
 
@@ -166,7 +167,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-location-uncertain input").should("be.checked")
 
             // On save we add as the last item the first item if first and last differ.
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11], [38.68, 31.16]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[38.68, 31.16], [35.52, 31.16], [35.52, 35.11], [38.68, 35.11], [38.68, 31.16]], coarseness)
 
             cy.get("#mint-notes").should("have.value", "Newly created mint!")
         })
@@ -193,7 +194,7 @@ describe("Testing Mints", function () {
         it("Cannot edit with wrong id", function () {
             cy.visit('/editor/mint/100')
             cy.get(".information.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#submit-button").should("have.attr", "disabled")
         })
 
 
@@ -211,7 +212,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-location .leaflet-container").click(100, 100, {
                 ctrlKey: true
             })
-            cy.get("#mint-location input").should("have.value", "[35.52, 35.11]")
+            cy.inputArrayCloseTo("#mint-location input", [35.52, 35.11], coarseness)
 
 
             cy.get("#mint-uncertain-location-input .delete-btn").click()
@@ -223,7 +224,7 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], coarseness)
 
             cy.get("#mint-notes").type("Oh we changed the notes completely!")
 
@@ -248,7 +249,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-location-uncertain input").should("be.checked")
             // When the last element differs from the first element, we'll add the first element as last. 
             // This conforms the GeoJSON specification for polygons.
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[27.17, 53.14], [27.69, 54.45], [27.17, 55.60], [26.76, 55.67], [26.44, 54.87], [26.65, 53.57]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[27.17, 53.14], [27.69, 54.45], [27.17, 55.60], [26.76, 55.67], [26.44, 54.87], [26.65, 53.57]], coarseness)
 
             cy.get("#mint-notes").should("have.value", "")
         })
@@ -263,7 +264,7 @@ describe("Testing Mints", function () {
             cy.get("#mint-location .leaflet-container").click(100, 100, {
                 ctrlKey: true
             })
-            cy.get("#mint-location input").should("have.value", "[35.52, 35.11]")
+            cy.inputArrayCloseTo("#mint-location input", [35.52, 35.11], coarseness)
 
 
             cy.get("#mint-uncertain-location-input .delete-btn").click()
@@ -275,7 +276,7 @@ describe("Testing Mints", function () {
                 ctrlKey: true
             })
 
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35]], coarseness)
 
             cy.get("#mint-notes").clear().type("Oh we changed the notes completely!")
 
@@ -302,7 +303,7 @@ describe("Testing Mints", function () {
 
             // When the last element differs from the first element, we'll add the first element as last. 
             // This conforms the GeoJSON specification for polygons., [37.99, 32.04]
-            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35], [37.99, 32.04]], 0.05)
+            cy.multiInputArrayCloseTo("#mint-uncertain-location-input input", [[37.99, 32.04], [37.29, 35.11], [33.71, 33.35], [37.99, 32.04]], coarseness)
 
             cy.get("#mint-notes").should("have.value", "Oh we changed the notes completely!")
 

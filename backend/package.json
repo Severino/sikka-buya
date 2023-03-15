@@ -10,6 +10,7 @@
         "dev": "nodemon index.js --ext js,graphql",
         "init": "yarn install && npm run setup",
         "setup": "node ./scripts/setup.js",
+        "update-schema": "node ./scripts/database_backup.js --mode=backend-schema",
         "db:backup": "node ./scripts/database_backup.js",
         "db:export:data": "node ./scripts/database_backup.js --data",
         "db:export:schema": "node ./scripts/database_backup.js --schema"

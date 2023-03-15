@@ -72,11 +72,12 @@ describe("Testing Type", function () {
 
     it("Item in editor list", function () {
         cy.visit('/editor')
-        cy.get("a").contains("Typ")
+        cy.get("a.list-item-row").contains("Typ")
     })
 
     it("Navigate to List", function () {
-        cy.get("a").contains("Typ").click()
+        cy.visit('/editor')
+        cy.get("a.list-item-row").contains("Typ").click()
         cy.location("pathname").should((pathname) => {
             expect(pathname).to.eq("/editor/type")
         })
@@ -105,6 +106,7 @@ describe("Testing Type", function () {
         })
 
         it("Other not active", function () {
+            cy.visit('/editor/type')
             const completeButton = cy.get("#list-item-type-4 .reviewed-button")
             completeButton.find(".active").should("not.exist")
         })
@@ -140,6 +142,7 @@ describe("Testing Type", function () {
         })
 
         it("Other not active", function () {
+            cy.visit('/editor/type')
             const completeButton = cy.get("#list-item-type-4 .done-button")
             completeButton.find(".active").should("not.exist")
         })
@@ -181,7 +184,7 @@ describe("Testing Type", function () {
             cy.visit('/editor/type/edit/8')
             cy.get("#type-id").should("be.empty")
             cy.get(".global.error").should("not.be.empty")
-            cy.get("button").contains("senden").should("have.attr", "disabled")
+            cy.get("#type-main-submit-button").should("have.attr", "disabled")
         })
 
 

@@ -62,9 +62,9 @@ const property = {
     circular_text:
         "Umschrift | Umschriften",
     coin_mark:
-        "Mzz. und Einzelworte",
+        "Münz- und Beizeichen",
     coin_verse:
-        "Koranverse und anderes",
+        "besondere Einzelworte, Formeln, Koranverse",
     cursive_script:
         "kursive Schriftart",
     completed:

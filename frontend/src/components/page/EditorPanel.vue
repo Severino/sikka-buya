@@ -1,7 +1,7 @@
 <template>
   <div>
     <header>
-      <h2>{{ $t('tooltip.test') }}</h2>
+      <h2><locale path="editor.administration"/></h2>
     </header>
 
     <div class="quick-access">

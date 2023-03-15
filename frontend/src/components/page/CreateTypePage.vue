@@ -1,10 +1,8 @@
 <template>
   <form class="types-page" submit.prevent="" novalidate="true">
     <modal :active="confirmVisible" @close="() => forceRedirect(false)">
-      <confirmation @result="forceRedirect"
-        >Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabei
-        verloren!</confirmation
-      >
+      <confirmation @result="forceRedirect">Wollen Sie die Seite wirklich verlassen? Alle Änderungen gehen dabei
+        verloren!</confirmation>
     </modal>
     <error-box :message="errorMessage" />
     <BackHeader :to="{ name: 'TypeOverview' }" />
@@ -14,230 +12,183 @@
     <div v-if="!loading" class="loading-area">
       <input id="type-id" type="hidden" name="" :value="coin.id" />
       <Row>
-        <LabeledInputContainer :label="$tc('property.type_id')">
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.project_id" />
+          </template>
           <input id="type-project-id" v-model="coin.projectId" required />
         </LabeledInputContainer>
 
-        <LabeledInputContainer :label="$tc('property.treadwell_id')">
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.treadwell_id" />
+          </template>
           <input id="type-treadwell-id" v-model="coin.treadwellId" />
         </LabeledInputContainer>
       </Row>
 
       <Row>
-        <LabeledInputContainer :label="$tc('property.mint')">
-          <DataSelectField
-            id="type-mint-field"
-            table="Mint"
-            attribute="name"
-            v-model="coin.mint"
-            @select="mintSelected"
-          />
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.mint" />
+          </template>
+          <DataSelectField id="type-mint-field" table="Mint" attribute="name" v-model="coin.mint"
+            @select="mintSelected" />
         </LabeledInputContainer>
 
-        <LabeledInputContainer :label="$t('property.mint_as_on_coin')">
-          <RemovableInputField
-            id="type-as-on-coin-field"
-            v-model="coin.mintAsOnCoin"
-          />
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.mint_as_on_coin" />
+          </template>
+          <RemovableInputField id="type-as-on-coin-field" v-model="coin.mintAsOnCoin" />
         </LabeledInputContainer>
 
-        <Checkbox
-          id="type-mint-uncertain"
-          v-model="coin.mintUncertain"
-          :label="$tc('property.mint_uncertain')"
-        />
+        <Checkbox id="type-mint-uncertain" v-model="coin.mintUncertain">
+          <template #label>
+            <Locale path="property.mint_uncertain" />
+          </template>
+        </Checkbox>
       </Row>
       <Row>
-        <LabeledInputContainer :label="$tc('property.material')">
-          <DataSelectField
-            id="type-material-data-field"
-            v-model="coin.material"
-            table="Material"
-            attribute="name"
-          />
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.material" />
+          </template>
+          <DataSelectField id="type-material-data-field" v-model="coin.material" table="Material" attribute="name" />
         </LabeledInputContainer>
-        <LabeledInputContainer :label="$tc('property.nominal')">
-          <DataSelectField
-            id="type-nominal-data-field"
-            v-model="coin.nominal"
-            table="Nominal"
-            attribute="name"
-          />
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.nominal" />
+          </template>
+          <DataSelectField id="type-nominal-data-field" v-model="coin.nominal" table="Nominal" attribute="name" />
         </LabeledInputContainer>
-        <LabeledInputContainer :label="$tc('property.purity')">
-          <removable-input-field
-            id="type-purity"
-            type="number"
-            step="0.01"
-            v-model="coin.purity"
-            table="Nominal"
-            attribute="name"
-          />
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.purity" />
+          </template>
+          <removable-input-field id="type-purity" type="number" step="0.01" v-model="coin.purity" table="Nominal"
+            attribute="name" />
         </LabeledInputContainer>
       </Row>
       <Row>
-        <LabeledInputContainer :label="$t('property.mint_year')">
-          <RestrictedInputField
-            id="type-year-of-type-field"
-            v-model="coin.yearOfMint"
-            pattern="^-?[0-9x]{0,3}$"
-          />
+        <LabeledInputContainer>
+          <template #label>
+            <Locale path="property.mint_year" />
+          </template>
+          <RestrictedInputField id="type-year-of-type-field" v-model="coin.yearOfMint" pattern="^-?[0-9x]{0,3}$" />
         </LabeledInputContainer>
 
-        <Checkbox
-          id="type-year-uncertain"
-          v-model="coin.yearUncertain"
-          :label="$tc('property.year_uncertain')"
-        />
+        <Checkbox id="type-year-uncertain" v-model="coin.yearUncertain">
+          <template #label>
+            <Locale path="property.year_uncertain" />
+          </template>
+        </Checkbox>
       </Row>
 
       <Row>
-        <Checkbox
-          id="type-donativ"
-          v-model="coin.donativ"
-          :label="$tc('property.donativ')"
-        />
+        <Checkbox id="type-donativ" v-model="coin.donativ">
+          <template #label>
+            <Locale path="property.donativ" />
+          </template>
+        </Checkbox>
 
-        <Checkbox
-          id="type-small"
-          v-model="coin.small"
-          :label="$tc('property.small')"
-        />
+        <Checkbox id="type-small" v-model="coin.small">
+          <template #label>
+            <Locale path="property.small" />
+          </template>
+        </Checkbox>
 
-        <LabeledInputContainer
-          :label="$tc('property.procedure')"
-          id="type-procedure-container"
-        >
-          <RadioButtonGroup
-            id="type-procedure"
-            :labels="productionLabels"
-            :options="productionOptions"
-            v-model="coin.procedure"
-          ></RadioButtonGroup>
+        <LabeledInputContainer id="type-procedure-container">
+          <template #label>
+            <Locale path="property.procedure" />
+          </template>
+          <RadioButtonGroup id="type-procedure" :labels="productionLabels" :options="productionOptions"
+            v-model="coin.procedure"></RadioButtonGroup>
         </LabeledInputContainer>
       </Row>
 
-      <List
-        v-on:add="addIssuer"
-        :title="$t('property.issuer')"
-        id="type-issuers-list"
-      >
+      <FormList v-on:add="addIssuer" id="type-issuers-list">
+        <template #title>
+          <Locale path="property.issuer" />
+        </template>
         <div v-if="coin.issuers.length == 0" class="info">
-          {{ $t('warning.list_is_empty') }}
+          <Locale path="warning.list_is_empty" :count="2" />
         </div>
-        <ListItem
-          v-for="(issuer, issuer_idx) in coin.issuers"
-          :key="'issuer-wrapper-key-' + issuer.key"
-          v-on:remove="removeIssuer"
-          :object="issuer"
-        >
-          <TitledPersonSelect
-            name="isser"
-            table="persons"
-            attribute="name"
-            :value="issuer"
-            :key="`issuers-${issuer.key}`"
-            @input="issuerChanged($event, issuer_idx)"
-            queryCommand="searchPersonsWithoutRole"
-            :queryParams="['id', 'name']"
-          ></TitledPersonSelect>
+        <FormListItem v-for="(issuer, issuer_idx) in coin.issuers" :key="'issuer-wrapper-key-' + issuer.key"
+          v-on:remove="removeIssuer" :object="issuer">
+          <TitledPersonSelect name="isser" table="persons" attribute="name" :value="issuer" :key="`issuers-${issuer.key}`"
+            @input="issuerChanged($event, issuer_idx)" queryCommand="searchPersonsWithoutRole"
+            :queryParams="['id', 'name']"></TitledPersonSelect>
           <div v-if="issuer.error" class="error invalid-error">
             {{ issuer.error }}
           </div>
-        </ListItem>
-      </List>
-      <List
-        id="type-overlord-list"
-        v-on:add="addOverlord"
-        :description="$t('info.overlords')"
-        :title="$tc('property.overlord', 2)"
-        class="overlords needs-spacing"
-      >
+        </FormListItem>
+      </FormList>
+      <FormList id="type-overlord-list" v-on:add="addOverlord" class="overlords needs-spacing">
+        <template #title>
+          <Locale path="property.overlord" :count="2" />
+        </template>
+        <template #description>
+          <Locale path="info.overlords" />
+        </template>
         <div v-if="coin.overlords.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
-        <ListItem
-          v-for="(overlord, index) of coin.overlords"
-          :key="'overlord-key-' + overlord.key"
-          v-on:remove="removeOverlord"
-          :object="overlord"
-        >
+        <FormListItem v-for="(overlord, index) of coin.overlords" :key="'overlord-key-' + overlord.key"
+          v-on:remove="removeOverlord" :object="overlord">
           <div class="overlord-rank">{{ overlord.rank }}</div>
-          <TitledPersonSelect
-            name="overlord"
-            :value="overlord"
-            :key="`overlord-${overlord.key}`"
-            @input="overlordChanged($event, index)"
-            queryCommand="searchPersonsWithoutRole"
-            :queryParams="['id', 'name']"
-          />
+          <TitledPersonSelect name="overlord" :value="overlord" :key="`overlord-${overlord.key}`"
+            @input="overlordChanged($event, index)" queryCommand="searchPersonsWithoutRole"
+            :queryParams="['id', 'name']" />
           <div v-if="overlord.error" class="error invalid-error">
             {{ overlord.error }}
           </div>
-        </ListItem>
-      </List>
+        </FormListItem>
+      </FormList>
 
-      <LabeledInputContainer :label="$tc('role.caliph')">
-        <DataSelectField
-          id="type-caliph-field"
-          v-model="coin.caliph"
-          attribute="name"
-          table="person"
-          queryCommand="searchPersonsWithRole"
-          :queryParams="['id', { role: ['id', 'name'] }, 'name']"
-          :additionalParameters="{ include: ['caliph'] }"
-        />
+      <LabeledInputContainer>
+        <template #label>
+          <Locale path="role.caliph" :count="2" />
+        </template>
+        <DataSelectField id="type-caliph-field" v-model="coin.caliph" attribute="name" table="person"
+          queryCommand="searchPersonsWithRole" :queryParams="['id', { role: ['id', 'name'] }, 'name']"
+          :additionalParameters="{ include: ['caliph'] }" />
       </LabeledInputContainer>
-      <List
-        id="type-other-person-list"
-        :title="$t('property.additional_persons')"
-        class="needs-spacing"
-        v-on:add="addOtherPerson"
-      >
+      <FormList id="type-other-person-list" class="needs-spacing" v-on:add="addOtherPerson">
+        <template #title>
+          <Locale path="property.additional_persons" />
+        </template>
         <div v-if="coin.otherPersons.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
 
-        <ListItem
-          v-for="(otherPerson, index) in coin.otherPersons"
-          :key="'other-person-id-' + otherPerson.key"
-          v-on:remove="removeOtherPerson"
-          :object="otherPerson"
-        >
-          <DataSelectField
-            table="person"
-            attribute="name"
-            :value="otherPerson"
-            @input="otherPersonChanged($event, index)"
-            :displayTextCallback="otherPersonsTextCallback"
-            queryCommand="searchPersonsWithRole"
-            :additionalParameters="{ exclude: ['caliph'] }"
-            :queryParams="['id', { role: ['id', 'name'] }, 'name']"
-          />
+        <FormListItem v-for="(otherPerson, index) in coin.otherPersons" :key="'other-person-id-' + otherPerson.key"
+          v-on:remove="removeOtherPerson" :object="otherPerson">
+          <DataSelectField table="person" attribute="name" :value="otherPerson" @input="otherPersonChanged($event, index)"
+            :displayTextCallback="otherPersonsTextCallback" queryCommand="searchPersonsWithRole"
+            :additionalParameters="{ exclude: ['caliph'] }" :queryParams="['id', { role: ['id', 'name'] }, 'name']" />
           <div v-if="otherPerson.error" class="error invalid-error">
             {{ otherPerson.error }}
           </div>
-        </ListItem>
-      </List>
+        </FormListItem>
+      </FormList>
 
       <hr />
       <Section title="Voderseite">
-        <CoinSideField
-          id="type-avers"
-          :title="$t('property.sides.front')"
-          ref="aversField"
-          prefix="Av.-"
-        />
+        <CoinSideField id="type-avers" ref="aversField" prefix="Av.-">
+          <template #title>
+            <Locale path="property.sides.front" />
+          </template>
+        </CoinSideField>
       </Section>
 
       <hr />
       <Section title="Rückseite">
-        <CoinSideField
-          id="type-reverse"
-          :title="$t('property.sides.back')"
-          ref="reverseField"
-          prefix="Rev.-"
-        />
+        <CoinSideField id="type-reverse" ref="reverseField" prefix="Rev.-">
+          <template #title>
+            <Locale path="property.sides.back" />
+          </template>
+        </CoinSideField>
       </Section>
 
       <hr />
@@ -246,130 +197,92 @@
         <SimpleFormattedField ref="specialsField" id="type-specials" />
       </LabeledInputContainer>
 
-      <Checkbox
-        id="type-cursive"
-        :label="$t('property.cursive_script') + ' (?)'"
-        v-model="coin.cursiveScript"
-      />
+      <Checkbox id="type-cursive" v-model="coin.cursiveScript">
+        <template #label>
+          <Locale path="property.cursive_script" />
+        </template>
+      </Checkbox>
 
-      <List
-        :title="$t('property.coin_mark')"
-        @add="addCoinMark"
-        class="coin-mark-list"
-        id="type-coin-mark-list"
-      >
+      <FormList @add="addCoinMark" class="coin-mark-list" id="type-coin-mark-list">
+        <template #title>
+          <Locale path="property.coin_mark" :count="2" />
+        </template>
         <div v-if="coin.coinMarks.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
-        <ListItem
-          v-for="(coinmark, idx) in coin.coinMarks"
-          :key="coinmark.key"
-          :object="coinmark"
-          @remove="removeCoinMark(idx)"
-        >
-          <DataSelectField
-            type="text"
-            table="CoinMark"
-            attribute="name"
-            v-model="coin.coinMarks[idx]"
-          />
+        <FormListItem v-for="(coinmark, idx) in coin.coinMarks" :key="coinmark.key" :object="coinmark"
+          @remove="removeCoinMark(idx)">
+          <DataSelectField type="text" table="CoinMark" attribute="name" v-model="coin.coinMarks[idx]" />
           <div v-if="coinmark.error" class="error invalid-error">
             {{ coinmark.error }}
           </div>
-        </ListItem>
-      </List>
+        </FormListItem>
+      </FormList>
 
-      <List
-        :title="$t('property.coin_verse')"
-        @add="addCoinVerse"
-        class="coin-verse-list"
-        id="type-coin-verse-list"
-        v-if="coin.coinVerses"
-      >
+      <FormList @add="addCoinVerse" class="coin-verse-list" id="type-coin-verse-list" v-if="coin.coinVerses">
+        <template #title>
+          <Locale path="property.coin_verse" :count="2" />
+        </template>
         <div v-if="coin.coinVerses.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
-        <ListItem
-          v-for="(coinverse, idx) in coin.coinVerses"
-          :key="coinverse.key"
-          :object="coinverse"
-          @remove="removeCoinVerse(idx)"
-        >
-          <DataSelectField
-            type="text"
-            table="CoinVerse"
-            attribute="name"
-            v-model="coin.coinVerses[idx]"
-          />
+        <FormListItem v-for="(coinverse, idx) in coin.coinVerses" :key="coinverse.key" :object="coinverse"
+          @remove="removeCoinVerse(idx)">
+          <DataSelectField type="text" table="CoinVerse" attribute="name" v-model="coin.coinVerses[idx]" />
           <div v-if="coinverse.error" class="error invalid-error">
             {{ coinverse.error }}
           </div>
-        </ListItem>
-      </List>
+        </FormListItem>
+      </FormList>
 
-      <List
-        :title="$tc('property.piece', 2)"
-        @add="addPiece"
-        class="pieces-list"
-        id="type-pieces-list"
-      >
+      <FormList @add="addPiece" class="pieces-list" id="type-pieces-list">
+        <template #title>
+          <Locale path="property.piece" :count="2" />
+        </template>
         <div v-if="coin.pieces.length == 0" class="info">
           {{ $t('warning.list_is_empty') }}
         </div>
-        <ListItem
-          v-for="(piece, idx) in coin.pieces"
-          :key="'pieces-' + piece.key"
-          :object="piece"
-          @remove="removePiece(idx)"
-        >
-          <input
-            type="text"
-            class="pieces-input"
-            v-model="coin.pieces[idx].value"
-            @input="pieceChanged(piece)"
-          />
+        <FormListItem v-for="(piece, idx) in coin.pieces" :key="'pieces-' + piece.key" :object="piece"
+          @remove="removePiece(idx)">
+          <input type="text" class="pieces-input" v-model="coin.pieces[idx].value" @input="pieceChanged(piece)" />
           <div v-if="piece.error" class="error invalid-error">
             {{ piece.error }}
           </div>
-        </ListItem>
-      </List>
+        </FormListItem>
+      </FormList>
 
-      <LabeledInputContainer :label="$t('property.literature_and_remarks')">
-        <SimpleFormattedField
-          id="type-literature-field"
-          ref="literatureField"
-        />
+      <LabeledInputContainer>
+        <template #label>
+          <Locale path="property.literature_and_remarks" />
+        </template>
+        <SimpleFormattedField id="type-literature-field" ref="literatureField" />
         <!-- <textarea v-model="coin.literature"></textarea> -->
       </LabeledInputContainer>
 
-      <LabeledInputContainer :label="$t('property.internal_notes')">
-        <SimpleFormattedField
-          id="type-internal-notes-field"
-          ref="internalNotesField"
-        />
+      <LabeledInputContainer>
+        <template #label>
+          <Locale path="property.internal_notes" />
+        </template>
+        <SimpleFormattedField id="type-internal-notes-field" ref="internalNotesField" />
         <!-- <textarea v-model="coin.literature"></textarea> -->
       </LabeledInputContainer>
 
       <Row>
-        <Checkbox
-          id="exclude-from-type-catalog"
-          v-model="coin.excludeFromTypeCatalogue"
-          :label="$tc('property.excludeFromTypeCatalogue')"
-        />
+        <Checkbox id="exclude-from-type-catalog" v-model="coin.excludeFromTypeCatalogue">
+          <template #label>
+            <Locale path="property.excludeFromTypeCatalogue" />
+          </template>
+        </Checkbox>
 
-        <Checkbox
-          id="exclude-from-map-app"
-          v-model="coin.excludeFromMapApp"
-          :label="$tc('property.excludeFromMapApp')"
-        />
+        <Checkbox id="exclude-from-map-app" v-model="coin.excludeFromMapApp">
+          <template #label>
+            <Locale path="property.excludeFromMapApp" />
+          </template>
+        </Checkbox>
       </Row>
 
       <div class="submit-error-window">
-        <div
-          class="error submit-error"
-          v-for="err in errorMessages"
-          :key="err.key"
-        >
+        <div class="error submit-error" v-for="err in errorMessages" :key="err.key">
           {{ err.message }}
         </div>
       </div>
@@ -380,19 +293,10 @@
           Apply {{ debug }}
         </button>
         <button type="button" @click="exportJSON" v-if="debug">Export</button>
-        <button
-          type="button"
-          id="type-main-cancel-button"
-          @click.stop.prevent="cancel"
-        >
+        <button type="button" id="type-main-cancel-button" @click.stop.prevent="cancel">
           {{ $t('form.cancel') }}
         </button>
-        <button
-          @click.stop.prevent="submitForm"
-          id="type-main-submit-button"
-          type="submit"
-          :disabled="submitDisabled"
-        >
+        <button @click.stop.prevent="submitForm" id="type-main-submit-button" class="submit-button" type="submit" :disabled="submitDisabled">
           {{ $t('form.submit') }}
         </button>
       </Row>
@@ -408,8 +312,8 @@ import Row from '@/components/layout/Row.vue';
 import RestrictedInputField from '../forms/RestrictedInputField.vue';
 import Checkbox from '../forms/Checkbox.vue';
 import RadioButtonGroup from '../forms/RadioButtonGroup.vue';
-import List from '../forms/List.vue';
-import ListItem from '../forms/ListItem.vue';
+import FormList from '../forms/FormList.vue';
+import FormListItem from '../forms/FormListItem.vue';
 import TitledPersonSelect from '../forms/TitledPersonSelect.vue';
 import CoinSideField from '../forms/coins/CoinSideField.vue';
 import SimpleFormattedField from '../forms/SimpleFormattedField.vue';
@@ -425,29 +329,31 @@ import { TypeQueries } from '../../graphql/type-queries';
 import Modal from '../layout/Modal.vue';
 import Confirmation from '../misc/Confirmation.vue';
 import BackHeader from '../layout/BackHeader.vue';
-import { constantCase } from 'constant-case';
+import Locale from '../cms/Locale.vue';
+
 
 export default {
   name: 'CreateTypePage',
   components: {
-    Heading,
-    DataSelectField,
-    LabeledInputContainer,
-    Row,
-    RestrictedInputField,
-    Checkbox,
-    RadioButtonGroup,
-    List,
-    ListItem,
-    TitledPersonSelect,
-    CoinSideField,
-    SimpleFormattedField,
-    LoadingSpinner,
-    RemovableInputField,
-    ErrorBox,
-    Confirmation,
-    Modal,
     BackHeader,
+    Checkbox,
+    CoinSideField,
+    Confirmation,
+    DataSelectField,
+    ErrorBox,
+    Heading,
+    LabeledInputContainer,
+    FormList,
+    FormListItem,
+    LoadingSpinner,
+    Locale,
+    Modal,
+    RadioButtonGroup,
+    RemovableInputField,
+    RestrictedInputField,
+    Row,
+    SimpleFormattedField,
+    TitledPersonSelect,
   },
   computed: {
     submitDisabled() {
@@ -1120,8 +1026,10 @@ export default {
     .list-container button {
       padding: 0 10px;
     }
+
     .slot {
       display: flex;
+
       input {
         flex: 1;
       }
@@ -1131,8 +1039,8 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.coin-side-field > *,
-.loading-area > * {
+.coin-side-field>*,
+.loading-area>* {
   margin-bottom: $padding;
 }
 
@@ -1191,7 +1099,7 @@ export default {
   transition-duration: 0.5s;
   transition-property: transform, top;
 
-  > *:not(:last-child) {
+  >*:not(:last-child) {
     margin-right: 20px;
   }
 }
@@ -1212,7 +1120,7 @@ label {
 .types-page {
   margin-bottom: 50vh;
 
-  > h3 {
+  >h3 {
     font-size: 2rem;
     font-weight: bold;
   }

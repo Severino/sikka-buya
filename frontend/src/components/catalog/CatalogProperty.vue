@@ -1,16 +1,15 @@
 <template>
   <div class="catalog-property">
     <header v-if="label">
-      <div v-if="label" class="property-label">
+      <div v-if="label" class="simple-property-label property-label">
         {{ label }}
       </div>
+      <div v-else-if="localeLabel" class="locale-property-label property-label">
+        <Locale v-if="label" :path="label" :count="localeCount || 1" />
+      </div>
 
-      <div
-        v-if="info"
-        class="popup-container"
-        ref="popupButton"
-        @click.stop.prevent="togglePopup()"
-      >
+
+      <div v-if="info" class="popup-container" ref="popupButton" @click.stop.prevent="togglePopup()">
         <popup-activator>
           <InfoIcon />
           <template v-slot:popup>{{ info }}</template>
@@ -27,6 +26,7 @@
 
 <script>
 import InfoIcon from 'vue-material-design-icons/InformationOutline.vue';
+import Locale from '../cms/Locale.vue';
 import Popup from '../Popup/Popup.vue';
 import PopupActivator from '../Popup/PopupActivator.vue';
 
@@ -36,6 +36,7 @@ export default {
     InfoIcon,
     Popup,
     PopupActivator,
+    Locale
   },
   data() {
     return {
@@ -46,6 +47,8 @@ export default {
     label: String,
     html: String,
     info: String,
+    localeLabel: String,
+    localeCount: Number,
   },
   methods: {
     togglePopup() {
@@ -59,6 +62,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.simple-property-label {
+  background-color: red;
+}
+
 header {
   display: flex;
   align-items: center;
@@ -78,13 +86,13 @@ header {
 
 .catalog-property {
   font-size: $large-font;
-  line-height: $large-font * 1.65;
   background-color: $white;
   border-radius: 3px;
-  padding: $padding 2 * $padding;
+  padding: 2 * $padding;
 }
 
 .property-label {
+  margin-bottom: 2 * $padding;
   font-size: $small-font;
   font-weight: bold;
   color: $primary-color;

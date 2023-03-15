@@ -1,26 +1,45 @@
 <template>
   <div class="coin-side-field">
-    <Heading v-if="title">{{ title }}</Heading>
-    <LabeledInputContainer >
+    <Heading v-if="title || $slots.title">
+      <slot name="title" />{{ title }}
+    </Heading>
+    <LabeledInputContainer>
       <template #label>
-        {{ prefix }}<Locale path="property.field_text" />
+        {{ prefix }}
+        <Locale path="property.field_text" />
       </template>
       <SimpleFormattedField class="field-text" ref="fieldTextField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.inner_inscript')">
+    <LabeledInputContainer>
+      <template #label>
+        {{ prefix }}
+        <Locale path="property.inner_inscript" />
+      </template>
       <SimpleFormattedField class="inner-inscript" ref="innerInscriptField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.intermediate_inscript')">
+    <LabeledInputContainer>
+      <template #label>
+        {{ prefix }}
+        <Locale path="property.intermediate_inscript" />
+      </template>
       <SimpleFormattedField class="intermediate-inscript" ref="intermediateInscriptField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.outer_inscript')">
+    <LabeledInputContainer>
+      <template #label>
+        {{ prefix }}
+        <Locale path="property.outer_inscript" />
+      </template>
       <SimpleFormattedField class="outer-inscript" ref="outerInscriptField" />
     </LabeledInputContainer>
 
-    <LabeledInputContainer :label="prefix + $t('property.misc')">
+    <LabeledInputContainer>
+      <template #label>
+        {{ prefix }}
+        <Locale path="property.misc" />
+      </template>
       <SimpleFormattedField class="misc" ref="miscField" />
     </LabeledInputContainer>
   </div>

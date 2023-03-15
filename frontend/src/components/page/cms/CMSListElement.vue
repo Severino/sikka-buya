@@ -1,11 +1,11 @@
 <template>
-    <div class="cms-list-element">
+    <div class="cms-list-element" :class="{editable: $store.getters.canEdit}">
         <header v-if="showTime">
             <span>{{ timeMixinFormatDate(value.createdTimestamp) }}</span>
             <span>{{ timeMixinFormatDate(value.publishedTimestamp) || "-" }}</span>
             <div class="toolbox">
-                <Button :to="cms_edit({ id: value.id, group, props: { include } })">Bearbeiten</Button>
-                <Button @click="() => remove(value.id)">Delete</Button>
+                <Button v-if="$store.getters.canEdit" :to="cms_edit({ id: value.id, group, props: { include } })"><Locale path="general.edit" /></Button>
+                <Button v-if="$store.getters.canEdit" @click="() => remove(value.id)"><Locale path="general.delete" /></Button>
             </div>
         </header>
         <div class="flex space-between row">
@@ -15,8 +15,8 @@
                 <div v-if="isPresent('body')" v-html="value.body"></div>
             </div>
             <div class="toolbox" v-if="!showTime">
-                <Button :to="cms_edit({ id: value.id, group, props: { include } })">Bearbeiten</Button>
-                <Button @click="() => remove(value.id)">Delete</Button>
+                <Button v-if="$store.getters.canEdit" :to="cms_edit({ id: value.id, group, props: { include } })"><Locale path="general.edit" /></Button>
+                <Button v-if="$store.getters.canEdit" @click="() => remove(value.id)"><Locale path="general.delete" /></Button>
             </div>
         </div>
     </div>
@@ -27,11 +27,13 @@ import CMSMixin from "../../mixins/cms"
 import TimeMixin from '../../mixins/time';
 import Button from '../../layout/buttons/Button.vue';
 import CMSConfig from "../../../../cms.config";
+import Locale from "../../cms/Locale.vue";
 export default {
     mixins: [TimeMixin, CMSMixin],
     components: {
-        Button
-    },
+    Button,
+    Locale
+},
     props: {
         value: { type: Object, required: true },
         group: { type: String, required: true },
@@ -62,7 +64,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.cms-list-element {
+.cms-list-element.editable {
     background-color: white;
     border: 1px solid $light-gray;
     border-radius: $border-radius;

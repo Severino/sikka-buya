@@ -1,15 +1,17 @@
 <template>
   <div class="back-header">
-    <router-link :to="to"><ArrowLeft />{{ $t('navigation.back') }}</router-link>
+    <router-link :to="to"><ArrowLeft /><Locale path="navigation.back"/></router-link>
   </div>
 </template>
 
 <script>
 import ArrowLeft from 'vue-material-design-icons/KeyboardBackspace';
+import Locale from '../cms/Locale.vue';
 export default {
   name: 'ValueWrapper',
   components: {
     ArrowLeft,
+    Locale
   },
   props: {
     to: {

@@ -22,6 +22,7 @@ describe('Setup Page', function () {
   })
 
   it('correct href', function () {
+    cy.visit('/setup')
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/setup")
     })
@@ -30,6 +31,7 @@ describe('Setup Page', function () {
 
 
   it('register super user', function () {
+    cy.visit('/setup')
     cy.fixture("users/admin").then(user => {
       superUser = user
       cy.get("input#username").type(user.email)
@@ -42,11 +44,10 @@ describe('Setup Page', function () {
   })
 
   it('redirects if super user is set', function () {
-
     cy.visit('/setup')
     cy.wait(150)
     cy.location("pathname").should((pathname) => {
-      expect(pathname).to.eq("/home")
+      expect(pathname).to.eq("/landing")
     })
   })
 
@@ -61,6 +62,7 @@ describe('Setup Page', function () {
   })
 
   it('login button working', function () {
+    cy.visit('/login')
     cy.get("input#username").type(superUser.email)
     cy.get("input#cpassword").type(superUser.password)
     cy.wait(150)
@@ -72,15 +74,22 @@ describe('Setup Page', function () {
   })
 
   it('login working', function () {
+    cy.visit('/login')
+    cy.get("input#username").type(superUser.email)
+    cy.get("input#cpassword").type(superUser.password)
+    cy.wait(150)
+    cy.get("#submit-button").click()
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/editor/")
     })
   })
 
   it('logout working', function () {
-    cy.get("#nav-logout-button").click()
+    cy.login(superUser.email, superUser.password)
+    cy.visit('/editor')
+    cy.get(".user-hub .logout-button").click()
     cy.location("pathname").should((pathname) => {
-      expect(pathname).to.eq("/home")
+      expect(pathname).to.eq("/login")
     })
   })
 })
@@ -113,25 +122,29 @@ describe('User Management', function () {
   })
 
   it("Goto UserManagement", function () {
-    cy.get("a").contains("Nutzer").click()
+    cy.visit('/editor')
+    cy.get("a[href='/editor/user']").click()
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/editor/user")
     })
   })
 
   it("Invite User", function () {
+    cy.visit('/editor/user')
     cy.get("input[type='email']").type(user1.email)
     cy.get("input[type='submit']").contains("Invite").click()
-    cy.get(".user .email").contains(user1.email)
+    cy.get(".user:nth-child(2) .email").contains(user1.email)
   })
 
   it("Invite Other User", function () {
+    cy.visit('/editor/user')
     cy.get("input[type='email']").type(user2.email)
     cy.get("input[type='submit']").contains("Invite").click()
-    cy.get(".user .email").contains(user2.email)
+    cy.get(".user:nth-child(3) .email").contains(user2.email)
   })
 
   it("Can delete user", function () {
+    cy.visit('/editor/user')
     cy.triggerDeleteButton(".user:nth-child(3) .dynamic-delete-button")
     cy.get(".user:nth-child(3) .dynamic-delete-button").should("not.exist")
   })
@@ -171,18 +184,20 @@ describe('Accept Invite', function () {
   })
 
   it("Email should be set", function () {
+    cy.visit(`/invite/${user1.email}`)
     cy.get('input').should('have.value', user1.email)
   })
 
   it("Accept Invite", function () {
+    cy.visit(`/invite/${user1.email}`)
     cy.get("#password").type(user1.password)
-    cy.get("button").contains("Registrieren").click()
+    cy.get("button.signup-button").click()
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/login")
     })
   })
 
-  it("Login not possible", function () {
+  it("Login possible", function () {
     cy.visit('/login')
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq(`/login`)

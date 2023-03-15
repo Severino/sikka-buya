@@ -20,7 +20,8 @@ const exec = util.promisify(require("child_process").exec);
 
 const path = require('path');
 const { error, notice } = require('./modules/logging');
-const { readFileSync, writeFileSync } = require('fs');
+const { readFileSync, writeFileSync, mkdirSync } = require('fs');
+const { join} = require("path");
 
 
 function execute(command) {
@@ -61,7 +62,9 @@ const options = {
     mode: "both",
     owner: false,
     format: "custom",
-    inserts: false
+    inserts: false,
+    out: null,
+    name: null,
 }
 
 args = args.forEach(element => {
@@ -111,8 +114,15 @@ if (options.mode == "backend-schema") {
     }
 
 
-    const fileName = constructFileName(`${process.env.DB_NAME}_${name}`, ext)
-    dump(fileName, additionalOptions.join(" ")).finally(process.exit)
+    const fileName = (options.name) ? options.name : constructFileName(`${process.env.DB_NAME}_${name}`, ext)
+    let outputFile = fileName
+    if (options.out) {
+        let outDir = join(process.cwd(), options.out)
+        mkdirSync(outDir, { recursive: true })
+        outputFile = join(outDir, fileName)
+    }
+
+    dump(outputFile, additionalOptions.join(" ")).finally(process.exit)
 }
 
 

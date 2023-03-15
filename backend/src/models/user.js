@@ -10,11 +10,20 @@ class User {
         return builder
     }
 
-    static async byMail(email) {
+    static _getBy({ where = null } = {}) {
+        if (!where) throw new Error("Missing 'where' clause.")
         const queryBuilder = this.queryBuilder()
-        queryBuilder.addWhere(pgp.as.format(`email = $[email]`, { email }))
+        queryBuilder.addWhere(where)
         const query = queryBuilder.buildSelect({ groupBy: `(id, email, password, super)` })
         return Database.oneOrNone(query)
+    }
+
+    static async byId(id) {
+        return this._getBy({where: pgp.as.format(`id = $[id]`, { id })})
+    }
+
+    static async byMail(email) {
+        return this._getBy({where: pgp.as.format(`email = $[email]`, { email })})
     }
 
     static async list() {

@@ -1,35 +1,16 @@
 <template>
-  <div
-    class="dynamic-delete-button"
-    :class="{ highlighted, active, removing }"
-    @click.stop.prevent.capture
-    @mouseover.stop.prevent.capture
-    @mouseenter.stop="highlight"
-    @mouseleave.stop="cancel"
-    @mousecancel.stop="cancel"
-    @mousedown.stop="activate"
-    @mouseup.stop="executeOrCancel"
-    @mousemove="updateTrashPosition"
-    @touchcancel="cancel"
-    @touchend="executeOrCancel"
-    @touchmove="updateTrashPosition"
-    @touchstart="activate"
-  >
+  <div class="dynamic-delete-button" :class="{ highlighted, active, removing }" @click.stop.prevent.capture
+    @mouseover.stop.prevent.capture @mouseenter.stop="highlight" @mouseleave.stop="cancel" @mousecancel.stop="cancel"
+    @mousedown.stop="activate" @mouseup.stop="executeOrCancel" @mousemove="updateTrashPosition" @touchcancel="cancel"
+    @touchend="executeOrCancel" @touchmove="updateTrashPosition" @touchstart="activate">
     <div class="track" ref="track">
-      <DeleteEmpty
-        v-if="removingPossible && !removing"
-        class="icon empty-bin-icon"
-      />
-      <Delete v-else class="icon bin-icon" />
+      <DeleteEmpty v-if="removingPossible && !removing" class="icon empty-bin-icon" :size="iconSize" />
+      <Delete v-else class="icon bin-icon" :size="iconSize" />
 
       <span class="text">LÖSCHEN</span>
 
-      <div class="trash-track">
-        <div
-          class="trash"
-          ref="trash"
-          :class="{ hidden: !removingPossible }"
-        ></div>
+      <div class="trash-track" ref="trashTrack">
+        <div class="trash" ref="trash" :class="{ hidden: !removingPossible }"></div>
       </div>
     </div>
   </div>
@@ -57,6 +38,7 @@ export default {
       removing: false,
       activationTimeout: null,
       removingPossible: false,
+      iconSize: 20
     };
   },
   methods: {
@@ -76,23 +58,21 @@ export default {
     },
     updateTrashPosition(event) {
       if (this.active) {
-        const track = this.$refs.track;
-        const trackRect = track.getBoundingClientRect();
+        const trashTrack = this.$refs.trashTrack;
+        const trackRect = trashTrack.getBoundingClientRect();
         const trash = this.$refs.trash;
-        const offset = 20;
 
         const position = event.touches ? event.touches[0] : event;
+        const positionX = Math.max(0, trackRect.right - position.x)
+        trash.style.right = `${positionX}px`;
 
-        trash.style.right = `${
-          trackRect.width - (position.pageX - trackRect.left + offset + 5)
-        }px`;
-
-        if (this.removingPossible)
-          this.removing = position.pageX - trackRect.left < offset * 2;
+        if (this.removingPossible && trackRect.width > 50) {
+          this.removing = position.x - trackRect.left < 15;
+        }
       }
     },
     resetTrashPosition() {
-      this.$refs.trash.style.right = '10px';
+      this.$refs.trash.style.right = '0px';
     },
     highlight() {
       this.highlighted = true;
@@ -131,14 +111,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$size: 40px;
+$size: 30px;
 $trash-size: 10px;
+$track-color: $dark-white;
 
 svg {
   fill: currentColor;
 }
 
 .dynamic-delete-button {
+  margin: 3px;
   position: relative;
   width: $size;
   height: $size;
@@ -146,6 +128,7 @@ svg {
 }
 
 .text {
+  font-size: $small-font;
   position: absolute;
   opacity: 0;
   top: 50%;
@@ -166,23 +149,24 @@ svg {
 
   width: $size;
   height: $size;
-  border-radius: math.div($size, 2);
+  border-radius: $border-radius;
   box-shadow: $shadow;
+  background-color: $track-color;
 
   transition: all $transition-time;
 }
 
 .icon {
   position: absolute;
-  top: 7px;
-  left: 8px;
+  top: 5px;
+  left: 5px;
 }
 
 .highlighted {
   color: $red;
 
   .track {
-    background-color: white;
+    background-color: darken($track-color, 5%);
   }
 }
 
@@ -205,7 +189,7 @@ svg {
   height: $trash-size;
   border-radius: math.div($trash-size, 2);
   background-color: $red;
-  transform: scale(1);
+  transform: translateX(50%) scale(1);
   opacity: 1;
 
   transition: right 0.1s, transform $transition-time,
@@ -218,8 +202,8 @@ svg {
 
 .active {
   .track {
-    width: 150px;
-    background-color: white;
+    width: 130px;
+    background-color: $track-color;
   }
 
   .text {

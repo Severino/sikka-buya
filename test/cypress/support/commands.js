@@ -56,11 +56,11 @@ Cypress.Commands.add("triggerDeleteButton", (selector) => {
         }
 
         deleteButton
-            .trigger("mousedown", { which: 1, pageX: clickPosition.x, pageX: clickPosition.y })
+            .trigger("mousedown", { which: 1, eventConstructor: 'MouseEvent' })
             .wait(500)
-            .trigger("mousemove", { which: 1, pageX: clickPosition.x + 140, pageX: clickPosition.y })
+            .trigger("mousemove", -100, 0, { which: 1, eventConstructor: 'MouseEvent', force: true })
             .wait(200)
-            .trigger("mouseup")
+            .trigger("mouseup", { force: true })
     })
 })
 
@@ -78,26 +78,26 @@ Cypress.Commands.add("selectFromDataSelect", (selector, targetText, type = "") =
         cy.get(selector + " .name-field").type(type)
     }
 
-    cy.get(selector).then(el => {
-        const rect = el[0].getBoundingClientRect()
-        const clickPosition = {
-            x: rect.x + rect.width / 2,
-            y: rect.y + rect.height / 2
-        }
+    const dataSelect = cy.get(selector)
+    dataSelect.click()
+    cy.contains(selector + " .search-box li", targetText, { timeout: 2000 }).click()
 
-        const dataSelect = cy.get(selector)
-        dataSelect.click()
-        cy.contains(selector + " .search-box li", targetText, { timeout: 2000 }).then((el) => {
-            const targetRect = el[0].getBoundingClientRect()
-            const targetPosition = {
-                x: targetRect.x + targetRect.width / 2,
-                y: targetRect.y + targetRect.height / 2
-            }
-            dataSelect
-                .trigger("mousemove", { which: 1, pageX: targetPosition.x, pageX: targetPosition.y })
-                .trigger("click")
-        })
-    })
+    /** 
+     * The following is more natural for the user and therefore more desirable to test
+     * but after updating to Cypress 12 this is not working anymore and the above version 
+     * is an easy but not so apprpriate fix.
+     */
+
+    // .then((el) => {
+    //     const targetRect = el[0].getBoundingClientRect()
+    //     const targetPosition = {
+    //         x: targetRect.x + targetRect.width / 2,
+    //         y: targetRect.y + targetRect.height / 2
+    //     }
+    //     dataSelect
+    //         .trigger("mousemove", { which: 1, pageX: targetPosition.x, pageY: targetPosition.y })
+    //         .trigger("click")
+    // })
 })
 
 Cypress.Commands.add("checkDataSelect", (selector, name = "", id = "", relativeElement = null) => {

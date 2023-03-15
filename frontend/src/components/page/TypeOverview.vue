@@ -13,7 +13,7 @@
         @keydown.enter="create"
       >
         <PlusCircleOutline />
-        <span>{{ $t('form.create') }}</span>
+        <span><locale path="form.create" /></span>
       </div>
     </header>
     <SearchField
@@ -157,6 +157,7 @@ import LabeledProperty from '../display/LabeledProperty.vue';
 import ThreeWayToggle from '../forms/ThreeWayToggle.vue';
 import { camelCase } from 'change-case';
 import Pagination from '../list/Pagination.vue';
+import Locale from '../cms/Locale.vue';
 
 const defaultFilters = {
   text: '',
@@ -198,7 +199,8 @@ export default {
     LabeledProperty,
     ThreeWayToggle,
     Pagination,
-  },
+    Locale
+},
   mounted: function () {
     let filters = this.isEditor
       ? localStorage.getItem('type-list-filter')
