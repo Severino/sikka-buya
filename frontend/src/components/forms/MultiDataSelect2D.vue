@@ -59,7 +59,8 @@ export default {
     display: inline-flex;
     align-items: center;
     color: $white;
-    background-color: $blue;
+    min-height: 24px;
+    background-color: $dark-green;
     border-radius: $border-radius;
 
     font-size: $xtra-small-font;

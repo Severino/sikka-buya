@@ -8,7 +8,10 @@
         :class="[input.name]"
         class="input-wrapper"
       >
-        <input type="text" v-model="filters[input.name]" />
+        <input
+          type="text"
+          v-model="filters[input.name]"
+        />
       </labeled-input-container>
 
       <labeled-input-container
@@ -18,7 +21,10 @@
         :class="[input.name]"
         class="input-wrapper"
       >
-        <input type="number" v-model="filters[input.name]" />
+        <input
+          type="number"
+          v-model="filters[input.name]"
+        />
       </labeled-input-container>
 
       <labeled-input-container
@@ -407,9 +413,12 @@ export default {
   mounted() {
     this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this));
     if (this.initData) {
+      const initFilterMode = {}
+
       unfilteredMultiSelectFilters.forEach((input) => {
         if (this.initData[input.name]) {
           input.mode = this.initData[input.name].mode || input.mode;
+          initFilterMode[input.name] = input.mode
           this.initData[input.name] = this.initData[input.name].value || [];
         }
       });
@@ -417,10 +426,12 @@ export default {
       unfilteredMultiDataSelect2D.forEach((input) => {
         if (this.initData[input.name]) {
           input.mode = this.initData[input.name].mode || input.mode;
+          initFilterMode[input.name] = input.mode
           this.initData[input.name] = this.initData[input.name].value || [[]];
         }
       });
-
+      this.filterMode = Object.assign({}, this.filterMode, initFilterMode)
+      console.log(this.filterMode.ruler, initFilterMode.ruler)
       this.filters = Object.assign({}, this.filters, this.initData);
     }
   },
@@ -534,6 +545,7 @@ export default {
         const emptyObj = Filter.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
+          this.$set(this.filterMode, key, val?.mode || Mode.And)
         }
       });
 
@@ -541,6 +553,7 @@ export default {
         const emptyObj = FilterList.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
+          this.$set(this.filterMode, key, val?.mode || Mode.And)
         }
       });
 
@@ -670,16 +683,13 @@ export default {
 };
 </script>
 
-<style lang="scss">
-.catalog-filters {
+<style lang="scss">.catalog-filters {
   .three-way-toggle {
     min-height: 22px;
   }
-}
-</style>
+}</style>
 
-<style lang="scss" scoped>
-.catalog-filters {
+<style lang="scss" scoped>.catalog-filters {
   display: grid;
   gap: $padding;
   grid-template-columns: repeat(6, 1fr);
@@ -691,5 +701,4 @@ export default {
 
 .multi-select-wrapper {
   grid-column: span 6;
-}
-</style>
+}</style>

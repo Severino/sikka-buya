@@ -1,4 +1,5 @@
 {
     "editor.renderWhitespace": "all",
-    "volar.inlayHints.eventArgumentInInlineHandlers": false
+    "volar.inlayHints.eventArgumentInInlineHandlers": false,
+    "html.format.wrapAttributes": "force-expand-multiline"
 }
