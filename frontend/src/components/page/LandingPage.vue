@@ -16,7 +16,7 @@
             <img src="/image/logos/Logo_Universitaet_Tuebingen.svg" alt="Logo der Universität Tübingen" />
           </div>
           <div class="cell">
-            <img src="/image/logos/sikka-buya-big-old-logo.svg" alt="Logo des Sikka-Buya Projektes" />
+            <img class="sikka-buya-logo" src="/image/logos/sikka-buya-logo.png" alt="Logo des Sikka-Buya Projektes" />
           </div>
           <div id="thyssen-logo" class="cell smaller">
             <img src="/image/logos/thyssen_stiftung.jpg" alt="Logo der Thyssen Stiftung" />
@@ -236,28 +236,23 @@ section:first-of-type {
   position: relative;
   background-color: white;
   min-height: 50px;
-  height: 150px;
   padding: 10px;
   box-sizing: border-box;
 
   .content-wrapper {
-    padding: 0 150px;
+    padding: 0 100px;
 
     @include media_tablet {
       padding: 0 20px;
     }
   }
 
+
   .cell {
     align-self: center;
-    max-height: 80%;
   }
 
-  #thyssen-logo {
-    max-height: 80%;
-  }
-
-  #uni-logo {
+  .smaller {
     max-height: 50%;
   }
 
@@ -272,24 +267,21 @@ section:first-of-type {
   .grid {
     grid-template-columns: 1fr 2fr 1fr;
 
-    height: 100%;
-    max-height: 100%;
-    gap: 100px;
 
     @include media-tablet {
       gap: 20px;
     }
 
     .cell {
-      height: 100%;
-      box-sizing: border-box;
       display: flex;
-      overflow: hidden;
+      box-sizing: border-box;
+      justify-content: center;
+      margin: 20px 50px;
 
       >img {
         display: block;
-        width: 100%;
-        // height: 100%;
+        max-width: 100%;
+        max-height: 100%;
         object-fit: contain;
       }
     }
