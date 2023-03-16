@@ -3,10 +3,7 @@
     <div class="tool-box-drawer">
       <header>
         <div class="left">
-          <div
-            class="button icon-button"
-            @click="() => (slideshow.active = !slideshow.active)"
-          >
+          <div class="button icon-button" @click="() => (slideshow.active = !slideshow.active)">
             <PlusIcon v-if="!slideshow.active" />
             <MinusIcon v-else />
           </div>
@@ -16,33 +13,22 @@
             <PauseIcon v-else />
           </div>
 
-          <popup-activator
-            class="button icon-button"
-            :targetWidth="280"
-            :noShadow="true"
-          >
+          <popup-activator class="button icon-button" :targetWidth="280" :noShadow="true">
             <ShareIcon />
             <template v-slot:popup>
               <h3>Ansicht Teilen</h3>
 
-              <copy-field :value="shareLink" /> </template
-          ></popup-activator>
+              <copy-field :value="shareLink" />
+            </template>
+          </popup-activator>
         </div>
 
         <div class="center-ui">
           <div v-if="allowToggle" class="timeline-button-container">
-            <div
-              class="timeline-toggle-button button button rounded"
-              @click="toggleTimeline"
-              v-if="timelineActive"
-            >
+            <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-if="timelineActive">
               Zeitleiste deaktivieren
             </div>
-            <div
-              class="timeline-toggle-button button button rounded"
-              @click="toggleTimeline"
-              v-else
-            >
+            <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-else>
               Zeitleiste aktivieren
             </div>
           </div>
@@ -53,11 +39,7 @@
         </div>
       </header>
 
-      <slideshow
-        v-if="slideshow.active"
-        :storagePrefix="timelineName"
-        ref="slideshow"
-      />
+      <slideshow v-if="slideshow.active" :storagePrefix="timelineName" ref="slideshow" />
     </div>
 
     <!-- <button class="play-btn" @click="play">
@@ -70,24 +52,11 @@
         <MenuLeft />
       </button>
 
-      <timeline-slider
-        :min="from"
-        :max="to"
-        :value="clampedValue"
-        @change.stop="change"
-        @input.stop="change"
-        :labeledValue="10"
-        :subdivisions="2"
-        ref="timelineSlider"
-      >
+      <timeline-slider :min="from" :max="to" :value="clampedValue" @change.stop="change" @input.stop="change"
+        :labeledValue="10" :subdivisions="2" ref="timelineSlider">
         <div class="input-wrapper">
-          <input
-            type="text"
-            :value="value"
-            style="text-align: center"
-            @input="input"
-            @blur="insertClampedValue"
-          />
+          <input class="yearInput" type="text" :value="value" style="text-align: center" @input="input"
+            @blur="insertClampedValue" />
           <Info :alwaysShow="!valid" type="warning" class="info">
             Der eingegebene Wert befindet sich außerhalb der Zeitleiste
           </Info>
@@ -303,7 +272,8 @@ export default {
 <style lang="scss" scoped>
 .timeline-container {
   display: flex;
-  > .slider {
+
+  >.slider {
     flex: 1;
     border-radius: 0;
   }
@@ -325,15 +295,17 @@ export default {
   // padding-bottom: 40px;
   transform: translateX(-50%);
 }
+
 .timeline {
   position: relative;
   display: flex;
   flex-direction: column;
 
-  > * {
+  >* {
     flex: 1;
   }
 }
+
 .timeline-container {
   button {
     border-radius: 0;
@@ -372,21 +344,36 @@ export default {
     border-radius: 3px;
     padding: $small-padding;
   }
-  input {
+
+  .yearInput {
     display: block;
     padding: 5px;
-    min-width: 100px;
+    min-width: 75px;
     width: 10%;
     max-width: 100%;
     margin: auto;
     pointer-events: all;
     border: none;
+    border-radius: $border-radius;
     font-weight: bold;
-    background-color: rgba($color: #ffffff, $alpha: 0.6);
-    border-bottom: 1px solid currentColor;
+    background-color: rgba($color: #ffffff, $alpha: 0.5);
+    margin-top: 3px;
+    // border-bottom: 1px solid currentColor;
+
+    transition: all 0.2s;
+
+
+    &:active{
+      background-color: white !important;
+    }
+
+    &:hover{
+      background-color: white !important;
+    }
 
     &:focus {
       background-color: rgba($color: #ffffff, $alpha: 0.8);
+      outline: 1px solid $primary-color;
     }
   }
 }
@@ -423,7 +410,7 @@ export default {
 
     filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
 
-    > * {
+    >* {
       display: flex;
     }
 
