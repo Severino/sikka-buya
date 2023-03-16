@@ -2,7 +2,7 @@
   <div class="pagination-control">
     <div class="left">
       <input type="number" :value="count" @change="countChanged" min="1" />
-      <span>Elemente pro Seite</span>
+      <span><Locale path="ui.list.pagination.elements_per_page" /></span>
     </div>
     <div class="center">
       <span>
@@ -32,12 +32,14 @@
 <script>
 import ChevronRight from 'vue-material-design-icons/ChevronRight.vue';
 import ChevronLeft from 'vue-material-design-icons/ChevronLeft.vue';
+import Locale from '../cms/Locale.vue';
 
 export default {
   components: {
     ChevronRight,
     ChevronLeft,
-  },
+    Locale
+},
   props: {
     page: {
       type: Number,

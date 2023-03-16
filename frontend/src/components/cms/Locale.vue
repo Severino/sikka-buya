@@ -67,8 +67,9 @@ export default {
 a.locale-link {
     position: absolute;
     color: currentColor !important;
-    top: 0;
+    bottom: 1em;
     right: 0;
+    transform: translateY(80%);
 
 }
 

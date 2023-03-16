@@ -4,10 +4,12 @@
       <labeled-input-container
         v-if="input.type === 'text'"
         :key="`${input.name}-text`"
-        :label="input.label"
         :class="[input.name]"
         class="input-wrapper"
       >
+        <template #label>
+          <locale :path="input.label" />
+        </template>
         <input
           type="text"
           v-model="filters[input.name]"
@@ -17,10 +19,12 @@
       <labeled-input-container
         v-else-if="input.type === 'number'"
         :key="`${input.name}-number`"
-        :label="input.label"
         :class="[input.name]"
         class="input-wrapper"
       >
+        <template #label>
+          <locale :path="input.label" />
+        </template>
         <input
           type="number"
           v-model="filters[input.name]"
@@ -30,13 +34,15 @@
       <labeled-input-container
         v-else-if="input.type === 'button-group'"
         :key="`${input.name}-button-group`"
-        :label="input.label"
         :class="[input.name]"
         class="input-wrapper"
       >
+        <template #label>
+          <locale :path="input.label" />
+        </template>
         <radio-button-group
           :id="input.name"
-          :labels="input.labels"
+          :tlabels="input.labels"
           :options="input.options"
           :unselectable="true"
           v-model="filters[input.name]"
@@ -46,10 +52,12 @@
       <labeled-input-container
         v-else-if="input.type === 'three-way'"
         :key="`${input.name}-three-way`"
-        :label="input.label"
         :class="[input.name]"
         class="input-wrapper"
       >
+        <template #label>
+          <locale :path="input.label" />
+        </template>
         <three-way-toggle
           v-model="filters[input.name]"
           :invert="input.invert"
@@ -58,11 +66,13 @@
 
       <labeled-input-container
         v-else-if="input.type === 'multi-select'"
-        :label="input.label"
         :class="[input.name]"
         :key="`${input.name}-multi-select`"
         class="multi-select-wrapper"
       >
+        <template #label>
+          <locale :path="input.label" />
+        </template>
         <multi-data-select
           :active="filters[input.name]"
           :additionalParameters="input.additionalParameters"
@@ -84,11 +94,13 @@
       </labeled-input-container>
       <labeled-input-container
         v-else-if="input.type === 'multi-select-2d'"
-        :label="input.label"
         :class="[input.name]"
         :key="`${input.name}-multi-select-2d`"
         class="multi-select-wrapper"
       >
+        <template #label>
+          <locale :path="input.label" />
+        </template>
         <multi-data-select-2-d
           :active="filters[input.name]"
           :input="input"
@@ -123,6 +135,7 @@ import PageInfo, { Pagination } from '../../../models/pageinfo';
 import ErrorBox from '../system/ErrorBox.vue';
 import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
 import Mode from '../../../models/Mode';
+import Locale from '../../cms/Locale.vue';
 
 function addType(arr, typeName) {
   arr.forEach((obj) => (obj.type = typeName));
@@ -130,17 +143,17 @@ function addType(arr, typeName) {
 
 const textFilters = [
   {
-    label: 'sikka:būya-ID',
+    label: 'property.project_id',
     name: 'projectId',
     order: -10,
   },
   {
-    label: 'Treadwell-ID',
+    label: 'property.treadwell_id',
     name: 'treadwellId',
     order: -9,
   },
   {
-    label: 'Prägejahr',
+    label: 'property.year_of_mint',
     name: 'yearOfMint',
     order: -3,
   },
@@ -152,10 +165,10 @@ addType(unfilteredNumberFilters, 'number');
 
 const unfilteredButtonGroupFilters = [
   {
-    label: 'Herstellungsart',
+    label: 'property.procedure',
     name: 'procedure',
     options: ['pressed', 'cast'],
-    labels: ['geprägt', 'gegossen'],
+    labels: ['property.procedures.pressed', 'property.procedures.pressed'],
     order: 3,
   },
 ];
@@ -163,28 +176,28 @@ addType(unfilteredButtonGroupFilters, 'button-group');
 
 const unfilteredThreeWayFilters = [
   {
-    label: 'kursive Schrift',
+    label: "property.cursive_script",
     name: 'cursiveScript',
     order: 8,
   },
   {
-    label: 'Geschenkmünze',
+    label: 'property.donativ',
     name: 'donativ',
     order: 4,
   },
   {
-    label: 'kleine Münze',
+    label: 'property.small_coin',
     name: 'small',
     order: 8.5,
   },
   {
-    label: 'Jahr sicher',
+    label: 'property.year_uncertain',
     name: 'yearUncertain',
     invert: true,
     order: 10,
   },
   {
-    label: 'Ort sicher',
+    label: 'property.mint_uncertain',
     name: 'mintUncertain',
     invert: true,
     order: 9,
@@ -194,25 +207,25 @@ addType(unfilteredThreeWayFilters, 'three-way');
 
 let unfilteredMultiSelectFilters = [
   {
-    label: 'Material',
+    label: 'property.material',
     name: 'material',
     order: 0,
     mode: Mode.Or,
   },
   {
-    label: 'Prägeort',
+    label: 'property.mint',
     name: 'mint',
     order: -5,
     mode: Mode.Or,
   },
   {
-    label: 'Nominal',
+    label: 'property.nominal',
     name: 'nominal',
     order: 3,
     mode: Mode.Or,
   },
   {
-    label: 'Kalif',
+    label: 'role.caliph',
     name: 'caliph',
     mode: Mode.Or,
     attribute: 'shortName',
@@ -220,7 +233,7 @@ let unfilteredMultiSelectFilters = [
     order: 5.8,
   },
   {
-    label: 'Thronfolger d. Kalifen',
+    label: 'role.heir',
     name: 'heir',
     mode: Mode.Or,
     attribute: 'shortName',
@@ -232,7 +245,7 @@ let unfilteredMultiSelectFilters = [
     order: 5.8,
   },
   {
-    label: 'sonstige Personen',
+    label: 'property.other_person',
     name: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
 
@@ -250,21 +263,21 @@ let unfilteredMultiSelectFilters = [
     mode: Mode.And,
   },
   {
-    label: 'Herrschertitel',
+    label: 'property.title',
     name: 'title',
     order: 7,
     mode: Mode.And,
     allowModeChange: true,
   },
   {
-    label: 'Ehrennamen',
+    label: 'property.honorific',
     name: 'honorific',
     order: 8,
     mode: Mode.And,
     allowModeChange: true,
   },
   {
-    label: 'Herrscher',
+    label: 'property.ruler',
     name: 'ruler',
     queryCommand: 'searchPersonsWithoutRole',
     queryParams: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
@@ -282,13 +295,13 @@ addType(unfilteredMultiSelectFilters, 'multi-select');
 
 const unfilteredMultiDataSelect2D = [
   {
-    label: 'Münz- und Beizeichen',
+    label: 'property.coin_mark',
     name: 'coinMark',
     order: 5,
     mode: Mode.And,
   },
   {
-    label: 'besondere Einzelworte, Formeln, Koranverse',
+    label: 'property.coin_verse',
     name: 'coinVerse',
     order: 5,
     mode: Mode.And,
@@ -353,6 +366,7 @@ export default {
     RadioButtonGroup,
     ErrorBox,
     MultiDataSelect2D,
+    Locale,
   },
   mixins: [Mode.mixin()],
   props: {
@@ -683,13 +697,16 @@ export default {
 };
 </script>
 
-<style lang="scss">.catalog-filters {
+<style lang="scss">
+.catalog-filters {
   .three-way-toggle {
     min-height: 22px;
   }
-}</style>
+}
+</style>
 
-<style lang="scss" scoped>.catalog-filters {
+<style lang="scss" scoped>
+.catalog-filters {
   display: grid;
   gap: $padding;
   grid-template-columns: repeat(6, 1fr);
@@ -701,4 +718,5 @@ export default {
 
 .multi-select-wrapper {
   grid-column: span 6;
-}</style>
+}
+</style>

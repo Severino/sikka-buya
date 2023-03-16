@@ -1,5 +1,8 @@
 <template>
-  <Row class="button-group" :id="id">
+  <Row
+    class="button-group"
+    :id="id"
+  >
     <Row
       v-for="(option, idx) in options"
       v-bind:key="option"
@@ -12,17 +15,29 @@
         :id="option"
         @click="change"
       />
-      <label :for="option" tabindex="0"
-        ><span>{{ labels[idx] }}</span></label
+      <label
+        v-if="useTlabels"
+        :for="option"
+        tabindex="0"
       >
+        <span>
+          <Locale :path="tlabels[idx]" />
+        </span>
+      </label>
+      <label
+        v-else
+        :for="option"
+        tabindex="0"
+      ><span>{{ labels[idx] }}</span></label>
     </Row>
   </Row>
 </template>
 
 <script>
+import Locale from '../cms/Locale.vue';
 import Row from '../layout/Row.vue';
 export default {
-  components: { Row },
+  components: { Row, Locale },
   name: 'ButtonGroup',
   props: {
     value: {
@@ -37,6 +52,10 @@ export default {
       required: true,
     },
     labels: {
+      type: Array,
+      required: true,
+    },
+    tlabels: {
       type: Array,
       required: true,
     },
@@ -64,6 +83,11 @@ export default {
       this.$emit('input', value);
     },
   },
+  computed: {
+    useTlabels() {
+      return this.tlabels && this.tlabels.length > 0
+    }
+  }
 };
 </script>
 
@@ -95,7 +119,7 @@ input {
   display: none;
 }
 
-input:checked + label {
+input:checked+label {
   @include buttonColor($white, $primary-color);
 }
 

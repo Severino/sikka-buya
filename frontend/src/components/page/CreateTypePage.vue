@@ -73,7 +73,7 @@
       <Row>
         <LabeledInputContainer>
           <template #label>
-            <Locale path="property.mint_year" />
+            <Locale path="property.year_of_mint" />
           </template>
           <RestrictedInputField id="type-year-of-type-field" v-model="coin.yearOfMint" pattern="^-?[0-9x]{0,3}$" />
         </LabeledInputContainer>

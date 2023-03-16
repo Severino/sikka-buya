@@ -1,6 +1,6 @@
 <template>
   <div class="catalog-filter-search">
-    <h1>{{ $t('routes.catalog Search') }}</h1>
+    <h1><Locale :path="'routes.'+$route.name"/></h1>
     <div class="grid col-2">
       <aside>
         <Button class="error" @click="resetFilters" v-if="hasFilters">{{
@@ -44,6 +44,7 @@ import Pagination from '../../list/Pagination.vue';
 import CatalogFilter from './CatalogFilter.vue';
 import SearchField from '../../layout/SearchField.vue';
 import catalogFilterMixin from '../../mixins/catalog-filter';
+import Locale from '../../cms/Locale.vue';
 
 export default {
   components: {
@@ -53,7 +54,8 @@ export default {
     List,
     ListItem,
     SearchField,
-  },
+    Locale
+},
   data() {
     return {
       text: '',
