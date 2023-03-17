@@ -1,13 +1,17 @@
 <template>
-  <div class="image" :class="mode">
-    <div v-if="$store.getters.canEdit" class="cms-image-container" :class="{ hovered: hover }"
-      @mouseenter="() => (hover = true)" @mouseleave="() => (hover = false)">
+  <div class="cms-image" :class="mode">
+    <div v-if="$store.getters.canEdit" class="cms-image-container">
       <loading-spinner v-if="loading" :size="LoadingSpinnerSize.Big" />
       <img v-if="imageURI" :src="imageURI" alt="" />
       <image-icon v-else :size="IconSize.Big" />
-      <label ref="label" class="button" @click.stop>
+      <label class="button" @click.stop>
+        <input
+          id="file-upload-field"
+          type="file"
+          accept=".png,.jpg,.jpeg,image/*"
+          @input="uploadFile"
+        />
         <upload-icon :size="IconSize.Large" />
-        <input id="file-upload-field" type="file" accept=".png,.jpg,.jpeg,image/*" @input="uploadFile" />
       </label>
     </div>
     <img v-else :src="imageURI" :draggable="false" />
@@ -33,7 +37,6 @@ export default {
       type: String,
       default: 'cover',
       validator(value) {
-
         if (!value) return true;
         else return ['contain', 'cover'].includes(value);
       },
@@ -43,7 +46,7 @@ export default {
     return {
       imageURI: null,
       loading: false,
-      hover: false,
+      hover: true,
     };
   },
   created() {
@@ -51,16 +54,21 @@ export default {
   },
   computed: {
     fullIdentity() {
-      return `cms[$]images[$]${this.identity}`
-    }
+      return `cms[$]images[$]${this.identity}`;
+    },
   },
   methods: {
     load: async function () {
       if (this.identity) {
-        let result = await Query.raw(`{getImage(identity:"${this.fullIdentity}")}`);
+        let result = await Query.raw(
+          `{getImage(identity:"${this.fullIdentity}")}`
+        );
         this.imageURI = result?.data?.data?.getImage;
       } else {
-        this.$store.commit("printError", "Die Komponente hat keinen 'identity'-Schlüssel. Daher kann die Datei nicht hochgeladen werden!")
+        this.$store.commit(
+          'printError',
+          "Die Komponente hat keinen 'identity'-Schlüssel. Daher kann die Datei nicht hochgeladen werden!"
+        );
       }
     },
     uploadFile: async function (event) {
@@ -71,7 +79,7 @@ export default {
         await Query.uploadFile(this.fullIdentity, file);
         await this.load();
       } catch (e) {
-        this.$store.commit("printError", e)
+        this.$store.commit('printError', e);
       }
       this.loading = false;
     },
@@ -86,9 +94,11 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.image {
+.cms-image {
   display: flex;
   position: relative;
+  min-width: 48px;
+  min-height: 42px;
 }
 
 label {
@@ -113,10 +123,6 @@ label {
   display: none;
 }
 
-label {
-  display: none;
-}
-
 .cms-image-container {
   flex: 1;
   display: flex;
@@ -126,13 +132,12 @@ label {
   box-sizing: content-box;
 
   &:hover {
-
     label {
       display: block;
     }
 
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       z-index: 1;
       left: 0;

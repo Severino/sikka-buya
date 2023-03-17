@@ -3,23 +3,35 @@
     <header id="hero-header">
       <div class="content-wrapper">
         <div class="content">
-          <CMSImage id="header-left-image" mode="contain" identity="landing-page-header-left-image" />
+          <CMSImage
+            id="header-left-image"
+            mode="contain"
+            identity="landing-page-header-left-image"
+          />
         </div>
       </div>
-      <CMSImage id="hero-image" identity="landing-page-hero-image" alt="Vorschaubild der politischen Karte" />
+      <CMSImage
+        id="hero-image"
+        identity="landing-page-hero-image"
+        alt="Vorschaubild der politischen Karte"
+      />
     </header>
     <navigation :hideLogo="true" />
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
           <div id="uni-logo" class="cell smaller">
-            <img src="/image/logos/Logo_Universitaet_Tuebingen.svg" alt="Logo der Universität Tübingen" />
+            <CMSImage mode="contain" identity="logo.supporter_1" />
           </div>
           <div class="cell">
-            <img class="sikka-buya-logo" src="/image/logos/sikka-buya-logo.png" alt="Logo des Sikka-Buya Projektes" />
+            <img
+              class="sikka-buya-logo"
+              src="/image/logos/sikka-buya-logo.png"
+              alt="Logo des Sikka-Buya Projektes"
+            />
           </div>
           <div id="thyssen-logo" class="cell smaller">
-            <img src="/image/logos/thyssen_stiftung.jpg" alt="Logo der Thyssen Stiftung" />
+            <CMSImage mode="contain" identity="logo.supporter_2" />
           </div>
         </div>
       </div>
@@ -30,7 +42,9 @@
         <section>
           <div class="subtitled">
             <h1>Willkommen bei sikka:būya</h1>
-            <span class="subtitle">Ein Online-Portal zur Münzprägung der Būyiden</span>
+            <span class="subtitle"
+              >Ein Online-Portal zur Münzprägung der Būyiden</span
+            >
           </div>
 
           <p>
@@ -41,8 +55,13 @@
             Informationsfülle geboten werden, welche insbesondere in den
             umfangreichen Inschriften islamischer Münzen gespeichert ist.
             Ausgewählt wurden hierfür die Prägungen der
-            <a href="https://de.wikipedia.org/wiki/Buyiden" target="_blank" class="external-link"
-              rel="noreferrer">Būyiden-Dynastie</a>, welche im 10. und 11. Jh. über weite Teile Irans und des Iraks
+            <a
+              href="https://de.wikipedia.org/wiki/Buyiden"
+              target="_blank"
+              class="external-link"
+              rel="noreferrer"
+              >Būyiden-Dynastie</a
+            >, welche im 10. und 11. Jh. über weite Teile Irans und des Iraks
             gebot (ca. 100 bekannte Prägeorte). Ihr Reich stellte einen
             komplexen Herrschaftsverband dar, in dem unter wechselnder Führung
             verschiedene, oft rivalisierende Būyiden-Linien regierten und auch
@@ -73,11 +92,19 @@
         </section>
       </div>
       <aside>
-        <card-link :to="{ name: 'Map Overview' }" identity="landing-page-map-link" direction="row">
-          Karten
+        <card-link
+          :to="{ name: 'Map Overview' }"
+          identity="landing-page-map-link"
+          direction="row"
+        >
+          <locale path="routes.map" />
         </card-link>
-        <card-link :to="{ name: 'Catalog Overview' }" identity="landing-page-catalog-link" direction="row">
-          Typenkatalog
+        <card-link
+          :to="{ name: 'Catalog Overview' }"
+          identity="landing-page-catalog-link"
+          direction="row"
+        >
+          <locale path="routes.catalog" />
         </card-link>
 
         <news />
@@ -90,6 +117,7 @@
 <script>
 import LoginVariant from 'vue-material-design-icons/LoginVariant';
 import CMSImage from '../cms/CMSImage.vue';
+import Locale from '../cms/Locale.vue';
 import Button from '../layout/buttons/Button.vue';
 import Row from '../layout/Row.vue';
 import Navigation from '../Navigation.vue';
@@ -107,17 +135,17 @@ export default {
     News,
     CardLink,
     CMSImage,
+    Locale,
   },
 };
 </script>
 
 <style lang="scss">
 #landing-page {
-
   .card-link {
     max-height: 300px;
 
-    >* {
+    > * {
       flex: 1;
     }
   }
@@ -193,7 +221,7 @@ export default {
   min-height: 100px;
   max-height: 35vh;
 
-  .image {
+  .cms-image {
     flex: 1;
   }
 
@@ -247,7 +275,6 @@ section:first-of-type {
     }
   }
 
-
   .cell {
     align-self: center;
   }
@@ -267,7 +294,6 @@ section:first-of-type {
   .grid {
     grid-template-columns: 1fr 2fr 1fr;
 
-
     @include media-tablet {
       gap: 20px;
     }
@@ -278,7 +304,7 @@ section:first-of-type {
       justify-content: center;
       margin: 20px 50px;
 
-      >img {
+      img {
         display: block;
         max-width: 100%;
         max-height: 100%;

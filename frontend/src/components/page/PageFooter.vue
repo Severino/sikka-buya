@@ -6,22 +6,29 @@
       </div>
       <div>
         <div>
-          <router-link :to="{
-            name: 'CMSList', params: {
-              group: 'bibliography'
-            }
-          }">Bibliographie</router-link>
+          <router-link
+            :to="{
+              name: 'CMSList',
+              params: {
+                group: 'bibliography',
+              },
+            }"
+            ><locale path="cms.bibliography" />
+          </router-link>
         </div>
       </div>
       <div>
-        <router-link :to="{ name: 'Login' }">Mitarbeiter Login</router-link>
+        <router-link :to="{ name: 'Login' }"
+          ><locale path="system.user_login"
+        /></router-link>
       </div>
     </div>
   </footer>
 </template>
 
 <script>
-export default {};
+import Locale from '../cms/Locale.vue';
+export default { components: { Locale } };
 </script>
 
 <style lang="scss"  scoped>
@@ -34,8 +41,8 @@ footer {
   padding-top: 3rem;
   background-color: $light-gray;
 
-  ::before {
-    content: "";
+  &::before {
+    content: '';
     position: absolute;
     left: 0;
     right: 0;
@@ -43,11 +50,11 @@ footer {
     border-top: 6px dotted whitesmoke;
   }
 
-  >* {
+  > * {
     text-align: center;
   }
 
-  .grid>* {
+  .grid > * {
     display: flex;
     flex-direction: column;
   }

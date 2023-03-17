@@ -1,23 +1,32 @@
 <template>
   <div class="news">
     <header>
-      <h1>News</h1>
-      <async-button class="create-page-button" v-if="$store.getters.loggedIn" @click="createPageAndRedirect">Neue Seite
-        Erstellen</async-button>
+      <h1><locale path="cms.news" /></h1>
+      <async-button
+        class="create-page-button"
+        v-if="$store.getters.loggedIn"
+        @click="createPageAndRedirect"
+        ><locale path="cms.create_page"
+      /></async-button>
     </header>
     <div>
-      <article v-for="(page) of pages" :key="`page-${page.id}`">
-
+      <article v-for="page of pages" :key="`page-${page.id}`">
         <h2 :class="getPageTitleClass(page)">{{ getPageTitle(page) }}</h2>
         <div class="time-row">
-          <span class="time">{{ timeMixinFormatDate(page.publishedTimestamp) }}</span>
+          <span class="time">{{
+            timeMixinFormatDate(page.publishedTimestamp)
+          }}</span>
           <multi-button class="toolbox">
-            <Button @click="publish(page)" :disabled="loading">veröffentlichen</Button>
-            <Button :to="{ name: 'NewsPage', params: { id: page.id } }" :disabled="loading">bearbeiten</Button>
+            <Button @click="publish(page)" :disabled="loading"
+              ><locale path="general.publish"
+            /></Button>
+            <Button
+              :to="{ name: 'NewsPage', params: { id: page.id } }"
+              :disabled="loading"
+              ><locale path="general.edit"
+            /></Button>
           </multi-button>
         </div>
-
-
 
         <p>{{ page.body }}</p>
       </article>
@@ -31,15 +40,16 @@ import AsyncButton from '../layout/buttons/AsyncButton.vue';
 import Button from '../layout/buttons/Button.vue';
 import TimeMixin from '../mixins/time';
 import PencilCircle from 'vue-material-design-icons/PencilCircle.vue';
-import MultiButton from '../layout/buttons/MultiButton.vue'
+import MultiButton from '../layout/buttons/MultiButton.vue';
 import CMSPage from '../../models/CMSPage';
+import Locale from '../cms/Locale.vue';
 export default {
-  components: { AsyncButton, Button, PencilCircle, MultiButton },
+  components: { AsyncButton, Button, PencilCircle, MultiButton, Locale },
   mixins: [TimeMixin],
   data() {
     return {
       pages: [],
-      loading: false
+      loading: false,
     };
   },
   created() {
@@ -47,11 +57,11 @@ export default {
   },
   methods: {
     async publish(page) {
-      page.publishedTimestamp = Date.now().toString()
-      this.loading = true
-      await CMSPage.update(page.id, page)
-      await this.fetchPages()
-      this.loading = false
+      page.publishedTimestamp = Date.now().toString();
+      this.loading = true;
+      await CMSPage.update(page.id, page);
+      await this.fetchPages();
+      this.loading = false;
     },
     getPageTitleClass(page) {
       if (!page.title) return 'errorous';
@@ -83,14 +93,12 @@ export default {
 
 <style lang="scss">
 .news {
-
   article {
     display: flex;
     flex-direction: column;
   }
 
   .toolbox {
-
     align-self: flex-end;
 
     label {
@@ -102,7 +110,7 @@ export default {
 
 <style lang="scss" scoped>
 h2 {
-  margin-bottom:0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 p {
@@ -115,7 +123,6 @@ header {
 
 article {
   position: relative;
-
 }
 
 .time-row {
