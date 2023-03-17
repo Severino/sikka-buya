@@ -24,7 +24,10 @@
         {{ prefix }}
         <Locale path="property.intermediate_inscript" />
       </template>
-      <SimpleFormattedField class="intermediate-inscript" ref="intermediateInscriptField" />
+      <SimpleFormattedField
+        class="intermediate-inscript"
+        ref="intermediateInscriptField"
+      />
     </LabeledInputContainer>
 
     <LabeledInputContainer>
@@ -102,12 +105,12 @@ export default {
 
 <style lang="scss">
 .coin-side-field {
-  >* {
+  > * {
     margin-bottom: math.div($padding, 2);
   }
 
   header {
-    >* {
+    > * {
       margin: auto;
     }
   }

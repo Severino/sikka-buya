@@ -1,8 +1,5 @@
 <template>
-  <Row
-    class="button-group"
-    :id="id"
-  >
+  <Row class="button-group" :id="id">
     <Row
       v-for="(option, idx) in options"
       v-bind:key="option"
@@ -15,20 +12,14 @@
         :id="option"
         @click="change"
       />
-      <label
-        v-if="useTlabels"
-        :for="option"
-        tabindex="0"
-      >
+      <label v-if="useTlabels" :for="option" tabindex="0">
         <span>
           <Locale :path="tlabels[idx]" />
         </span>
       </label>
-      <label
-        v-else
-        :for="option"
-        tabindex="0"
-      ><span>{{ labels[idx] }}</span></label>
+      <label v-else :for="option" tabindex="0"
+        ><span>{{ labels[idx] }}</span></label
+      >
     </Row>
   </Row>
 </template>
@@ -53,11 +44,9 @@ export default {
     },
     labels: {
       type: Array,
-      required: true,
     },
     tlabels: {
       type: Array,
-      required: true,
     },
     unselectable: {
       type: Boolean,
@@ -85,9 +74,9 @@ export default {
   },
   computed: {
     useTlabels() {
-      return this.tlabels && this.tlabels.length > 0
-    }
-  }
+      return this.tlabels && this.tlabels.length > 0;
+    },
+  },
 };
 </script>
 
@@ -119,7 +108,7 @@ input {
   display: none;
 }
 
-input:checked+label {
+input:checked + label {
   @include buttonColor($white, $primary-color);
 }
 

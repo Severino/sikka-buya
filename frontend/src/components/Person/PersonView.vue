@@ -1,27 +1,35 @@
 <template>
   <div class="person-view">
-    <catalog-property label="Münzherr(en)">
+    <catalog-property>
+      <template #label>
+        <locale path="typeview.issuer" :count="2" />
+      </template>
       <div>
         <person-list :value="issuers" :class="multipleIssuersClass" />
       </div>
     </catalog-property>
-    <catalog-property
-      label="Oberherr(en)"
-      info="Vom Münzherrn ausgehende Hierarchie: Der im Folgenden Erstgenannte unterstand dem Zweitgenanntem usw. (zum Kalifen hin aufsteigende Reihenfolge)."
-    >
+    <catalog-property>
+      <template #info>
+        <locale path="typeview.overlord_info" />
+      </template>
+      <template #label>
+        <locale path="typeview.overlords" :count="2" />
+      </template>
       <person-list :value="overlords" />
     </catalog-property>
 
     <div class="caliph-group" :class="{ 'col-2': hasPerson(heir) }">
-      <catalog-property label="Kalif">
+      <catalog-property>
+        <template #label>
+          <locale path="typeview.caliph" />
+        </template>
         <person-list :value="caliph" />
       </catalog-property>
 
-      <catalog-property
-        v-if="hasPerson(heir)"
-        label="Thronfolger des Kalifen"
-        class="heir-grid"
-      >
+      <catalog-property v-if="hasPerson(heir)" class="heir-grid">
+        <template #label>
+          <locale path="typeview.heir" />
+        </template>
         <person-list :value="heir" />
       </catalog-property>
     </div>
@@ -30,9 +38,10 @@
 
 <script>
 import CatalogProperty from '../catalog/CatalogProperty.vue';
+import Locale from '../cms/Locale.vue';
 import PersonList from './PersonList.vue';
 export default {
-  components: { PersonList, CatalogProperty },
+  components: { Locale, PersonList, CatalogProperty },
   props: {
     overlords: Array,
     issuers: Array,

@@ -1,18 +1,19 @@
 <template>
   <div class="catalog-property">
-    <header v-if="label">
-      <div v-if="label" class="simple-property-label property-label">
-        {{ label }}
-      </div>
-      <div v-else-if="localeLabel" class="locale-property-label property-label">
-        <Locale v-if="label" :path="label" :count="localeCount || 1" />
+    <header v-if="label || $slots.label">
+      <div class="simple-property-label property-label">
+        <slot name="label" />{{ label }}
       </div>
 
-
-      <div v-if="info" class="popup-container" ref="popupButton" @click.stop.prevent="togglePopup()">
+      <div
+        v-if="$slots.info"
+        class="popup-container"
+        ref="popupButton"
+        @click.stop.prevent="togglePopup()"
+      >
         <popup-activator>
           <InfoIcon />
-          <template v-slot:popup>{{ info }}</template>
+          <template v-slot:popup><slot name="info" /></template>
         </popup-activator>
       </div>
     </header>
@@ -36,7 +37,7 @@ export default {
     InfoIcon,
     Popup,
     PopupActivator,
-    Locale
+    Locale,
   },
   data() {
     return {
@@ -46,9 +47,6 @@ export default {
   props: {
     label: String,
     html: String,
-    info: String,
-    localeLabel: String,
-    localeCount: Number,
   },
   methods: {
     togglePopup() {
@@ -62,14 +60,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-.simple-property-label {
-  background-color: red;
-}
-
 header {
   display: flex;
   align-items: center;
+
+  margin-bottom: 1 * $padding;
 
   .popup-activator {
     margin-left: $padding;
@@ -92,7 +87,6 @@ header {
 }
 
 .property-label {
-  margin-bottom: 2 * $padding;
   font-size: $small-font;
   font-weight: bold;
   color: $primary-color;

@@ -7,22 +7,25 @@
     <header>
       <h1 class="gm2">{{ type.projectId }}</h1>
 
-      <sikka-buya-button v-if="!type.excludeFromMapApp" :to="{
-        name: 'Political Map',
-        query: {
-          year: type.yearOfMint,
-          zoom: linkZoom,
-          location: mintLocation,
-          timelineActive: true,
-          selectedRulers: [],
-          selectedMints: [type.mint.id],
-        },
-      }"><Locale path="map.show_map" /></sikka-buya-button>
+      <sikka-buya-button
+        v-if="!type.excludeFromMapApp"
+        :to="{
+          name: 'Political Map',
+          query: {
+            year: type.yearOfMint,
+            zoom: linkZoom,
+            location: mintLocation,
+            timelineActive: true,
+            selectedRulers: [],
+            selectedMints: [type.mint.id],
+          },
+        }"
+        ><Locale path="map.show_map"
+      /></sikka-buya-button>
     </header>
 
     <div v-if="type.donativ" id="donativ" class="box centered property gm4">
-      <catalog-property>
-        <Locale path="property.donativ" /> </catalog-property>
+      <catalog-property> <Locale path="property.donativ" /> </catalog-property>
     </div>
     <div v-else class="blank gm4"></div>
 
@@ -31,107 +34,183 @@
     </div>
     <div v-else class="blank gm4"></div>
 
-    <router-link v-if="$store.state.user" id="edit-button" :to="{ name: 'EditType', params: { id: type.id } }">
+    <router-link
+      v-if="$store.state.user"
+      id="edit-button"
+      :to="{ name: 'EditType', params: { id: type.id } }"
+    >
       <button type="button">
         <EditIcon />
       </button>
     </router-link>
 
     <div class="property gm2" id="mint-container">
-      <catalog-property :label="mapText('mint')">
+      <catalog-property>
+        <template #label>
+          <locale path="property.mint" />
+        </template>
         <div style="display: flex">
           {{ printMintProperty() }}
-          <sikka-buya-button v-if="mintHasLocation" style="margin-left: auto" :to="{
-            name: 'Political Map',
-            query: {
-              timelineActive: false,
-              location: mintLocation,
-              zoom: linkZoom,
-              selectedMints: [type.mint.id],
-              selectedRulers: [],
-            },
-          }"><Locale path="map.show_map" /></sikka-buya-button>
+          <sikka-buya-button
+            v-if="mintHasLocation"
+            style="margin-left: auto"
+            :to="{
+              name: 'Political Map',
+              query: {
+                timelineActive: false,
+                location: mintLocation,
+                zoom: linkZoom,
+                selectedMints: [type.mint.id],
+                selectedRulers: [],
+              },
+            }"
+            ><Locale path="map.show_map"
+          /></sikka-buya-button>
         </div>
       </catalog-property>
       <div class="property">
-        <catalog-property localeLabel="Prägeort wie auf Münze">
+        <catalog-property>
+          <template #label>
+            <locale path="property.mint_as_on_coin" />
+          </template>
           {{ printTypeProperty('mintAsOnCoin') }}
         </catalog-property>
       </div>
     </div>
 
     <div class="property gm2">
-      <catalog-property :label="mapText('year')">
+      <catalog-property>
+        <template #label>
+          <locale path="property.year_of_mint" />
+        </template>
         {{ printYearProperty() }}
       </catalog-property>
     </div>
 
     <div class="force-grid grid-col-2 property gm2">
-      <div v-for="(val, idx) of ['material', 'nominal']" v-bind:key="`property-${val}-${idx}`">
-        <catalog-property :label="mapText(val)">
-          {{ printTypeProperty(val, 'name') }}</catalog-property>
+      <div
+        v-for="(val, idx) of ['material', 'nominal']"
+        v-bind:key="`property-${val}-${idx}`"
+      >
+        <catalog-property>
+          <template #label>
+            <locale :path="`property.${val}`" />
+          </template>
+          {{ printTypeProperty(val, 'name') }}</catalog-property
+        >
       </div>
     </div>
 
     <div class="person-container gm1">
-      <person-view :overlords="type.overlords" :issuers="type.issuers" :caliph="type.caliph" :heir="heir" />
+      <person-view
+        :overlords="type.overlords"
+        :issuers="type.issuers"
+        :caliph="type.caliph"
+        :heir="heir"
+      />
     </div>
 
     <div class="person-container gm1" v-if="hasOtherPersons">
-      <catalog-property v-if="cutter.length > 0" localeLabel="Stempelschneider">
+      <catalog-property v-if="cutter.length > 0">
+        <template #label>
+          <locale :path="`typeview.cutter`" :count="2" />
+        </template>
         <person-list :value="cutter" />
       </catalog-property>
 
-      <catalog-property v-if="warden.length > 0" :label="dynamicHeading('Münzwardein', 'Münzwardeien', warden)">
+      <catalog-property v-if="warden.length > 0">
+        <template #label>
+          <locale :path="`typeview.warden`" :count="2" />
+        </template>
         <person-list :value="warden" />
       </catalog-property>
 
-      <catalog-property v-if="donator.length > 0" localeLabel="Donator">
+      <catalog-property v-if="donator.length > 0">
+        <template #label>
+          <locale :path="`typeview.donator`" :count="2" />
+        </template>
         <person-list :value="donator" />
       </catalog-property>
     </div>
 
-    <div v-for="(sideObj, sideIdx) in existingCoinSideProperties" :key="`coin-sides-${sideIdx}`"
-      :class="coinSideClass(sideObj, existingCoinSideProperties.length)">
-      <catalog-property class="property coin-side-field" v-if="getFilledFields(sideObj.name).length > 0">
-        <catalog-property v-for="(val, idx) of getFilledFields(sideObj.name)" :key="`property-${val}-${idx}`"
-          :label="getCoinSideLabel(val, sideObj)">
+    <div
+      v-for="(sideObj, sideIdx) in existingCoinSideProperties"
+      :key="`coin-sides-${sideIdx}`"
+      :class="coinSideClass(sideObj, existingCoinSideProperties.length)"
+    >
+      <catalog-property
+        class="property coin-side-field"
+        v-if="getFilledFields(sideObj.name).length > 0"
+      >
+        <catalog-property
+          v-for="(val, idx) of getFilledFields(sideObj.name)"
+          :key="`property-${val}-${idx}`"
+        >
+          <template #label>
+            <locale :path="`property.${sideObj.name}.${val}`" />
+          </template>
           <div v-html="type[sideObj.name][val]"></div>
         </catalog-property>
       </catalog-property>
     </div>
 
-    <catalog-property v-if="type.cursive" localeLabel="property.cursive" class="coin-marks gm2">
+    <catalog-property v-if="type.cursive" class="coin-marks gm2">
+      <template #label>
+        <locale path="property.cursive" />
+      </template>
       <locale path="general.yes" />
     </catalog-property>
 
-    <catalog-property v-if="htmlHasContent(type.specials)" localeLabel="property.specialities_and_variants"
-      :html="type.specials" class="gm1">
-    
+    <catalog-property
+      v-if="htmlHasContent(type.specials)"
+      :html="type.specials"
+      class="gm1"
+    >
+      <template #label>
+        <locale path="property.specials" />
+      </template>
       {{ this.missingText }}
     </catalog-property>
 
     <div v-if="!type.literature" class="error">
       Literatur und Anmerkungen konnte nicht geladen werden
     </div>
-    <catalog-property v-else-if="htmlHasContent(type.literature)" localeLabel="property.literature_and_remarks"
-      :html="type.literature" class="gm2" />
-    <catalog-property v-else localeLabel="property.literature_and_remarks" class="gm2">{{ this.missingText
-    }}</catalog-property>
+    <catalog-property
+      v-else-if="htmlHasContent(type.literature)"
+      :html="type.literature"
+      class="gm2"
+    >
+      <template #label>
+        <locale path="property.literature_and_remarks" />
+      </template>
+    </catalog-property>
+    <catalog-property v-else class="gm2">
+      <template #label>
+        <locale path="property.literature_and_remarks" />
+      </template>
+      {{ this.missingText }}</catalog-property
+    >
 
-    <catalog-property :label="$tc('property.piece', 2)" class="gm2">
+    <catalog-property class="gm2">
+      <template #label>
+        <locale path="property.piece" />
+      </template>
       <div v-if="!type.pieces" class="error">Stücke wurden nicht geladen!</div>
       <div v-if="type.pieces && type.pieces.length == 0">
         {{ this.missingText }}
       </div>
       <div v-for="piece of type.pieces" :key="piece" class="piece">
-        <a :href="piece" target="_blank">{{ piece }}
+        <a :href="piece" target="_blank"
+          >{{ piece }}
           <ExternalIcon :size="16" />
         </a>
       </div>
     </catalog-property>
 
-    <catalog-property :label="$tc('property.treadwell_id')" class="gm2">
+    <catalog-property class="gm2">
+      <template #label>
+        <locale path="property.treadwell_id" />
+      </template>
       {{ type.treadwellId ? type.treadwellId : missingText }}
     </catalog-property>
   </div>
@@ -185,7 +264,7 @@ export default {
     PersonList,
     SikkaBuyaButton,
     Info,
-    Locale
+    Locale,
   },
   methods: {
     dynamicHeading() {
@@ -253,29 +332,6 @@ export default {
       }
 
       return str.trim();
-    },
-    getCoinSideLabel(val, sideObj) {
-      let fields = this.getFilledFields(sideObj.name);
-      let fieldTextIdx = fields.indexOf('fieldText');
-      if (fieldTextIdx != -1) fields.splice(fieldTextIdx, 1);
-
-      if (val === 'fieldText') return `${sideObj.prefix}Feld`;
-      if (val === 'misc') return `${sideObj.prefix}Randbeschriftung`;
-
-      if (fields.length == 1 && val == 'innerInscript') {
-        return sideObj.prefix + 'Umschrift';
-      } else {
-        switch (val) {
-          case 'innerInscript':
-            return `Innere ${sideObj.prefix}Umschrift`;
-          case 'intermediateInscript':
-            return `Mittlere ${sideObj.prefix}Umschrift`;
-          case 'outerInscript':
-            return `Äußere ${sideObj.prefix}Umschrift`;
-        }
-      }
-
-      return 'UNBEKANNT';
     },
     getFilledFields(str) {
       let result = [];
@@ -393,6 +449,7 @@ export default {
 .type-view {
   ul {
     margin: 0;
+    line-height: 1.5em;
   }
 }
 
@@ -456,7 +513,7 @@ header {
   height: 80px;
 
   // margin-bottom: 1rem;
-  >* {
+  > * {
     margin-right: $padding;
   }
 }

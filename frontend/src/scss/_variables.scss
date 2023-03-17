@@ -24,6 +24,7 @@ $background-color: whitesmoke;
 $blue: #4873ac;
 $bright-blue: hsl(214, 60%, 60%);
 
+$orange: #ff531f;
 $yellow: #ffd21f;
 $green: #48ac48;
 $dark-green: #6b996b;
@@ -57,8 +58,6 @@ $shadow-color: rgba(0, 0, 0, 0.03);
 $strong-shadow-color: rgba(0, 0, 0, 0.03);
 $shadow: $shadow-offset $shadow-spread $shadow-color;
 $strong-shadow: $shadow-offset $shadow-spread $strong-shadow-color;
-
-
 
 @mixin box {
   background-color: $white;
