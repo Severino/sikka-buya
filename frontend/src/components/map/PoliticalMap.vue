@@ -5,7 +5,10 @@
       <pre>{{ selectedUnavailableRulers }}</pre>
     </div>
 
-    <Sidebar title="Prägeorteauswahl">
+    <Sidebar>
+      <template #title>
+        <Locale path="mint.selection" />
+      </template>
       <template v-slot:tools>
         <list-selection-tools
           @select-all="selectAllMints"
@@ -25,10 +28,7 @@
     <div class="center-ui center-ui-top">
       <div class="toolbar top-right-toobar">
         <nav>
-          <Button id="back-button" class="ugly" :to="{ name: 'Map Overview' }">
-            <ExitIcon :size="IconSize.Big" class="flip" />
-            Startseite
-          </Button>
+         <MapBackButton />
         </nav>
       </div>
       <map-settings-box
@@ -102,7 +102,10 @@
       </timeline>
     </div>
 
-    <Sidebar title="Herrscherauswahl" side="right">
+    <Sidebar side="right">
+      <template #title>
+        <Locale path="ruler.selection"/>
+      </template>
       <ruler-list
         :selectedUnavailable="selectedUnavailableRulers"
         :unavailable="unavailableRulers"
@@ -160,6 +163,8 @@ import PoliticalOverlay from '../../maps/PoliticalOverlay';
 import Settings from '../../settings.js';
 import URLParams from '../../utils/URLParams.js';
 import Color from '../../utils/Color.js';
+import Locale from '../cms/Locale.vue';
+import MapBackButton from './control/MapBackButton.vue';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -205,7 +210,9 @@ export default {
     Slider,
     Timeline,
     Notification,
-  },
+    Locale,
+    MapBackButton
+},
   data: function () {
     return {
       showDebugWindow: false,

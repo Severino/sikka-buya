@@ -26,10 +26,10 @@
         <div class="center-ui">
           <div v-if="allowToggle" class="timeline-button-container">
             <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-if="timelineActive">
-              Zeitleiste deaktivieren
+              <Locale path="map.timeline.deactivate" />
             </div>
             <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-else>
-              Zeitleiste aktivieren
+              <Locale path="map.timeline.active" />
             </div>
           </div>
         </div>
@@ -97,6 +97,7 @@ import CopyField from '../../forms/CopyField.vue';
 import Slideshow from './Slides/Slideshow.vue';
 import Settings from '../../../settings';
 import { clamp } from '../../../utils/Math';
+import Locale from '../../cms/Locale.vue';
 
 let slideshowSettings = new Settings(window, 'Slideshow');
 const slideshow = slideshowSettings.load();
@@ -118,7 +119,8 @@ export default {
     TimerOff,
     CopyField,
     Slideshow,
-  },
+    Locale
+},
   props: {
     map: Object,
     from: Number,

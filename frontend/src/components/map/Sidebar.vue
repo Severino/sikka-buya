@@ -1,7 +1,12 @@
 <template>
-  <div class="side-bar" :class="getSideClass">
+  <div
+    class="side-bar"
+    :class="getSideClass"
+  >
     <header class="title underlined-header">
-      <h3>{{ title }}</h3>
+      <h3>
+        <slot name="title"></slot>{{ title }}
+      </h3>
       <div class="tools">
         <slot name="tools" />
       </div>
@@ -66,5 +71,4 @@ export default {
 
 .title h3 {
   margin-top: 0;
-}
-</style>
+}</style>

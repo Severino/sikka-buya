@@ -22,10 +22,7 @@
     <div class="center-ui center-ui-top">
       <div class="toolbar top-right-toobar">
         <nav>
-          <Button id="back-button" class="ugly" :to="{ name: 'Map Overview' }">
-            <ExitIcon :size="IconSize.Big" class="flip" />
-            Startseite
-          </Button>
+          <MapBackButton />
         </nav>
       </div>
       <map-settings-box
@@ -156,6 +153,7 @@ import URLParams from '../../utils/URLParams';
 import slideshow from '../mixins/slideshow';
 import ListSelectionTools from '../interactive/ListSelectionTools.vue';
 import catalogFilterMixin from '../mixins/catalog-filter';
+import MapBackButton from './control/MapBackButton.vue';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -177,7 +175,8 @@ export default {
     Slider,
     Timeline,
     ListSelectionTools,
-  },
+    MapBackButton
+},
   data: function () {
     return {
       filteredMintLayer: null,

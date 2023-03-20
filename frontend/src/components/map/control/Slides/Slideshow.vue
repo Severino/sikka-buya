@@ -24,15 +24,15 @@
       </div>
       <div class="button icon-button" @click="requestSlide(currentSlide, true)">
         <SyncIcon :size="iconSize" />
-        <div class="text">Überschreiben</div>
+        <div class="text"><Locale path="slideshow.override"/></div>
       </div>
       <div class="button icon-button" @click="requestSlide()">
         <CameraOutlineIcon :size="iconSize" />
-        <div class="text">Aufnehmen</div>
+        <div class="text"><Locale path="slideshow.record"/></div>
       </div>
       <div class="button icon-button" @click="removeSlide()">
         <DeleteIcon :size="iconSize" />
-        <div class="text">Löschen</div>
+        <div class="text"><Locale path="slideshow.delete"/></div>
       </div>
       <div class="button icon-button" @click="nextSlide">
         <NextIcon :size="iconSize" />
@@ -50,6 +50,7 @@ import PrevIcon from 'vue-material-design-icons/SkipPrevious.vue';
 import ScrollView from '../../../layout/ScrollView.vue';
 import SyncIcon from 'vue-material-design-icons/Sync.vue';
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
+import Locale from '../../../cms/Locale.vue';
 
 const storagePostFix = '-slideshow';
 
@@ -63,7 +64,8 @@ export default {
     ScrollView,
     DeleteIcon,
     SyncIcon,
-  },
+    Locale,
+},
   props: {
     storagePrefix: String,
   },
