@@ -41,7 +41,7 @@ class Language {
         let value = singular
         if (plural) value = `${singular} | ${plural}`
         target[key] = value
-        fs.writeFileSync(file, JSON.stringify(obj))
+        fs.writeFileSync(file, JSON.stringify(obj, null, 4))
     }
 
     static get messages() {
