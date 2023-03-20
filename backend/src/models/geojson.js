@@ -5,6 +5,16 @@ class GeoJSON {
     static types = ['point', 'polygon']
     static fields = ['type', 'coordinates']
 
+
+    static isEmpty(obj) {
+        switch (obj.type) {
+            case "Point": GeoJsonPointFeature.lengthOf(obj);
+            case "Polygon": GeoJsonPolygonFeature.lengthOf(obj);
+            default:
+                console.error(`GeoJSON type "${obj.type}" is not implemented.`)
+        }
+    }
+
     static get scalarType() {
         return new GraphQLScalarType({
             name: "GeoJSON",
@@ -114,6 +124,10 @@ class GeoJsonFeature {
         throw new Error("Abstract getter not implemented: type.")
     }
 
+    static lengthOf(obj) {
+        throw new Error("Abstract method not implemented: lengthOf.")
+    }
+
     static is(obj) {
         if (obj?.type && obj.type.toLowerCase() === this.type) {
             return true
@@ -127,15 +141,29 @@ class GeoJsonPointFeature extends GeoJsonFeature {
     static get type() {
         return "point"
     }
+
+    static lengthOf(obj) {
+        return obj.coordinates.length === 2 ? 1 : 0
+    }
 }
 
 class GeoJsonPolygonFeature extends GeoJsonFeature {
     static get type() {
         return "polygon"
     }
+
+    static lengthOf(obj) {
+        let length = 0
+        obj.coordinates.forEach(arr => {
+            length += arr?.length || 0
+        })
+        return length
+    }
 }
 
 
 module.exports = {
-    GeoJSON
+    GeoJSON,
+    GeoJsonPointFeature,
+    GeoJsonPolygonFeature,
 }

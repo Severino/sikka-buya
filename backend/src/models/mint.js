@@ -1,5 +1,6 @@
 const { Database, WriteableDatabase } = require("../utils/database.js")
 const SQLUtils = require('../utils/sql.js')
+const { GeoJSON } = require("../models/geojson")
 
 class Mint {
 
@@ -85,10 +86,12 @@ class Mint {
 
 
     static fixGeoJSON(obj) {
-        if (obj.uncertainArea !== undefined) {
-            obj["uncertain_area"] = (obj.uncertainArea === null) ? null : obj.uncertainArea
-            delete obj.uncertainArea
+        if (obj.uncertainArea != null && !GeoJSON.isEmpty(obj.uncertainArea) > 0) {
+            obj["uncertain_area"] = obj.uncertainArea
+        }else{
+            obj["uncertain_area"] = null
         }
+        delete obj.uncertainArea
     }
 
 
