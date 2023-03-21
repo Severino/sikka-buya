@@ -44,7 +44,7 @@ class Mint {
 
         const sets = []
         for (let key of keys) {
-            if (key === "location" || key === "uncertainArea") {
+            if (key === "location" || key === "uncertain_area") {
                 let set = `${key} = ${mint[key] ? `ST_GeomFromGeoJSON($[${key}])` : null}`
                 sets.push(set)
             } else
