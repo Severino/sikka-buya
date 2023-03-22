@@ -24,6 +24,11 @@
         </div>
 
         <div class="center-ui">
+          <slot name="center" />
+        </div>
+
+        <div class="right">
+          <slot name="right" />
           <div v-if="allowToggle" class="timeline-button-container">
             <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-if="timelineActive">
               <Locale path="map.timeline.deactivate" />
@@ -32,10 +37,6 @@
               <Locale path="map.timeline.active" />
             </div>
           </div>
-        </div>
-
-        <div class="right">
-          <slot name="right" />
         </div>
       </header>
 
@@ -285,17 +286,13 @@ export default {
   position: relative;
   align-self: stretch;
   height: 100%;
-  flex: 1;
 }
 
 .timeline-toggle-button {
-  position: absolute;
-  top: 0;
   left: 50%;
   text-align: center;
   justify-self: center;
   // padding-bottom: 40px;
-  transform: translateX(-50%);
 }
 
 .timeline {
@@ -403,7 +400,7 @@ export default {
 
   header {
     display: grid;
-    grid-template-columns: 1fr 5fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     justify-content: space-between;
     position: absolute;
     width: 100%;
@@ -424,7 +421,7 @@ export default {
       justify-self: flex-end;
     }
 
-    .center {
+    .center-ui {
       justify-content: center;
     }
   }
