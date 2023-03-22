@@ -16,7 +16,6 @@
         alt="Vorschaubild der politischen Karte"
       />
     </header>
-    <navigation :hideLogo="true" />
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
