@@ -1,6 +1,9 @@
 <template>
   <div class="material-map ui">
-    <Sidebar title="Prägeorte">
+    <Sidebar>
+      <template #title>
+        <Locale path="map.mint_selection" />
+      </template>
       <template v-slot:tools>
         <list-selection-tools
           @select-all="selectAllMints"
@@ -20,26 +23,7 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <div class="toolbar top-right-toobar">
-        <nav>
-          <MapBackButton />
-        </nav>
-      </div>
-      <map-settings-box
-        :open="overlaySettings.uiOpen"
-        @toggle="toggleSettings"
-        @reset="resetSettings"
-      >
-        <labeled-input-container label="Kreisgröße">
-          <slider
-            name="maxRadius"
-            :value="overlaySettings.maxRadius"
-            @input="overlaySettingsChanged"
-            :min="overlaySettings.maxRadiusMinimum"
-            :max="overlaySettings.maxRadiusMaximum"
-          />
-        </labeled-input-container>
-      </map-settings-box>
+      <map-toolbar :filtersActive="filtersActive" @reset-filters="resetFilters"/>
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
@@ -61,18 +45,15 @@
           <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
         </template>
 
-        <template #center>
-          <Button
-            v-if="filtersActive"
-            class="clear-filter-btn"
-            @click="resetFilters()"
-            >Filter aufheben</Button
-          >
-        </template>
       </timeline>
     </div>
 
-    <Sidebar title="Filter" side="right" ref="catalogSidebar">
+    <Sidebar side="right" ref="catalogSidebar">
+
+      <template #title>
+        <Locale path="map.type_filter" />
+      </template>
+
       <div class="padding-box">
         <catalog-filter
           ref="catalogFilter"
@@ -121,7 +102,6 @@
 
 <script>
 // Mixins
-import localstore from '../mixins/localstore';
 import map from './mixins/map';
 import {
   mintLocationsMixin,
@@ -140,12 +120,7 @@ import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
 import Timeline from './control/Timeline.vue';
 
-//Icons
-import FilterIcon from 'vue-material-design-icons/Filter.vue';
-import ExitIcon from 'vue-material-design-icons/ExitToApp.vue';
-
 // Other
-import MapSettingsBox from '../MapSettingsBox.vue';
 import MaterialOverlay from '../../maps/MaterialOverlay';
 import Settings from '../../settings';
 import Sorter from '../../utils/Sorter';
@@ -153,7 +128,8 @@ import URLParams from '../../utils/URLParams';
 import slideshow from '../mixins/slideshow';
 import ListSelectionTools from '../interactive/ListSelectionTools.vue';
 import catalogFilterMixin from '../mixins/catalog-filter';
-import MapBackButton from './control/MapBackButton.vue';
+import Locale from '../cms/Locale.vue';
+import MapToolbar from "./MapToolbar.vue"
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -166,16 +142,14 @@ export default {
     Button,
     CatalogFilter,
     Checkbox,
-    ExitIcon,
-    FilterIcon,
     LabeledInputContainer,
-    MapSettingsBox,
+    ListSelectionTools,
+    Locale,
+    MapToolbar,
     MintList,
     Sidebar,
     Slider,
     Timeline,
-    ListSelectionTools,
-    MapBackButton
 },
   data: function () {
     return {
@@ -201,7 +175,6 @@ export default {
     timeline,
     slideshow,
     settingsMixin(overlaySettings),
-    localstore('material-map-settings', ['settings']),
     mintLocationsMixin({
       showMarkers: false,
       onMintSelectionChanged(selection) {
@@ -417,11 +390,9 @@ export default {
       };
     },
     resetFilters: function () {
-      // this.$refs.catalogFilter.stopWatching();
       this.$refs.catalogFilter.resetFilters();
       this.clearMintSelection({ preventUpdate: true });
       this.overwriteFilters.mint = this.selectedMints;
-      // this.$refs.catalogFilter.resumeWatching();
 
       this.update();
     },

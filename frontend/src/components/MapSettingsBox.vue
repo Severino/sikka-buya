@@ -1,29 +1,42 @@
 <template>
   <div class="settings">
-    <SettingsIcon class="settings-icon" @click="toggleSettings" />
-    <div class="settings-window" v-if="open">
-      <header class="underlined-header">
-        <h3 class="gray-heading">Einstellungen</h3>
-      </header>
-      <div class="settings-body">
-        <slot />
-        <Button class="small-button" @click="resetSettings">
-          <ResetIcon class="reset-icon" :size="16" />
-          Standard wiederherstellen
-        </Button>
-      </div>
-    </div>
+
+    <PopupActivator
+      :targetWidth="280"
+      :noShadow="true"
+    >
+
+      <SettingsIcon class="button icon-button" />
+
+      <template v-slot:popup>
+          <h3>Einstellungen</h3>
+          <slot />
+          <Button
+            class="small-button"
+            @click="resetSettings"
+          >
+            <ResetIcon
+              class="reset-icon"
+              :size="16"
+            />
+            Standard wiederherstellen
+          </Button>
+      </template>
+    </PopupActivator>
+
   </div>
 </template>
 
 <script>
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
 import ResetIcon from 'vue-material-design-icons/Restart.vue';
+import PopupActivator from './Popup/PopupActivator.vue';
 
 export default {
   components: {
     SettingsIcon,
     ResetIcon,
+    PopupActivator
   },
   props: {
     open: {
@@ -44,35 +57,12 @@ export default {
 
 <style lang="scss">
 .settings {
-  .settings-window {
-    user-select: none;
-    width: 240px;
-    background-color: $white;
-    border-radius: 10px;
-    box-shadow: $strong-shadow;
-    border: $big-border-width solid $white;
 
-    .settings-body {
-      padding: $big-padding;
-    }
-  }
-
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 10px;
 
   .reset-icon {
     padding-right: $padding;
   }
 
-  .settings-icon svg {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    fill: white;
-    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.5));
-  }
 
   .small-button {
     width: 100%;
@@ -81,11 +71,5 @@ export default {
   label {
     font-size: $small-font;
   }
-}
-</style>
-
-<style lang="scss" scoped>
-header {
-  padding: $padding $padding;
 }
 </style>

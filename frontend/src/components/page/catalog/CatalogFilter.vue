@@ -168,7 +168,7 @@ const unfilteredButtonGroupFilters = [
     label: 'property.procedure',
     name: 'procedure',
     options: ['pressed', 'cast'],
-    labels: ['property.procedures.pressed', 'property.procedures.pressed'],
+    labels: ['property.procedures.pressed', 'property.procedures.cast'],
     order: 3,
   },
 ];

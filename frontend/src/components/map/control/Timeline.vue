@@ -13,14 +13,16 @@
             <PauseIcon v-else />
           </div>
 
-          <popup-activator class="button icon-button" :targetWidth="280" :noShadow="true">
-            <ShareIcon />
+          <popup-activator :targetWidth="280" :noShadow="true">
+            <ShareIcon class="button icon-button"/>
             <template v-slot:popup>
-              <h3>Ansicht Teilen</h3>
+              <h3><Locale path="map.share_view" /></h3>
 
               <copy-field :value="shareLink" />
             </template>
           </popup-activator>
+
+          <slot name="left" />
         </div>
 
         <div class="center-ui">
@@ -120,7 +122,7 @@ export default {
     TimerOff,
     CopyField,
     Slideshow,
-    Locale
+    Locale,
 },
   props: {
     map: Object,
@@ -289,10 +291,7 @@ export default {
 }
 
 .timeline-toggle-button {
-  left: 50%;
-  text-align: center;
-  justify-self: center;
-  // padding-bottom: 40px;
+  font-weight: bold;
 }
 
 .timeline {
@@ -400,6 +399,7 @@ export default {
 
   header {
     display: grid;
+    color: $white;
     grid-template-columns: 1fr 1fr 1fr;
     justify-content: space-between;
     position: absolute;
@@ -427,15 +427,4 @@ export default {
   }
 }
 
-.icon-button {
-  color: white;
-  padding: 0px;
-}
-
-.icon-button,
-.icon-button:hover,
-.icon-button:active {
-  background: none;
-  border: none;
-}
 </style>

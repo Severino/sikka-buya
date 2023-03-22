@@ -97,18 +97,14 @@ export default {
 </script>
 
 <style lang="scss">
-.logged-in {
-  .map-page .spinner {
-    margin-top: 32px;
-  }
-}
+
 
 .map-page {
   height: 100vh;
 
-  #back-button a {
+  #back-button > a {
     display: inline-flex;
-    .material-design-icon {
+    > .material-design-icon {
       margin-right: 2 * $padding;
     }
 
@@ -211,6 +207,8 @@ export default {
     width: 100%;
     height: 100%;
   }
+
+
 
   .ui {
     position: absolute;

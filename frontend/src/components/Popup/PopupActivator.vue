@@ -1,6 +1,10 @@
 <template>
-  <div class="popup-activator" @click.stop.prevent="() => (active = !active)">
-    <slot />
+  <div
+    class="popup-activator"
+  >
+    <div class="target" @click.stop.prevent="() => (active = !active)">
+      <slot />
+    </div>
     <popup
       :active="active"
       :targetWidth="targetWidth"

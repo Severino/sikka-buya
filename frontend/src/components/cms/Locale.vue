@@ -70,7 +70,7 @@ a.locale-link {
     bottom: 1em;
     right: 0;
     transform: translateY(80%);
-
+    z-index: 1;
 }
 
 .locale-comp {

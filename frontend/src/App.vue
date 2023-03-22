@@ -1,6 +1,6 @@
 <template>
   <div id="app" :class="loggedInClass" ref="app">
-    <user-hub v-if="$store.getters.loggedIn" />
+    <user-hub v-if="$store.getters.loggedIn && !$route.meta.hideHub" />
 
     <router-view></router-view>
 
@@ -509,6 +509,11 @@ a {
   text-transform: capitalize;
   display: flex;
   align-items: center;
+
+  background: none;
+  padding: 0;
+  border: none;
+  color: currentColor;
 
   :first-child:not(:last-child) {
     margin-right: $padding;

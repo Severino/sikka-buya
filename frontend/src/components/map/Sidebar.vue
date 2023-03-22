@@ -59,6 +59,8 @@ export default {
   display: flex;
   flex-direction: column;
 
+  z-index: 1; // Allows tooltips to appear in front of the sidebar.
+
   // > * {
   //   padding: math.div($padding, 2) $padding;
   // }
