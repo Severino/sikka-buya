@@ -13,7 +13,8 @@
         "Catalog": "Typenkatalog",
         "Catalog Search": "Katalogsuche",
         "Catalog Ruler Explorer": "Herrscherliste",
-        "Catalog Entry": "Eintrag | Einträge"
+        "Catalog Entry": "Eintrag | Einträge",
+        "home": "Startseite"
     },
     "user": {
         "permission": {
@@ -30,7 +31,8 @@
         "edit": "bearbeiten",
         "delete": "Löschen",
         "name": "Name | Namen",
-        "publish": "veröffentlichen"
+        "publish": "veröffentlichen",
+        "reset_filter": "Filter aufheben"
     },
     "property": {
         "material": "Material | Materialien",
@@ -52,9 +54,9 @@
         "piece": "Exemplar | Exemplare",
         "treadwell_id": "Treadwell-ID | Treadwell-IDs",
         "project_id": "sikka:būya-ID | sikka:būya-IDs",
-        "year_uncertain": "Jahr Nicht Sicher",
+        "year_uncertain": "Jahr nicht sicher",
         "purity": "Feingehalt",
-        "mint_uncertain": "Prägeort Nicht Sicher",
+        "mint_uncertain": "Prägeort nicht sicher",
         "donativ": "Geschenkmünze | Geschenkmünzen",
         "small": "kleine Münze | kleine Münzen",
         "procedure": "Herstellungsart | Herstellungsarten",
@@ -130,7 +132,15 @@
         "list_is_empty": "Bisher sind keine Werte in dieser Liste."
     },
     "map": {
-        "show_map": "Kartenansicht"
+        "show_map": "Kartenansicht",
+        "timeline": {
+            "active": "Zeitleiste aktivieren",
+            "deactivate": "Zeitleiste deaktivieren"
+        },
+        "share_view": "Ansicht teilen",
+        "ruler_selection": "Herrscherauswahl",
+        "mint_selection": "Prägeorteauswahl",
+        "type_filter": "Filter"
     },
     "form": {
         "create": "Erstellen",
@@ -170,5 +180,10 @@
         "cutter": "Stempelschneider | Stempelschneider",
         "warden": "Münzwardein | Münzwardein(e)",
         "donator": "Donator | Donator(en)"
+    },
+    "slideshow": {
+        "override": "überschreiben",
+        "record": "aufnehmen",
+        "delete": "löschen"
     }
 }
