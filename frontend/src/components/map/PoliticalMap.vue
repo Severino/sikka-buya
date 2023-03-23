@@ -1,13 +1,16 @@
 <template>
   <div class="political-map ui">
-    <div class="debug-window" v-if="showDebugWindow">
+    <div
+      class="debug-window"
+      v-if="showDebugWindow"
+    >
       <h3>Debug-Window</h3>
       <pre>{{ selectedUnavailableRulers }}</pre>
     </div>
 
     <Sidebar>
       <template #title>
-        <Locale path="mint.selection" />
+        <Locale path="map.mint_selection" />
       </template>
       <template v-slot:tools>
         <list-selection-tools
@@ -26,29 +29,16 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <div class="toolbar top-right-toobar">
-        <nav>
-         <MapBackButton />
-        </nav>
-      </div>
-      <map-settings-box
-        :open="overlaySettings.uiOpen"
-        @toggle="toggleSettings"
-        @reset="resetSettings"
-      >
-        <labeled-input-container label="Kreisgröße">
-          <slider
-            name="maxRadius"
-            :value="overlaySettings.maxRadius"
-            @input="overlaySettingsChanged"
-            :min="overlaySettings.maxRadiusMinimum"
-            :max="overlaySettings.maxRadiusMaximum"
-          />
-        </labeled-input-container>
-      </map-settings-box>
+      <MapToolbar
+        :filtersActive="filtersActive"
+        @reset-filters="resetFilters"
+      />
     </div>
     <div class="center-ui center-ui-center">
-      <div class="unlocated-mints" v-if="filteredUnlocatedTypes.length > 0">
+      <div
+        class="unlocated-mints"
+        v-if="filteredUnlocatedTypes.length > 0"
+      >
         <header class="underlined-header">
           <h3 class="gray-heading"><i>nicht auf Karte:</i></h3>
         </header>
@@ -66,8 +56,7 @@
               target="_blank"
               :to="{ name: 'Catalog Entry', params: { id: typ.id } }"
               :key="`unlocated-mint-${typ.projectId}`"
-              >{{ typ.projectId }}</router-link
-            >
+            >{{ typ.projectId }}</router-link>
           </div>
         </section>
       </div>
@@ -87,24 +76,39 @@
         @change="timeChanged"
         @toggle="toggleTimeline"
       >
-        <template #background>
-          <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
+
+        <template #left>
+          <map-settings-box
+            :open="overlaySettings.uiOpen"
+            @toggle="toggleSettings"
+            @reset="resetSettings"
+          >
+            <labeled-input-container label="Kreisgröße">
+              <slider
+                name="maxRadius"
+                :value="overlaySettings.maxRadius"
+                @input="overlaySettingsChanged"
+                :min="overlaySettings.maxRadiusMinimum"
+                :max="overlaySettings.maxRadiusMaximum"
+              />
+            </labeled-input-container>
+          </map-settings-box>
         </template>
 
-        <template #center>
-          <Button
-            v-if="filtersActive"
-            class="clear-filter-btn"
-            @click="resetFilters()"
-            >Filter aufheben</Button
-          >
+        <template #background>
+          <canvas
+            id="timeline-canvas"
+            ref="timelineCanvas"
+          > </canvas>
         </template>
+
+
       </timeline>
     </div>
 
     <Sidebar side="right">
       <template #title>
-        <Locale path="ruler.selection"/>
+        <Locale path="map.ruler_selection" />
       </template>
       <ruler-list
         :selectedUnavailable="selectedUnavailableRulers"
@@ -165,6 +169,7 @@ import URLParams from '../../utils/URLParams.js';
 import Color from '../../utils/Color.js';
 import Locale from '../cms/Locale.vue';
 import MapBackButton from './control/MapBackButton.vue';
+import MapToolbar from './MapToolbar.vue';
 
 let settings = new Settings(window, 'PoliticalOverlay');
 const overlaySettings = settings.load();
@@ -211,8 +216,9 @@ export default {
     Timeline,
     Notification,
     Locale,
-    MapBackButton
-},
+    MapBackButton,
+    MapToolbar
+  },
   data: function () {
     return {
       showDebugWindow: false,
@@ -414,7 +420,7 @@ export default {
     requestSlideOptions({ slideshow, index }) {
       slideshow.createSlide(this.options, index);
     },
-    createSlide() {},
+    createSlide() { },
     async drawTimeline() {
       if (this.timelineChart) {
         this.timelineChart.clear();
@@ -439,8 +445,8 @@ export default {
             data
         }
  ruledMintCount(rulers: [${this.selectedRulers.join(
-   ','
- )}], mints: [${this.selectedMints.join(',')}]){
+          ','
+        )}], mints: [${this.selectedMints.join(',')}]){
    ruler {id name color}
     data {x, y}
 }
@@ -640,7 +646,7 @@ export default {
     getRulerColor(ruler) {
       return ruler.color || '#ff00ff';
     },
-    updateAvailableMints() {},
+    updateAvailableMints() { },
     rulerSelectionChanged(selected, preventUpdate = false) {
       this.selectedRulers = selected.active;
 
@@ -695,12 +701,6 @@ export default {
 </script>
 
 <style  lang="scss" >
-#app {
-  .political-map.ui .center-ui-top {
-    margin-top: 30px;
-  }
-}
-
 .political-map.ui {
   .notice {
     $margin: 100px;

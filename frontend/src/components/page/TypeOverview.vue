@@ -72,7 +72,7 @@
             attribute="name"
             table="person"
             queryCommand="searchPersonsWithRole"
-            :queryParams="['id', { role: ['id', 'name'] }, 'name']"
+            :queryBody="['id', { role: ['id', 'name'] }, 'name']"
             :additionalParameters="{ include: ['caliph'] }"
             @input="filterChanged(name, $event)"
           />

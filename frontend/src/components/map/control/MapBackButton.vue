@@ -3,10 +3,10 @@
     <Button
       id="back-button"
       class="ugly"
-      :to="{ name: 'Map Overview' }"
+      :to="{ name: 'Home' }"
     >
       <ExitToApp
-        :size="IconSize.Big"
+        :size="IconSize.Large"
         class="flip"
       />
       <Locale path="routes.home" />

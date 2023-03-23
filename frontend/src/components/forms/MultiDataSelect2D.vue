@@ -1,20 +1,44 @@
 <template>
   <div class="multi-data-select-2d">
     <template v-for="(values, idx) of active">
-      <div v-if="idx > 0" :key="`mda-${input.name}-(${idx})-separator`" class="between-groups-area">
-        <div class="separator button" v-text="$t(`general.${mode.toLowerCase()}`)" @click="changeMode" />
+      <div
+        v-if="idx > 0"
+        :key="`mda-${input.name}-(${idx})-separator`"
+        class="between-groups-area"
+      >
+        <div
+          class="separator button"
+          v-text="$t(`general.${mode.toLowerCase()}`)"
+          @click="changeMode"
+        />
         <Button @click.native="() => $emit('remove-group', idx)">
           Unten Löschen
         </Button>
       </div>
-      <multi-data-select :active="values" :additionalParameters="input.additionalParameters" :allowModeChange="true"
-        :attribute="input.attribute" :disableRemoveButton="true" :displayTextCallback="input.displayTextCallback"
-        :input="(...args) => search(...args, idx)" :key="`mda-${input.name}-(${idx})`" :mode="childModeSign"
-        :queryCommand="input.queryCommand" :queryParams="input.queryParams" :table="input.name" :text="input.text"
-        @select="(value) => $emit('select', value, idx)" @remove="(el) => $emit('remove', el, idx)"
-        @change-mode="changeMode" @dynamic-change="() => $emit('dynamic-change')" />
+      <multi-data-select
+        :active="values"
+        :additionalParameters="input.additionalParameters"
+        :allowModeChange="true"
+        :attribute="input.attribute"
+        :disableRemoveButton="true"
+        :displayTextCallback="input.displayTextCallback"
+        :input="(...args) => search(...args, idx)"
+        :key="`mda-${input.name}-(${idx})`"
+        :mode="childModeSign"
+        :queryCommand="input.queryCommand"
+        :queryBody="input.queryBody"
+        :table="input.name"
+        :text="input.text"
+        @select="(value) => $emit('select', value, idx)"
+        @remove="(el) => $emit('remove', el, idx)"
+        @change-mode="changeMode"
+        @dynamic-change="() => $emit('dynamic-change')"
+      />
     </template>
-    <multi-data-select-add-button id="add-group-button" @click.native="() => $emit('add')">Gruppe
+    <multi-data-select-add-button
+      id="add-group-button"
+      @click.native="() => $emit('add')"
+    >Gruppe
       hinzufügen</multi-data-select-add-button>
   </div>
 </template>
@@ -71,8 +95,7 @@ export default {
 }
 </style>
 
-<style lang="scss" scoped>
-.multi-data-select-2d {
+<style lang="scss" scoped>.multi-data-select-2d {
   padding: $small-padding;
   border: $border;
   border-radius: $border-radius;
@@ -91,5 +114,4 @@ export default {
 
 #add-group-button {
   margin-top: $small-padding;
-}
-</style>
+}</style>

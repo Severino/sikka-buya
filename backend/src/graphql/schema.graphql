@@ -322,7 +322,7 @@ type Query {
     include: [String]
     exclude: [String]
   ): [Person]!
-  searchPersonsWithoutRole(text: String!): [Person]!
+  searchPersonsWithoutRole(text: String!, dynasty: ID): [Person]!
 
   isSuperUserSet: Boolean
   databaseExists: Boolean

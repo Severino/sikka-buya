@@ -6,6 +6,7 @@
       </h1>
       <div class="nav-grid grid">
         <card-link v-for="link of links" :key="`link-to-${link.title}`" :to="link.to" :identity="link.identity"
+        :disabled="link.disabled"
           :contain="Boolean(link.contain)">
           <locale :path="link.title" />
         </card-link>

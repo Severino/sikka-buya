@@ -82,7 +82,7 @@
           :displayTextCallback="input.displayTextCallback"
           :mode="filterMode[input.name]"
           :queryCommand="input.queryCommand"
-          :queryParams="input.queryParams"
+          :queryBody="input.queryBody"
           :table="input.name"
           :text="input.text"
           v-model="filters[searchVariableName(input.name)]"
@@ -168,7 +168,7 @@ const unfilteredButtonGroupFilters = [
     label: 'property.procedure',
     name: 'procedure',
     options: ['pressed', 'cast'],
-    labels: ['property.procedures.pressed', 'property.procedures.pressed'],
+    labels: ['property.procedures.pressed', 'property.procedures.cast'],
     order: 3,
   },
 ];
@@ -188,7 +188,7 @@ const unfilteredThreeWayFilters = [
   {
     label: 'property.small_coin',
     name: 'small',
-    order: 8.5,
+    order: 3.5,
   },
   {
     label: 'property.year_uncertain',
@@ -229,7 +229,7 @@ let unfilteredMultiSelectFilters = [
     name: 'caliph',
     mode: Mode.Or,
     attribute: 'shortName',
-    queryParams: ['id', 'shortName'],
+    queryBody: ['id', 'shortName'],
     order: 5.8,
   },
   {
@@ -238,7 +238,7 @@ let unfilteredMultiSelectFilters = [
     mode: Mode.Or,
     attribute: 'shortName',
     queryCommand: 'searchPersonsWithRole',
-    queryParams: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
+    queryBody: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
     additionalParameters: {
       include: ['heir'],
     },
@@ -249,7 +249,7 @@ let unfilteredMultiSelectFilters = [
     name: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
 
-    queryParams: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
+    queryBody: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
     additionalParameters: {
       exclude: ['caliph', 'heir'],
     },
@@ -280,13 +280,30 @@ let unfilteredMultiSelectFilters = [
     label: 'property.ruler',
     name: 'ruler',
     queryCommand: 'searchPersonsWithoutRole',
-    queryParams: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
+    queryBody: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
     displayTextCallback: function (search) {
       let txt = search.shortName || search.name;
       if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
       return txt;
     },
     order: 5.5,
+    allowModeChange: true,
+    mode: Mode.And,
+  },
+  {
+    label: 'values.role.buyid',
+    name: 'buyid',
+    join: 'ruler',
+    // This is somewhat unsatisfying to use a dynamic value as input for the buyids here.
+    additionalParameters: { dynasty: 1 },
+    queryCommand: 'searchPersonsWithoutRole',
+    queryBody: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
+    displayTextCallback: function (search) {
+      let txt = search.shortName || search.name;
+      if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
+      return txt;
+    },
+    order: 5.6,
     allowModeChange: true,
     mode: Mode.And,
   },
@@ -465,16 +482,33 @@ export default {
     } = {}) {
       this.$emit('loading', true);
 
-      multiSelectFilters.forEach(({ name }) => {
-        if (filters[name]) {
-          filters[name] = filters[name].map((item) => item.id);
 
-          if (this.filterMode?.[name].toLowerCase() === 'and') {
-            filters[name + '_and'] = filters[name];
-            delete filters[name];
-          }
+      // if (filters.ruler || filters.buyid) {
+      //   const rulers = filters.ruler || []
+      //   const buyids = filters.buyid || []
+      //   const ruler = [...rulers, ...buyids]
+      //   delete filters.buyid
+      //   if (ruler.length > 0)
+      //     filters.ruler = ruler
+
+      // }
+
+      const msf = {}
+
+      multiSelectFilters.forEach(({ name, join }) => {
+        if (filters[name]) {
+          const target = join || name
+          let ids = filters[name].map((item) => item.id);
+          const targetSelector = this.filterMode?.[name].toLowerCase() === 'and' ? target + '_and' : target
+          const existing = msf[targetSelector] || []
+          const all = [...existing, ...ids];
+          msf[targetSelector] = all
+          delete filters[name];
         }
       });
+
+      Object.assign(filters, msf)
+
 
       multiSelectFilters2D.forEach(({ name }) => {
         if (filters[name]) {

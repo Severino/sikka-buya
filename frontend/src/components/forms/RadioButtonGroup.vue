@@ -1,5 +1,8 @@
 <template>
-  <Row class="button-group" :id="id">
+  <Row
+    class="radio-button-group button-group"
+    :id="id"
+  >
     <Row
       v-for="(option, idx) in options"
       v-bind:key="option"
@@ -12,14 +15,20 @@
         :id="option"
         @click="change"
       />
-      <label v-if="useTlabels" :for="option" tabindex="0">
+      <label
+        v-if="useTlabels"
+        :for="option"
+        tabindex="0"
+      >
         <span>
           <Locale :path="tlabels[idx]" />
         </span>
       </label>
-      <label v-else :for="option" tabindex="0"
-        ><span>{{ labels[idx] }}</span></label
-      >
+      <label
+        v-else
+        :for="option"
+        tabindex="0"
+      ><span>{{ labels[idx] }}</span></label>
     </Row>
   </Row>
 </template>
@@ -82,21 +91,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
+.radio-button-group {
+  align-items: stretch;
+}
+
 .select {
   height: 37px;
 }
-
-// label {
-//   margin: 0;
-//   font-size: 1rem;
-//   text-align: center;
-//   border: 1px solid green;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   margin-right: 0 !important;
-//   box-sizing: border-box;
-// }
 
 label {
   margin: 0;
@@ -108,13 +109,19 @@ input {
   display: none;
 }
 
-input:checked + label {
+input:checked+label {
   @include buttonColor($white, $primary-color);
 }
 
 label {
   @include input;
   background-color: white;
+  font-weight: normal;
+  font-size: 1em;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .radio-button {
@@ -135,5 +142,4 @@ label {
       border-bottom-left-radius: 0 !important;
     }
   }
-}
-</style>
+}</style>

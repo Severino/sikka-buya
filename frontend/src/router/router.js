@@ -111,7 +111,7 @@ const routes = [
     path: "/map/",
     name: "MapPage",
     component: MapPage,
-    meta: { smallNav: true },
+    meta$gene: { hideHub: true },
     redirect: {
       name: "Political Map"
     },
@@ -119,20 +119,17 @@ const routes = [
       {
         path: '',
         name: 'Political Map',
-        component: PoliticalMap,
-        meta: { smallNav: true }
+        component: PoliticalMap
       },
       {
         path: "additional",
         name: "Additional Maps",
-        component: MaterialMap,
-        meta: { smallNav: true },
+        component: MaterialMap
       },
       {
         path: "playground",
         name: "Playground",
-        component: PlaygroundPage,
-        meta: { smallNav: true },
+        component: PlaygroundPage
       },
     ]
   }, {
@@ -208,7 +205,8 @@ const routes = [
               {
                 title: "routes.Analytics Table",
                 identity: "catalog-link-page-table",
-                to: { name: "Analytics Table" }
+                to: { name: "Analytics Table" },
+                disabled: true
               }
             ]
           }
@@ -258,7 +256,8 @@ const routes = [
               {
                 title: "routes.Treasure Map",
                 to: { name: "Treasure Map" },
-                identity: "map-landing-treasure-map-link"
+                identity: "map-landing-treasure-map-link",
+                disabled: true
               }
               ]
             },
@@ -458,6 +457,31 @@ const routes = [
   }
 ]
 
+function iterateOverChildren(routes, callback, data = {}) {
+  routes.forEach(route => {
+    const returnedData = callback(route, data)
+    if (route.children) {
+      iterateOverChildren(route.children, callback, returnedData)
+    }
+  })
+}
+
+iterateOverChildren(routes, (route, data) => {
+  let d = {}
+  for (const key of Object.keys(route)) {
+    if (key.endsWith("$gene")) {
+      const geneName = key.replace("$gene", "")
+      d[geneName] = route[key]
+      delete data[key]
+    }
+  }
+  for (let [key, value] of Object.entries(data)) {
+    d[key] = value
+    route[key] = value
+  }
+  return d
+})
+
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
@@ -503,9 +527,9 @@ router.beforeEach(async (to, from, next) => {
    */
   store.commit("resetErrors");
 
-  if (to.name == "InitialSetup" && await superUserIsSet()) {
-    next({ name: "Home" })
-  }
+  // if (to.name == "InitialSetup" && await superUserIsSet()) {
+  //   next({ name: "Home" })
+  // }
 
   if (to.fullPath === "/") next({ name: "Home" })
   else {

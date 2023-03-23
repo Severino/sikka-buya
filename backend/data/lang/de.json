@@ -1,19 +1,20 @@
 {
     "routes": {
-        "map": "Karte | Karten",
+        "map": "Karten | Karten",
         "catalog": "Typenkatalog | Typenkataloge",
         "Map Landing": "Kartenübersicht",
         "Treasure Map": "Schatzfundkarte",
-        "Additional Maps": "Weitere Karten",
-        "Political Map": "Poitische Karte",
+        "Additional Maps": "weitere Karten",
+        "Political Map": "poitische Karte",
         "catalog Ruler Explorer": "Herrscherliste",
         "catalog Search": "Katalogsuche",
-        "Analytics Table": "Daten Tabelle",
+        "Analytics Table": "Tabellen",
         "Catalog Overview": "Typenkatalog",
         "Catalog": "Typenkatalog",
         "Catalog Search": "Katalogsuche",
         "Catalog Ruler Explorer": "Herrscherliste",
-        "Catalog Entry": "Eintrag | Einträge"
+        "Catalog Entry": "Eintrag | Einträge",
+        "home": "Startseite"
     },
     "user": {
         "permission": {
@@ -30,7 +31,8 @@
         "edit": "bearbeiten",
         "delete": "Löschen",
         "name": "Name | Namen",
-        "publish": "veröffentlichen"
+        "publish": "veröffentlichen",
+        "reset_filter": "Filter aufheben"
     },
     "property": {
         "material": "Material | Materialien",
@@ -52,9 +54,9 @@
         "piece": "Exemplar | Exemplare",
         "treadwell_id": "Treadwell-ID | Treadwell-IDs",
         "project_id": "sikka:būya-ID | sikka:būya-IDs",
-        "year_uncertain": "Jahr Nicht Sicher",
+        "year_uncertain": "Jahr nicht sicher",
         "purity": "Feingehalt",
-        "mint_uncertain": "Prägeort Nicht Sicher",
+        "mint_uncertain": "Prägeort nicht sicher",
         "donativ": "Geschenkmünze | Geschenkmünzen",
         "small": "kleine Münze | kleine Münzen",
         "procedure": "Herstellungsart | Herstellungsarten",
@@ -105,6 +107,7 @@
     },
     "error": {
         "already_submitted": "De Anfrage wurde bereits beantragt!",
+        "database_does_not_exist": "Datenbank existiert nicht,.",
         "loading_element": "Element konnte nicht geladen werden! ID ist möglicherweise ungültig."
     },
     "catalog": {
@@ -117,7 +120,8 @@
     },
     "message": {
         "input_to_filter": "Hier Suchtext eingeben ...",
-        "list_empty": "Keine Elemente in Liste"
+        "list_empty": "Keine Elemente in Liste",
+        "initial_setup_info": "Dies ist die Seite für die Ersteinrichtung. Geben Sie den Benutzernamen und das Passwort für den Superuser ein. Sobald der Superuser eingerichtet ist, wird diese Seite nicht mehr zugänglich sein!"
     },
     "editor": {
         "assist_tools": "Hilfsprogramme",
@@ -130,7 +134,15 @@
         "list_is_empty": "Bisher sind keine Werte in dieser Liste."
     },
     "map": {
-        "show_map": "Kartenansicht"
+        "show_map": "Kartenansicht",
+        "timeline": {
+            "active": "Zeitleiste aktivieren",
+            "deactivate": "Zeitleiste deaktivieren"
+        },
+        "share_view": "Ansicht teilen",
+        "ruler_selection": "Herrscherauswahl",
+        "mint_selection": "Prägeorteauswahl",
+        "type_filter": "Filter"
     },
     "form": {
         "create": "Erstellen",
@@ -145,14 +157,18 @@
     },
     "role": {
         "caliph": "Kalif | Kalifen",
-        "heir": "Thronfolger d. Kalifen"
+        "heir": "Thronfolger d. Kalifen",
+        "donator": "Donator | Donatoren",
+        "warden": "Münzwardein | Münzwardeine",
+        "cutter": "Stempelschneider | Stempelschneider"
     },
     "system": {
         "signup_title": "Registrierung",
         "email": "Email",
         "password": "Passwort",
         "signup": "Anmelden",
-        "user_login": "Mitarbeiter Login"
+        "user_login": "Mitarbeiter Login",
+        "setup": "Ersteinrichtung"
     },
     "ui": {
         "list": {
@@ -170,5 +186,18 @@
         "cutter": "Stempelschneider | Stempelschneider",
         "warden": "Münzwardein | Münzwardein(e)",
         "donator": "Donator | Donator(en)"
+    },
+    "slideshow": {
+        "override": "überschreiben",
+        "record": "aufnehmen",
+        "delete": "löschen"
+    },
+    "bibliography": {
+        "treadwell_2002": "Luke Treadwell, Buyid Coinage. A die corpus (322–445 A.H.), Oxford 2002."
+    },
+    "values": {
+        "role": {
+            "buyid": "Buyide | Buyiden"
+        }
     }
 }

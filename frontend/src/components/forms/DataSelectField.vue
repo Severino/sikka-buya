@@ -65,7 +65,7 @@ export default {
       },
     },
     error: String,
-    queryParams: {
+    queryBody: {
       type: Array,
       default: function () {
         return ['id', 'name'];
@@ -200,7 +200,7 @@ export default {
           )
           : ''
         } ){
-        ${GraphQLUtils.buildQueryBody(this.queryParams)}
+        ${GraphQLUtils.buildQueryBody(this.queryBody)}
       }
       }`;
 

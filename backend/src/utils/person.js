@@ -23,37 +23,49 @@ class Person {
         const include = args.include
         const exclude = args.exclude
 
-        let query = pgp.as.format(`
-    SELECT 
-    p.*, 
-    r.id AS role_id, 
-    r.name AS role_name, 
-    d.id AS dynasty_id, 
-    d.name AS dynasty_name ,
-    c.color AS color
-    FROM person p
-    LEFT JOIN person_role r ON p.role = r.id
-    LEFT JOIN dynasty d ON p.dynasty = d.id
-    LEFT JOIN person_color c ON c.person = p.id
-    WHERE `)
+        let query = `
+            SELECT 
+            person.*, 
+            role.id AS role_id, 
+            role.name AS role_name, 
+            dynasty.id AS dynasty_id, 
+            dynasty.name AS dynasty_name ,
+            color.color AS color
+            FROM person
+            LEFT JOIN person_role role ON person.role = role.id
+            LEFT JOIN dynasty ON person.dynasty = dynasty.id
+            LEFT JOIN person_color color ON color.person = person.id`
+
+        const whereClauses = []
 
         if (args.hasRole != null) {
-            query = `${query} ${args.hasRole ? "r IS NOT NULL" : " r IS NULL"}`
+            if (args.hasRole === true)
+                whereClauses.push("role IS NOT NULL")
+            else
+                whereClauses.push("role IS NULL")
         }
 
         if (args.text) {
             const search = `%${args.text}%`
-            query = `${query} ${pgp.as.format("AND unaccent(p.name) ILIKE $1", search)}`
+            whereClauses.push(`${pgp.as.format("unaccent(person.name) ILIKE $1", search)}`)
         }
 
+        if (args.dynasty) {
+            whereClauses.push(pgp.as.format("dynasty.id = $[dynasty]", args))
+        }
 
         if (include) {
-            query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS true", [include])}`
+            whereClauses.push(pgp.as.format("role.name IN ($1:list) IS true", [include]))
         } else if (exclude) {
-            query = `${query} ${pgp.as.format("AND r.name IN ($1:list) IS NOT true", [exclude])}`
+            whereClauses.push(pgp.as.format("role.name IN ($1:list) IS NOT true", [exclude]))
         }
 
-        query = `${query} ORDER BY p.name ASC`
+
+        if(whereClauses.length > 0){
+            query = `${query} WHERE ${whereClauses.join(" AND ")}`
+        }
+
+        query = `${query} ORDER BY person.name ASC`
 
         let result = await Database.manyOrNone(query)
 

@@ -5,17 +5,6 @@
         <div>© 2023</div>
       </div>
       <div>
-        <div>
-          <router-link
-            :to="{
-              name: 'CMSList',
-              params: {
-                group: 'bibliography',
-              },
-            }"
-            ><locale path="cms.bibliography" />
-          </router-link>
-        </div>
       </div>
       <div>
         <router-link :to="{ name: 'Login' }"
@@ -46,7 +35,7 @@ footer {
     position: absolute;
     left: 0;
     right: 0;
-    top: 8px;
+    top: 4px;
     border-top: 6px dotted whitesmoke;
   }
 

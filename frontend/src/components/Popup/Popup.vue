@@ -111,7 +111,6 @@ export default {
 }
 
 .popup-anchor:not(.no-shadow) {
-  background-color: red;
   filter: drop-shadow($strong-shadow);
 }
 
@@ -120,6 +119,7 @@ $color: $white;
   position: absolute;
   bottom: 0;
   background-color: $color;
+  color: $black;
   border-radius: $border-radius;
 
   font-size: $small-font;

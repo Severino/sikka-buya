@@ -1,19 +1,18 @@
 <template>
   <section class="hero">
     <Box>
-      <h2><Locale path="system.setup"/></h2>
+      <h2>
+        <Locale path="system.setup" />
+      </h2>
 
       <div v-if="!databaseExists">
         <p class="error">
-          Database is not connected. Setup the backend first! And make sure that
-          the express server is running!
+          <Locale path="error.database_does_not_exist" />
         </p>
       </div>
       <div v-else>
         <p style="font-style: italic">
-          This is the initial setup page. Enter the username and the password
-          for the superuser. Once the super user is set, this site won't be
-          accessible anymore!
+          <Locale path="message.initial_setup_info" />
         </p>
         <form action.prevent>
           <user-form
@@ -23,8 +22,14 @@
             @submit="submit"
           />
         </form>
-        <p v-if="response" class="success">{{ response }}</p>
-        <p v-if="response" class="error">{{ error }}</p>
+        <p
+          v-if="response"
+          class="success"
+        >{{ response }}</p>
+        <p
+          v-if="response"
+          class="error"
+        >{{ error }}</p>
 
         <segmented-row>
           <template v-slot:right>
@@ -32,10 +37,9 @@
               id="submit-button"
               class="colored big-button"
               @click="submit"
-              >
-              <Locale path="form.submit" />
-              </Button
             >
+              <Locale path="form.submit" />
+            </Button>
           </template>
         </segmented-row>
       </div>
@@ -121,6 +125,7 @@ section {
   justify-content: center;
   align-items: center;
 }
+
 .box {
   max-width: 100%;
   width: 720px;

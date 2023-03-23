@@ -4,7 +4,7 @@
       <h1><locale path="cms.news" /></h1>
       <async-button
         class="create-page-button"
-        v-if="$store.getters.loggedIn"
+        v-if="$store.getters.canEdit"
         @click="createPageAndRedirect"
         ><locale path="cms.create_page"
       /></async-button>
@@ -16,7 +16,7 @@
           <span class="time">{{
             timeMixinFormatDate(page.publishedTimestamp)
           }}</span>
-          <multi-button class="toolbox">
+          <multi-button class="toolbox" v-if="$store.getters.canEdit">
             <Button @click="publish(page)" :disabled="loading"
               ><locale path="general.publish"
             /></Button>

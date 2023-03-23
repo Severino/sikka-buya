@@ -1,5 +1,8 @@
 <template>
-    <span class="tooltip" ref="tooltip">
+    <span
+        class="tooltip"
+        ref="tooltip"
+    >
         <slot />
     </span>
 </template>
@@ -11,13 +14,21 @@ export default {
         const tooltip = this.$refs.tooltip
         const rect = tooltip.getBoundingClientRect()
         const scrollbarWidth = 30
+
+        let left = 0
+        let top = 0
         if (rect.right > window.innerWidth - scrollbarWidth) {
 
-            let toLeft = Math.ceil(window.innerWidth - scrollbarWidth - rect.right)
-            tooltip.style.left = toLeft + "px"
+            left = Math.ceil(window.innerWidth - scrollbarWidth - rect.right)
 
-            console.log("correct", tooltip.style.left, toLeft)
         }
+
+        if (rect.top < 0) {
+            top = rect.top * -1 + rect.height
+        }
+
+        tooltip.style.left = left + "px"
+        tooltip.style.top = top + "px"
     }
 };
 </script>
@@ -36,7 +47,6 @@ export default {
     font-weight: normal;
     color: $gray;
     padding: math.div($padding, 2) $padding;
-    z-index: 10000;
+    z-index: 1000000;
     font-size: $small-font;
-}
-</style>
+}</style>

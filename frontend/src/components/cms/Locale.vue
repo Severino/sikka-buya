@@ -1,18 +1,31 @@
 <template>
-    <span class="locale-comp" :class="{ editable: $store.getters.canEdit }">
+    <span
+        class="locale-comp"
+        :class="{ editable: $store.getters.canEdit }"
+    >
         <template v-if="$store.getters.canEdit">
 
             {{ $tc(path, count) }}
-            <router-link class="locale-link" @click.stop.prevent="" :to="{
-                name: 'Locale',
-                force: true,
-                params: {
-                    lang,
-                    path
-                }
-            }">
-                <div @mouseenter="() => mouseover = true" @mouseleave="() => mouseover = false">
-                    <EarthIcon :size="10" :class="{ active }" />
+            <router-link
+                class="locale-link"
+                :to="{
+                    name: 'Locale',
+                    force: true,
+                    params: {
+                        lang,
+                        path
+                    }
+                }"
+            >
+                <div
+                    @mouseenter="() => mouseover = true"
+                    @mouseleave="() => mouseover = false"
+                    @click.stop
+                >
+                    <EarthIcon
+                        :size="10"
+                        :class="{ active }"
+                    />
 
                     <Tooltip v-if="mouseover">
                         {{ path }}
@@ -27,7 +40,6 @@
 </template>
 
 <script>
-import Query from '../../database/query';
 import Button from '../layout/buttons/Button.vue';
 import Toggle from '../layout/buttons/Toggle.vue';
 
@@ -59,6 +71,11 @@ export default {
             return this.$root.$i18n.locale
         }
     },
+    methods: {
+        clicked() {
+            console.log("CLICK")
+        }
+    },
     components: { Button, EarthIcon, EarthCloseIcon, Toggle, Tooltip }
 };
 </script>
@@ -71,6 +88,10 @@ a.locale-link {
     right: 0;
     transform: translateY(80%);
 
+    // The z-index conflicts with other absolute positioned things,
+    // like data-select drop-down. Would be better if we don't 
+    // need it at all.
+    // z-index: 1;
 }
 
 .locale-comp {
