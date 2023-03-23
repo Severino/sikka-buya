@@ -56,7 +56,7 @@ export default {
   computed: {
     className() {
       const imgClass = this.img ? 'card-link-image' : ''
-      return [imgClass, this.directionClass].join(" ");
+      return [ imgClass, this.directionClass].join(" ");
     },
     imageClass() {
       return this.contain ? 'contain' : 'cover';
@@ -88,6 +88,11 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
+  transition: all 0.3s;
+
+  &:not(.disabled):hover {
+    filter: brightness(0.95);
+  }
 
   &.disabled {
     background-color: $gray;

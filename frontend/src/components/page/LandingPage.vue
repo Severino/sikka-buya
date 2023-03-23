@@ -170,8 +170,9 @@ export default {
 #landing-page {
   .card-link {
     max-height: 300px;
+    aspect-ratio: 3 / 2;
 
-    > * {
+    >* {
       flex: 1;
     }
   }
@@ -195,7 +196,7 @@ export default {
         display: flex;
         width: 100%;
 
-        > li {
+        >li {
           flex: 1;
           text-align: center;
 
@@ -209,7 +210,7 @@ export default {
 
           transition: all 0.3s;
 
-          > a {
+          >a {
             font-weight: bold;
             box-sizing: border-box;
             padding: 0.8em 0;
