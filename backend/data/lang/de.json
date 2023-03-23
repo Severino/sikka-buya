@@ -155,7 +155,10 @@
     },
     "role": {
         "caliph": "Kalif | Kalifen",
-        "heir": "Thronfolger d. Kalifen"
+        "heir": "Thronfolger d. Kalifen",
+        "donator": "Donator | Donatoren",
+        "warden": "Münzwardein | Münzwardeine",
+        "cutter": "Stempelschneider | Stempelschneider"
     },
     "system": {
         "signup_title": "Registrierung",
