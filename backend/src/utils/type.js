@@ -1234,12 +1234,9 @@ class Type {
 
     static _processComplexRulerFilter(queryBuilder, filter) {
 
-        const activeRulerFilter = this._filterGate(filter, ["ruler", "ruler_and"], 'ruler')
-
-        if (Object.hasOwnProperty.bind(filter)(activeRulerFilter)) {
-            if (Array.isArray(filter[activeRulerFilter]) && filter[activeRulerFilter].length > 0) {
-                queryBuilder.addSelect(`(issuers || overlords) as rulers`)
-                queryBuilder.addJoin(`LEFT JOIN(
+        if (Object.hasOwnProperty.bind(filter)("ruler") || Object.hasOwnProperty.bind(filter)("ruler_and")) {
+            queryBuilder.addSelect(`(issuers || overlords) as rulers`)
+            queryBuilder.addJoin(`LEFT JOIN(
                             SELECT
                         o.type,
                             COALESCE(array_agg(o.person)) as overlords
@@ -1258,15 +1255,20 @@ class Type {
                         i.type
                         ) issuer_query ON issuer_query.type = t.id`)
 
-                if (activeRulerFilter === "ruler_and") {
-                    queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) @> $[ruler]:: int[])`, { ruler: filter[activeRulerFilter] }))
 
-                } else {
-                    queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) && $[ruler]:: int[])`, { ruler: filter[activeRulerFilter] }))
-                }
+            if (filter["ruler_and"] && filter["ruler"]) {
+                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) @> $[rulerAnd]:: int[] AND (issuers || overlords) && $[rulerOr]:: int[])`, { rulerAnd: filter["ruler_and"], rulerOr: filter["ruler"] }))
+
+            } else if (filter["ruler_and"]) {
+                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) @> $[ruler]:: int[])`, { ruler: filter["ruler_and"] }))
+
+            } else {
+                queryBuilder.addWhere(pgp.as.format(`((issuers || overlords) && $[ruler]:: int[])`, { ruler: filter["ruler"] }))
             }
 
-            delete filter[activeRulerFilter]
+
+            delete filter["ruler_and"]
+            delete filter["ruler"]
         }
     }
 

@@ -47,7 +47,7 @@
         @select="select"
         @dynamic-change="() => $emit('dynamic-change')"
         :error="error"
-        :queryParams="queryParams"
+        :queryBody="queryBody"
         :additionalParameters="additionalParameters"
         :table="table"
         :attribute="attribute"
@@ -87,7 +87,7 @@ export default {
       required: true,
     },
     error: String,
-    queryParams: {
+    queryBody: {
       type: Array,
       default: function () {
         return ['id', 'name'];

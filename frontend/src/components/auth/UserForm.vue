@@ -2,7 +2,10 @@
   <fieldset>
     <h3 v-if="title">{{ title }}</h3>
 
-    <labeled-input-container label="Email">
+    <labeled-input-container>
+      <template #label>
+        <Locale path="system.email" />
+      </template>
       <input
         id="username"
         name="username"
@@ -15,7 +18,10 @@
       />
     </labeled-input-container>
 
-    <labeled-input-container label="Password">
+    <labeled-input-container>
+      <template #label>
+        <Locale path="system.password" />
+      </template>
       <input
         type="password"
         id="cpassword"
@@ -31,10 +37,11 @@
 </template>
 
 <script>
+import Locale from '../cms/Locale.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import AsyncButton from '../layout/buttons/AsyncButton.vue';
 export default {
-  components: { AsyncButton, LabeledInputContainer },
+  components: { AsyncButton, LabeledInputContainer, Locale },
   name: 'UserForm',
   props: {
     title: String,

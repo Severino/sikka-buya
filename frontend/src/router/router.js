@@ -527,9 +527,9 @@ router.beforeEach(async (to, from, next) => {
    */
   store.commit("resetErrors");
 
-  if (to.name == "InitialSetup" && await superUserIsSet()) {
-    next({ name: "Home" })
-  }
+  // if (to.name == "InitialSetup" && await superUserIsSet()) {
+  //   next({ name: "Home" })
+  // }
 
   if (to.fullPath === "/") next({ name: "Home" })
   else {

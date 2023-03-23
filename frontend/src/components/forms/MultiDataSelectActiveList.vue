@@ -6,7 +6,7 @@
       @select="(val) => $emit('select', val)"
       @dynamic-change="() => $emit('dynamic-change')"
       :error="error"
-      :queryParams="queryParams"
+      :queryBody="queryBody"
       :additionalParameters="additionalParameters"
       :table="table"
       :attribute="attribute"

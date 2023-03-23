@@ -68,6 +68,7 @@
             'mint',
             'yearOfMint',
             'ruler',
+            'buyid',
             'caliph',
             'treadwellId',
             'projectId',
