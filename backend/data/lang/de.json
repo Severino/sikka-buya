@@ -188,5 +188,8 @@
         "override": "überschreiben",
         "record": "aufnehmen",
         "delete": "löschen"
+    },
+    "bibliography": {
+        "treadwell_2002": "Luke Treadwell, Buyid Coinage. A die corpus (322–445 A.H.), Oxford 2002."
     }
 }

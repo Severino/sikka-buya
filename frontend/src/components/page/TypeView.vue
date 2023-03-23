@@ -1,6 +1,10 @@
 <template>
   <div class="type-view">
-    <info :alwaysShow="!type.reviewed" type="warning" id="not-reviewed-warning">
+    <info
+      :alwaysShow="!type.reviewed"
+      type="warning"
+      id="not-reviewed-warning"
+    >
       <Locale path="warning.not_reviewed_warning" />
     </info>
 
@@ -20,19 +24,35 @@
             selectedMints: [type.mint.id],
           },
         }"
-        ><Locale path="map.show_map"
-      /></sikka-buya-button>
+      >
+        <Locale path="map.show_map" />
+      </sikka-buya-button>
     </header>
 
-    <div v-if="type.donativ" id="donativ" class="box centered property gm4">
-      <catalog-property> <Locale path="property.donativ" /> </catalog-property>
+    <div
+      v-if="type.donativ"
+      id="donativ"
+      class="box centered property gm4"
+    >
+      <catalog-property>
+        <Locale path="property.donativ" />
+      </catalog-property>
     </div>
-    <div v-else class="blank gm4"></div>
+    <div
+      v-else
+      class="blank gm4"
+    ></div>
 
-    <div v-if="type.procedure != 'pressed'" class="box centered property gm4">
+    <div
+      v-if="type.procedure != 'pressed'"
+      class="box centered property gm4"
+    >
       <catalog-property> gegossen </catalog-property>
     </div>
-    <div v-else class="blank gm4"></div>
+    <div
+      v-else
+      class="blank gm4"
+    ></div>
 
     <router-link
       v-if="$store.state.user"
@@ -44,7 +64,10 @@
       </button>
     </router-link>
 
-    <div class="property gm2" id="mint-container">
+    <div
+      class="property gm2"
+      id="mint-container"
+    >
       <catalog-property>
         <template #label>
           <locale path="property.mint" />
@@ -64,8 +87,9 @@
                 selectedRulers: [],
               },
             }"
-            ><Locale path="map.show_map"
-          /></sikka-buya-button>
+          >
+            <Locale path="map.show_map" />
+          </sikka-buya-button>
         </div>
       </catalog-property>
       <div class="property">
@@ -96,8 +120,7 @@
           <template #label>
             <locale :path="`property.${val}`" />
           </template>
-          {{ printTypeProperty(val, 'name') }}</catalog-property
-        >
+          {{ printTypeProperty(val, 'name') }}</catalog-property>
       </div>
     </div>
 
@@ -110,24 +133,36 @@
       />
     </div>
 
-    <div class="person-container gm1" v-if="hasOtherPersons">
+    <div
+      class="person-container gm1"
+      v-if="hasOtherPersons"
+    >
       <catalog-property v-if="cutter.length > 0">
         <template #label>
-          <locale :path="`typeview.cutter`" :count="2" />
+          <locale
+            :path="`typeview.cutter`"
+            :count="2"
+          />
         </template>
         <person-list :value="cutter" />
       </catalog-property>
 
       <catalog-property v-if="warden.length > 0">
         <template #label>
-          <locale :path="`typeview.warden`" :count="2" />
+          <locale
+            :path="`typeview.warden`"
+            :count="2"
+          />
         </template>
         <person-list :value="warden" />
       </catalog-property>
 
       <catalog-property v-if="donator.length > 0">
         <template #label>
-          <locale :path="`typeview.donator`" :count="2" />
+          <locale
+            :path="`typeview.donator`"
+            :count="2"
+          />
         </template>
         <person-list :value="donator" />
       </catalog-property>
@@ -154,7 +189,10 @@
       </catalog-property>
     </div>
 
-    <catalog-property v-if="type.cursive" class="coin-marks gm2">
+    <catalog-property
+      v-if="type.cursive"
+      class="coin-marks gm2"
+    >
       <template #label>
         <locale path="property.cursive" />
       </template>
@@ -172,7 +210,10 @@
       {{ this.missingText }}
     </catalog-property>
 
-    <div v-if="!type.literature" class="error">
+    <div
+      v-if="!type.literature"
+      class="error"
+    >
       Literatur und Anmerkungen konnte nicht geladen werden
     </div>
     <catalog-property
@@ -184,30 +225,44 @@
         <locale path="property.literature_and_remarks" />
       </template>
     </catalog-property>
-    <catalog-property v-else class="gm2">
+    <catalog-property
+      v-else
+      class="gm2"
+    >
       <template #label>
         <locale path="property.literature_and_remarks" />
       </template>
-      {{ this.missingText }}</catalog-property
-    >
+      {{ this.missingText }}</catalog-property>
 
     <catalog-property class="gm2">
       <template #label>
         <locale path="property.piece" />
       </template>
-      <div v-if="!type.pieces" class="error">Stücke wurden nicht geladen!</div>
+      <div
+        v-if="!type.pieces"
+        class="error"
+      >Stücke wurden nicht geladen!</div>
       <div v-if="type.pieces && type.pieces.length == 0">
         {{ this.missingText }}
       </div>
-      <div v-for="piece of type.pieces" :key="piece" class="piece">
-        <a :href="piece" target="_blank"
-          >{{ piece }}
+      <div
+        v-for="piece of type.pieces"
+        :key="piece"
+        class="piece"
+      >
+        <a
+          :href="piece"
+          target="_blank"
+        >{{ piece }}
           <ExternalIcon :size="16" />
         </a>
       </div>
     </catalog-property>
 
     <catalog-property class="gm2">
+      <template #info>
+        <Locale path="bibliography.treadwell_2002" />
+      </template>
       <template #label>
         <locale path="property.treadwell_id" />
       </template>
@@ -513,7 +568,7 @@ header {
   height: 80px;
 
   // margin-bottom: 1rem;
-  > * {
+  >* {
     margin-right: $padding;
   }
 }
@@ -595,6 +650,5 @@ header {
 
 .catalog-property {
   flex: 1;
-}
-</style>
+}</style>
 
