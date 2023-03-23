@@ -14,7 +14,7 @@
         <upload-icon :size="IconSize.Large" />
       </label>
     </div>
-    <img v-else :src="imageURI" :draggable="false" />
+    <img v-else-if="imageURI" :src="imageURI" :draggable="false" />
   </div>
 </template>
 

@@ -205,7 +205,8 @@ const routes = [
               {
                 title: "routes.Analytics Table",
                 identity: "catalog-link-page-table",
-                to: { name: "Analytics Table" }
+                to: { name: "Analytics Table" },
+                disabled: true
               }
             ]
           }
@@ -255,7 +256,8 @@ const routes = [
               {
                 title: "routes.Treasure Map",
                 to: { name: "Treasure Map" },
-                identity: "map-landing-treasure-map-link"
+                identity: "map-landing-treasure-map-link",
+                disabled: true
               }
               ]
             },
@@ -464,16 +466,16 @@ function iterateOverChildren(routes, callback, data = {}) {
   })
 }
 
-iterateOverChildren(routes, (route, data)=>{
+iterateOverChildren(routes, (route, data) => {
   let d = {}
-  for(const key of Object.keys(route)){
-    if(key.endsWith("$gene")){
+  for (const key of Object.keys(route)) {
+    if (key.endsWith("$gene")) {
       const geneName = key.replace("$gene", "")
       d[geneName] = route[key]
       delete data[key]
     }
   }
-  for(let [key, value] of Object.entries(data)){
+  for (let [key, value] of Object.entries(data)) {
     d[key] = value
     route[key] = value
   }

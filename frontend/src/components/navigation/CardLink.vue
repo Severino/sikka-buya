@@ -1,6 +1,14 @@
 <template>
-  <div class="card-link" :class="className" @click="() => $router.push(to)">
-    <CMSImage class="image" :identity="identity" :mode="imageClass" />
+  <div
+    class="card-link"
+    :class="{ [className]: true, disabled }"
+    @click="clicked"
+  >
+    <CMSImage
+      class="image"
+      :identity="identity"
+      :mode="imageClass"
+    />
     <article>
       <header><arrow-right class="ugly" />
         <slot />
@@ -25,6 +33,7 @@ export default {
     CMSImage
   },
   props: {
+    disabled: Boolean,
     to: Object || String,
     identity: {
       required: true,
@@ -36,6 +45,12 @@ export default {
         if (value == null) return true
         else return ["row", "column"].includes(value)
       }
+    }
+  },
+  methods: {
+    clicked() {
+      if (!this.disabled)
+        this.$router.push(this.to)
     }
   },
   computed: {
@@ -73,6 +88,11 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   user-select: none;
+
+  &.disabled {
+    background-color: $gray;
+    cursor: default;
+  }
 
   .image {
     flex: 1;
