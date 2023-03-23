@@ -1,11 +1,11 @@
 {
     "routes": {
-        "map": "Karte | Karten",
+        "map": "Karten | Karten",
         "catalog": "Typenkatalog | Typenkataloge",
         "Map Landing": "Kartenübersicht",
         "Treasure Map": "Schatzfundkarte",
-        "Additional Maps": "Weitere Karten",
-        "Political Map": "Poitische Karte",
+        "Additional Maps": "weitere Karten",
+        "Political Map": "poitische Karte",
         "catalog Ruler Explorer": "Herrscherliste",
         "catalog Search": "Katalogsuche",
         "Analytics Table": "Daten Tabelle",
