@@ -1,5 +1,8 @@
 <template>
-  <div id="landing-page" class="page">
+  <div
+    id="landing-page"
+    class="page"
+  >
     <header id="hero-header">
       <div class="content-wrapper">
         <div class="content">
@@ -19,8 +22,14 @@
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
-          <div id="uni-logo" class="cell smaller">
-            <CMSImage mode="contain" identity="logo.supporter_1" />
+          <div
+            id="uni-logo"
+            class="cell smaller"
+          >
+            <CMSImage
+              mode="contain"
+              identity="logo.supporter_1"
+            />
           </div>
           <div class="cell">
             <img
@@ -29,8 +38,14 @@
               alt="Logo des Sikka-Buya Projektes"
             />
           </div>
-          <div id="thyssen-logo" class="cell smaller">
-            <CMSImage mode="contain" identity="logo.supporter_2" />
+          <div
+            id="thyssen-logo"
+            class="cell smaller"
+          >
+            <CMSImage
+              mode="contain"
+              identity="logo.supporter_2"
+            />
           </div>
         </div>
       </div>
@@ -41,9 +56,7 @@
         <section>
           <div class="subtitled">
             <h1>Willkommen bei sikka:būya</h1>
-            <span class="subtitle"
-              >Ein Online-Portal zur Münzprägung der Būyiden</span
-            >
+            <span class="subtitle">Ein Online-Portal zur Münzprägung der Būyiden</span>
           </div>
 
           <p>
@@ -59,8 +72,7 @@
               target="_blank"
               class="external-link"
               rel="noreferrer"
-              >Būyiden-Dynastie</a
-            >, welche im 10. und 11. Jh. über weite Teile Irans und des Iraks
+            >Būyiden-Dynastie</a>, welche im 10. und 11. Jh. über weite Teile Irans und des Iraks
             gebot (ca. 100 bekannte Prägeorte). Ihr Reich stellte einen
             komplexen Herrschaftsverband dar, in dem unter wechselnder Führung
             verschiedene, oft rivalisierende Būyiden-Linien regierten und auch
@@ -89,6 +101,9 @@
             gewährt.
           </p>
         </section>
+
+
+        <news />
       </div>
       <aside>
         <card-link
@@ -106,7 +121,19 @@
           <locale path="routes.catalog" />
         </card-link>
 
-        <news />
+        <card-link
+          :to="{
+            name: 'CMSList',
+            params: {
+              group: 'bibliography',
+            },
+          }"
+          identity="landing-page-bibliography-link"
+          direction="row"
+        >
+          <locale path="cms.bibliography" />
+        </card-link>
+
       </aside>
     </div>
     <page-footer />

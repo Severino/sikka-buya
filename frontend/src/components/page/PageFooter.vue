@@ -5,17 +5,6 @@
         <div>© 2023</div>
       </div>
       <div>
-        <div>
-          <router-link
-            :to="{
-              name: 'CMSList',
-              params: {
-                group: 'bibliography',
-              },
-            }"
-            ><locale path="cms.bibliography" />
-          </router-link>
-        </div>
       </div>
       <div>
         <router-link :to="{ name: 'Login' }"
