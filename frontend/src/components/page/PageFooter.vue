@@ -46,7 +46,7 @@ footer {
     position: absolute;
     left: 0;
     right: 0;
-    top: 8px;
+    top: 4px;
     border-top: 6px dotted whitesmoke;
   }
 

@@ -285,9 +285,9 @@ section:first-of-type {
   &:before {
     content: '';
     position: absolute;
-    bottom: 2px;
+    bottom: -10px;
     width: 100%;
-    border-bottom: 6px dotted whitesmoke;
+    border-bottom: 6px dotted white;
   }
 
   .grid {
