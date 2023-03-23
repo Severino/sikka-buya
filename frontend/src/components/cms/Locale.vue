@@ -1,5 +1,5 @@
 <template>
-    <span class="locale-comp" :class="{ editable: $store.getters.canEdit }">
+    <span class="locale-comp" :class="{ editable: $store.getters.canEdit }" @click.stop="">
         <template v-if="$store.getters.canEdit">
 
             {{ $tc(path, count) }}
@@ -74,7 +74,7 @@ a.locale-link {
     // The z-index conflicts with other absolute positioned things,
     // like data-select drop-down. Would be better if we don't 
     // need it at all.
-    // z-index: 1;
+    z-index: 1;
 }
 
 .locale-comp {
