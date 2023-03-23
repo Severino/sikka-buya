@@ -116,6 +116,8 @@ input:checked+label {
 label {
   @include input;
   background-color: white;
+  font-weight: normal;
+  font-size: 1em;
   
   display: flex;
   align-items: center;
