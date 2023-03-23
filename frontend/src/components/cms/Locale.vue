@@ -70,7 +70,11 @@ a.locale-link {
     bottom: 1em;
     right: 0;
     transform: translateY(80%);
-    z-index: 1;
+
+    // The z-index conflicts with other absolute positioned things,
+    // like data-select drop-down. Would be better if we don't 
+    // need it at all.
+    // z-index: 1;
 }
 
 .locale-comp {
