@@ -1,6 +1,6 @@
 <template>
   <div class="content-wrapper">
-    <breadcrumbs />
+    <breadcrumbs :before="[{name: 'home'}]" />
     <router-view />
   </div>
 </template>
