@@ -107,6 +107,7 @@
     },
     "error": {
         "already_submitted": "De Anfrage wurde bereits beantragt!",
+        "database_does_not_exist": "Datenbank existiert nicht,.",
         "loading_element": "Element konnte nicht geladen werden! ID ist möglicherweise ungültig."
     },
     "catalog": {
@@ -119,7 +120,8 @@
     },
     "message": {
         "input_to_filter": "Hier Suchtext eingeben ...",
-        "list_empty": "Keine Elemente in Liste"
+        "list_empty": "Keine Elemente in Liste",
+        "initial_setup_info": "Dies ist die Seite für die Ersteinrichtung. Geben Sie den Benutzernamen und das Passwort für den Superuser ein. Sobald der Superuser eingerichtet ist, wird diese Seite nicht mehr zugänglich sein!"
     },
     "editor": {
         "assist_tools": "Hilfsprogramme",
@@ -165,7 +167,8 @@
         "email": "Email",
         "password": "Passwort",
         "signup": "Anmelden",
-        "user_login": "Mitarbeiter Login"
+        "user_login": "Mitarbeiter Login",
+        "setup": "Ersteinrichtung"
     },
     "ui": {
         "list": {
@@ -191,5 +194,10 @@
     },
     "bibliography": {
         "treadwell_2002": "Luke Treadwell, Buyid Coinage. A die corpus (322–445 A.H.), Oxford 2002."
+    },
+    "values": {
+        "role": {
+            "buyid": "Buyide | Buyiden"
+        }
     }
 }
