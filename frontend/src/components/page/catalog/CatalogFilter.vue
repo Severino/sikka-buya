@@ -188,7 +188,7 @@ const unfilteredThreeWayFilters = [
   {
     label: 'property.small_coin',
     name: 'small',
-    order: 8.5,
+    order: 3.5,
   },
   {
     label: 'property.year_uncertain',
