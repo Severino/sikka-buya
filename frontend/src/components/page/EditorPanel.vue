@@ -1,11 +1,11 @@
 <template>
   <div>
     <header>
-      <h2><locale path="editor.administration"/></h2>
+      <h2><locale path="editor.administration" /></h2>
     </header>
 
     <div class="quick-access">
-      <h4>Schnellzugriff</h4>
+      <h4><Locale path="system.quick_access" /></h4>
       <div class="items">
         <router-link :to="{ name: 'TypeOverview' }">
           <button><locale path="property.type" /></button
@@ -32,35 +32,6 @@
         </list-item>
       </list>
     </template>
-    <!-- 
-    <list
-      :items="getPropertyByPermission('creator')"
-      v-if="
-        $store.getters.userHasPermission('creator') &&
-        getPropertyByPermission('creator').length > 0
-      "
-    >
-      <list-header>{{ $t('user.permission.creator') }}</list-header>
-      <list-item
-        v-for="(property, idx) of getPropertyByPermission('creator')"
-        :key="'prop-' + idx"
-        :to="property.to"
-      >
-        <span><locale :path="'general.' + property.name" /></span>
-      </list-item>
-    </list>
-
-    <list :items="properties">
-      <list-header>{{ $t('editor.data_properties') }}</list-header>
-
-      <list-item
-        v-for="(property, idx) of properties"
-        :key="'prop-' + idx"
-        :to="property.to"
-      >
-        <span><locale :path="'property.' + property.name" /></span>
-      </list-item>
-    </list> -->
 
     <list :items="supportPrograms">
       <list-header><locale :path="'editor.assist_tools'" /></list-header>
