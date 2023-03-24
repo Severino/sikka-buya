@@ -3,22 +3,6 @@
     id="landing-page"
     class="page"
   >
-    <header id="hero-header">
-      <div class="content-wrapper">
-        <div class="content">
-          <CMSImage
-            id="header-left-image"
-            mode="contain"
-            identity="landing-page-header-left-image"
-          />
-        </div>
-      </div>
-      <CMSImage
-        id="hero-image"
-        identity="landing-page-hero-image"
-        alt="Vorschaubild der politischen Karte"
-      />
-    </header>
     <section>
       <div class="logo-showcase">
         <div class="content-wrapper grid col-3">
@@ -121,18 +105,14 @@
           <locale path="routes.catalog" />
         </card-link>
 
-        <card-link
-          :to="{
-            name: 'CMSList',
-            params: {
-              group: 'bibliography',
-            },
-          }"
-          identity="landing-page-bibliography-link"
-          direction="row"
-        >
+        <router-link :to="{
+          name: 'CMSList',
+          params: {
+            group: 'bibliography',
+          },
+        }">
           <locale path="cms.bibliography" />
-        </card-link>
+        </router-link>
 
       </aside>
     </div>
@@ -393,9 +373,14 @@ aside {
 
   display: flex;
   flex-direction: column;
+  align-content: flex-end;
 
   gap: $large-padding;
   // border-left: 5px dotted $white;
+
+  a {
+    align-self: flex-end;
+  }
 
   h2 {
     color: gray;
