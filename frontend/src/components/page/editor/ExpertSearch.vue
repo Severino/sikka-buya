@@ -4,16 +4,33 @@
 
     <div class="grid col-2">
       <aside>
-        <search-field id="text-search" v-model="text" />
+        <Button
+          class="error"
+          @click="resetFilters"
+          v-if="hasFilters"
+        >{{
+          $t('catalog.reset_filters')
+        }}</Button>
+        <search-field
+          id="text-search"
+          v-model="text"
+        />
         <catalog-filter
+          :initData="catalog_filter_mixin_initData"
           :pageInfo="pageInfo"
           @update="updateTypes"
           :overwriteFilters="overwriteFilters"
           ref="catalogFilter"
         />
       </aside>
-      <pagination :pageInfo="pageInfo" @input="updatePagination">
-        <List :error="error" :items="types">
+      <pagination
+        :pageInfo="pageInfo"
+        @input="updatePagination"
+      >
+        <List
+          :error="error"
+          :items="types"
+        >
           <ListItem
             v-for="item of types"
             v-bind:key="item.key"
@@ -26,9 +43,9 @@
             :class="item.completed ? 'completed' : 'incomplete'"
           >
             {{ item.projectId }}
-          </ListItem></List
-        ></pagination
-      >
+          </ListItem>
+        </List>
+      </pagination>
     </div>
   </div>
 </template>
@@ -41,7 +58,11 @@ import Pagination from '../../list/Pagination.vue';
 import CatalogFilter from '../catalog/CatalogFilter.vue';
 import SearchField from '../../layout/SearchField.vue';
 
+// mixins
+import CatalogFilterMixin from '../../mixins/catalog-filter';
+
 export default {
+  mixins: [CatalogFilterMixin('sikka-buya-expert-search-catalog-filters')],
   components: {
     CatalogFilter,
     LabeledInputContainer,
@@ -59,6 +80,12 @@ export default {
     };
   },
   methods: {
+    catalog_filter_mixin_loaded(data, filterMode) {
+      if (data.text) {
+        this.text = data.text;
+        delete data.text;
+      }
+    },
     updatePagination(pageInfo) {
       this.pageInfo = pageInfo;
     },
@@ -66,11 +93,23 @@ export default {
       const { types, pageInfo } = args;
       this.types = types;
       this.pageInfo = pageInfo;
+
+      this.catalog_filter_mixin_updateActive(this.$refs.catalogFilter);
+      this.catalog_filter_mixin_save(this.$refs.catalogFilter, {
+        text: this.text,
+      });
+    },
+    resetFilters() {
+      this.text = '';
+      this.catalog_filter_mixin_reset(this.$refs.catalogFilter);
     },
   },
   computed: {
+    hasFilters() {
+      return this.catalog_filter_mixin_filterActive || this.text != '';
+    },
     overwriteFilters() {
-      return { plain_text: this.text };
+      return this.text == "" ? {} : { plain_text: this.text };
     },
   },
 };
@@ -81,7 +120,13 @@ export default {
 #text-search {
   margin-bottom: 3 * $padding;
 }
+
 p {
   max-width: 512px;
+}
+
+button {
+  width: 100%;
+  margin-bottom: 2 * $padding;
 }
 </style>
