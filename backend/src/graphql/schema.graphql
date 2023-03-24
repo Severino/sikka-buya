@@ -305,6 +305,8 @@ type Query {
   ruledMintCount(rulers: [ID]!,mints: [ID]): [RulerPointArray]
   typeCountOfMints(ids: [ID]): [MintPointArray]
 
+  timelinePlotTypeProperty(name:String!, ids:[ID]):[IdPointArray]
+
 
   timespan: Range
   getAnalytics: Analytics
@@ -359,6 +361,11 @@ type MintPersons {
 type MintPointArray {
   mint: Mint
   data: [Point]
+}
+
+type IdPointArray {
+  id: Int!
+  data: [Point]!
 }
 
 type RulerIntArray {

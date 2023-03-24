@@ -321,6 +321,31 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
 
         return mintArray
     },
+    timelinePlotTypeProperty: async function (_, { name, ids = null } = {}) {
+
+        const availableProperties = ["material", "nominal", "procedure"]
+        if (availableProperties.indexOf(name) === -1) throw new Error(`Property '${name}' is not supported (yet)!`)
+
+        // As we filter the name and it's destined to be one of the 'availableProperties'
+        // it's fine to use it directly in the query.
+        return Database.manyOrNone(`
+            WITH year_prop_count AS (
+                SELECT year_of_mint::int as x, ${name}, COUNT(*) as y , array_agg(type.project_id) count FROM type 
+                WHERE 
+                -- only relevant for map
+                exclude_from_map_app = false AND
+                -- only use years that are valid (should be excluded by above, but humans)
+                year_of_mint ~ '^[-+]*[0-9]+$' AND
+                -- exclude if the requested property is null
+                ${name} IS NOT NULL
+                -- only include provided ids
+                ${ids == null ? "" : "AND year_of_mint IN ($ids:csv)"}
+                GROUP BY year_of_mint , ${name} 
+                ORDER BY year ASC )
+            SELECT ${name} as id, array_agg(year) as values FROM year_prop_count
+            GROUP BY ${name};
+        `, ids)
+    },
     async timelineRuledBy(_, {
         rulers = [],
         mints = []
