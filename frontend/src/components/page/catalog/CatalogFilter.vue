@@ -176,7 +176,7 @@ addType(unfilteredButtonGroupFilters, 'button-group');
 
 const unfilteredThreeWayFilters = [
   {
-    label: "property.cursive_script",
+    label: 'property.cursive_script',
     name: 'cursiveScript',
     order: 8,
   },
@@ -278,20 +278,6 @@ let unfilteredMultiSelectFilters = [
   },
   {
     label: 'property.ruler',
-    name: 'ruler',
-    queryCommand: 'searchPersonsWithoutRole',
-    queryBody: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
-    displayTextCallback: function (search) {
-      let txt = search.shortName || search.name;
-      if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
-      return txt;
-    },
-    order: 5.5,
-    allowModeChange: true,
-    mode: Mode.And,
-  },
-  {
-    label: 'values.role.buyid',
     name: 'buyid',
     join: 'ruler',
     // This is somewhat unsatisfying to use a dynamic value as input for the buyids here.
@@ -444,12 +430,12 @@ export default {
   mounted() {
     this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this));
     if (this.initData) {
-      const initFilterMode = {}
+      const initFilterMode = {};
 
       unfilteredMultiSelectFilters.forEach((input) => {
         if (this.initData[input.name]) {
           input.mode = this.initData[input.name].mode || input.mode;
-          initFilterMode[input.name] = input.mode
+          initFilterMode[input.name] = input.mode;
           this.initData[input.name] = this.initData[input.name].value || [];
         }
       });
@@ -457,12 +443,12 @@ export default {
       unfilteredMultiDataSelect2D.forEach((input) => {
         if (this.initData[input.name]) {
           input.mode = this.initData[input.name].mode || input.mode;
-          initFilterMode[input.name] = input.mode
+          initFilterMode[input.name] = input.mode;
           this.initData[input.name] = this.initData[input.name].value || [[]];
         }
       });
-      this.filterMode = Object.assign({}, this.filterMode, initFilterMode)
-      console.log(this.filterMode.ruler, initFilterMode.ruler)
+      this.filterMode = Object.assign({}, this.filterMode, initFilterMode);
+      console.log(this.filterMode.ruler, initFilterMode.ruler);
       this.filters = Object.assign({}, this.filters, this.initData);
     }
   },
@@ -482,7 +468,6 @@ export default {
     } = {}) {
       this.$emit('loading', true);
 
-
       // if (filters.ruler || filters.buyid) {
       //   const rulers = filters.ruler || []
       //   const buyids = filters.buyid || []
@@ -493,22 +478,24 @@ export default {
 
       // }
 
-      const msf = {}
+      const msf = {};
 
       multiSelectFilters.forEach(({ name, join }) => {
         if (filters[name]) {
-          const target = join || name
+          const target = join || name;
           let ids = filters[name].map((item) => item.id);
-          const targetSelector = this.filterMode?.[name].toLowerCase() === 'and' ? target + '_and' : target
-          const existing = msf[targetSelector] || []
+          const targetSelector =
+            this.filterMode?.[name].toLowerCase() === 'and'
+              ? target + '_and'
+              : target;
+          const existing = msf[targetSelector] || [];
           const all = [...existing, ...ids];
-          msf[targetSelector] = all
+          msf[targetSelector] = all;
           delete filters[name];
         }
       });
 
-      Object.assign(filters, msf)
-
+      Object.assign(filters, msf);
 
       multiSelectFilters2D.forEach(({ name }) => {
         if (filters[name]) {
@@ -593,7 +580,7 @@ export default {
         const emptyObj = Filter.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
-          this.$set(this.filterMode, key, val?.mode || Mode.And)
+          this.$set(this.filterMode, key, val?.mode || Mode.And);
         }
       });
 
@@ -601,7 +588,7 @@ export default {
         const emptyObj = FilterList.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
-          this.$set(this.filterMode, key, val?.mode || Mode.And)
+          this.$set(this.filterMode, key, val?.mode || Mode.And);
         }
       });
 
