@@ -17,12 +17,19 @@
     "javascript.preferences.quoteStyle": "single",
     "editor.formatOnSave": true,
     "compile-hero.disable-compile-files-on-did-save-code": true,
+    "html.format.wrapAttributes": "force-expand-multiline",
     "editor.defaultFormatter": "ms-vscode.js-debug",
     "[sql]": {
       "editor.defaultFormatter": "adpyke.vscode-sql-formatter"
     },
     "[postgres]": {
       "editor.defaultFormatter": "bradymholt.pgformatter"
+    },
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[vue]": {
+      "editor.defaultFormatter": "Vue.volar"
     }
   }
 }

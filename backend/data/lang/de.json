@@ -168,7 +168,8 @@
         "password": "Passwort",
         "signup": "Anmelden",
         "user_login": "Mitarbeiter Login",
-        "setup": "Ersteinrichtung"
+        "setup": "Ersteinrichtung",
+        "quick_access": "Schnellzugriff"
     },
     "ui": {
         "list": {
