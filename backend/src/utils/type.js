@@ -1161,28 +1161,36 @@ FROM TYPETITLES
 WHERE TYPETITLES.TITLES @> '{6,5}' 
 ;*/
 
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT o.type,
-                        COALESCE(ARRAY_AGG(title_id) FILTER (WHERE title_id IS NOT NULL ), '{}') as titles
-                 FROM overlord o
-                 LEFT JOIN overlord_titles ot ON o.id = ot.overlord_id
-                 GROUP BY o.type) type_overlord_titles ON type_overlord_titles.type = t.id`)
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT i.type,
-                        COALESCE(ARRAY_AGG(title) FILTER (WHERE title IS NOT NULL ), '{}') as titles
-                 FROM issuer i
-                 LEFT JOIN issuer_titles it ON i.id = it.issuer
-                 GROUP BY i.type) type_issuer_titles ON type_issuer_titles.type = t.id`)
+                queryBuilder.addJoin(`LEFT JOIN (WITH RULERS AS
+                    (SELECT ID,
+                            TYPE,
+                            TITLE.TITLE_ID AS TITLE
+                        FROM OVERLORD
+                        LEFT JOIN OVERLORD_TITLES AS TITLE ON OVERLORD.ID = TITLE.OVERLORD_ID
+                        UNION SELECT ID,
+                            TYPE,
+                            TITLES.TITLE AS TITLE
+                        FROM ISSUER
+                        LEFT JOIN ISSUER_TITLES AS TITLES ON ISSUER.ID = TITLES.ISSUER),
+                    TYPETITLES AS
+                    (SELECT TYPE,
+                            COALESCE(ARRAY_AGG(TITLE) FILTER(
+                            WHERE TITLE IS NOT NULL),
+                
+                            '{}') AS TITLES
+                        FROM RULERS
+                        GROUP BY TYPE)
+                        SELECT type, unnest(titles) as titles
+                FROM TYPETITLES') TITLE_SELECT ON t.id = TITLE_SELECT.type`)
 
                 queryBuilder.addSelect(`
-                 COALESCE(array_append(type_overlord_titles.titles, type_issuer_titles.titles), '{}') as titles
+                coalesce(array_agg(TITLE_SELECT.TITLES) filter (WHERE TITLE_SELECT.TITLES is not null), '{}') AS titles
                  `)
 
                 if (activeTitleFilter === "title")
-                    queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles)`, { titles: filter[activeTitleFilter] }))
+                    queryBuilder.addHaving(pgp.as.format(`($[titles]:: int[] && titles`, { titles: filter[activeTitleFilter] }))
                 else if (activeTitleFilter === "title_and") {
-                    queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] <@ type_overlord_titles.titles OR $[titles]:: int[] <@ type_issuer_titles.titles)`, { titles: filter[activeTitleFilter] }))
+                    queryBuilder.addHaving(pgp.as.format(`($[titles]:: int[] <@ titles`, { titles: filter[activeTitleFilter] }))
                 }
 
             }

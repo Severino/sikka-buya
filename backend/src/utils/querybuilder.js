@@ -6,6 +6,7 @@ class QueryBuilder {
         this._selects = []
         this._joins = []
         this._wheres = []
+        this._having = []
     }
 
     /**
