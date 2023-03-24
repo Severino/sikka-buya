@@ -4,32 +4,60 @@
     @mouseenter="() => (this.active = true)"
     @mouseleave="() => (this.active = false)"
   >
-    <Row class="toolbar" style="margin-bottom: 10px" v-if="this.active">
-      <button type="button" @click.prevent="align('left')">
-        <FormatAlignLeft :size="iconSize"/>
+    <Row
+      class="toolbar"
+      style="margin-bottom: 10px"
+      v-if="this.active"
+    >
+      <button
+        type="button"
+        @click.prevent="align('left')"
+      >
+        <FormatAlignLeft :size="iconSize" />
       </button>
-      <button type="button" @click.prevent="align('center')">
-        <FormatAlignCenter :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="align('center')"
+      >
+        <FormatAlignCenter :size="iconSize" />
       </button>
-      <button type="button" @click.prevent="align('right')">
-        <FormatAlignRight :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="align('right')"
+      >
+        <FormatAlignRight :size="iconSize" />
       </button>
       <div class="spacer"></div>
-      <button type="button" @click.prevent="formatRightToLeft">
-        <TextRightToLeft :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="formatRightToLeft"
+      >
+        <TextRightToLeft :size="iconSize" />
       </button>
-      <button type="button" @click.prevent="clearFormat">
-        <TextFormatClear :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="clearFormat"
+      >
+        <TextFormatClear :size="iconSize" />
       </button>
-      <button type="button" @click.prevent="formatLeftToRight">
-        <TextLeftToRight :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="formatLeftToRight"
+      >
+        <TextLeftToRight :size="iconSize" />
       </button>
       <div class="spacer"></div>
-      <button type="button" @click.prevent="toggleBold">
-        <FormatBold :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="toggleBold"
+      >
+        <FormatBold :size="iconSize" />
       </button>
-      <button type="button" @click.prevent="toggleCursive">
-        <FormatItalic :size="iconSize"/>
+      <button
+        type="button"
+        @click.prevent="toggleCursive"
+      >
+        <FormatItalic :size="iconSize" />
       </button>
     </Row>
 
@@ -271,7 +299,7 @@ export default {
 <style lang="scss" scoped>
 .toolbar {
   position: absolute;
-  top: 0;
+  top: 10px;
   width: 100%;
   z-index: 1;
   background-color: $gray;
@@ -279,17 +307,20 @@ export default {
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
   transform: translateY(-100%);
+  padding: 10px;
+  box-sizing: border-box;
 
   button {
     border: none;
-    margin-right: 2px;
+    margin-right: 4px;
+    padding: 3px !important;
   }
 
   .material-design-icon {
     color: $white;
   }
 
-  > *:not(.spacer) {
+  >*:not(.spacer) {
     width: unset;
     margin: 0px 1px !important;
     padding: 0;
