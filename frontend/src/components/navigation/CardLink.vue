@@ -1,8 +1,8 @@
 <template>
-  <div
+  <router-link
     class="card-link"
     :class="{ [className]: true, disabled }"
-    @click="clicked"
+    :to="to"
   >
     <CMSImage
       class="image"
@@ -18,10 +18,7 @@
         <slot name="body" />
       </div>
     </article>
-    <!-- <footer>
-      
-    </footer> -->
-  </div>
+  </router-link>
 </template>
 
 <script>
@@ -56,7 +53,7 @@ export default {
   computed: {
     className() {
       const imgClass = this.img ? 'card-link-image' : ''
-      return [ imgClass, this.directionClass].join(" ");
+      return [imgClass, this.directionClass].join(" ");
     },
     imageClass() {
       return this.contain ? 'contain' : 'cover';
