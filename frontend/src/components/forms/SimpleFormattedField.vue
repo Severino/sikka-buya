@@ -299,10 +299,10 @@ export default {
 <style lang="scss" scoped>
 .toolbar {
   position: absolute;
-  top: 10px;
+  top: 3px;
   width: 100%;
   z-index: 1;
-  background-color: $gray;
+  background-color: $light-gray;
   margin-bottom: 0 !important;
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;

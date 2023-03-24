@@ -1275,7 +1275,8 @@ export default {
 };
 </script>
 
-<style lang="scss">.types-page {
+<style lang="scss">
+.types-page {
   #type-procedure-container {
     flex: 2;
   }
@@ -1293,10 +1294,12 @@ export default {
       }
     }
   }
-}</style>
+}
+</style>
 
-<style lang="scss" scoped>.coin-side-field>*,
-.loading-area>* {
+<style lang="scss" scoped>
+.coin-side-field>*,
+.loading-area>*:not(hr) {
   margin-bottom: $padding;
 }
 
@@ -1400,4 +1403,5 @@ label {
   padding: 5px;
   display: flex;
   align-items: center;
-}</style>
+}
+</style>

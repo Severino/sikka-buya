@@ -1,10 +1,17 @@
 <template>
-  <div id="app" :class="loggedInClass" ref="app">
+  <div
+    id="app"
+    :class="loggedInClass"
+    ref="app"
+  >
     <user-hub v-if="$store.getters.loggedIn && !$route.meta.hideHub" />
 
     <router-view></router-view>
 
-    <div class="error-popup error" :class="{ show: $store.getters.hasErrors }">
+    <div
+      class="error-popup error"
+      :class="{ show: $store.getters.hasErrors }"
+    >
       <div
         class="error-message"
         v-for="(error, idx) of $store.getters.errors"
@@ -23,7 +30,7 @@ import UserHub from './components/auth/UserHub.vue';
 import AuthMixin from './components/mixins/auth';
 
 export default {
-  components: {  UserHub },
+  components: { UserHub },
   mixins: [AuthMixin],
   name: 'App',
   data: function () {
@@ -111,12 +118,6 @@ body {
   color: $text-color;
 }
 
-// .ugly {
-//   background-color: red !important;
-//   color: rgb(155, 15, 15) !important;
-//   border: 1px solid rgb(155, 15, 15) !important;
-// }
-
 body {
   font-family: $font;
   font-size: $regular-font;
@@ -155,9 +156,11 @@ input[type='color'] {
 }
 
 $debug-color: orangered !important;
+
 .debug {
   color: $debug-color;
 }
+
 .debug-fill {
   color: $white !important;
   background-color: $debug-color;
@@ -245,6 +248,7 @@ h6 {
     margin-bottom: $xtra-small-font;
   }
 }
+
 .subtitle {
   display: block;
   color: $black;
@@ -323,6 +327,12 @@ section {
   }
 }
 
+hr {
+  border: solid 3px $light-gray;
+  border-radius: 2px;
+  margin: 2rem 20px;
+}
+
 .bling hr {
   border-color: $light-gray;
   border-style: dotted;
@@ -381,7 +391,7 @@ button {
 
   border-radius: 3px;
 
-  > .material-design-icon:not(:last-child) {
+  >.material-design-icon:not(:last-child) {
     width: 1.3em;
     margin-right: $padding;
   }
@@ -404,6 +414,7 @@ button {
 
     background-color: $gray;
     cursor: not-allowed;
+
     &:hover,
     &:active {
       color: $light-gray;
@@ -435,11 +446,11 @@ button {
 
 .button-list,
 li {
-  &:not(:last-child-of-type) > .button {
+  &:not(:last-child-of-type)>.button {
     border-bottom: none;
   }
 
-  > .button {
+  >.button {
     border-radius: 0;
   }
 }
@@ -468,11 +479,11 @@ label {
 .button-bar {
   display: flex;
 
-  > * {
+  >* {
     flex: 1;
   }
 
-  > *:not(:last-child) {
+  >*:not(:last-child) {
     margin-right: 10px;
   }
 }
@@ -482,7 +493,7 @@ label {
   // background-color: rgb(75, 75, 75);
 
   .button-group {
-    input:checked + label {
+    input:checked+label {
       background-color: transparent;
       border-bottom: 2px solid white;
 
@@ -527,12 +538,13 @@ a {
 .div-icon-button {
   cursor: pointer;
   position: relative;
+
   &:hover {
     background-color: $dark-white;
   }
 }
 
-.div-icon-button + .tooltip {
+.div-icon-button+.tooltip {
   opacity: 0;
   position: absolute;
   top: -5px;
@@ -545,7 +557,7 @@ a {
   transition: all $transition-time;
 }
 
-.div-icon-button:hover + .tooltip {
+.div-icon-button:hover+.tooltip {
   opacity: 1;
 }
 
@@ -562,7 +574,7 @@ a {
 }
 
 .button-list {
-  > * {
+  >* {
     margin-bottom: $padding;
   }
 }
@@ -616,7 +628,7 @@ a {
 
   transition: all $transition-time;
 
-  > * {
+  >* {
     margin-top: $big-padding;
     margin-bottom: $big-padding;
 
@@ -660,6 +672,7 @@ a {
 .unavailable {
   color: gray;
 }
+
 .gray-heading {
   color: $gray;
   margin: 0;
