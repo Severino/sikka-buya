@@ -1,12 +1,21 @@
 <template>
   <div class="catalog-filter-search">
-    <h1><Locale :path="'routes.'+$route.name"/></h1>
+    <h1>
+      <Locale :path="'routes.' + $route.name" />
+    </h1>
     <div class="grid col-2">
       <aside>
-        <Button class="error" @click="resetFilters" v-if="hasFilters">{{
+        <Button
+          class="error"
+          @click="resetFilters"
+          v-if="hasFilters"
+        >{{
           $t('catalog.reset_filters')
         }}</Button>
-        <search-field id="text-search" v-model="text" />
+        <search-field
+          id="text-search"
+          v-model="text"
+        />
         <catalog-filter
           :pageInfo="pageInfo"
           :initData="catalog_filter_mixin_initData"
@@ -16,8 +25,14 @@
           ref="catalogFilter"
         />
       </aside>
-      <pagination :pageInfo="pageInfo" @input="updatePagination">
-        <List :error="error" :items="types">
+      <pagination
+        :pageInfo="pageInfo"
+        @input="updatePagination"
+      >
+        <List
+          :error="error"
+          :items="types"
+        >
           <ListItem
             v-for="item of types"
             v-bind:key="item.key"
@@ -55,7 +70,7 @@ export default {
     ListItem,
     SearchField,
     Locale
-},
+  },
   data() {
     return {
       text: '',
@@ -76,7 +91,6 @@ export default {
       this.pageInfo = pageInfo;
     },
     updateTypes(args) {
-      console.log('UPDATE');
       const { types, pageInfo } = args;
       this.types = types;
       this.pageInfo = pageInfo;
@@ -95,7 +109,7 @@ export default {
       return this.catalog_filter_mixin_filterActive || this.text != '';
     },
     overwriteFilters() {
-      return { plain_text: this.text };
+      return this.text == "" ? {} : { plain_text: this.text };
     },
   },
 };

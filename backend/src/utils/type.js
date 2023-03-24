@@ -1134,6 +1134,33 @@ class Type {
         if (Object.hasOwnProperty.bind(filter)(activeTitleFilter)) {
             if (filter?.[activeTitleFilter] && Array.isArray(filter[activeTitleFilter]) && filter[activeTitleFilter].length > 0) {
 
+
+                /*
+                // The following works more like expected.
+                WITH RULERS AS
+    (SELECT ID,
+            TYPE,
+            TITLE.TITLE_ID AS TITLE
+        FROM OVERLORD
+        LEFT JOIN OVERLORD_TITLES AS TITLE ON OVERLORD.ID = TITLE.OVERLORD_ID
+        UNION SELECT ID,
+            TYPE,
+            TITLES.TITLE AS TITLE
+        FROM ISSUER
+        LEFT JOIN ISSUER_TITLES AS TITLES ON ISSUER.ID = TITLES.ISSUER),
+    TYPETITLES AS
+    (SELECT TYPE,
+            COALESCE(ARRAY_AGG(TITLE) FILTER(
+                                                                                                                                                WHERE TITLE IS NOT NULL),
+
+            '{}') AS TITLES
+        FROM RULERS
+        GROUP BY TYPE)
+SELECT *
+FROM TYPETITLES
+WHERE TYPETITLES.TITLES @> '{6,5}' 
+;*/
+
                 queryBuilder.addJoin(`LEFT JOIN
                 (SELECT o.type,
                         COALESCE(ARRAY_AGG(title_id) FILTER (WHERE title_id IS NOT NULL ), '{}') as titles
@@ -1149,7 +1176,7 @@ class Type {
                  GROUP BY i.type) type_issuer_titles ON type_issuer_titles.type = t.id`)
 
                 queryBuilder.addSelect(`
-                 COALESCE(type_overlord_titles.titles, type_issuer_titles.titles, '{}') as titles
+                 COALESCE(array_append(type_overlord_titles.titles, type_issuer_titles.titles), '{}') as titles
                  `)
 
                 if (activeTitleFilter === "title")
