@@ -516,34 +516,40 @@ export default {
       let types = [],
         pageInfo = this.pageInfo;
 
-      if (this.forceAll) {
-        while (
-          pageInfo.total === undefined ||
-          pageInfo.page * (pageInfo.count + 1) < pageInfo.total
-        ) {
-          let { types: nextTypes, pageInfo: nextPageInfo } =
-            await Type.filteredQuery(
-              {
-                pagination: Pagination.fromPageInfo(pageInfo),
-                filters,
-                typeBody: this.typeBody,
-              },
-              true
-            );
+      try {
+        if (this.forceAll) {
+          while (
+            pageInfo.total === undefined ||
+            pageInfo.page * (pageInfo.count + 1) < pageInfo.total
+          ) {
+            let { types: nextTypes, pageInfo: nextPageInfo } =
+              await Type.filteredQuery(
+                {
+                  pagination: Pagination.fromPageInfo(pageInfo),
+                  filters,
+                  typeBody: this.typeBody,
+                },
+                true
+              );
 
-          pageInfo = nextPageInfo;
-          pageInfo.page++;
-          types.push(...nextTypes);
+            pageInfo = nextPageInfo;
+            pageInfo.page++;
+            types.push(...nextTypes);
+          }
+        } else {
+          ({ types, pageInfo } = await Type.filteredQuery(
+            {
+              pagination: Pagination.fromPageInfo(this.pageInfo),
+              filters,
+              typeBody: this.typeBody,
+            },
+            true
+          ));
         }
-      } else {
-        ({ types, pageInfo } = await Type.filteredQuery(
-          {
-            pagination: Pagination.fromPageInfo(this.pageInfo),
-            filters,
-            typeBody: this.typeBody,
-          },
-          true
-        ));
+      } catch (e) {
+        this.$emit("update", { types: [], pageInfo });
+        this.$emit("error", e)
+        this.$emit('loading', false);
       }
 
       this.$emit('update', { types, pageInfo });

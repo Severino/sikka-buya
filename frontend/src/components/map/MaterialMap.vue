@@ -23,7 +23,10 @@
     </Sidebar>
 
     <div class="center-ui center-ui-top">
-      <map-toolbar :filtersActive="filtersActive" @reset-filters="resetFilters"/>
+      <map-toolbar
+        :filtersActive="filtersActive"
+        @reset-filters="resetFilters"
+      />
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
@@ -42,13 +45,19 @@
         @toggle="timelineToggled"
       >
         <template #background>
-          <canvas id="timeline-canvas" ref="timelineCanvas"> </canvas>
+          <canvas
+            id="timeline-canvas"
+            ref="timelineCanvas"
+          > </canvas>
         </template>
 
       </timeline>
     </div>
 
-    <Sidebar side="right" ref="catalogSidebar">
+    <Sidebar
+      side="right"
+      ref="catalogSidebar"
+    >
 
       <template #title>
         <Locale path="map.type_filter" />
@@ -62,6 +71,7 @@
           @update="dataUpdated"
           @dynamic-change="recalculateCatalogSidebar"
           @toggled="save"
+          @error="(e) => $store.commit('printError', e)"
           :forceAll="true"
           :pageInfo="pageInfo"
           :exclude="[
@@ -75,26 +85,26 @@
           ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
-                    id
-                    projectId
-                    yearOfMint
-                    material {
                       id
-                      name
-                      color
-                    }
-                    mint {
-                      id
-                      name
-                      location 
-                      uncertain
-                      province {
+                      projectId
+                      yearOfMint
+                      material {
                         id
                         name
+                        color
                       }
-                    }
-                    excludeFromTypeCatalogue
-                    "
+                      mint {
+                        id
+                        name
+                        location 
+                        uncertain
+                        province {
+                          id
+                          name
+                        }
+                      }
+                      excludeFromTypeCatalogue
+                      "
         />
       </div>
     </Sidebar>
@@ -151,7 +161,7 @@ export default {
     Sidebar,
     Slider,
     Timeline,
-},
+  },
   data: function () {
     return {
       filteredMintLayer: null,
@@ -357,7 +367,7 @@ export default {
       this.updateYearOverwrite(value);
       this.timeChanged(value);
     },
-    timelineUpdated() {},
+    timelineUpdated() { },
     updateTimeline: async function (initial = false) {
       const triggered = this.updateYearOverwrite(this.timeline.value);
       if (!triggered && !initial) this.update();
@@ -435,9 +445,8 @@ export default {
       min-height: 20px;
     }
 
-    > * {
+    >* {
       grid-column: span 6;
     }
   }
-}
-</style>
+}</style>
