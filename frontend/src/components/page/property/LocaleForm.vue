@@ -11,11 +11,13 @@
       name="singular"
       v-model="singular"
       placeholder="singular"
+      icon="revert"
       @reset="reset('singular')"
     />
     <InputWithReset
       type="text"
       name="plural"
+      icon="revert"
       v-model="plural"
       @reset="reset('plural')"
     />
@@ -106,12 +108,24 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.locale-form {
+  input {
+    flex: 1;
+  }
+}
+</style>
+
 <style lang='scss' scoped>
+
+.locale-form {
+  gap: $padding;
+}
 .locale-form > * {
   display: block;
   display: flex;
   margin-bottom: $padding;
-  gap: $padding;
+
   align-items: center;
 }
 </style>
