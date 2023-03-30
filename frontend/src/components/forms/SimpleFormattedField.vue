@@ -104,6 +104,9 @@ export default {
   },
   name: 'SimpleFormattedField',
   mixins: [CopyAndPasteMixin],
+  props: {
+    allowLinks: Boolean
+  },
   data: function () {
     return {
       active: false,
