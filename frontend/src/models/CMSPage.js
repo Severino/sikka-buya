@@ -36,10 +36,9 @@ export default class CMSPage {
     }
 
     static async create(pageGroup) {
-
         const result = await Query.raw(`mutation CreateCMSPage($pageGroup:String!){
-            createPage(title: "", type: $pageGroup)
-        }`, { pageGroup })
+            createPage(title: "", group: $pageGroup)
+        }`, { pageGroup }, true)
 
         return result.data.data.createPage
     }
@@ -67,7 +66,7 @@ export default class CMSPage {
     static async list(group) {
         const result = await Query.raw(`
         query GetPageList($group: String!){
-            getPageList(type: $group)
+            getPageList(group: $group)
             {
                 id
                 subtitle

@@ -112,9 +112,10 @@ export default {
       const componentInclude = this.include || [];
       let include = [...configsFileInclude, ...componentInclude];
 
-      if (include != []) {
+      if (include.length > 0) {
         return include.includes(name);
       }
+      
       return true;
     },
     async handleSpecialKeys($event, block) {

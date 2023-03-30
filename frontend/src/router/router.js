@@ -57,7 +57,6 @@ import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import FixDiff from "@/components/page/FixDiff.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
-import NewsPage from "@/components/page/News.vue"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import ExpertSearch from "@/components/page/editor/ExpertSearch.vue"
@@ -170,21 +169,6 @@ const routes = [
         path: "/landing",
         name: "Landing",
         component: PlaceholderLandingPage
-      },
-      {
-        meta: { auth: true },
-        path: "/news",
-        name: "NewsOverview",
-        component: NewsPage,
-      },
-      {
-        meta: { auth: true },
-        path: "/news/:id",
-        name: "NewsPage",
-        props: {
-          include: ["title", "body"]
-        },
-        component: CMSPage,
       },
       {
         path: '/catalog/',

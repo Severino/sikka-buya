@@ -1,22 +1,34 @@
 <template>
-    <div class="cms-list-element" :class="{editable: $store.getters.canEdit}">
+    <div
+        class="cms-list-element"
+        :class="{ editable: $store.getters.canEdit }"
+    >
+        <div class="toolbox">
+            <Button
+                v-if="$store.getters.canEdit"
+                @click="() => cms_edit({ id: value.id, group, props: { include } })"
+            >
+                <Locale path="general.edit" />
+            </Button>
+            <Button
+                v-if="$store.getters.canEdit"
+                @click="() => remove(value.id)"
+            >
+                <Locale path="general.delete" />
+            </Button>
+        </div>
         <header v-if="showTime">
-            <span>{{ timeMixinFormatDate(value.createdTimestamp) }}</span>
-            <span>{{ timeMixinFormatDate(value.publishedTimestamp) || "-" }}</span>
-            <div class="toolbox">
-                <Button v-if="$store.getters.canEdit" :to="cms_edit({ id: value.id, group, props: { include } })"><Locale path="general.edit" /></Button>
-                <Button v-if="$store.getters.canEdit" @click="() => remove(value.id)"><Locale path="general.delete" /></Button>
-            </div>
+            <span v-if="$store.getters.canEdit"><Locale path="time.created_date" /> {{ timeMixinFormatDate(value.createdTimestamp) }}</span>
+            <span><Locale path="time.published_date" /> {{ timeMixinFormatDate(value.publishedTimestamp) || "-" }}</span>
         </header>
         <div class="flex space-between row">
             <div class="body">
                 <h3 v-if="isPresent('title')">{{ value.title }}</h3>
                 <h4 v-if="isPresent('subtitle')">{{ value.subtitle }}</h4>
-                <div v-if="isPresent('body')" v-html="value.body"></div>
-            </div>
-            <div class="toolbox" v-if="!showTime">
-                <Button v-if="$store.getters.canEdit" :to="cms_edit({ id: value.id, group, props: { include } })"><Locale path="general.edit" /></Button>
-                <Button v-if="$store.getters.canEdit" @click="() => remove(value.id)"><Locale path="general.delete" /></Button>
+                <div
+                    v-if="isPresent('body')"
+                    v-html="value.body"
+                ></div>
             </div>
         </div>
     </div>
@@ -31,10 +43,11 @@ import Locale from "../../cms/Locale.vue";
 export default {
     mixins: [TimeMixin, CMSMixin],
     components: {
-    Button,
-    Locale
-},
+        Button,
+        Locale
+    },
     props: {
+        showTime: { type: Boolean, default: true },
         value: { type: Object, required: true },
         group: { type: String, required: true },
         include: { type: Array, default() { return [] } }
@@ -43,7 +56,7 @@ export default {
         isPresent(name) {
             const configInlcudes = CMSConfig?.["bibliography"]?.preview?.include || []
             const componentInclude = this.include || []
-            const include = [... configInlcudes, ... componentInclude]
+            const include = [...configInlcudes, ...componentInclude]
 
             if (include.length > 0) {
                 return include.includes(name)
@@ -55,28 +68,35 @@ export default {
             await this.cms_delete(id)
             this.$emit("deleted")
         }
-    }, computed: {
-        showTime() {
-            return Boolean(CMSConfig?.["bibliography"]?.preview?.showTime)
-        },
     }
 };
 </script>
 
 <style lang='scss' scoped>
 .cms-list-element.editable {
-    background-color: white;
-    border: 1px solid $light-gray;
-    border-radius: $border-radius;
-    padding: $padding math.div($padding, 2);
+//     background-color: white;
+//     border: 1px solid $light-gray;
+//     border-radius: $border-radius;
+//     padding: $padding math.div($padding, 2);
 }
 
 header {
     display: flex;
+    flex-direction: row-reverse;
     justify-content: space-between;
+    margin-bottom: 1em;
+    font-weight: bold;
+    color: $light-gray;
 }
 
 .body {
     align-self: center;
+}
+
+.toolbox {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1em;
+    
 }
 </style>
