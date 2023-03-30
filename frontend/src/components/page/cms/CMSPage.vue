@@ -1,10 +1,16 @@
 <template>
   <div class="page cms-page">
-    <section class="content-wrapper" v-if="!loading">
+    <section
+      class="content-wrapper"
+      v-if="!loading"
+    >
       <h2>
         <Locale :path="`cms.${this.group}`" />
       </h2>
-      <div class="info grid col-3" v-if="showTime">
+      <div
+        class="info grid col-3"
+        v-if="showTime"
+      >
         <div class="cell">
           <label for="">Erstellt am</label>
           {{ timeMixinFormatDate(page.createdTimestamp) }}
@@ -18,25 +24,56 @@
           {{ timeMixinFormatDate(page.publishedTimestamp) }}
         </div>
       </div>
-      <h1 :contenteditable="editmode" @input="($event) => update($event, 'title')" data-property="title"
-        v-if="isPresent('title')" v-once>
+      <h1
+        :contenteditable="editmode"
+        @input="($event) => update($event, 'title')"
+        data-property="title"
+        v-if="isPresent('title')"
+        ref="title"
+        v-once
+      >
         {{ page.title }}
       </h1>
 
-      <h2 class="subtitle" v-if="hasSubtitle" :contenteditable="editmode" @input="update" data-property="subtitle" v-once>
+      <h2
+        class="subtitle"
+        v-if="hasSubtitle"
+        :contenteditable="editmode"
+        @input="update"
+        data-property="subtitle"
+        ref="subtitle"
+        v-once
+      >
         {{ page.subtitle }}
       </h2>
 
-      <p v-if="!editmode" name="" id="" cols="30" rows="10"></p>
-      <SimpleFormattedField ref="body" @hook:mounted="() => selfInitialize('body')"
-        @input="(value) => this.updateFormattedField('body', value)" v-else />
+      <p
+        v-if="!editmode"
+        name=""
+        id=""
+        cols="30"
+        rows="10"
+      ></p>
+      <SimpleFormattedField
+        ref="body"
+        @hook:mounted="() => selfInitialize('body')"
+        @input="(value) => this.updateFormattedField('body', value)"
+        v-else
+      />
 
       <section v-if="hasBlocks">
         <h2>Blocks</h2>
 
-        <textarea v-for="block of   page.blocks" class="page-block" :contenteditable="editmode"
-          @keydown="($event) => handleSpecialKeys($event, block)" @input="($event) => updateBlockText($event, block)"
-          :key="`page-block-${block.id}`" :ref="`page-block-${block.id}`" v-model="block.text" />
+        <textarea
+          v-for="block of   page.blocks"
+          class="page-block"
+          :contenteditable="editmode"
+          @keydown="($event) => handleSpecialKeys($event, block)"
+          @input="($event) => updateBlockText($event, block)"
+          :key="`page-block-${block.id}`"
+          :ref="`page-block-${block.id}`"
+          v-model="block.text"
+        />
         <div class="content-wrapper">
           <async-button @click="addEmptyBlock()">Add</async-button>
         </div>
@@ -54,25 +91,33 @@ import AsyncButton from '../../layout/buttons/AsyncButton.vue';
 import CMSStatusIndicator from './CMSStatusIndicator.vue';
 import SimpleFormattedField from '../../forms/SimpleFormattedField.vue';
 
-import TimeMixin from '../../mixins/time';
-import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
 import CMSConfig from '../../../../cms.config';
 import Locale from '../../cms/Locale.vue';
 
+import TimeMixin from '../../mixins/time';
+import CopyAndPasteMixin from '../../mixins/copy-and-paste';
+import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
+
+
 export default {
   components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField, Locale },
-  mixins: [TimeMixin, MountedAndLoadedMixin],
+  mixins: [TimeMixin, MountedAndLoadedMixin, CopyAndPasteMixin],
   mounted() {
+
     CMSPage.get(this.id)
       .then((page) => {
         this.page = Object.assign({}, this.page, page);
       })
       .finally(() => {
         this.loading = false;
+        console.log("FINALLY")
         this.isLoaded();
       });
 
     this.updateBuffer = new RequestBuffer(3000, true);
+  },
+  beforeUnmount() {
+    this.cleanupPasteUnformattedFields(this.pasteUnformattedFields)
   },
   props: {
     group: String,
@@ -101,6 +146,11 @@ export default {
     };
   },
   methods: {
+    mountedAndLoaded() {
+      this.$nextTick(() => {
+        this.initPasteUnformattedFields(this.pasteUnformattedFields);
+      });
+    },
     selfInitialize(name) {
       if (!this.$refs[name]) console.error(`There is no ref with name ${name}`);
       else {
@@ -115,7 +165,7 @@ export default {
       if (include.length > 0) {
         return include.includes(name);
       }
-      
+
       return true;
     },
     async handleSpecialKeys($event, block) {
@@ -272,6 +322,9 @@ mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
     },
   },
   computed: {
+    pasteUnformattedFields() {
+      return [this.$refs.title, this.$refs.subtitle]
+    },
     id() {
       return this.$route.params.id;
     },
