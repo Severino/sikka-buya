@@ -200,5 +200,9 @@
         "role": {
             "buyid": "Buyide | Buyiden"
         }
+    },
+    "time": {
+        "created_date": "erstellt am",
+        "published_date": "veröffentlicht am"
     }
 }
