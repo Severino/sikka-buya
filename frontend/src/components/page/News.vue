@@ -1,30 +1,43 @@
 <template>
   <div class="news">
     <header>
-      <h1><locale path="cms.news" /></h1>
+      <h1>
+        <locale path="cms.news" />
+      </h1>
       <async-button
         class="create-page-button"
         v-if="$store.getters.canEdit"
-        @click="createPageAndRedirect"
-        ><locale path="cms.create_page"
-      /></async-button>
+        @click="() => cms_createAndVisit('news', { include: ['title', 'body'] })"
+      >
+        <locale path="cms.create_page" />
+      </async-button>
     </header>
     <div>
-      <article v-for="page of pages" :key="`page-${page.id}`">
+      <article
+        v-for="page of pages"
+        :key="`page-${page.id}`"
+      >
         <h2 :class="getPageTitleClass(page)">{{ getPageTitle(page) }}</h2>
         <div class="time-row">
           <span class="time">{{
             timeMixinFormatDate(page.publishedTimestamp)
           }}</span>
-          <multi-button class="toolbox" v-if="$store.getters.canEdit">
-            <Button @click="publish(page)" :disabled="loading"
-              ><locale path="general.publish"
-            /></Button>
+          <multi-button
+            class="toolbox"
+            v-if="$store.getters.canEdit"
+          >
+            <Button
+              @click="publish(page)"
+              :disabled="loading"
+            >
+              <locale path="general.publish" />
+            </Button>
             <Button
               :to="{ name: 'NewsPage', params: { id: page.id } }"
               :disabled="loading"
-              ><locale path="general.edit"
-            /></Button>
+            >
+              <locale path="general.edit" />
+            </Button>
           </multi-button>
         </div>
 
@@ -42,10 +55,11 @@ import TimeMixin from '../mixins/time';
 import PencilCircle from 'vue-material-design-icons/PencilCircle.vue';
 import MultiButton from '../layout/buttons/MultiButton.vue';
 import CMSPage from '../../models/CMSPage';
+import CMSMixin from '../mixins/cms';
 import Locale from '../cms/Locale.vue';
 export default {
   components: { AsyncButton, Button, PencilCircle, MultiButton, Locale },
-  mixins: [TimeMixin],
+  mixins: [TimeMixin, CMSMixin],
   data() {
     return {
       pages: [],
@@ -71,9 +85,8 @@ export default {
       return page.title || 'TITEL FEHLT';
     },
     createPageAndRedirect: async function () {
-      const id = await Query.raw(
-        `mutation{createPage(title:"_Unnamed", type:"news")}`
-      );
+      const result = await CMSPage.create("news")
+      CMSPage.ed
     },
     fetchPages: async function () {
       const result = await Query.raw(`{getPageList(type: "news") {
@@ -81,7 +94,7 @@ export default {
   title
   subtitle
   createdTimestamp
-  publishedTimestamp
+  publishedTimestamp 
   body
 } }`);
 
@@ -140,5 +153,4 @@ article {
   top: 0;
   right: 0;
   color: $primary-color;
-}
-</style>
+}</style>

@@ -232,18 +232,18 @@ export default {
     },
     async addEmptyBlock() {
       const position = 10;
-      const type = 'empty';
+      const group = 'empty';
       const result = await Query.raw(
         `
-mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
-  createBlock(parent: $id, block: {type: $type, position: $position})
+mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
+  createBlock(parent: $id, block: {group: $group, position: $position})
 }
 
       `,
         {
           id: this.id,
           position,
-          type,
+          group,
         },
         true
       );
@@ -251,7 +251,7 @@ mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
       const id = result.data.data.createBlock;
       const block = {
         id,
-        type,
+        group,
         position,
         image: null,
         text: '',

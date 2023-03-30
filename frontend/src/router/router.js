@@ -146,6 +146,13 @@ const routes = [
     children: [
       {
         meta: { auth: true },
+        path: "/cms/single/:group",
+        props: true,
+        name: "CMSSingle",
+        component: CMSPage
+      },
+      {
+        meta: { auth: true },
         path: "cms/:group/:id",
         name: "CMSPage",
         props: true,

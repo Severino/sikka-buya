@@ -4,10 +4,19 @@
             <h2>
                 <Locale :path="`cms.${this.group}`" />
             </h2>
-            <Button v-if="$store.getters.canEdit" @click="() => cms_createAndVisit('bibliography', { include: this.include })">Neuer Eintrag</Button>
+            <Button
+                v-if="$store.getters.canEdit"
+                @click="() => cms_createAndVisit(this.group, { include: this.include })"
+            >Neuer Eintrag</Button>
             <div class="list">
-                <CMSListElement v-for="page of pages" :key="page.id" :value="page" :group="group" :include="include"
-                    @deleted="update" />
+                <CMSListElement
+                    v-for="page of pages"
+                    :key="page.id"
+                    :value="page"
+                    :group="group"
+                    :include="include"
+                    @deleted="update"
+                />
             </div>
         </div>
     </div>
@@ -46,12 +55,10 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
-.list {
+<style lang='scss' scoped>.list {
     margin-bottom: 50vh;
 
     >* {
         margin-top: $padding;
     }
-}
-</style>
+}</style>

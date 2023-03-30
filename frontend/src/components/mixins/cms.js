@@ -9,8 +9,9 @@ export default {
             if (id)
                 await CMSPage.delete(id)
         },
-        cms_edit: function ({ id, group, props } = {} ) {
-            return { name: 'CMSPage', params: { group, id }, props }
+        cms_edit: function ({ id, group = "Unknown Group", props = {} } = {}) {
+            if (id)
+                this.$router.push({ name: 'CMSPage', params: { group, id }, props })
         },
         cms_createPage: async function (pageGroupName) {
             return CMSPage.create(pageGroupName)
@@ -22,6 +23,20 @@ export default {
         },
         cms_list: async function (group) {
             return CMSPage.list(group)
+        },
+        cms_get: async function ({ id, group }) {
+            let page = null
+
+            if (!id && !group) throw new Error("Id or group must be provided")
+            else if (!id) {
+                // get the first page of the group
+                page = await CMSPage.getSingle(group)
+            } else {
+                // get the page with the id
+                page = CMSPage.get(id)
+            }
+
+            return page
         }
     }
 }

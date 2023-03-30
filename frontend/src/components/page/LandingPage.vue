@@ -149,8 +149,8 @@ export default {
 <style lang="scss">
 #landing-page {
   .card-link {
-    max-height: 300px;
-    aspect-ratio: 3 / 2;
+    // max-height: 300px;
+    aspect-ratio: 4 / 2;
 
     >* {
       flex: 1;

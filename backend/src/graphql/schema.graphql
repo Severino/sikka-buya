@@ -343,10 +343,11 @@ type Query {
     pagination: Pagination
   ): PaginationTypeTextSearch
 
-  getPage(type:String, id:Int): Page
-  getPageList(type:String!): [Page]
+  getPage(group:String, id:Int): Page
+  getPageList(group:String!): [Page]
   getImage(identity:String!):String
   getPageGroup(name:String):ID
+  getSinglePage(group: String!): Page
 
   i18n:String
 }
@@ -486,7 +487,7 @@ type Mutation {
   updateMaterialColor(id: ID!, color: String!): Void
   deleteMaterialColor(id: ID): Void
 
-  createPage(title: String, type:String!): ID
+  createPage(title: String, group:String!): ID
   updatePage(id: ID!, page: PageInput):Void
   deletePage(id: ID!):Void
   createBlock(parent: ID!, block: PageBlockInput):ID
