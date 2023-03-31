@@ -1162,7 +1162,9 @@ class Type {
         const activeFilter = this._filterGate(filter, ["honorific", "honorific_and"], 'honorific')
 
         if (Object.hasOwnProperty.bind(filter)(activeFilter)) {
-            if (Array.isArray(filter.honorific) && filter.honorific.length > 0) {
+            if (filter?.[activeFilter] != null
+                && Array.isArray(filter[activeFilter])
+                && filter[activeFilter].length > 0) {
 
                 queryBuilder.addJoin(pgp.as.format(`LEFT JOIN (WITH RULERS AS
                     (SELECT ID,
@@ -1186,7 +1188,6 @@ class Type {
                 ) HONORIFIC_SELECT ON t.id = HONORIFIC_SELECT.type`, { honorifics: filter[activeFilter] }))
 
                 queryBuilder.addWhere(`HONORIFIC_SELECT.CONTAINS_HONORIFICS = 1`)
-
             }
 
             delete filter[activeFilter]
