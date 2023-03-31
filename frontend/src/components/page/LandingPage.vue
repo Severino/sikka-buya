@@ -40,7 +40,7 @@
         <section>
          <CMSView group="landing_page_main_article" />
         </section>
-        <CMSListView group="news" />
+        <CMSListView group="news" :showTime="false" />
       </div>
       <aside>
         <card-link

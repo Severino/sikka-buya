@@ -54,7 +54,7 @@ export default {
     },
     methods: {
         isPresent(name) {
-            const configInlcudes = CMSConfig?.["bibliography"]?.preview?.include || []
+            const configInlcudes = CMSConfig?.[this.group]?.preview?.include || []
             const componentInclude = this.include || []
             const include = [...configInlcudes, ...componentInclude]
 

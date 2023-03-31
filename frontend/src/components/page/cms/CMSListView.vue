@@ -14,6 +14,7 @@
                 :value="page"
                 :group="group"
                 :include="include"
+                :showTime="showTime"
                 @deleted="update"
             />
         </div>
@@ -32,6 +33,7 @@ export default {
     components: { Button, CMSListElement, Locale },
     mixins: [CMSMixin, TimeMixin],
     props: {
+        showTime: { type: Boolean, default: true },
         include: Array,
         group: String
     },
