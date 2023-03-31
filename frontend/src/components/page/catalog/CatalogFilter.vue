@@ -248,7 +248,7 @@ let unfilteredMultiSelectFilters = [
     label: 'property.other_person',
     name: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
-
+    mode: Mode.Or,
     queryBody: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
     additionalParameters: {
       exclude: ['caliph', 'heir'],
@@ -260,7 +260,6 @@ let unfilteredMultiSelectFilters = [
     },
     order: 6,
     allowModeChange: true,
-    mode: Mode.And,
   },
   {
     label: 'property.title',
@@ -586,7 +585,8 @@ export default {
         const emptyObj = Filter.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
-          this.$set(this.filterMode, key, val?.mode || Mode.And);
+          const mode = filter?.mode || Mode.And
+          this.$set(this.filterMode, key, mode);
         }
       });
 
@@ -594,7 +594,7 @@ export default {
         const emptyObj = FilterList.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
-          this.$set(this.filterMode, key, val?.mode || Mode.And);
+          this.$set(this.filterMode, key, filter?.mode || Mode.And);
         }
       });
 
