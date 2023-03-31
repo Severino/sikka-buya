@@ -3,22 +3,34 @@ const Argument = require('../../argument')
 const { Database, WriteableDatabase } = require('../../utils/database')
 const GQL = require('./gql')
 
-function resultsToGraphQLPage(arr) {
-    return arr.map(res => {
-        let obj = {}
-        obj.id = res.id
-        obj.title = res.title
-        obj.subtitle = res.subtitle
-        obj.summary = res.summary
-        obj.body = res.body
-        obj.image = res.image
-        obj.createdTimestamp = res.created_timestamp
-        obj.publishedTimestamp = res.published_timestamp
-        obj.modifiedTimestamp = res.modified_timestamp
-        return obj
-    })
+
+/*
+    Converts a result from the database to a GraphQL object
+*/
+function entryToGraphQL(entry) {
+    let obj = {}
+    obj.id = entry.id
+    obj.title = entry.title
+    obj.subtitle = entry.subtitle
+    obj.summary = entry.summary
+    obj.body = entry.body
+    obj.image = entry.image
+    obj.createdTimestamp = entry.created_timestamp
+    obj.publishedTimestamp = entry.published_timestamp
+    obj.modifiedTimestamp = entry.modified_timestamp
+    return obj
 }
 
+/*
+    Converts an array of results from the database to an array of GraphQL objects
+*/
+function resultsToGraphQLPage(arr) {
+    return arr.map(res => entryToGraphQL(res))
+}
+
+/*
+    PageGQL is a GraphQL resolver for the Page model
+*/
 class PageGQL extends GQL {
     static get Mutations() {
         return {
@@ -27,11 +39,11 @@ class PageGQL extends GQL {
                 const { id } = await WriteableDatabase.one(`INSERT INTO web_page_group (name) VALUES ($[name]) RETURNING id`, { name })
                 return id
             },
-            createPage: async function (_, { title = "", type } = {}) {
+            createPage: async function (_, { title = "", group } = {}) {
 
-                let returnedValue = await WriteableDatabase.oneOrNone("SELECT id FROM web_page_group WHERE name=$1 LIMIT 1", type)
+                let returnedValue = await WriteableDatabase.oneOrNone("SELECT id FROM web_page_group WHERE name=$1 LIMIT 1", group)
                 if (returnedValue == null)
-                    returnedValue = await WriteableDatabase.one("INSERT INTO web_page_group (name) VALUES ($1) RETURNING id", type)
+                    returnedValue = await WriteableDatabase.one("INSERT INTO web_page_group (name) VALUES ($1) RETURNING id", group)
 
                 const groupId = returnedValue.id
 
@@ -120,8 +132,17 @@ class PageGQL extends GQL {
 
                 return page
             },
-            getPageList: async function (_, { type } = args = {}) {
-                Argument.require({ type })
+            getSinglePage: async function (_, { group } = {}) {
+
+                const result = await Database.oneOrNone(`SELECT web_page.* FROM web_page 
+                LEFT JOIN web_page_group ON web_page_group.id = web_page.page_group
+                WHERE web_page_group.name = $1
+                LIMIT 1`, group)
+
+                return result ? entryToGraphQL(result) : null
+            },
+            getPageList: async function (_, { group } = args = {}) {
+                Argument.require({ group })
 
                 let results = []
                 try {
@@ -130,7 +151,7 @@ class PageGQL extends GQL {
                     LEFT JOIN web_page_group ON web_page_group.id = web_page.page_group
                     WHERE web_page_group.name = $1
                     ORDER BY published_timestamp DESC;
-                `, type)
+                `, group)
                 } catch (e) {
                     console.log(e)
                 }

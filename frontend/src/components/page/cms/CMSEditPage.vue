@@ -1,10 +1,16 @@
 <template>
   <div class="page cms-page">
-    <section class="content-wrapper" v-if="!loading">
+    <section
+      class="content-wrapper"
+      v-if="!loading"
+    >
       <h2>
         <Locale :path="`cms.${this.group}`" />
       </h2>
-      <div class="info grid col-3" v-if="showTime">
+      <div
+        class="info grid col-3"
+        v-if="showTime"
+      >
         <div class="cell">
           <label for="">Erstellt am</label>
           {{ timeMixinFormatDate(page.createdTimestamp) }}
@@ -18,50 +24,109 @@
           {{ timeMixinFormatDate(page.publishedTimestamp) }}
         </div>
       </div>
-      <h1 :contenteditable="editmode" @input="($event) => update($event, 'title')" data-property="title"
-        v-if="isPresent('title')" v-once>
+      <h1
+        :contenteditable="editmode"
+        @input="($event) => update($event, 'title')"
+        data-property="title"
+        v-if="isPresent('title')"
+        ref="title"
+        v-once
+      >
         {{ page.title }}
       </h1>
 
-      <h2 class="subtitle" v-if="hasSubtitle" :contenteditable="editmode" @input="update" data-property="subtitle" v-once>
+      <h2
+        class="subtitle"
+        v-if="hasSubtitle"
+        :contenteditable="editmode"
+        @input="update"
+        data-property="subtitle"
+        ref="subtitle"
+        v-once
+      >
         {{ page.subtitle }}
       </h2>
 
-      <p v-if="!editmode" name="" id="" cols="30" rows="10"></p>
-      <SimpleFormattedField ref="body" @hook:mounted="() => selfInitialize('body')"
-        @input="(value) => this.updateFormattedField('body', value)" v-else />
+      <p
+        v-if="!editmode"
+        name=""
+        id=""
+        cols="30"
+        rows="10"
+      ></p>
+      <SimpleFormattedField
+        ref="body"
+        :allowLinks="allowLinks"
+        @hook:mounted="() => selfInitialize('body')"
+        @input="(value) => this.updateFormattedField('body', value)"
+        v-else
+      />
 
-      <section v-if="hasBlocks">
+      <!-- <section v-if="hasBlocks">
         <h2>Blocks</h2>
 
-        <textarea v-for="block of   page.blocks" class="page-block" :contenteditable="editmode"
-          @keydown="($event) => handleSpecialKeys($event, block)" @input="($event) => updateBlockText($event, block)"
-          :key="`page-block-${block.id}`" :ref="`page-block-${block.id}`" v-model="block.text" />
+        <textarea
+          v-for="block of   page.blocks"
+          class="page-block"
+          :contenteditable="editmode"
+          @keydown="($event) => handleSpecialKeys($event, block)"
+          @input="($event) => updateBlockText($event, block)"
+          :key="`page-block-${block.id}`"
+          :ref="`page-block-${block.id}`"
+          v-model="block.text"
+        />
         <div class="content-wrapper">
           <async-button @click="addEmptyBlock()">Add</async-button>
         </div>
-      </section>
+      </section> -->
+      <div class="toolbar">
+        <div class="toolbar-inner content-wrapper">
+          <CMSStatusIndicator
+            :dirty="dirty"
+            :pending="saving"
+          />
+          <AsyncButton
+            v-if="editmode"
+            @click="save()"
+            :loading="saving"
+            :disabled="saving || !dirty"
+          >
+            Speichern
+          </AsyncButton>
+          <!-- <AsyncButton
+            v-else
+            @click="editmode = true"
+            :loading="loading"
+            :disabled="loading"
+          >
+            Bearbeiten
+          </AsyncButton> -->
+
+        </div>
+      </div>
+
     </section>
-    <CMSStatusIndicator :saving="saving" />
   </div>
 </template>
 
 <script>
 import Query from '../../../database/query';
 import CMSPage from '../../../models/CMSPage';
-import RequestBuffer from '../../../models/request-buffer';
 import AsyncButton from '../../layout/buttons/AsyncButton.vue';
 import CMSStatusIndicator from './CMSStatusIndicator.vue';
 import SimpleFormattedField from '../../forms/SimpleFormattedField.vue';
 
-import TimeMixin from '../../mixins/time';
-import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
 import CMSConfig from '../../../../cms.config';
 import Locale from '../../cms/Locale.vue';
 
+import TimeMixin from '../../mixins/time';
+import CopyAndPasteMixin from '../../mixins/copy-and-paste';
+import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
+
+
 export default {
   components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField, Locale },
-  mixins: [TimeMixin, MountedAndLoadedMixin],
+  mixins: [TimeMixin, MountedAndLoadedMixin, CopyAndPasteMixin],
   mounted() {
     CMSPage.get(this.id)
       .then((page) => {
@@ -71,10 +136,12 @@ export default {
         this.loading = false;
         this.isLoaded();
       });
-
-    this.updateBuffer = new RequestBuffer(3000, true);
+  },
+  beforeUnmount() {
+    this.cleanupPasteUnformattedFields(this.pasteUnformattedFields)
   },
   props: {
+    useBlocks: Boolean,
     group: String,
     include: {
       type: Array,
@@ -83,7 +150,9 @@ export default {
   },
   data() {
     return {
+      dirty: false,
       updateBuffer: null,
+      allowLinks: true,
       loading: true,
       saving: false,
       editmode: true,
@@ -101,6 +170,11 @@ export default {
     };
   },
   methods: {
+    mountedAndLoaded() {
+      this.$nextTick(() => {
+        this.initPasteUnformattedFields(this.pasteUnformattedFields);
+      });
+    },
     selfInitialize(name) {
       if (!this.$refs[name]) console.error(`There is no ref with name ${name}`);
       else {
@@ -112,9 +186,10 @@ export default {
       const componentInclude = this.include || [];
       let include = [...configsFileInclude, ...componentInclude];
 
-      if (include != []) {
+      if (include.length > 0) {
         return include.includes(name);
       }
+
       return true;
     },
     async handleSpecialKeys($event, block) {
@@ -167,15 +242,6 @@ export default {
       });
     },
     adjustHeight(target) {
-      const comptutedStyle = window.getComputedStyle(target);
-      const paddingTop = comptutedStyle.getPropertyValue('padding-top');
-      const paddingBottom = comptutedStyle.getPropertyValue('padding-bottom');
-
-      // const actualHeight =
-      //   target.scrollHeight - parseInt(paddingTop) - parseInt(paddingBottom);
-
-      // console.log(target.scrollHeight, target.offsetHeight);
-
       const targetHeight =
         target.scrollHeight >= target.clientHeight
           ? target.scrollHeight + 'px'
@@ -183,20 +249,9 @@ export default {
 
       target.style.height = targetHeight;
     },
-    // adjustHeightCss(ref) {
-    //   let target = this.$refs[ref];
-
-    //   if (target) {
-    //     target = target[0];
-    //     const height = this.adjustHeight(target);
-    //     console.log(height);
-    //     return { height };
-    //   }
-    //   return {};
-    // },
     updateFormattedField(property, value) {
       this.page[property] = this.$refs[property].getContent();
-      this.save();
+      this.dirty = true;
     },
     update($event) {
       const target = $event.currentTarget;
@@ -210,7 +265,7 @@ export default {
           this.page[property] = target.value;
         }
       }
-      this.save();
+      this.dirty = true;
     },
     async save() {
       const page = {
@@ -225,25 +280,27 @@ export default {
       };
 
       this.saving = true;
-      this.updateBuffer.update(page, () => {
-        CMSPage.update(this.id, page);
-        this.saving = false;
-      });
+      await CMSPage.update(this.id, page);
+      await (async function (ts) {
+        return new Promise(resolve => setTimeout(resolve, ts))
+      })(3000)
+      this.dirty = false;
+      this.saving = false;
     },
     async addEmptyBlock() {
       const position = 10;
-      const type = 'empty';
+      const group = 'empty';
       const result = await Query.raw(
         `
-mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
-  createBlock(parent: $id, block: {type: $type, position: $position})
+mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
+  createBlock(parent: $id, block: {group: $group, position: $position})
 }
 
       `,
         {
           id: this.id,
           position,
-          type,
+          group,
         },
         true
       );
@@ -251,7 +308,7 @@ mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
       const id = result.data.data.createBlock;
       const block = {
         id,
-        type,
+        group,
         position,
         image: null,
         text: '',
@@ -271,6 +328,9 @@ mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
     },
   },
   computed: {
+    pasteUnformattedFields() {
+      return [this.$refs.title, this.$refs.subtitle]
+    },
     id() {
       return this.$route.params.id;
     },
@@ -290,6 +350,7 @@ mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
     },
     hasBlocks() {
       return (
+        this.useBlocks &&
         this.isPresent('blocks') &&
         (this.editmode || (this.page.blocks && this.page.blocks.length > 0))
       );
@@ -299,6 +360,27 @@ mutation CreatePageBlock($id: ID!, $type:String!, $position: Int!) {
 </script>
 
 <style lang="scss" scoped>
+.toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: $light-gray;
+  padding: $padding;
+  box-shadow: 0 0 $shadow-spread $strong-shadow-color;
+
+  >* {
+
+    display: flex;
+    flex-direction: row-reverse;
+  }
+}
+
+.page {
+  margin-bottom: 20vh;
+}
+
 h1 {
   margin-top: 1rem;
 }

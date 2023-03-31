@@ -361,10 +361,6 @@ hr {
   margin: 0 20px;
 }
 
-button[disabled] {
-  background-color: gray;
-}
-
 select,
 input,
 button {
@@ -410,16 +406,17 @@ button {
   }
 
   &[disabled] {
-    color: $light-gray;
+    $disabled-color: $gray;
+    color: $disabled-color;
+    border: 1px solid $disabled-color;
 
-    background-color: $gray;
+    background-color: transparent;
     cursor: not-allowed;
 
-    &:hover,
-    &:active {
-      color: $light-gray;
-      background-color: $gray;
-    }
+    // &:hover,
+    // &:active {
+    //   background-color: $light-gray;
+    // }
   }
 }
 
@@ -514,6 +511,11 @@ label {
 
 a {
   @include linkStyle();
+}
+
+.disabled-link {
+  color: $light-gray;
+  pointer-events: none;
 }
 
 .icon-button {

@@ -1,5 +1,15 @@
 export default {
     methods: {
+        initPasteUnformattedFields(refs) {
+            refs.forEach(ref => {
+                ref.addEventListener('paste', this.pastePlainText);
+            });
+        },
+        cleanupPasteUnformattedFields(refs) {
+            refs.forEach(ref => {
+                ref.removeEventListener('paste', this.pastePlainText);
+            });
+        },
         pastePlainText: function (event) {
             event.preventDefault();
             let paste = (event.clipboardData || window.clipboardData).getData('text');

@@ -1,55 +1,59 @@
 <template>
-  <div class="cms-status-indicator" :class="{ saving: saving }">
+  <div class="cms-status-indicator">
     <loading-spinner
-      :size="LoadingSpinnerSize.Small"
+      v-if="pending"
+      :size="IconSize.Large"
       class="spinner"
-      :class="{ show: saving }"
     />
-    {{ savingText }}
-    <loading-spinner :size="LoadingSpinnerSize.Small" class="spinner" />
+    <ExclamationIcon
+      v-else-if="dirty"
+      class="dirty-icon"
+      :size="IconSize.Large"
+    />
+    <CheckIcon
+      v-else
+      class="check-icon"
+      :size="IconSize.Large"
+    />
   </div>
 </template>
 
 <script>
 import LoadingSpinner from '../../misc/LoadingSpinner.vue';
+import CheckIcon from 'vue-material-design-icons/CheckCircle.vue';
+import ExclamationIcon from 'vue-material-design-icons/AlertCircle.vue';
 export default {
-  components: { LoadingSpinner },
+  components: { CheckIcon, LoadingSpinner, ExclamationIcon },
   props: {
-    saving: Boolean,
-  },
-  computed: {
-    savingText() {
-      return this.saving ? 'Speichern' : 'Gespeichert';
-    },
+    pending: Boolean,
+    dirty: Boolean,
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.spinner {
-  opacity: 0;
 
-  &.show {
-    opacity: 1;
-  }
+.cms-status-indicator{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
 }
 
-.cms-status-indicator {
-  position: fixed;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
+.check-icon {
+  color: $green;
+  // filter: drop-shadow(0 0 3px rgba(125, 255, 125));
 
-  width: 150px;
-  gap: $padding;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: white;
-  padding: $padding;
+}
 
-  border-top-right-radius: $border-radius;
-  border-top-left-radius: $border-radius;
+.dirty-icon {
+  color: $orange;
+  // filter: drop-shadow(0 0 3px rgb(255, 125, 125));
+
+}
+
+.spinner {
+  color: $yellow;
+  padding: 0;
 }
 </style>

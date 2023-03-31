@@ -72,11 +72,10 @@
         <template #label>
           <locale path="property.mint" />
         </template>
-        <div style="display: flex">
+        <div style="display: flex" class="mint-property">
           {{ printMintProperty() }}
           <sikka-buya-button
             v-if="mintHasLocation"
-            style="margin-left: auto"
             :to="{
               name: 'Political Map',
               query: {
@@ -522,6 +521,10 @@ $columns: 4;
   display: grid;
   gap: $padding;
   grid-template-columns: repeat($columns, 1fr);
+}
+
+.mint-property .sikka-buya-button{
+  margin-left: 4 * $padding;
 }
 
 #not-reviewed-warning {

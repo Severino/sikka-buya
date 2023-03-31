@@ -5,29 +5,48 @@
         <locale :path="title" />
       </h1>
       <div class="nav-grid grid">
-        <card-link v-for="link of links" :key="`link-to-${link.title}`" :to="link.to" :identity="link.identity"
-        :disabled="link.disabled"
-          :contain="Boolean(link.contain)">
+        <card-link
+          v-for="link of links"
+          :key="`link-to-${link.title}`"
+          :to="link.to"
+          :identity="link.identity"
+          :disabled="link.disabled"
+          :contain="Boolean(link.contain)"
+        >
           <locale :path="link.title" />
         </card-link>
+
+        
+        <CMSView
+          v-for="link in links"
+          :key="`description-for-${link.title}`"
+          :group="`card-link-page-${sanitize(link.title)}`"
+        />
       </div>
     </header>
   </div>
 </template>
 
 <script>
+import CMSView from '../cms/CMSView.vue';
 import Locale from '../cms/Locale.vue';
 import CardLink from '../navigation/CardLink.vue';
 export default {
   components: {
     CardLink,
-    Locale
+    Locale,
+    CMSView
   },
   props: {
     title: String,
     links: Array,
   },
-};
+  methods: {
+    sanitize(str) {
+      return str.toLowerCase().replace(/[^a-z0-9]/g, '-')
+    }
+  }
+}
 </script>
 
 <style lang="scss">

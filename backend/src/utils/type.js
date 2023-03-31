@@ -439,11 +439,6 @@ class Type {
         }
     }
 
-    static buildWhereFilter(conditions) {
-        if (!conditions || conditions.length == 0) return ""
-        return `WHERE ${conditions.join(" AND ")} `
-    }
-
     static get aliasMap() {
         return {
             "material": "ma",
@@ -523,7 +518,7 @@ class Type {
 
         const SELECT = [this.rows, this.getAuthRows(context), ...additionalRows].join(",")
         const JOINS = [this.joins, this.getAuthJoins(context), ...queryBuilder._joins, additionalJoin].join("\n")
-        const WHERE = this.buildWhereFilter([...conditions, ...queryBuilder._wheres])
+        const WHERE = QueryBuilder.buildWhere([...conditions, ...queryBuilder._wheres])
 
         const totalQuery = `
         SELECT count(*)
@@ -1134,57 +1129,28 @@ class Type {
         if (Object.hasOwnProperty.bind(filter)(activeTitleFilter)) {
             if (filter?.[activeTitleFilter] && Array.isArray(filter[activeTitleFilter]) && filter[activeTitleFilter].length > 0) {
 
+                queryBuilder.addJoin(pgp.as.format(`LEFT JOIN (WITH RULERS AS
+                    (SELECT ID,
+                            TYPE,
+                            TITLE.TITLE_ID AS TITLE
+                        FROM OVERLORD
+                        LEFT JOIN OVERLORD_TITLES AS TITLE ON OVERLORD.ID = TITLE.OVERLORD_ID
+                        UNION SELECT ID,
+                            TYPE,
+                            TITLES.TITLE AS TITLE
+                        FROM ISSUER
+                        LEFT JOIN ISSUER_TITLES AS TITLES ON ISSUER.ID = TITLES.ISSUER),
+                    TYPETITLES AS
+                    (SELECT TYPE,
+                            COALESCE(ARRAY_AGG(TITLE) FILTER(WHERE TITLE IS NOT NULL),'{}') AS TITLES
+                        FROM RULERS
+                        GROUP BY TYPE)
+                SELECT *,
+                CASE WHEN TYPETITLES.TITLES ${activeTitleFilter === "title_and" ? '@>' : '&&'} $[titles]::int[] THEN 1 ELSE 0 END AS CONTAINS_TITLES
+                FROM TYPETITLES
+                ) TITLE_SELECT ON t.id = TITLE_SELECT.type`, { titles: filter[activeTitleFilter] }))
 
-                /*
-                // The following works more like expected.
-                WITH RULERS AS
-    (SELECT ID,
-            TYPE,
-            TITLE.TITLE_ID AS TITLE
-        FROM OVERLORD
-        LEFT JOIN OVERLORD_TITLES AS TITLE ON OVERLORD.ID = TITLE.OVERLORD_ID
-        UNION SELECT ID,
-            TYPE,
-            TITLES.TITLE AS TITLE
-        FROM ISSUER
-        LEFT JOIN ISSUER_TITLES AS TITLES ON ISSUER.ID = TITLES.ISSUER),
-    TYPETITLES AS
-    (SELECT TYPE,
-            COALESCE(ARRAY_AGG(TITLE) FILTER(
-                                                                                                                                                WHERE TITLE IS NOT NULL),
-
-            '{}') AS TITLES
-        FROM RULERS
-        GROUP BY TYPE)
-SELECT *
-FROM TYPETITLES
-WHERE TYPETITLES.TITLES @> '{6,5}' 
-;*/
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT o.type,
-                        COALESCE(ARRAY_AGG(title_id) FILTER (WHERE title_id IS NOT NULL ), '{}') as titles
-                 FROM overlord o
-                 LEFT JOIN overlord_titles ot ON o.id = ot.overlord_id
-                 GROUP BY o.type) type_overlord_titles ON type_overlord_titles.type = t.id`)
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT i.type,
-                        COALESCE(ARRAY_AGG(title) FILTER (WHERE title IS NOT NULL ), '{}') as titles
-                 FROM issuer i
-                 LEFT JOIN issuer_titles it ON i.id = it.issuer
-                 GROUP BY i.type) type_issuer_titles ON type_issuer_titles.type = t.id`)
-
-                queryBuilder.addSelect(`
-                 COALESCE(array_append(type_overlord_titles.titles, type_issuer_titles.titles), '{}') as titles
-                 `)
-
-                if (activeTitleFilter === "title")
-                    queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] && type_overlord_titles.titles OR $[titles]:: int[] && type_issuer_titles.titles)`, { titles: filter[activeTitleFilter] }))
-                else if (activeTitleFilter === "title_and") {
-                    queryBuilder.addWhere(pgp.as.format(`($[titles]:: int[] <@ type_overlord_titles.titles OR $[titles]:: int[] <@ type_issuer_titles.titles)`, { titles: filter[activeTitleFilter] }))
-                }
-
+                queryBuilder.addWhere(`TITLE_SELECT.CONTAINS_TITLES = 1`)
             }
 
 
@@ -1193,40 +1159,38 @@ WHERE TYPETITLES.TITLES @> '{6,5}'
     }
 
     static _processComplexHonorificsFilter(queryBuilder, filter) {
-        const activeTitleFilter = this._filterGate(filter, ["honorific", "honorific_and"], 'honorific')
+        const activeFilter = this._filterGate(filter, ["honorific", "honorific_and"], 'honorific')
 
-        if (Object.hasOwnProperty.bind(filter)(activeTitleFilter)) {
-            if (Array.isArray(filter.honorific) && filter.honorific.length > 0) {
+        if (Object.hasOwnProperty.bind(filter)(activeFilter)) {
+            if (filter?.[activeFilter] != null
+                && Array.isArray(filter[activeFilter])
+                && filter[activeFilter].length > 0) {
 
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT o.type,
-                        COALESCE(ARRAY_AGG(honorific_id) FILTER (WHERE honorific_id IS NOT NULL ), '{}') as honorifics
-                 FROM overlord o
-                 LEFT JOIN overlord_honorifics oh ON o.id = oh.overlord_id
-                 GROUP BY o.type) type_overlord_honorifics ON type_overlord_honorifics.type = t.id`)
+                queryBuilder.addJoin(pgp.as.format(`LEFT JOIN (WITH RULERS AS
+                    (SELECT ID,
+                            TYPE,
+                            HONORIFIC.HONORIFIC_ID AS HONORIFIC
+                        FROM OVERLORD
+                        LEFT JOIN OVERLORD_HONORIFICS AS HONORIFIC ON OVERLORD.ID = HONORIFIC.OVERLORD_ID
+                        UNION SELECT ID,
+                            TYPE,
+                            HONORIFICS.HONORIFIC AS HONORIFIC
+                        FROM ISSUER
+                        LEFT JOIN ISSUER_HONORIFICS AS HONORIFICS ON ISSUER.ID = HONORIFICS.ISSUER),
+                    TYPEHONORIFICS AS
+                    (SELECT TYPE,
+                            COALESCE(ARRAY_AGG(HONORIFIC) FILTER(WHERE HONORIFIC IS NOT NULL),'{}') AS HONORIFICS
+                        FROM RULERS
+                        GROUP BY TYPE)
+                SELECT *,
+                CASE WHEN TYPEHONORIFICS.HONORIFICS ${activeFilter === "honorific_and" ? '@>' : '&&'} $[honorifics]::int[] THEN 1 ELSE 0 END AS CONTAINS_HONORIFICS
+                FROM TYPEHONORIFICS
+                ) HONORIFIC_SELECT ON t.id = HONORIFIC_SELECT.type`, { honorifics: filter[activeFilter] }))
 
-
-                queryBuilder.addJoin(`LEFT JOIN
-                (SELECT i.type,
-                        COALESCE(ARRAY_AGG(honorific) FILTER (WHERE honorific IS NOT NULL ), '{}') as honorifics
-                 FROM issuer i
-                 LEFT JOIN issuer_honorifics ih ON i.id = ih.issuer
-                 GROUP BY i.type) type_issuer_honorifics ON type_issuer_honorifics.type = t.id`)
-
-                queryBuilder.addSelect(`
-                 COALESCE(type_overlord_honorifics.honorifics, type_issuer_honorifics.honorifics , '{}') as honorifics
-                 `)
-
-                if (activeTitleFilter === "honorific")
-                    queryBuilder.addWhere(pgp.as.format(`($[honorifics]:: int[] && type_overlord_honorifics.honorifics OR $[honorifics]:: int[] && type_issuer_honorifics.honorifics)`, { honorifics: filter[activeTitleFilter] }))
-                else if (activeTitleFilter === "honorific_and") {
-                    let honorificFilterGroups = filter[activeTitleFilter].filter(arr => arr?.length > 0)
-                    queryBuilder.addWhere(pgp.as.format(`($[honorifics]:: int[] <@ type_overlord_honorifics.honorifics OR $[honorifics]:: int[] <@ type_issuer_honorifics.honorifics)`, { honorifics: honorificFilterGroups }))
-                }
-
+                queryBuilder.addWhere(`HONORIFIC_SELECT.CONTAINS_HONORIFICS = 1`)
             }
 
-            delete filter.honorific
+            delete filter[activeFilter]
         }
     }
 

@@ -26,7 +26,7 @@ import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
  */
 
 
-import CMSPage from '@/components/page/cms/CMSPage'
+import CMSEditPage from '@/components/page/cms/CMSEditPage'
 import CMSListPage from '@/components/page/cms/CMSListPage'
 
 
@@ -57,7 +57,6 @@ import InitialSetup from "@/components/page/InitialSetup.vue"
 import UserManagementPage from "@/components/page/UserManagementPage.vue"
 import FixDiff from "@/components/page/FixDiff.vue"
 import PageNotFoundPage from "@/components/page/system/PageNotFoundPage"
-import NewsPage from "@/components/page/News.vue"
 
 import EditorPanel from "@/components/page/EditorPanel.vue"
 import ExpertSearch from "@/components/page/editor/ExpertSearch.vue"
@@ -146,10 +145,17 @@ const routes = [
     children: [
       {
         meta: { auth: true },
-        path: "cms/:group/:id",
-        name: "CMSPage",
+        path: "/cms/single/:group",
         props: true,
-        component: CMSPage,
+        name: "CMSSingle",
+        component: CMSEditPage
+      },
+      {
+        meta: { auth: true },
+        path: "cms/:group/:id",
+        name: "CMSEditPage",
+        props: true,
+        component: CMSEditPage,
       },
       {
         meta: { auth: true },
@@ -163,21 +169,6 @@ const routes = [
         path: "/landing",
         name: "Landing",
         component: PlaceholderLandingPage
-      },
-      {
-        meta: { auth: true },
-        path: "/news",
-        name: "NewsOverview",
-        component: NewsPage,
-      },
-      {
-        meta: { auth: true },
-        path: "/news/:id",
-        name: "NewsPage",
-        props: {
-          include: ["title", "body"]
-        },
-        component: CMSPage,
       },
       {
         path: '/catalog/',

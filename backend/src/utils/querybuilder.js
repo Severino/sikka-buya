@@ -6,6 +6,7 @@ class QueryBuilder {
         this._selects = []
         this._joins = []
         this._wheres = []
+        this._havings = []
     }
 
     /**
@@ -31,7 +32,7 @@ class QueryBuilder {
     }
 
     /**
-    * Add a conditional statement to the query.
+    * Add a WHERE statement to the query.
     * All statements will be concatenated by an AND statement
     * if you require an OR expression put it in one statement.
     * 
@@ -39,6 +40,18 @@ class QueryBuilder {
     */
     addWhere(...str) {
         this._wheres.push(...str.map(str => `(${str})`))
+    }
+
+
+    /**
+    * Add a HAVING statement to the query.
+    * All statements will be concatenated by an AND statement
+    * if you require an OR expression put it in one statement.
+    * 
+    * @param {*} str 
+    */
+    addHaving(...str) {
+        this._havings.push(...str.map(str => `(${str})`))
     }
 
 
@@ -59,6 +72,10 @@ class QueryBuilder {
         return (this._wheres.length > 0) ? `WHERE ${this._wheres.join(" AND ")}` : ""
     }
 
+    get having() {
+        return (this._havings.length > 0) ? `HAVING ${this._havings.join(" AND ")}` : ""
+    }
+
 
     buildSelect({
         orderBy = "",
@@ -70,8 +87,30 @@ class QueryBuilder {
         ${this.joins}
         ${this.where}
         ${groupBy == "" ? "" : "GROUP BY " + groupBy} 
+        ${this.having}
         ${orderBy == "" ? "" : "ORDER BY " + orderBy}
         `
+    }
+
+    buildWhere(operator = "AND") {
+        return this.buildWhere(this._wheres, operator)
+    }
+
+    buildHaving(operator = "AND") {
+        return this.buildHaving(this._havings, operator)
+    }
+
+    static buildWhere(conditions, operator = "AND") {
+        return this.buildConditional("WHERE", conditions, operator)
+    }
+
+    static buildHaving(conditions, operator = "AND") {
+        return this.buildConditional("HAVING", conditions, operator)
+    }
+
+    static buildConditional(command, conditions, operator = "AND") {
+        if (!conditions || conditions.length == 0) return ""
+        return `${command} ${conditions.join(` ${operator} `)} `
     }
 
 }

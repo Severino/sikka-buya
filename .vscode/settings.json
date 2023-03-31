@@ -1,5 +1,11 @@
 {
     "editor.renderWhitespace": "all",
     "volar.inlayHints.eventArgumentInInlineHandlers": false,
-    "html.format.wrapAttributes": "force-expand-multiline"
+    "html.format.wrapAttributes": "force-expand-multiline",
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/yarn*": true,
+    }
 }

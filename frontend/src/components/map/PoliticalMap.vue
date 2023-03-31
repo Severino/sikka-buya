@@ -51,8 +51,11 @@
             {{ obj.mint.name }}
           </h4>
           <div class="mint-grid grid col-3">
+            
+
             <router-link
               v-for="typ of obj.types"
+              :class="{['disabled-link']: typ.excludeFromTypeCatalogue}"
               target="_blank"
               :to="{ name: 'Catalog Entry', params: { id: typ.id } }"
               :key="`unlocated-mint-${typ.projectId}`"

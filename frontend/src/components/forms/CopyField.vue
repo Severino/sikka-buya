@@ -1,5 +1,9 @@
 <template>
-  <div @click="interact" @hover.stop.prevent class="copy-field">
+  <div
+    @click="interact"
+    @hover.stop.prevent
+    class="copy-field"
+  >
     <div
       class="overlay"
       :class="{
@@ -8,8 +12,12 @@
     >
       <span class="text">Copied!</span>
     </div>
-    <input ref="input" :value="value" readonly />
-    <CopyIcon :size="IconSize.Normal" />
+    <input
+      ref="input"
+      :value="value"
+      readonly
+    />
+    <CopyIcon :size="IconSize.Tiny" />
   </div>
 </template>
 
@@ -78,7 +86,7 @@ export default {
   cursor: pointer;
   transition: all 0.3s;
 
-  > * {
+  >* {
     pointer-events: none;
     user-select: none;
   }
@@ -136,8 +144,8 @@ input {
 .overlay.show {
   opacity: 1;
   transform: translateY(-20px);
+
   .text {
     box-shadow: 0 20px 20px rgba($color: #000, $alpha: 0.5);
   }
-}
-</style>
+}</style>

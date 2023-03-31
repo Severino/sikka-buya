@@ -8,7 +8,15 @@
       class="toolbar"
       style="margin-bottom: 10px"
       v-if="this.active"
-    >
+    ><template v-if="allowLinks">
+        <button
+          type="button"
+          @click.prevent="link"
+        >
+          <LinkIcon :size="iconSize" />
+        </button>
+        <div class="spacer"></div>
+      </template>
       <button
         type="button"
         @click.prevent="align('left')"
@@ -75,6 +83,8 @@
 <script>
 import Row from '../layout/Row.vue';
 
+import LinkIcon from 'vue-material-design-icons/Link';
+
 import FormatAlignLeft from 'vue-material-design-icons/FormatAlignLeft';
 import FormatAlignCenter from 'vue-material-design-icons/FormatAlignCenter';
 import FormatAlignRight from 'vue-material-design-icons/FormatAlignRight';
@@ -91,19 +101,23 @@ import CopyAndPasteMixin from '../mixins/copy-and-paste';
 
 export default {
   components: {
-    Row,
-    FormatAlignLeft,
+    DynamicDeleteButton,
     FormatAlignCenter,
+    FormatAlignLeft,
     FormatAlignRight,
     FormatBold,
     FormatItalic,
+    LinkIcon,
+    Row,
+    TextFormatClear,
     TextLeftToRight,
     TextRightToLeft,
-    TextFormatClear,
-    DynamicDeleteButton,
   },
   name: 'SimpleFormattedField',
   mixins: [CopyAndPasteMixin],
+  props: {
+    allowLinks: Boolean
+  },
   data: function () {
     return {
       active: false,
@@ -209,32 +223,37 @@ export default {
       const target = event.target;
       this.$emit('input', target.innerHTML);
     },
+    link(event) {
+      const selection = window.getSelection();
 
-    /**
-     * Thankfully taken from: https://gist.github.com/dantaex/543e721be845c18d2f92652c0ebe06aa
-     */
-    saveSelection: function () {
-      if (window.getSelection) {
-        var sel = window.getSelection();
-        if (sel.getRangeAt && sel.rangeCount) {
-          return sel.getRangeAt(0);
+      if (selection) {
+        const range = window.getSelection().getRangeAt(0);
+        const node = range.commonAncestorContainer;
+        const parent = node.parentNode;
+        if (parent.tagName.toLowerCase() == 'a') {
+          const link = parent
+          const href = window.prompt('Enter link', link.href);
+          if (href === "") {
+            //remove surrounding link tags
+            const textNode = document.createTextNode(parent.innerHTML)
+            link.parentNode.insertBefore(textNode, link)
+            link.remove();
+          } else {
+            link.href = href
+          }
+        } else {
+          const href = window.prompt('Enter link', "https://");
+
+          const link = document.createElement('a');
+          link.setAttribute('target', '_blank')
+          link.href = href;
+          link.appendChild(range.extractContents());
+          range.insertNode(link);
         }
-      } else if (document.selection && document.selection.createRange) {
-        return document.selection.createRange();
+        this.$emit('input', this.$refs.field.innerHTML);
+
       }
-      return null;
-    },
-    restoreSelection: function (range) {
-      if (range) {
-        if (window.getSelection) {
-          var sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-        } else if (document.selection && range.select) {
-          range.select();
-        }
-      }
-    },
+    }
   },
 };
 </script>

@@ -248,7 +248,7 @@ let unfilteredMultiSelectFilters = [
     label: 'property.other_person',
     name: 'otherPerson',
     queryCommand: 'searchPersonsWithRole',
-
+    mode: Mode.Or,
     queryBody: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
     additionalParameters: {
       exclude: ['caliph', 'heir'],
@@ -260,7 +260,6 @@ let unfilteredMultiSelectFilters = [
     },
     order: 6,
     allowModeChange: true,
-    mode: Mode.And,
   },
   {
     label: 'property.title',
@@ -516,34 +515,40 @@ export default {
       let types = [],
         pageInfo = this.pageInfo;
 
-      if (this.forceAll) {
-        while (
-          pageInfo.total === undefined ||
-          pageInfo.page * (pageInfo.count + 1) < pageInfo.total
-        ) {
-          let { types: nextTypes, pageInfo: nextPageInfo } =
-            await Type.filteredQuery(
-              {
-                pagination: Pagination.fromPageInfo(pageInfo),
-                filters,
-                typeBody: this.typeBody,
-              },
-              true
-            );
+      try {
+        if (this.forceAll) {
+          while (
+            pageInfo.total === undefined ||
+            pageInfo.page * (pageInfo.count + 1) < pageInfo.total
+          ) {
+            let { types: nextTypes, pageInfo: nextPageInfo } =
+              await Type.filteredQuery(
+                {
+                  pagination: Pagination.fromPageInfo(pageInfo),
+                  filters,
+                  typeBody: this.typeBody,
+                },
+                true
+              );
 
-          pageInfo = nextPageInfo;
-          pageInfo.page++;
-          types.push(...nextTypes);
+            pageInfo = nextPageInfo;
+            pageInfo.page++;
+            types.push(...nextTypes);
+          }
+        } else {
+          ({ types, pageInfo } = await Type.filteredQuery(
+            {
+              pagination: Pagination.fromPageInfo(this.pageInfo),
+              filters,
+              typeBody: this.typeBody,
+            },
+            true
+          ));
         }
-      } else {
-        ({ types, pageInfo } = await Type.filteredQuery(
-          {
-            pagination: Pagination.fromPageInfo(this.pageInfo),
-            filters,
-            typeBody: this.typeBody,
-          },
-          true
-        ));
+      } catch (e) {
+        this.$emit("update", { types: [], pageInfo });
+        this.$emit("error", e)
+        this.$emit('loading', false);
       }
 
       this.$emit('update', { types, pageInfo });
@@ -580,7 +585,8 @@ export default {
         const emptyObj = Filter.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
-          this.$set(this.filterMode, key, val?.mode || Mode.And);
+          const mode = filter?.mode || Mode.And
+          this.$set(this.filterMode, key, mode);
         }
       });
 
@@ -588,7 +594,7 @@ export default {
         const emptyObj = FilterList.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
-          this.$set(this.filterMode, key, val?.mode || Mode.And);
+          this.$set(this.filterMode, key, filter?.mode || Mode.And);
         }
       });
 

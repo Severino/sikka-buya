@@ -55,7 +55,7 @@ $long-transition-time: 0.6s;
 $shadow-spread: 5px;
 $shadow-offset: 1px 2px;
 $shadow-color: rgba(0, 0, 0, 0.03);
-$strong-shadow-color: rgba(0, 0, 0, 0.03);
+$strong-shadow-color: rgba(0, 0, 0, 0.1);
 $shadow: $shadow-offset $shadow-spread $shadow-color;
 $strong-shadow: $shadow-offset $shadow-spread $strong-shadow-color;
 
