@@ -513,6 +513,11 @@ a {
   @include linkStyle();
 }
 
+.disabled-link {
+  color: $light-gray;
+  pointer-events: none;
+}
+
 .icon-button {
   text-transform: capitalize;
   display: flex;
