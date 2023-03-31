@@ -8,7 +8,7 @@
             @click="() => cms_createAndVisit(this.group, { include: this.include })"
         >Neuer Eintrag</Button>
         <div class="list">
-            <CMSListElement
+            <CMSListItem
                 v-for="page of pages"
                 :key="page.id"
                 :value="page"
@@ -23,14 +23,14 @@
 
 <script>
 import Button from '../../layout/buttons/Button.vue';
-import CMSListElement from './CMSListElement.vue';
+import CMSListItem from '../../cms/CMSListItem.vue';
 import CMSMixin from "../../mixins/cms"
 import Locale from '../../cms/Locale.vue';
 import TimeMixin from '../../mixins/time';
 
 
 export default {
-    components: { Button, CMSListElement, Locale },
+    components: { Button, CMSListItem, Locale },
     mixins: [CMSMixin, TimeMixin],
     props: {
         showTime: { type: Boolean, default: true },

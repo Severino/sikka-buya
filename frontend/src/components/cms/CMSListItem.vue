@@ -1,45 +1,44 @@
 <template>
     <div
-        class="cms-list-element"
+        class="cms-list-item"
         :class="{ editable: $store.getters.canEdit }"
     >
-        <div class="toolbox">
-            <Button
-                v-if="$store.getters.canEdit"
-                @click="() => cms_edit({ id: value.id, group, props: { include } })"
-            >
+        <div
+            class="toolbox"
+            v-if="$store.getters.canEdit"
+        >
+            <Button @click="() => cms_edit({ id: value.id, group, props: { include } })">
                 <Locale path="general.edit" />
             </Button>
-            <Button
-                v-if="$store.getters.canEdit"
-                @click="() => remove(value.id)"
-            >
+            <Button @click="() => remove(value.id)">
                 <Locale path="general.delete" />
             </Button>
         </div>
         <header v-if="showTime">
-            <span v-if="$store.getters.canEdit"><Locale path="time.created_date" /> {{ timeMixinFormatDate(value.createdTimestamp) }}</span>
-            <span><Locale path="time.published_date" /> {{ timeMixinFormatDate(value.publishedTimestamp) || "-" }}</span>
+            <span v-if="$store.getters.canEdit">
+                <Locale path="time.created_date" /> {{ timeMixinFormatDate(value.createdTimestamp) }}
+            </span>
+            <span>
+                <Locale path="time.published_date" /> {{ timeMixinFormatDate(value.publishedTimestamp) || "-" }}
+            </span>
         </header>
-        <div class="flex space-between row">
-            <div class="body">
-                <h3 v-if="isPresent('title')">{{ value.title }}</h3>
-                <h4 v-if="isPresent('subtitle')">{{ value.subtitle }}</h4>
-                <div
-                    v-if="isPresent('body')"
-                    v-html="value.body"
-                ></div>
-            </div>
+        <div class="body">
+            <h3 v-if="isPresent('title')">{{ value.title }}</h3>
+            <h4 v-if="isPresent('subtitle')">{{ value.subtitle }}</h4>
+            <div
+                v-if="isPresent('body')"
+                v-html="value.body"
+            ></div>
         </div>
     </div>
 </template>
 
 <script>
-import CMSMixin from "../../mixins/cms"
-import TimeMixin from '../../mixins/time';
-import Button from '../../layout/buttons/Button.vue';
-import CMSConfig from "../../../../cms.config";
-import Locale from "../../cms/Locale.vue";
+import CMSMixin from "../mixins/cms"
+import TimeMixin from '../mixins/time';
+import Button from '../layout/buttons/Button.vue';
+import CMSConfig from "../../../cms.config";
+import Locale from "./Locale.vue";
 export default {
     mixins: [TimeMixin, CMSMixin],
     components: {
@@ -61,7 +60,7 @@ export default {
             if (include.length > 0) {
                 return include.includes(name)
             } else {
-                return true
+                return this.value[name] && this.value[name] !== ""
             }
         },
         remove: async function (id) {
@@ -73,11 +72,11 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.cms-list-element.editable {
-//     background-color: white;
-//     border: 1px solid $light-gray;
-//     border-radius: $border-radius;
-//     padding: $padding math.div($padding, 2);
+.cms-list-item.editable {
+    //     background-color: white;
+    //     border: 1px solid $light-gray;
+    //     border-radius: $border-radius;
+    //     padding: $padding math.div($padding, 2);
 }
 
 header {
@@ -97,6 +96,6 @@ header {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 1em;
-    
+
 }
 </style>

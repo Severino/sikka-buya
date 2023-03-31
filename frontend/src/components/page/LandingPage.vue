@@ -38,9 +38,13 @@
     <div class="columns content-wrapper">
       <div class="main-column">
         <section>
-         <CMSView group="landing_page_main_article" />
+          <CMSView group="landing_page_main_article" />
         </section>
-        <CMSListView group="news" :showTime="false" />
+        <CMSListView
+          class="news"
+          group="news"
+          :showTime="false"
+        />
       </div>
       <aside>
         <card-link
@@ -97,7 +101,7 @@ export default {
     Navigation,
     PageFooter,
     Row,
-},
+  },
 };
 </script>
 
@@ -161,6 +165,21 @@ export default {
             }
           }
         }
+      }
+    }
+  }
+
+
+  .news {
+    .cms-list-item {
+      background-color: white;
+      border-radius: $border-radius;
+      padding: 1em;
+
+      box-shadow: $shadow;
+
+      :first-child {
+        margin-top: 0;
       }
     }
   }
@@ -324,7 +343,7 @@ section:first-of-type {
 }
 
 aside {
-  padding-left :50px;
+  padding-left: 50px;
 
   display: flex;
   flex-direction: column;
