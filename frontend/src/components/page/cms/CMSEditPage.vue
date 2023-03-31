@@ -56,12 +56,13 @@
       ></p>
       <SimpleFormattedField
         ref="body"
+        :allowLinks="allowLinks"
         @hook:mounted="() => selfInitialize('body')"
         @input="(value) => this.updateFormattedField('body', value)"
         v-else
       />
 
-      <section v-if="hasBlocks">
+      <!-- <section v-if="hasBlocks">
         <h2>Blocks</h2>
 
         <textarea
@@ -77,16 +78,40 @@
         <div class="content-wrapper">
           <async-button @click="addEmptyBlock()">Add</async-button>
         </div>
-      </section>
+      </section> -->
+      <div class="toolbar">
+        <div class="toolbar-inner content-wrapper">
+          <CMSStatusIndicator
+            :dirty="dirty"
+            :pending="saving"
+          />
+          <AsyncButton
+            v-if="editmode"
+            @click="save()"
+            :loading="saving"
+            :disabled="saving || !dirty"
+          >
+            Speichern
+          </AsyncButton>
+          <!-- <AsyncButton
+            v-else
+            @click="editmode = true"
+            :loading="loading"
+            :disabled="loading"
+          >
+            Bearbeiten
+          </AsyncButton> -->
+
+        </div>
+      </div>
+
     </section>
-    <CMSStatusIndicator :saving="saving" />
   </div>
 </template>
 
 <script>
 import Query from '../../../database/query';
 import CMSPage from '../../../models/CMSPage';
-import RequestBuffer from '../../../models/request-buffer';
 import AsyncButton from '../../layout/buttons/AsyncButton.vue';
 import CMSStatusIndicator from './CMSStatusIndicator.vue';
 import SimpleFormattedField from '../../forms/SimpleFormattedField.vue';
@@ -103,23 +128,20 @@ export default {
   components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField, Locale },
   mixins: [TimeMixin, MountedAndLoadedMixin, CopyAndPasteMixin],
   mounted() {
-
     CMSPage.get(this.id)
       .then((page) => {
         this.page = Object.assign({}, this.page, page);
       })
       .finally(() => {
         this.loading = false;
-        console.log("FINALLY")
         this.isLoaded();
       });
-
-    this.updateBuffer = new RequestBuffer(3000, true);
   },
   beforeUnmount() {
     this.cleanupPasteUnformattedFields(this.pasteUnformattedFields)
   },
   props: {
+    useBlocks: Boolean,
     group: String,
     include: {
       type: Array,
@@ -128,7 +150,9 @@ export default {
   },
   data() {
     return {
+      dirty: false,
       updateBuffer: null,
+      allowLinks: true,
       loading: true,
       saving: false,
       editmode: true,
@@ -218,15 +242,6 @@ export default {
       });
     },
     adjustHeight(target) {
-      const comptutedStyle = window.getComputedStyle(target);
-      const paddingTop = comptutedStyle.getPropertyValue('padding-top');
-      const paddingBottom = comptutedStyle.getPropertyValue('padding-bottom');
-
-      // const actualHeight =
-      //   target.scrollHeight - parseInt(paddingTop) - parseInt(paddingBottom);
-
-      // console.log(target.scrollHeight, target.offsetHeight);
-
       const targetHeight =
         target.scrollHeight >= target.clientHeight
           ? target.scrollHeight + 'px'
@@ -234,20 +249,9 @@ export default {
 
       target.style.height = targetHeight;
     },
-    // adjustHeightCss(ref) {
-    //   let target = this.$refs[ref];
-
-    //   if (target) {
-    //     target = target[0];
-    //     const height = this.adjustHeight(target);
-    //     console.log(height);
-    //     return { height };
-    //   }
-    //   return {};
-    // },
     updateFormattedField(property, value) {
       this.page[property] = this.$refs[property].getContent();
-      this.save();
+      this.dirty = true;
     },
     update($event) {
       const target = $event.currentTarget;
@@ -261,7 +265,7 @@ export default {
           this.page[property] = target.value;
         }
       }
-      this.save();
+      this.dirty = true;
     },
     async save() {
       const page = {
@@ -276,10 +280,12 @@ export default {
       };
 
       this.saving = true;
-      this.updateBuffer.update(page, () => {
-        CMSPage.update(this.id, page);
-        this.saving = false;
-      });
+      await CMSPage.update(this.id, page);
+      await (async function (ts) {
+        return new Promise(resolve => setTimeout(resolve, ts))
+      })(3000)
+      this.dirty = false;
+      this.saving = false;
     },
     async addEmptyBlock() {
       const position = 10;
@@ -344,6 +350,7 @@ mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
     },
     hasBlocks() {
       return (
+        this.useBlocks &&
         this.isPresent('blocks') &&
         (this.editmode || (this.page.blocks && this.page.blocks.length > 0))
       );
@@ -353,6 +360,27 @@ mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
 </script>
 
 <style lang="scss" scoped>
+.toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: $light-gray;
+  padding: $padding;
+  box-shadow: 0 0 $shadow-spread $strong-shadow-color;
+
+  >* {
+
+    display: flex;
+    flex-direction: row-reverse;
+  }
+}
+
+.page {
+  margin-bottom: 20vh;
+}
+
 h1 {
   margin-top: 1rem;
 }

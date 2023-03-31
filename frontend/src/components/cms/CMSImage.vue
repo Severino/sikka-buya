@@ -1,20 +1,43 @@
 <template>
-  <div class="cms-image" :class="mode">
-    <div v-if="$store.getters.canEdit" class="cms-image-container">
-      <loading-spinner v-if="loading" :size="LoadingSpinnerSize.Big" />
-      <img v-if="imageURI" :src="imageURI" alt="" />
-      <image-icon v-else :size="IconSize.Big" />
-      <label class="button" @click.stop>
+  <div
+    class="cms-image"
+    :class="mode"
+  >
+    <div
+      v-if="$store.getters.canEdit"
+      class="cms-image-container"
+    >
+      <loading-spinner
+        v-if="loading"
+        :size="LoadingSpinnerSize.Big"
+      />
+      <img
+        v-if="imageURI"
+        :src="imageURI"
+        alt=""
+      />
+      <image-icon
+        v-else
+        :size="IconSize.Big"
+      />
+      <label
+        class="button"
+        @click.stop
+      >
         <input
           id="file-upload-field"
           type="file"
           accept=".png,.jpg,.jpeg,image/*"
           @input="uploadFile"
         />
-        <upload-icon :size="IconSize.Large" />
+        <upload-icon :size="IconSize.Normal" />
       </label>
     </div>
-    <img v-else-if="imageURI" :src="imageURI" :draggable="false" />
+    <img
+      v-else-if="imageURI"
+      :src="imageURI"
+      :draggable="false"
+    />
   </div>
 </template>
 
@@ -165,5 +188,4 @@ label {
     max-width: 100%;
     object-fit: contain;
   }
-}
-</style>
+}</style>

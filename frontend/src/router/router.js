@@ -26,7 +26,7 @@ import AcceptInvitePage from "@/components/page/auth/AcceptInvitePage"
  */
 
 
-import CMSPage from '@/components/page/cms/CMSPage'
+import CMSEditPage from '@/components/page/cms/CMSEditPage'
 import CMSListPage from '@/components/page/cms/CMSListPage'
 
 
@@ -148,14 +148,14 @@ const routes = [
         path: "/cms/single/:group",
         props: true,
         name: "CMSSingle",
-        component: CMSPage
+        component: CMSEditPage
       },
       {
         meta: { auth: true },
         path: "cms/:group/:id",
-        name: "CMSPage",
+        name: "CMSEditPage",
         props: true,
-        component: CMSPage,
+        component: CMSEditPage,
       },
       {
         meta: { auth: true },

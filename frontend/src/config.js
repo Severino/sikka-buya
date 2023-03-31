@@ -1,6 +1,7 @@
 export const IconSize = {
-    Normal: 14,
-    Large: 18,
+    Tiny: 14,
+    Normal: 18,
+    Large: 24,
     Big: 30,
     Huge: 50,
     Gigantic: 100

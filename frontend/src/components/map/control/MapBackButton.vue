@@ -6,7 +6,7 @@
       :to="{ name: 'Home' }"
     >
       <ExitToApp
-        :size="IconSize.Large"
+        :size="IconSize.Normal"
         class="flip"
       />
       <Locale path="routes.home" />

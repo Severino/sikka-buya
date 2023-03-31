@@ -116,7 +116,8 @@
     "cms": {
         "bibliography": "Literaturverzeichnis | Literaturverzeichnisse",
         "news": "News",
-        "create_page": "neue Seite erstellen"
+        "create_page": "neue Seite erstellen",
+        "landing_page_main_article": "Startseitentext"
     },
     "message": {
         "input_to_filter": "Hier Suchtext eingeben ...",

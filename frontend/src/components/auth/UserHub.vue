@@ -1,6 +1,9 @@
 <template>
   <div class="user-hub">
-    <toggle :value="$store.state.editmode" @input="() => $store.commit('toggleEditMode')">
+    <toggle
+      :value="$store.state.editmode"
+      @input="() => $store.commit('toggleEditMode')"
+    >
       {{ $t("users.gui.editmode") }}
       <template v-slot:active>
         ON
@@ -11,12 +14,22 @@
     </toggle>
 
     <span>
-      <locale v-for="permission of $store.getters.permissions" :path="'user.permission.' + permission" :key="'permission-' + permission" />
+      <locale
+        v-for="permission of $store.getters.permissions"
+        :path="'user.permission.' + permission"
+        :key="'permission-' + permission"
+      />
     </span>
 
     <div class="toolbox">
-      <Button :to="{ name: 'Editor' }" class="editor-button borderless"><account-icon :size="IconSize.Large" /></Button>
-      <Button class="logout-button borderless" @click="logout"><logout-variant-icon :size="IconSize.Large" /></Button>
+      <Button
+        :to="{ name: 'Editor' }"
+        class="editor-button borderless"
+      ><account-icon :size="IconSize.Normal" /></Button>
+      <Button
+        class="logout-button borderless"
+        @click="logout"
+      ><logout-variant-icon :size="IconSize.Normal" /></Button>
     </div>
   </div>
 </template>
@@ -96,5 +109,4 @@ export default {
 
   cursor: default;
   user-select: none;
-}
-</style>
+}</style>

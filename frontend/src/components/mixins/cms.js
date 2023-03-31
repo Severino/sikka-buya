@@ -11,7 +11,7 @@ export default {
         },
         cms_edit: function ({ id, group = "Unknown Group", props = {} } = {}) {
             if (id)
-                this.$router.push({ name: 'CMSPage', params: { group, id }, props })
+                this.$router.push({ name: 'CMSEditPage', params: { group, id }, props })
         },
         cms_createPage: async function (pageGroupName) {
             return CMSPage.create(pageGroupName)
@@ -19,7 +19,7 @@ export default {
         cms_createAndVisit: async function (pageGroupName, props) {
             const id = await CMSPage.create(pageGroupName)
             if (id)
-                this.$router.push({ name: "CMSPage", props, params: { id, group: pageGroupName } })
+                this.$router.push({ name: "CMSEditPage", props, params: { id, group: pageGroupName } })
         },
         cms_list: async function (group) {
             return CMSPage.list(group)
