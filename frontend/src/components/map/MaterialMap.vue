@@ -82,6 +82,7 @@
             'caliph',
             'treadwellId',
             'projectId',
+            'heir'
           ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
