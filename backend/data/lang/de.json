@@ -177,6 +177,9 @@
             "pagination": {
                 "elements_per_page": "Elemente pro Seite"
             }
+        },
+        "multidataselect2d": {
+            "add_group": "Gruppe hinzufügen"
         }
     },
     "typeview": {

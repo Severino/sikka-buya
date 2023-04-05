@@ -12,9 +12,15 @@
             v-text="mode"
           ></span> -->
 
-          <button :key="`active-${el.id}`" @click="() => $emit('remove', el)">
+          <button
+            :key="`active-${el.id}`"
+            @click="() => $emit('remove', el)"
+          >
             {{ el[attribute] }}
-            <CloseThickIcon class="closeButton" :size="10" />
+            <CloseThickIcon
+              class="closeButton"
+              :size="10"
+            />
           </button>
         </template>
         <!-- <multi-data-select-add-button
@@ -30,7 +36,7 @@
       v-if="mode"
       @click="changeMode"
     >
-      {{ $t(`general.${mode.toLowerCase()}`) }}
+      <Locale :path="`general.${mode.toLowerCase()}`" />
     </div>
 
     <div
@@ -38,7 +44,9 @@
       @click="showDataSelect"
       ref="dataSelectWrapper"
     >
-      <div class="icon"><PlusIcon :size="18" /></div>
+      <div class="icon">
+        <PlusIcon :size="18" />
+      </div>
 
       <data-select-field
         :value="value"
@@ -73,6 +81,7 @@ import DataSelectField from './DataSelectField.vue';
 import CloseThickIcon from 'vue-material-design-icons/CloseThick.vue';
 import PlusIcon from 'vue-material-design-icons/Plus.vue';
 import MultiDataSelectAddButton from './MultiDataSelectAddButton.vue';
+import Locale from '../cms/Locale.vue';
 
 export default {
   components: {
@@ -80,6 +89,7 @@ export default {
     PlusIcon,
     DataSelectField,
     MultiDataSelectAddButton,
+    Locale
   },
   props: {
     active: {
@@ -173,6 +183,7 @@ export default {
 
 <style lang="scss">
 $min-height: 24px;
+
 .multi-data-select {
   display: flex;
   position: relative;
@@ -206,6 +217,7 @@ $min-height: 24px;
 
   .active-list {
     align-items: center;
+
     .closeButton {
       margin-left: $padding;
     }
@@ -321,9 +333,9 @@ $min-height: 24px;
     transform: translate(-2px, -2px);
 
     z-index: 1;
+
     .icon {
       opacity: 0.5;
     }
   }
-}
-</style>
+}</style>

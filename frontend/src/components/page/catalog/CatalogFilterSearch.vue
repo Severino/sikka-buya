@@ -118,6 +118,9 @@ export default {
 
 <style lang="scss">
 .catalog-filter-search {
+
+  margin-bottom: $page-bottom-spacing;
+
   .pagination {
     align-self: flex-start;
   }

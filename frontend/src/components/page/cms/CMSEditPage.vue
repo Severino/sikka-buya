@@ -378,7 +378,7 @@ mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
 }
 
 .page {
-  margin-bottom: 20vh;
+  margin-bottom: $page-bottom-spacing;
 }
 
 h1 {
