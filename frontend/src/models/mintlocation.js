@@ -90,7 +90,7 @@ export class MintLocationMarker {
         const isSpecial = (added || removed)
 
         if (isSpecial) {
-            if (added) classList.push("added")
+            if (added && active) classList.push("added")
             else if (removed) classList.push("removed")
         }
 

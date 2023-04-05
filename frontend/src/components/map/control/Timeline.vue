@@ -411,6 +411,7 @@ export default {
 
     >* {
       display: flex;
+      align-items: flex-end;
     }
 
     &:last-child {

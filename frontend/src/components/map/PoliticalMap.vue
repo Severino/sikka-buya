@@ -51,11 +51,11 @@
             {{ obj.mint.name }}
           </h4>
           <div class="mint-grid grid col-3">
-            
+
 
             <router-link
               v-for="typ of obj.types"
-              :class="{['disabled-link']: typ.excludeFromTypeCatalogue}"
+              :class="{ ['disabled-link']: typ.excludeFromTypeCatalogue }"
               target="_blank"
               :to="{ name: 'Catalog Entry', params: { id: typ.id } }"
               :key="`unlocated-mint-${typ.projectId}`"
@@ -252,8 +252,6 @@ export default {
     mintLocationsMixin({
       onMintSelectionChanged: async function () {
         await this.drawTimeline();
-        this.addedMints = [];
-        this.removedMints = [];
       },
     }),
   ],
@@ -385,13 +383,14 @@ export default {
       });
 
     let selectedMints = URLParams.getArray('selectedMints');
-    if (selectedMints)
+    if (selectedMints) {
       this.mintSelectionChanged(
         { active: selectedMints, added: selectedMints },
         {
           preventUpdate: true,
         }
       );
+    }
   },
 
   mounted: async function () {
@@ -567,6 +566,7 @@ export default {
     },
     async update() {
       this.setLoading(true);
+      console.log(JSON.stringify(this.selections))
       await this.overlay.update({
         filters: this.filters,
         selections: this.selections,
@@ -601,6 +601,7 @@ export default {
             added.push(mintId);
           }
         });
+
         this.mintSelectionChanged({ active, added, removed });
       }
 
