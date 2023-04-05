@@ -48,6 +48,7 @@
       </div>
       <aside>
         <card-link
+          class="alternative-card-link"
           :to="{ name: 'Map Overview' }"
           identity="landing-page-map-link"
           direction="row"
@@ -55,6 +56,7 @@
           <locale path="routes.map" />
         </card-link>
         <card-link
+          class="alternative-card-link"
           :to="{ name: 'Catalog Overview' }"
           identity="landing-page-catalog-link"
           direction="row"
@@ -62,14 +64,20 @@
           <locale path="routes.catalog" />
         </card-link>
 
-        <router-link :to="{
-          name: 'CMSList',
-          params: {
-            group: 'bibliography',
-          },
-        }">
+        <card-link
+          class="alternative-card-link"
+          :noImage="true"
+          :to="{
+            name: 'CMSList',
+            params: {
+              group: 'bibliography',
+            }
+          }"
+        >
           <locale path="cms.bibliography" />
-        </router-link>
+
+        </card-link>
+
 
       </aside>
     </div>
@@ -107,13 +115,26 @@ export default {
 
 <style lang="scss">
 #landing-page {
+
+
+
   .card-link {
     // max-height: 300px;
-    aspect-ratio: 4 / 2;
 
-    >* {
-      flex: 1;
+    &.card-link-image {
+      height: 300px;
+      aspect-ratio: 3/2;
+
+      .image {
+        flex: 1;
+      }
+
+      article {
+        width: 180px;
+      }
     }
+
+
   }
 
   .navigation {
@@ -269,8 +290,10 @@ section:first-of-type {
     content: '';
     position: absolute;
     bottom: -10px;
+    left: 0;
     width: 100%;
     border-bottom: 6px dotted white;
+    box-sizing: border-box;
   }
 
   .grid {
@@ -343,18 +366,10 @@ section:first-of-type {
 }
 
 aside {
-  padding-left: 50px;
 
   display: flex;
   flex-direction: column;
-  align-content: flex-end;
-
-  gap: $large-padding;
-  // border-left: 5px dotted $white;
-
-  a {
-    align-self: flex-end;
-  }
+  gap: $padding;
 
   h2 {
     color: gray;

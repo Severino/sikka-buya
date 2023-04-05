@@ -335,7 +335,7 @@ mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
       return this.$route.params.id;
     },
     showTime() {
-      return Boolean(CMSConfig?.['bibliography']?.page?.showTime);
+      return Boolean(CMSConfig?.[this.group]?.page?.showTime);
     },
     hasBody() {
       return (
