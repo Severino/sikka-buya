@@ -98,20 +98,17 @@ export default {
       this.loading = true;
       this.imageURI = null;
       const file = event.target.files[0];
-      try {
-        await Query.uploadFile(this.fullIdentity, file);
-        await this.load();
-      } catch (e) {
-        this.$store.commit('printError', e);
+      if (file) {
+        console.log("PERFORM")
+        try {
+          await Query.uploadFile(this.fullIdentity, file);
+          await this.load();
+        } catch (e) {
+          this.$store.commit('printError', e);
+        }
       }
       this.loading = false;
     },
-    // manualClickOnLabel(event) {
-    //   console.log(event)
-    //   event.stopPropagation()
-    //   // Not sure why the label is ignored.
-    //   this.$refs.label.click();
-    // },
   },
 };
 </script>
@@ -188,4 +185,5 @@ label {
     max-width: 100%;
     object-fit: contain;
   }
-}</style>
+}
+</style>
