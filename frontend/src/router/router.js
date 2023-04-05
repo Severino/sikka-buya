@@ -49,6 +49,7 @@ import PersonPage from "@/components/page/catalog/PersonPage.vue"
  */
 import EditorPage from "@/components/page/editor/EditorPage.vue"
 import LandingPage from "@/components/page/LandingPage.vue"
+import ContactPage from "@/components/page/ContactPage.vue"
 import PlaceholderLandingPage from "@/components/page/PlaceholderLandingPage.vue"
 import CreateTypePage from "@/components/page/CreateTypePage.vue"
 import CoinMarkOverview from "@/components/page/CoinMarkOverview.vue"
@@ -137,12 +138,16 @@ const routes = [
     name: "Home",
     component: LandingPage
   },
-
   {
     path: "",
     component: CommonMain,
     redirect: "home",
     children: [
+      {
+        path: "/contact",
+        name: "Contact",
+        component: ContactPage
+      },
       {
         meta: { auth: true },
         path: "/cms/single/:group",

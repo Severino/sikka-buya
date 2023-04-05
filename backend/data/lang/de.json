@@ -14,7 +14,8 @@
         "Catalog Search": "Katalogsuche",
         "Catalog Ruler Explorer": "Herrscherliste",
         "Catalog Entry": "Eintrag | Einträge",
-        "home": "Startseite"
+        "home": "Startseite",
+        "contact": "Kontakt"
     },
     "user": {
         "permission": {
@@ -117,7 +118,9 @@
         "bibliography": "Literaturverzeichnis | Literaturverzeichnisse",
         "news": "News",
         "create_page": "neue Seite erstellen",
-        "landing_page_main_article": "Startseitentext"
+        "landing_page_main_article": "Startseitentext",
+        "contact_page": "Kontakt",
+        "edit_page": "Seite bearbeiten"
     },
     "message": {
         "input_to_filter": "Hier Suchtext eingeben ...",
@@ -170,7 +173,8 @@
         "signup": "Anmelden",
         "user_login": "Mitarbeiter Login",
         "setup": "Ersteinrichtung",
-        "quick_access": "Schnellzugriff"
+        "quick_access": "Schnellzugriff",
+        "supported_by": "gefördert von:"
     },
     "ui": {
         "list": {

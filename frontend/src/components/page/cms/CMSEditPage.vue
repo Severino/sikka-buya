@@ -140,13 +140,24 @@ export default {
   beforeUnmount() {
     this.cleanupPasteUnformattedFields(this.pasteUnformattedFields)
   },
+  beforeRouteLeave(to, from, next) {
+    if (this.dirty) {
+      const answer = window.confirm('You have unsaved changes. Are you sure you want to leave?');
+      return answer;
+    }else next()
+  },
   props: {
     useBlocks: Boolean,
     group: String,
     include: {
       type: Array,
-      defaultValue: [],
+      default: () => [],
     },
+    exclude: {
+      type: Array,
+      default: () => [],
+    },
+
   },
   data() {
     return {

@@ -9,9 +9,9 @@ export default {
             if (id)
                 await CMSPage.delete(id)
         },
-        cms_edit: function ({ id, group = "Unknown Group", props = {} } = {}) {
+        cms_edit: function ({ id, group = "Unknown Group" } = {}, additionalParams = {}) {
             if (id)
-                this.$router.push({ name: 'CMSEditPage', params: { group, id }, props })
+                this.$router.push({ name: 'CMSEditPage', params: Object.assign({}, { group, id }, additionalParams) })
         },
         cms_createPage: async function (pageGroupName) {
             return CMSPage.create(pageGroupName)

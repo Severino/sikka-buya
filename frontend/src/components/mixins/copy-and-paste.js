@@ -2,7 +2,8 @@ export default {
     methods: {
         initPasteUnformattedFields(refs) {
             refs.forEach(ref => {
-                ref.addEventListener('paste', this.pastePlainText);
+                if (ref)
+                    ref.addEventListener('paste', this.pastePlainText);
             });
         },
         cleanupPasteUnformattedFields(refs) {
