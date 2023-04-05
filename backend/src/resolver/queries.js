@@ -565,7 +565,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         if (!identity) throw new Error("Identity must be provided!")
         const { parts, filename } = CMS.decomposeIdentity(identity)
         const matchedFiles = await findFilesAt(parts, filename)
-        if (matchedFiles.length === 0) throw new Error("Missing image: ", filename)
+        if (matchedFiles.length === 0) throw new Error("Missing image: " + filename)
         if (matchedFiles.length > 1) throw new Error("Too many matched files.")
         const match = matchedFiles[0]
         return CMS.getPublicPath(...parts, match)

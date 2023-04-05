@@ -99,7 +99,6 @@ export default {
       this.imageURI = null;
       const file = event.target.files[0];
       if (file) {
-        console.log("PERFORM")
         try {
           await Query.uploadFile(this.fullIdentity, file);
           await this.load();
