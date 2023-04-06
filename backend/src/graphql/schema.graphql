@@ -356,7 +356,8 @@ type MintPersons {
   mint: Mint,
   caliphs:[Person],
   issuers: [Person],
-  overlords: [Person]
+  overlords: [Person],
+  heirs: [Person],
 }
 
 type MintPointArray {

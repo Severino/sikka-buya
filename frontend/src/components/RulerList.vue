@@ -96,8 +96,9 @@ export default {
     groups() {
       let groups = Object.values(
         this.items.reduce((prev, curr) => {
+          console.log(curr)
           let { id: key, name: label } = curr.dynasty;
-
+          
           if (prev[key]) {
             prev[key].items.push(curr);
           } else {

@@ -208,10 +208,6 @@ export default {
     padding: $padding;
     border-radius: $border-radius;
     padding-top: 3 * $padding;
-
-    h1 {
-      padding-bottom: 1rem;
-    }
   }
 
   .flex {
