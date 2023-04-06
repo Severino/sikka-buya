@@ -208,20 +208,25 @@ export default {
         Object.assign(node.style, {
           textAlign: value,
         });
-        this.$emit('input', this.$refs.field.innerHTML);
+        this.update()
       }
     },
     toggleBold: function () {
       document.execCommand('bold', false, null);
-      this.$emit('input', this.$refs.field.innerHTML);
+      this.update()
     },
     toggleCursive: function () {
       document.execCommand('italic', false, null);
+      this.update()
+    },
+    input: function () {
+      this.update()
+    },
+    update: function(){
       this.$emit('input', this.$refs.field.innerHTML);
     },
-    input: function (event) {
-      const target = event.target;
-      this.$emit('input', target.innerHTML);
+    onPaste(){
+      this.update()
     },
     link(event) {
       const selection = window.getSelection();
@@ -243,15 +248,13 @@ export default {
           }
         } else {
           const href = window.prompt('Enter link', "https://");
-
           const link = document.createElement('a');
           link.setAttribute('target', '_blank')
           link.href = href;
           link.appendChild(range.extractContents());
           range.insertNode(link);
         }
-        this.$emit('input', this.$refs.field.innerHTML);
-
+        this.update()
       }
     }
   },

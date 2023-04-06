@@ -70,8 +70,7 @@ export default {
             this.page.assign(page)
         },
         isPresent(key) {
-            console.log(this.include)
-            return this.include ? this.include.includes(key) : !this.exclude.include(key)
+            return this.include.length > 0 ? this.include.includes(key) : this.exclude.length > 0 ? this.exclude.include(key) : true
         },
     },
     computed: {
