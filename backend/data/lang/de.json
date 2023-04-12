@@ -111,6 +111,9 @@
         "database_does_not_exist": "Datenbank existiert nicht,.",
         "loading_element": "Element konnte nicht geladen werden! ID ist möglicherweise ungültig."
     },
+    "events": {
+        "copied": "Kopiert!"
+    },
     "catalog": {
         "reset_filters": "Filter zurücksetzen"
     },

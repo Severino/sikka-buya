@@ -1,5 +1,6 @@
 class Chart {
     constructor(canvas) {
+        if(!canvas) throw new Error("Canvas is required")
         this.canvas = canvas
     }
 
@@ -17,7 +18,6 @@ class Chart {
     getContext() {
         return this.canvas.getContext('2d');
     }
-
 }
 
 

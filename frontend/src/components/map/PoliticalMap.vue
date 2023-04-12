@@ -376,11 +376,12 @@ export default {
     });
 
     let selectedRulers = URLParams.getArray('selectedRulers');
-    if (selectedRulers)
-      this.rulerSelectionChanged(selectedRulers, {
+    if (selectedRulers) {
+      this.rulerSelectionChanged({ active: selectedRulers, added: selectedRulers }, {
         added: selectedRulers,
         preventUpdate: true,
       });
+    }
 
     let selectedMints = URLParams.getArray('selectedMints');
     if (selectedMints) {
@@ -652,7 +653,7 @@ export default {
     },
     updateAvailableMints() { },
     rulerSelectionChanged(selected, preventUpdate = false) {
-      this.selectedRulers = selected.active;
+      this.selectedRulers = selected.active || [];
 
       try {
         localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
