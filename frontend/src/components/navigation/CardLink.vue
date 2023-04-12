@@ -72,6 +72,8 @@ export default {
 <style lang="scss">
 .card-link {
 
+
+
   .image {
     min-height: 50px;
   }
@@ -90,6 +92,17 @@ export default {
   cursor: pointer;
   user-select: none;
   transition: all 0.3s;
+
+  &.subtle-card-link {
+    color: $primary-color;
+    background-color: $white;
+
+    header {
+      padding-top: $padding;
+      padding-bottom: $padding;
+
+    }
+  }
 
   &:not(.disabled):hover {
     filter: brightness(0.90);

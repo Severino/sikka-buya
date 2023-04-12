@@ -65,7 +65,7 @@
         </card-link>
 
         <card-link
-          class="alternative-card-link"
+          class="subtle-card-link alternative-card-link"
           :noImage="true"
           :to="{
             name: 'CMSList',
@@ -118,7 +118,7 @@ export default {
 
 
 
-  .card-link {
+  .alternative-card-link {
     // max-height: 300px;
 
     &.card-link-image {
