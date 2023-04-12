@@ -70,8 +70,16 @@ export default {
             this.page.assign(page)
         },
         isPresent(key) {
-            return this.include.length > 0 ? this.include.includes(key) : this.exclude.length > 0 ? this.exclude.include(key) : true
+            const allowed = this.isIncluded(key) && !this.isExcluded(key)
+            const filled = this.page[key] !== null && this.page[key] !== ''
+            return allowed && filled
         },
+        isIncluded(key) {
+            return this.include.length > 0 ? this.include.includes(key) : true
+        },
+        isExcluded (key) {
+            return this.exclude.length > 0 ? this.exclude.includes(key) : false
+        }
     },
     computed: {
         pageMissing() {
@@ -81,4 +89,10 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped></style>
+<style lang='scss' scoped>
+
+.cms-view > *:first-child {
+    margin-top: 0;
+}
+
+</style>

@@ -1,68 +1,69 @@
 <template>
   <div class="page cms-page">
-    <section
-      class="content-wrapper"
-      v-if="!loading"
-    >
+    <section class="content-wrapper">
       <h2>
         <Locale :path="`cms.${this.group}`" />
       </h2>
-      <div
-        class="info grid col-3"
-        v-if="showTime"
-      >
-        <div class="cell">
-          <label for="">Erstellt am</label>
-          {{ timeMixinFormatDate(page.createdTimestamp) }}
-        </div>
-        <div class="cell">
-          <label for="">Zuletzt geändert am</label>
-          {{ timeMixinFormatDate(page.modifiedTimestamp) }}
-        </div>
-        <div class="cell">
-          <label for="">Veröffentlicht am</label>
-          {{ timeMixinFormatDate(page.publishedTimestamp) }}
-        </div>
-      </div>
-      <h1
-        :contenteditable="editmode"
-        @input="($event) => update($event, 'title')"
-        data-property="title"
-        v-if="isPresent('title')"
-        ref="title"
-        v-once
-      >
-        {{ page.title }}
-      </h1>
 
-      <h2
-        class="subtitle"
-        v-if="hasSubtitle"
-        :contenteditable="editmode"
-        @input="update"
-        data-property="subtitle"
-        ref="subtitle"
-        v-once
-      >
-        {{ page.subtitle }}
-      </h2>
+      <template v-show="!loading">
+        <div
+          class="info grid col-3"
+          v-if="showTime"
+        >
+          <div class="cell">
+            <label for="">Erstellt am</label>
+            {{ timeMixinFormatDate(page.createdTimestamp) }}
+          </div>
+          <div class="cell">
+            <label for="">Zuletzt geändert am</label>
+            {{ timeMixinFormatDate(page.modifiedTimestamp) }}
+          </div>
+          <div class="cell">
+            <label for="">Veröffentlicht am</label>
+            {{ timeMixinFormatDate(page.publishedTimestamp) }}
+          </div>
+        </div>
+        <h1
+          :contenteditable="editmode"
+          @input="update"
+          @paste="update"
+          data-property="title"
+          v-show="isPresent('title')"
+          ref="title"
+          v-once
+        >
+          {{ page.title }}
+        </h1>
 
-      <p
-        v-if="!editmode"
-        name=""
-        id=""
-        cols="30"
-        rows="10"
-      ></p>
-      <SimpleFormattedField
-        ref="body"
-        :allowLinks="allowLinks"
-        @hook:mounted="() => selfInitialize('body')"
-        @input="(value) => this.updateFormattedField('body', value)"
-        v-else
-      />
+        <h2
+          class="subtitle"
+          v-show="hasSubtitle"
+          :contenteditable="editmode"
+          @input="update"
+          @paste="update"
+          data-property="subtitle"
+          ref="subtitle"
+          v-once
+        >
+          {{ page.subtitle }}
+        </h2>
 
-      <!-- <section v-if="hasBlocks">
+        <p
+          v-show="!editmode"
+          name=""
+          id=""
+          cols="30"
+          rows="10"
+        ></p>
+        <SimpleFormattedField
+          ref="body"
+          :allowLinks="allowLinks"
+          @hook:mounted="() => selfInitialize('body')"
+          @input="(value) => this.updateFormattedField('body', value)"
+          v-show="editmode"
+        />
+
+        <!-- <section v-if="hasBlocks">
         <h2>Blocks</h2>
 
         <textarea
@@ -79,6 +80,7 @@
           <async-button @click="addEmptyBlock()">Add</async-button>
         </div>
       </section> -->
+      </template>
       <div class="toolbar">
         <div class="toolbar-inner content-wrapper">
           <CMSStatusIndicator
@@ -122,29 +124,39 @@ import Locale from '../../cms/Locale.vue';
 import TimeMixin from '../../mixins/time';
 import CopyAndPasteMixin from '../../mixins/copy-and-paste';
 import MountedAndLoadedMixin from '../../mixins/mounted-and-loaded';
+import LoadingSpinner from '../../misc/LoadingSpinner.vue';
+
 
 
 export default {
-  components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField, Locale },
+  components: { CMSStatusIndicator, AsyncButton, SimpleFormattedField, Locale, LoadingSpinner },
   mixins: [TimeMixin, MountedAndLoadedMixin, CopyAndPasteMixin],
   mounted() {
     CMSPage.get(this.id)
       .then((page) => {
         this.page = Object.assign({}, this.page, page);
+        this.implementedFields.forEach(this.selfInitialize);
       })
       .finally(() => {
         this.loading = false;
         this.isLoaded();
       });
+
+    this.$nextTick(() => {
+      this.implementedContenteditableRefs.forEach(ref => {
+        console.log(ref);
+        this.initPastePlainText
+      })
+    })
   },
-  beforeUnmount() {
-    this.cleanupPasteUnformattedFields(this.pasteUnformattedFields)
+  beforeDestroy() {
+    [this.$refs["title"], this.$refs["subtitle"]].forEach(this.cleanupPastePlainText)
   },
   beforeRouteLeave(to, from, next) {
     if (this.dirty) {
       const answer = window.confirm('You have unsaved changes. Are you sure you want to leave?');
       return answer;
-    }else next()
+    } else next()
   },
   props: {
     useBlocks: Boolean,
@@ -181,15 +193,16 @@ export default {
     };
   },
   methods: {
-    mountedAndLoaded() {
-      this.$nextTick(() => {
-        this.initPasteUnformattedFields(this.pasteUnformattedFields);
-      });
-    },
     selfInitialize(name) {
       if (!this.$refs[name]) console.error(`There is no ref with name ${name}`);
       else {
-        this.$refs[name].setContent(this.page[name]);
+        if (this.$refs[name]._isVue)
+          if (this.$refs[name].$options.name === 'SimpleFormattedField')
+            this.$refs[name].setContent(this.page[name]);
+          else throw new Error('Not implemented yet')
+        else {
+          this.$refs[name].innerHTML = this.page[name];
+        }
       }
     },
     isPresent(name) {
@@ -272,10 +285,12 @@ export default {
       else {
         if (target.hasAttribute('contenteditable')) {
           this.page[property] = target.innerHTML;
+
         } else {
           this.page[property] = target.value;
         }
       }
+
       this.dirty = true;
     },
     async save() {
@@ -339,8 +354,14 @@ mutation CreatePageBlock($id: ID!, $group:String!, $position: Int!) {
     },
   },
   computed: {
-    pasteUnformattedFields() {
-      return [this.$refs.title, this.$refs.subtitle]
+    implementedContenteditableRefs() {
+      return this.implementedContenteditables.map(name => this.$refs[name])
+    },
+    implementedContenteditables() {
+      return ['title', 'subtitle']
+    },
+    implementedFields(){
+      return ['title', 'subtitle', 'body']
     },
     id() {
       return this.$route.params.id;

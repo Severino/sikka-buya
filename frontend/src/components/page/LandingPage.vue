@@ -268,7 +268,7 @@ section:first-of-type {
   min-height: 50px;
   padding: 10px;
   box-sizing: border-box;
-  margin-bottom: 1.5rem;
+  margin-bottom: 3rem;
 
   .content-wrapper {
     padding: 0 100px;

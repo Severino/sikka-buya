@@ -44,7 +44,6 @@ export default class CMSPage {
     }
 
     static async update(id, page) {
-
         let pageObject = Object.assign({
             id: null,
             title: null,

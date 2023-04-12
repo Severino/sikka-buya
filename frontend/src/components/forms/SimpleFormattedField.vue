@@ -126,10 +126,12 @@ export default {
     };
   },
   mounted() {
-    this.$refs.field.addEventListener('paste', this.pastePlainText);
+    this.$nextTick(() => {
+      this.initPastePlainText(this.$refs.field)
+    });
   },
-  onBeforeUnmount() {
-    this.$refs.field.removeEventListener('paste', this.pastePlainText);
+  beforeDestroy() {
+    this.cleanupPastePlainText(this.$refs.field)
   },
   methods: {
     setContent: function (str) {
@@ -193,14 +195,17 @@ export default {
       const node = this.getSelected();
       node.innerHTML = node.textContent;
       node.removeAttribute('dir');
+      this.update()
     },
     formatRightToLeft() {
       const span = this.formatSelection();
       span.setAttribute('dir', 'rtl');
+      this.update()
     },
     formatLeftToRight() {
       const span = this.formatSelection();
       span.setAttribute('dir', 'ltr');
+      this.update()
     },
     align: function (value) {
       const node = this.getSelected();
@@ -222,10 +227,10 @@ export default {
     input: function () {
       this.update()
     },
-    update: function(){
+    update: function () {
       this.$emit('input', this.$refs.field.innerHTML);
     },
-    onPaste(){
+    onPaste() {
       this.update()
     },
     link(event) {

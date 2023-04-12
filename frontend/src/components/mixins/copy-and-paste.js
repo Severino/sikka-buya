@@ -20,24 +20,19 @@ export default {
          * 
          * Initializes the paste event listener for all input fields
          * 
-         * @param { Array } refs - The refs of all input fields
+         * @param { Array } ref - The ref of the input field
          */
-        initPasteUnformattedFields(refs) {
-            refs.forEach(ref => {
-                if (ref)
-                    ref.addEventListener('paste', this.pastePlainText);
-            });
+        initPastePlainText(ref) {
+            ref.addEventListener('paste', this.pastePlainText);
         },
         /**
-         * Cleans up the paste event listener
+         * Cleans up the paste event listener. 
+         * Usually called in the beforeDestroy hook.
          * 
-         * @param { Array } refs - The refs of all input fields 
+         * @param { Array } ref - The ref of the input field
          */
-        cleanupPasteUnformattedFields(refs) {
-            refs.forEach(ref => {
-                if (ref)
-                    ref.removeEventListener('paste', this.pastePlainText);
-            });
+        cleanupPastePlainText(ref) {
+            ref.removeEventListener('paste', this.pastePlainText);
         },
         /**
          *  This method is called when the user pastes text into the input field.
