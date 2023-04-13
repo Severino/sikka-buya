@@ -295,6 +295,7 @@ type Query {
   searchOverlord(text: String): [Person]
   searchIssuer(text: String): [Person]
 
+  # TODO remove this and join it with the normal getCoinType method.
   modGetTypes(
     pagination: Pagination
     filters: ModTypeFilter
@@ -311,7 +312,6 @@ type Query {
   timespan: Range
   getAnalytics: Analytics
 
-  getTypeComplete(id: ID!): Boolean
 
   getDominion(year: Int): [Dominion]
   ruledMint(year: Int): [RuledMint]
@@ -450,6 +450,10 @@ type Mutation {
   updatePerson(data: PersonInput): Void
   deletePerson(id: ID): Void
 
+  # Tested in 015_coin_type_review
+  setTypeComplete(id: ID!, completed: Boolean = true): Boolean
+  setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
+
   # Tested in 030_coin_type
   addCoinType(data: CoinTypeInput): Void
   updateCoinType(id: ID, data: CoinTypeInput): Void
@@ -480,8 +484,7 @@ type Mutation {
   ): Void
   addComment(text: String, user: ID, property: String, propertyId: ID): Void
 
-  setTypeComplete(id: ID!, completed: Boolean = true): Boolean
-  setTypeReviewed(id: ID!, reviewed: Boolean = true): Boolean
+
 
   changePersonExplorerOrder(person: ID!, position: Int!): Void
 

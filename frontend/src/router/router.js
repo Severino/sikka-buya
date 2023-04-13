@@ -180,7 +180,7 @@ const routes = [
         component: RouterContainer,
         name: 'Catalog',
         redirect: { name: "Catalog Overview" },
-        meta: { auth: true },
+        meta$gene: { auth: true },
         children: [{
           path: '',
           name: "Catalog Overview",
@@ -278,13 +278,13 @@ const routes = [
 
         path: "/editor/",
         component: EditorPage,
-        meta: { auth: true },
+        meta$gene: { auth: true },
         children: [
           {
             path: "",
             name: "Editor",
             component: EditorPanel,
-            meta: { auth: true },
+
           }, {
             path: "expert_search",
             name: "ExpertSearch",
@@ -295,7 +295,7 @@ const routes = [
             path: "fixdiff",
             name: "FixDiff",
             component: FixDiff,
-            meta: { auth: true },
+
           },
           {
             path: 'user',

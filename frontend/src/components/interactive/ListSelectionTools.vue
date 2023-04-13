@@ -5,21 +5,24 @@
       @click.prevent.stop="selectAll"
       :class="{ disabled: allSelected }"
     >
-      <select-all-icon :size="18" />
+      <SelectAllIcon :size="18" />
     </div>
-    <div @click.prevent.stop="unselectAll" :class="{ disabled: noneSelected }">
-      <select-remove-icon :size="18" />
+    <div
+      @click.prevent.stop="unselectAll"
+      :class="{ disabled: noneSelected }"
+    >
+      <RemoveAllIcon :size="18" />
     </div>
   </div>
 </template>
 
 <script>
-import SelectAllIcon from 'vue-material-design-icons/SelectAll.vue';
-import SelectRemoveIcon from 'vue-material-design-icons/SelectOff.vue';
+import RemoveAllIcon from 'vue-material-design-icons/CheckboxMultipleBlankOutline';
+import SelectAllIcon from 'vue-material-design-icons/CheckboxMultipleBlank';
 export default {
   components: {
     SelectAllIcon,
-    SelectRemoveIcon,
+    RemoveAllIcon,
   },
   props: {
     allSelected: { type: Boolean, required: true },
@@ -40,5 +43,4 @@ export default {
 <style lang='scss' scoped>
 .list-selection-tools {
   display: flex;
-}
-</style>
+}</style>

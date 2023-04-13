@@ -29,7 +29,7 @@
             :key="'ruler-' + item.id"
             :selected="isSelected(item)"
             @checkbox-selected="checkboxSelected(item)"
-            @click.native="selectionChanged([item.id])"
+            @click.native="checkboxSelected(item)"
             :class="{ available: item.available }"
             :style="{ color: item.color, borderColor: item.color }"
           >

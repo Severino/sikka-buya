@@ -8,7 +8,7 @@
       :key="'ruler-' + item.id"
       :selected="isSelected(item)"
       @checkbox-selected="() => $emit('selection-changed', item)"
-      @click.native="selectionChanged([item.id])"
+      @click.native="() => $emit('selection-changed', item)"
       :style="styler(item)"
     >
       <template v-slot:before>

@@ -165,7 +165,6 @@ export default class PoliticalOverlay extends Overlay {
           mintMap[pm.mint.id].data.personMints = pm
           availableMints[pm.mint.id] = mintMap[pm.mint.id]
 
-          console.log(pm)
             ;[...pm.heirs, ...pm.caliphs, ...pm.issuers, ...pm.overlords].forEach(person => {
               rulers[person.id] = person
             })

@@ -212,10 +212,6 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         modTypes.modReview = modTypes.types
         return modTypes
     },
-    getTypeComplete: async function (_, { id = null } = {}) {
-        const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);
-        return result.exists
-    },
     getAnalytics: async function (_, { id = null } = {}) {
         const count = await Database.one("SELECT COUNT(*) as types, COUNT(DISTINCT mint) AS mints, COUNT(DISTINCT year_of_mint) AS years  FROM type", id);
 

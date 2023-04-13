@@ -13,7 +13,7 @@
       <slot />
     </div>
     <div v-if="filtered" class="message" @click="$emit('clearFilters')">
-      <AlertCircleOutline /> {{ $t('message.filter_is_active') }}
+      <AlertCircleOutline /> {{ $t('general.filter_active') }}
     </div>
   </div>
 </template>

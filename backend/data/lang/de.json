@@ -33,6 +33,7 @@
         "delete": "löschen",
         "name": "Name | Namen",
         "publish": "veröffentlichen",
+        "filter_active": "Filter aktiv",
         "reset_filter": "Filter aufheben"
     },
     "property": {
@@ -109,7 +110,12 @@
     "error": {
         "already_submitted": "De Anfrage wurde bereits beantragt!",
         "database_does_not_exist": "Datenbank existiert nicht,.",
-        "loading_element": "Element konnte nicht geladen werden! ID ist möglicherweise ungültig."
+        "loading_element": "Element konnte nicht geladen werden! ID ist möglicherweise ungültig.",
+        "type": {
+            "delete": {
+                "only_super_can_delete_completed_or_reviewed_types": "Nur Superuser können abgeschlossene oder überprüfte Typen löschen."
+            }
+        }
     },
     "events": {
         "copied": "Kopiert!"
@@ -138,7 +144,7 @@
     },
     "warning": {
         "not_reviewed_warning": "Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!",
-        "list_is_empty": "Bisher sind keine Werte in dieser Liste."
+        "list_is_empty": "Keine Werte in dieser Liste."
     },
     "map": {
         "show_map": "Kartenansicht",
