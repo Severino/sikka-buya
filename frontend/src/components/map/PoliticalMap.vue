@@ -131,6 +131,8 @@ import TimelineChart from '../../models/timeline/TimelineChart.js';
 import Range from '../../models/timeline/range.js';
 import Sequence from '../../models/timeline/sequence.js';
 import Pattern from '../../models/draw/pattern';
+import { PoliticalSlide } from '../../models/slide';
+
 
 //Utils
 import Sort from '../../utils/Sorter';
@@ -420,10 +422,10 @@ export default {
       timeline.methods.toggleTimeline.call(this);
       this.update();
     },
-    requestSlideOptions({ slideshow, index }) {
-      slideshow.createSlide(this.options, index);
+    requestSlideOptions({ slideshow, index, overwrite } = {}) {
+      let options = PoliticalSlide.formatLabel(this.options)
+      slideshow.createSlide(options, index, overwrite);
     },
-    createSlide() { },
     async drawTimeline() {
       if (this.timelineChart) {
         this.timelineChart.clear();

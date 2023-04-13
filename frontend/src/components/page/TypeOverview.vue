@@ -113,14 +113,14 @@
           </ListItemCell>
           <CompletedToggle
             class="done-button"
-            icon="check"
+            icon="check-icon"
             :readonly="!$store.getters.userHasPermission('super')"
             :value="item.completed"
             @input="changeCompleteState($event, item)"
           />
           <CompletedToggle
             class="reviewed-button"
-            icon="check-emphasis"
+            icon="check-emphasis-icon"
             :readonly="!$store.getters.userHasPermission('super')"
             :value="item.reviewed"
             @input="changeReviewedState($event, item)"

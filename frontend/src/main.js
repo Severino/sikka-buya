@@ -43,8 +43,13 @@ async function main() {
 
 main().catch(console.error)
 
-function registerGlobalComponents(){
-  Vue.component('check', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/Check"))
-  Vue.component('check-emphasis', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/CheckBold"))
+function registerGlobalComponents() {
+
+
+  Vue.component('check-icon', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/Check"))
+  Vue.component('check-emphasis-icon', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/CheckBold"))
+  Vue.component('ruler-icon', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/AccountGroup"))
+  Vue.component('mint-icon', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/Home"))
+  Vue.component('location-icon', () => import(/* webpackChunkName: "v-icon" */ "vue-material-design-icons/MapMarker"))
 
 }

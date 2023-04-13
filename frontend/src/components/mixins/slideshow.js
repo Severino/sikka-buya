@@ -13,5 +13,5 @@ export default {
         }, applySlide() {
             throw new Error("RequiredMethod not implemented: requestSlideOptions(options).")
         },
-    }
+    } 
 } 

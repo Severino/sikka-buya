@@ -103,7 +103,7 @@ export default {
         },
         timelineOptions() {
             return {
-                year: this.raw_timeline.value,
+                year: (this.timelineActive) ? this.raw_timeline.value : null,
                 timelineActive: this.timelineActive
             }
         }

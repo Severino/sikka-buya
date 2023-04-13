@@ -1,13 +1,19 @@
 <template>
-  <div class="slideshow" ref="slideshow">
+  <div
+    class="slideshow"
+    ref="slideshow"
+  >
     <scroll-view>
-      <div class="slides" ref="slides">
+      <div
+        class="slides"
+        ref="slides"
+      >
         <new-slide @click.native="requestSlide()" />
         <template v-for="(slide, idx) of slides">
           <slide
             :key="`slide-${idx}`"
             :number="idx + 1"
-            :name="getName(slide, idx)"
+            :options="slide.options"
             :class="{ active: idx === currentSlide }"
             @select="setSlide(idx)"
           />
@@ -19,22 +25,43 @@
       </div>
     </scroll-view>
     <div class="tool-bar">
-      <div class="button icon-button" @click="prevSlide">
+      <div
+        class="button icon-button"
+        @click="prevSlide"
+      >
         <PrevIcon :size="iconSize" />
       </div>
-      <div class="button icon-button" @click="requestSlide(currentSlide, true)">
+      <div
+        class="button icon-button"
+        @click="requestSlide(currentSlide, true)"
+      >
         <SyncIcon :size="iconSize" />
-        <div class="text"><Locale path="slideshow.override"/></div>
+        <div class="text">
+          <Locale path="slideshow.override" />
+        </div>
       </div>
-      <div class="button icon-button" @click="requestSlide()">
+      <div
+        class="button icon-button"
+        @click="requestSlide()"
+      >
         <CameraOutlineIcon :size="iconSize" />
-        <div class="text"><Locale path="slideshow.record"/></div>
+        <div class="text">
+          <Locale path="slideshow.record" />
+        </div>
       </div>
-      <div class="button icon-button" @click="removeSlide()">
+      <div
+        class="button icon-button"
+        @click="removeSlide()"
+      >
         <DeleteIcon :size="iconSize" />
-        <div class="text"><Locale path="slideshow.delete"/></div>
+        <div class="text">
+          <Locale path="slideshow.delete" />
+        </div>
       </div>
-      <div class="button icon-button" @click="nextSlide">
+      <div
+        class="button icon-button"
+        @click="nextSlide"
+      >
         <NextIcon :size="iconSize" />
       </div>
     </div>
@@ -65,7 +92,7 @@ export default {
     DeleteIcon,
     SyncIcon,
     Locale,
-},
+  },
   props: {
     storagePrefix: String,
   },
@@ -84,6 +111,7 @@ export default {
       try {
         this.slides =
           JSON.parse(window.localStorage.getItem(this.storageName)) || [];
+        console.log(this.slides)
       } catch (e) {
         console.warn(
           'Could not load slideshow from localStorage. This warning is normal when no slideshow was saved.'
@@ -173,6 +201,7 @@ export default {
       this.slideChanged();
     },
     slideChanged() {
+      console.log(this.slides)
       if (this.storagePrefix) {
         localStorage.setItem(this.storageName, JSON.stringify(this.slides));
       }
@@ -206,7 +235,7 @@ export default {
   display: flex;
   flex-direction: column;
 
-  > *:not(:last-child) {
+  >*:not(:last-child) {
     margin-right: $padding;
   }
 
@@ -221,7 +250,7 @@ export default {
   padding: $padding;
   padding-bottom: 2 * $padding;
 
-  > * {
+  >* {
     margin-right: math.div($padding, 2);
   }
 }
@@ -229,7 +258,8 @@ export default {
 .tool-bar {
   display: flex;
   background-color: $white;
-  > * {
+
+  >* {
     flex: 1;
   }
 }
@@ -250,6 +280,7 @@ export default {
   border-radius: 0;
   box-sizing: border-box;
   border-color: $dark-white;
+
   &:not(:last-child) {
     border-right-width: 0;
   }

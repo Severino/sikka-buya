@@ -1,18 +1,18 @@
 <template>
-  <div class="slide slideshow-item">
+  <div class="slide slideshow-item" @click.stop.prevent="() => $emit('select')">
     <div
       class="number-indicator"
       v-if="number"
-      @click.stop.prevent="() => $emit('select')"
     >
       {{ number }}
     </div>
-    <div
-      v-if="name"
-      class="text-content"
-      @click.stop.prevent="() => $emit('select')"
-    >
-      {{ name }}
+    <div class="slide-row-container">
+      <SlideRow
+        v-for="row in rows"
+        :key="row.text"
+        :icon="row.icon"
+        :text="row.text"
+      />
     </div>
   </div>
 </template>
@@ -21,6 +21,7 @@
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 import PlusIcon from 'vue-material-design-icons/Plus.vue';
 import PopupActivator from '../../../Popup/PopupActivator.vue';
+import SlideRow from './SlideRow.vue';
 
 export default {
   props: {
@@ -32,7 +33,13 @@ export default {
     DotsVerticalIcon,
     PlusIcon,
     PopupActivator,
+    SlideRow
   },
+  computed: {
+    rows() {
+      return this.options?.display?.rows?.length > 0 ? this.options.display.rows : [];
+    }
+  }
 };
 </script>
 
@@ -71,8 +78,15 @@ export default {
 
   min-width: 32px;
   padding: 0;
-  > * {
+
+  >* {
     padding: math.div($padding, 2) $padding;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+.slide-row-container{
+
 }
 </style>
