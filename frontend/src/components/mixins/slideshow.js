@@ -3,7 +3,7 @@ export default {
         this.$root.$on('request-slide-options', this.requestSlideOptions);
         this.$root.$on('apply-slide', this.applySlide);
     },
-    unmounted: function () {
+    beforeDestroy: function () {
         this.$root.$off('request-slide-options', this.requestSlideOptions);
         this.$root.$off('apply-slide', this.applySlide);
     },
