@@ -111,7 +111,6 @@ export default {
       this.scrollContent.scrollLeft = scrollLeft + scroll * sensitivity;
     },
     requestSlide(index, overwrite) {
-      console.log("CLICKED")
       this.$root.$emit('request-slide-options', {
         slideshow: this,
         index,
