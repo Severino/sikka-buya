@@ -9,9 +9,10 @@ export default class Async {
 /**
  * A RequestGuard will receive a function that executes a request.
  * 
- * It immediately executes the initial request and also
- * executes the last request send, after it finalized the first,
- * while ignoring all requests done inbetween. 
+ * When executinge the callback using the exec method, the RequestGuard
+ * the request will be sent immediately. If another request is sent
+ * before the first one is finished, the RequestGuard will queue the
+ * request and execute it as soon as the first one is finished.
  */
 export class RequestGuard {
     constructor(callback, {
@@ -29,9 +30,12 @@ export class RequestGuard {
     }
 
     /**
-     * Executes a function as long as the requestCount
-     * is different from the previous requestNumber.
-
+     * Executes the callback function. If the RequestGuard is locked,
+     * the request will be queued and executed as soon as the RequestGuard
+     * is unlocked.
+     * 
+     * @param {any} value The value to pass to the callback function.
+     * @returns {Promise<any>} The return value of the callback function.
      *  
      */
     async exec(value) {
@@ -52,7 +56,7 @@ export class RequestGuard {
                 } catch (e) {
                     console.error(e)
                 } finally {
-                    console.log(`RequestGuard finished request ${current}.`, value.filters.yearOfMint)
+                    console.log(`RequestGuard finished request ${current}.`)
                     if (this.reqCount > current) console.log(`RequestGuard queued request ${this.reqCount}.`)
                     this.current = current
                     this.locked = false

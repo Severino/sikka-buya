@@ -43,7 +43,8 @@ export default {
     data: function () {
         return {
             timelineActive: false,
-            raw_timeline: { from: 0, to: 100, value: 0 }, timeBuffer: null
+            raw_timeline: { from: 0, to: 100, value: 0 },
+            timeBuffer: null
         }
     },
     mounted() {

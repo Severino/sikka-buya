@@ -87,6 +87,10 @@ export default {
   },
   beforeDestroy() {
     this.map.off('moveend', this.updateMapSettings);
+
+    this.map.eachLayer((layer) => {
+      this.map.removeLayer(layer) 
+    })
   },
   methods: {
     mapChanged(map) {
@@ -175,7 +179,7 @@ export default {
     ul:not(.search-box) {
       margin: 0;
       padding: 0;
-      list-style-type: none;
+      lis-style-type: none;
       overflow: hidden;
 
       li {
@@ -219,8 +223,7 @@ export default {
 
   .timeline {
     // max-width: 400px;
-    margin: 10px 20px;
-    margin-bottom: 20px;
+    margin: 10px 0;
     width: 100%;
 
     .slider {
@@ -253,7 +256,7 @@ export default {
       grid-template-columns: 0fr 2fr 0fr;
     }
 
-    grid-template-rows: 120px 3fr 120px;
+    grid-template-rows: 120px 3fr auto;
 
     pointer-events: none;
 

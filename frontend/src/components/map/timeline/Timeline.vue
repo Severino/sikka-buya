@@ -1,93 +1,8 @@
 <template>
   <div
     class="timeline"
-    :class="{ hide: !this.timelineActive }"
     ref="element"
   >
-    <div class="tool-box-drawer">
-      <header>
-        <div class="left">
-
-          <Button
-            class="map-button "
-            @click="() => (slideshow.active = !slideshow.active)"
-          >
-            <Icon
-              type="mdi"
-              :path="mdiPresentation"
-              :size="headerIconSize"
-            />
-            <Locale path="map.presentation" />
-          </Button>
-
-          <div
-            class="button icon-button"
-            @click="togglePlay"
-          >
-            <PlayIcon
-              :size="headerIconSize"
-              v-if="!playing"
-            />
-            <PauseIcon
-              :size="headerIconSize"
-              v-else
-            />
-          </div>
-
-          <popup-activator
-            :targetWidth="280"
-            :noShadow="true"
-          >
-            <ShareIcon
-              :size="headerIconSize"
-              class="button icon-button"
-            />
-            <template v-slot:popup>
-              <h3>
-                <Locale path="map.share_view" />
-              </h3>
-
-              <copy-field :value="shareLink" />
-            </template>
-          </popup-activator>
-
-          <slot name="left" />
-        </div>
-
-        <div class="center-ui">
-          <slot name="center" />
-        </div>
-
-        <div class="right">
-          <slot name="right" />
-          <div
-            v-if="allowToggle"
-            class="timeline-button-container"
-          >
-            <Button
-              class="map-button"
-              @click="toggleTimeline"
-              v-if="timelineActive"
-            >
-              <Locale path="map.timeline.deactivate" />
-            </Button>
-            <Button
-              class="map-button"
-              @click="toggleTimeline"
-              v-else
-            >
-              <Locale path="map.timeline.active" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <slideshow
-        v-show="slideshow.active"
-        :storagePrefix="timelineName"
-        ref="slideshow"
-      />
-    </div>
 
     <!-- <button class="play-btn" @click="play">
       <PlayIcon v-if="!playing" />
@@ -152,101 +67,22 @@ var L = require('leaflet');
 import MenuLeft from 'vue-material-design-icons/MenuLeft.vue';
 import MenuRight from 'vue-material-design-icons/MenuRight.vue';
 import Info from '../../forms/Info.vue';
-
-import Icon from "@jamescoyle/vue-icon"
-import { mdiPresentation } from "@mdi/js"
-
-import PlayIcon from 'vue-material-design-icons/Play.vue';
-import PauseIcon from 'vue-material-design-icons/Pause.vue';
-
-import PlusIcon from 'vue-material-design-icons/PlusCircleOutline.vue';
-import MinusIcon from 'vue-material-design-icons/MinusCircleOutline.vue';
-import ShareIcon from 'vue-material-design-icons/ShareVariant.vue';
-
-
-import TimerOff from 'vue-material-design-icons/TimerOff.vue';
-import Timer from 'vue-material-design-icons/Timer';
-
 import TimelineSlider from '../../forms/TimelineSlider.vue';
 import Button from '../../layout/buttons/Button.vue';
-import PopupActivator from '../../Popup/PopupActivator.vue';
-import CopyField from '../../forms/CopyField.vue';
-import Slideshow from '../slideshow/Slideshow.vue';
-import Settings from '../../../settings';
 import { clamp } from '../../../utils/Math';
-import Locale from '../../cms/Locale.vue';
-
-let slideshowSettings = new Settings(window, 'Slideshow');
-const slideshow = slideshowSettings.load();
-
 export default {
   components: {
     Button,
     Info,
     MenuLeft,
     MenuRight,
-    MinusIcon,
-    PauseIcon,
-    PlayIcon,
-    PlusIcon,
-    PopupActivator,
-    ShareIcon,
     TimelineSlider,
-    Timer,
-    TimerOff,
-    CopyField,
-    Icon,
-    Slideshow,
-    Locale,
   },
   props: {
     map: Object,
     from: Number,
     to: Number,
     value: Number,
-
-    /**
-     * The 'toggle' state of the timeline.
-     * Hidden when false
-     */
-    timelineActive: {
-      default: true,
-      type: Boolean,
-    },
-    /**
-     * Used as a prefix to save the timeline independently from other timelines.
-     */
-    timelineName: String,
-    /**
-     * Don't display the toggle if toggling should be prohibited.
-     */
-    allowToggle: {
-      default: true,
-      type: Boolean,
-    },
-    /**
-     * The link that can be shared to reproduce the current view of the application.
-     */
-    shareLink: {
-      type: String,
-      require: true,
-    },
-  },
-  data() {
-    return {
-      playInterval: null,
-      slideshow,
-      mdiPresentation,
-      headerIconSize: 22
-    };
-  },
-  watch: {
-    slideshow: {
-      handler() {
-        slideshowSettings.save();
-      },
-      deep: true,
-    },
   },
   computed: {
     valid() {
@@ -255,40 +91,21 @@ export default {
     clampedValue() {
       return clamp(this.value, this.from, this.to);
     },
-    playing() {
-      return this.playInterval != null;
-    },
+
   },
   methods: {
     setMapTo(options) {
       this.map.setView(options.location, options.zoom, { animation: true });
       this.changed(options.year);
     },
-    togglePlay() {
-      if (this.playing) this.stop();
-      else this.start();
-    },
-    start() {
-      this.playInterval = setInterval(() => {
-        if (this.value + 1 <= this.to) {
-          this.up(true);
-        } else this.stop();
-      }, 1500);
-    },
-    stop() {
-      clearInterval(this.playInterval);
-      this.playInterval = null;
-    },
     input(event) {
-      this.stop();
       this.$emit('input', parseFloat(event.currentTarget.value));
     },
     change(event) {
       this.changed(parseFloat(event.currentTarget.value));
     },
     changed(val, isPlaying = false) {
-      if (!isPlaying) this.stop();
-      this.$emit('change', val);
+      this.$emit('change', val, isPlaying);
     },
     insertClampedValue() {
       this.$emit('input', this.clampedValue);
@@ -300,10 +117,20 @@ export default {
       this.map.dragging.disable();
     },
     down(isPlaying = false) {
-      this.changed(parseFloat(this.value - 1), isPlaying);
+      const prev = this.value - 1;
+      let exec = prev >= this.from;
+      if (exec)
+        this.changed(parseFloat(prev), isPlaying);
+
+      return exec
     },
     up(isPlaying = false) {
-      this.changed(parseFloat(this.value + 1), isPlaying);
+      const next = this.value + 1;
+      let exec = next >= this.from;
+      if (exec)
+        this.changed(parseFloat(next), isPlaying);
+
+      return exec
     },
     init() {
       L.Control.Timeline = L.Control.extend({
@@ -317,11 +144,6 @@ export default {
       let timeline = new L.Control.Timeline();
       timeline.addTo(this.map);
     },
-
-    toggleTimeline() {
-      this.$emit('toggle', this.timelineActive);
-    },
-
     focusTimeline() {
       const htmlSlider =
         this.$refs.timelineSlider.$el.querySelector('input[type=range]');
@@ -335,14 +157,6 @@ export default {
 .timeline {
   transition: $transition-time transform;
   transform: translateY(0);
-
-  &.hide {
-    transform: translateY(calc(100% + #{$padding} + 11px));
-
-    .tool-box-drawer {
-      top: -17px;
-    }
-  }
 
   .slider {
     border: 0;
@@ -361,15 +175,7 @@ export default {
   }
 }
 
-.timeline-button-container {
-  position: relative;
-  align-self: stretch;
-  height: 100%;
-}
 
-.timeline-toggle-button {
-  font-weight: bold;
-}
 
 .timeline {
   position: relative;
@@ -452,57 +258,4 @@ export default {
     }
   }
 }
-
-.play-btn {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border: $border;
-
-  $size: 75px;
-  width: $size;
-  height: $size;
-  border-radius: math.div($size, 2);
-}
-
-.tool-box-drawer {
-  position: absolute;
-  top: -5px;
-  transform: translateY(-100%);
-  width: 100%;
-
-
-  transition: top $transition-time;
-
-  header {
-    display: grid;
-    color: $white;
-    grid-template-columns: 1fr 1fr 1fr;
-    justify-content: space-between;
-    position: absolute;
-    width: 100%;
-    top: -5px;
-    transform: translateY(-100%);
-
-    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
-
-    >* {
-      display: flex;
-      align-items: center;
-      gap: $small-padding;
-    }
-
-    &:last-child {
-      margin-left: auto;
-    }
-
-    .right {
-      justify-self: flex-end;
-    }
-
-    .center-ui {
-      justify-content: center;
-    }
-  }
-}</style>
+</style>

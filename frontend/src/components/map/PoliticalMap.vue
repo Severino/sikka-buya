@@ -65,18 +65,17 @@
       </div>
     </div>
     <div class="center-ui center-ui-bottom">
-      <timeline
+      <TimelineSlideshowArea
         ref="timeline"
         :map="map"
-        :from="timeline.from"
-        :to="timeline.to"
-        :value="raw_timeline.value"
+        :timelineFrom="timeline.from"
+        :timelineTo="timeline.to"
+        :timelineValue="raw_timeline.value"
         :valid="timelineValid"
         :shareLink="shareLink"
         :timelineActive="timelineActive"
         timelineName="political-map"
         @input="timeChanged"
-        @change="timeChanged"
         @toggle="toggleTimeline"
       >
 
@@ -99,15 +98,8 @@
           </map-settings-box>
         </template>
 
-        <template #background>
-          <canvas
-            id="timeline-canvas"
-            ref="timelineCanvas"
-          > </canvas>
-        </template>
 
-
-      </timeline>
+      </TimelineSlideshowArea>
     </div>
 
     <Sidebar side="right">
@@ -162,7 +154,7 @@ import RulerList from '../RulerList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
-import Timeline from './timeline/Timeline.vue';
+import TimelineSlideshowArea from './TimelineSlideshowArea.vue';
 
 // Icons
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
@@ -219,7 +211,7 @@ export default {
     SettingsIcon,
     Sidebar,
     Slider,
-    Timeline,
+    TimelineSlideshowArea,
     Notification,
     Locale,
     MapBackButton,
@@ -394,11 +386,19 @@ export default {
     this.$nextTick(() => {
       URLParams.clear();
     });
+    console.log("a")
 
-    this.timelineChart = new TimelineChart(
-      this.$refs.timelineCanvas,
-      this.raw_timeline
-    );
+    if (this.$refs.timelineCanvas) {
+      console.log("a")
+      this.timelineChart = new TimelineChart(
+        this.$refs.timelineCanvas,
+
+        this.raw_timeline
+      );
+      console.log("b")
+    }
+    else
+      console.warn("No timeline canvas found")
 
     await this.initTimeline();
     this.update();
@@ -700,7 +700,6 @@ export default {
       )
         .then((val) => {
           this.timelineChart.updateTimeline(this.raw_timeline);
-
           this.mintTimelineData = val.data.data.typeCountOfMints;
           const sequence = Sequence.fromArrayObject(
             this.mintTimelineData,
