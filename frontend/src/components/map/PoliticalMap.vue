@@ -162,7 +162,7 @@ import RulerList from '../RulerList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
-import Timeline from './control/Timeline.vue';
+import Timeline from './timeline/Timeline.vue';
 
 // Icons
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';

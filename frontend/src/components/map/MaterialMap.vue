@@ -130,7 +130,7 @@ import LabeledInputContainer from '../LabeledInputContainer.vue';
 import MintList from '../MintList.vue';
 import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
-import Timeline from './control/Timeline.vue';
+import Timeline from './timeline/Timeline.vue';
 
 // Other
 import MaterialOverlay from '../../maps/MaterialOverlay';
