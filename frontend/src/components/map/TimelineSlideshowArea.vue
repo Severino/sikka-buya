@@ -1,7 +1,7 @@
 <template>
     <div class="timeline-slideshow-area">
         <Grid
-            class="toolbar"
+            class="toolbar ui-element-container"
             :columns="2"
         >
             <template #1>
@@ -61,9 +61,7 @@
 
             <template #2>
                 <slot name="right" />
-                <template
-                    v-if="allowToggle"
-                >
+                <template v-if="allowToggle">
                     <ButtonVue
                         class="map-button"
                         @click="toggleTimeline"
@@ -83,12 +81,14 @@
         </Grid>
         <Drawer :active="slideshow.active">
             <Slideshow
+                class="ui-element"
                 :storagePrefix="timelineName"
                 ref="slideshow"
             />
         </Drawer>
         <Drawer :active="timelineActive">
             <Timeline
+                class="ui-element"
                 @input="timelineUpdated"
                 @change="timelineChanged"
                 :value="timelineValue"
@@ -237,10 +237,9 @@ export default {
     height: 100px;
 }
 
-
-
 .toolbar {
     margin-bottom: $padding;
+
     .button {
         min-height: 100%;
     }

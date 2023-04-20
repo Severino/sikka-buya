@@ -1,5 +1,5 @@
 <template>
-    <div class="map-toolbar">
+    <div class="map-toolbar ui-element-container">
         <div class="toolbar toolbar-left">
             <nav>
                 <MapBackButton />

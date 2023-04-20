@@ -1,9 +1,9 @@
 <template>
   <div
     class="timeline"
+    :class="{ focussed }"
     ref="element"
   >
-
     <!-- <button class="play-btn" @click="play">
       <PlayIcon v-if="!playing" />
       <PauseIcon v-else />
@@ -22,10 +22,12 @@
         :min="from"
         :max="to"
         :value="clampedValue"
-        @change.stop="change"
-        @input.stop="change"
         :labeledValue="10"
         :subdivisions="2"
+        @change.stop="change"
+        @input.stop="change"
+        @focus="()=> focussed = true"
+        @blur="()=> focussed = false"
         ref="timelineSlider"
       >
         <div class="input-wrapper">
@@ -84,6 +86,7 @@ export default {
     to: Number,
     value: Number,
   },
+  data() { return { focussed: false } },
   computed: {
     valid() {
       return this.value >= this.from && this.value <= this.to;
@@ -145,9 +148,7 @@ export default {
       timeline.addTo(this.map);
     },
     focusTimeline() {
-      const htmlSlider =
-        this.$refs.timelineSlider.$el.querySelector('input[type=range]');
-      htmlSlider.focus();
+      this.$refs.timelineSlider.focus()
     },
   },
 };
@@ -175,8 +176,6 @@ export default {
   }
 }
 
-
-
 .timeline {
   position: relative;
   display: flex;
@@ -184,6 +183,26 @@ export default {
 
   >* {
     flex: 1;
+  }
+
+  &.focussed::after {
+    opacity: 1;
+  }
+
+  &::after {
+    content: "";
+    display: block;
+    pointer-events: none;
+    z-index: 1000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: 1px solid $primary-color;
+    border-radius: $border-radius;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
 }
 

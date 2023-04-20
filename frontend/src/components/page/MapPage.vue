@@ -270,9 +270,9 @@ export default {
     position: relative;
     pointer-events: none;
 
-    >* {
-      pointer-events: auto;
-    }
+    // >* {
+    //   pointer-events: auto;
+    // }
 
     &.center-ui-top {
       grid-row: 1;
@@ -284,6 +284,16 @@ export default {
       grid-row: 2;
       pointer-events: none;
       z-index: 100;
+    }
+
+    .ui-element-container {
+      > * {
+        pointer-events: all;
+      }
+    }
+
+    .ui-element {
+      pointer-events: all;
     }
 
     &.center-ui-bottom {

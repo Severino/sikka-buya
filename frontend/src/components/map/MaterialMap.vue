@@ -30,18 +30,18 @@
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
-      <timeline
+
+
+      <TimelineSlideshowArea
         ref="timeline"
         :map="map"
-        :from="timeline.from"
-        :to="timeline.to"
-        :value="raw_timeline.value"
-        :valid="timelineValid"
+        :timelineFrom="timeline.from"
+        :timelineTo="timeline.to"
+        :timelineValue="raw_timeline.value"
         :timelineActive="timelineActive"
         :shareLink="shareLink"
         timelineName="additional-map"
         @input="timelineChanged"
-        @change="timelineChanged"
         @toggle="timelineToggled"
       >
         <template #background>
@@ -51,7 +51,7 @@
           > </canvas>
         </template>
 
-      </timeline>
+      </TimelineSlideshowArea>
     </div>
 
     <Sidebar
@@ -86,26 +86,26 @@
           ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
-                      id
-                      projectId
-                      yearOfMint
-                      material {
                         id
-                        name
-                        color
-                      }
-                      mint {
-                        id
-                        name
-                        location 
-                        uncertain
-                        province {
+                        projectId
+                        yearOfMint
+                        material {
                           id
                           name
+                          color
                         }
-                      }
-                      excludeFromTypeCatalogue
-                      "
+                        mint {
+                          id
+                          name
+                          location 
+                          uncertain
+                          province {
+                            id
+                            name
+                          }
+                        }
+                        excludeFromTypeCatalogue
+                        "
         />
       </div>
     </Sidebar>
@@ -143,6 +143,7 @@ import catalogFilterMixin from '../mixins/catalog-filter';
 import Locale from '../cms/Locale.vue';
 import MapToolbar from "./MapToolbar.vue"
 import { FilterSlide } from '../../models/slide';
+import TimelineSlideshowArea from './TimelineSlideshowArea.vue';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -163,6 +164,7 @@ export default {
     Sidebar,
     Slider,
     Timeline,
+    TimelineSlideshowArea
   },
   data: function () {
     return {
@@ -337,7 +339,6 @@ export default {
       this.$emit('reset');
     },
     dataUpdated(data) {
-      console.log("Data Updated", data)
       this.catalog_filter_mixin_updateActive(this.$refs.catalogFilter, [
         'excludeFromMapApp',
         'mint',
