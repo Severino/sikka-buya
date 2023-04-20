@@ -14,7 +14,9 @@ export default class Async {
  * while ignoring all requests done inbetween. 
  */
 export class RequestGuard {
-    constructor(callback) {
+    constructor(callback, {
+        before = null,
+    } = {}) {
         if (!callback || typeof callback !== "function")
             throw new Error(`RequestGuard requires a callback function, got ${typeof callback}.`)
 
@@ -22,6 +24,7 @@ export class RequestGuard {
         this.current = 0
         this.locked = false
         this.value = null
+        this.before = before
         this.callback = callback
     }
 
@@ -39,11 +42,18 @@ export class RequestGuard {
             do {
                 this.locked = true
                 let current = this.reqCount
+                let value = this.value
+
+                if(this.before) this.before(value)
+
                 try {
-                    returnValue = await this.callback(this.value)
+                    console.log(`RequestGuard starts processing ${current}.`)
+                    returnValue = await this.callback(value)
                 } catch (e) {
                     console.error(e)
                 } finally {
+                    console.log(`RequestGuard finished request ${current}.`, value.filters.yearOfMint)
+                    if (this.reqCount > current) console.log(`RequestGuard queued request ${this.reqCount}.`)
                     this.current = current
                     this.locked = false
                 }
@@ -55,8 +65,11 @@ export class RequestGuard {
              */
             this.reqCount = 0
             this.current = 0
+            return returnValue
+        } else {
+            console.log("RequestGuard is locked, the request was queued.", this.reqCount, this.value)
         }
-        return returnValue
+        return null
     }
 
 }
