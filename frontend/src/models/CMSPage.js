@@ -38,7 +38,7 @@ export default class CMSPage {
     static async create(pageGroup) {
         const result = await Query.raw(`mutation CreateCMSPage($pageGroup:String!){
             createPage(title: "", group: $pageGroup)
-        }`, { pageGroup }, true)
+        }`, { pageGroup })
 
         return result.data.data.createPage
     }

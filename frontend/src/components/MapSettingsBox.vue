@@ -6,7 +6,7 @@
       :noShadow="true"
     >
 
-      <SettingsIcon class="button icon-button" />
+      <SettingsIcon :size="iconSize" class="button icon-button" />
 
       <template v-slot:popup>
           <h3>Einstellungen</h3>
@@ -43,6 +43,10 @@ export default {
       type: Boolean,
       required: true,
     },
+    iconSize: {
+      type: Number,
+      default: 22,
+    }
   },
   methods: {
     resetSettings() {

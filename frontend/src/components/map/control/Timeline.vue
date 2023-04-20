@@ -1,22 +1,51 @@
 <template>
-  <div class="timeline" :class="{ hide: !this.timelineActive }" ref="element">
+  <div
+    class="timeline"
+    :class="{ hide: !this.timelineActive }"
+    ref="element"
+  >
     <div class="tool-box-drawer">
       <header>
         <div class="left">
-          <div class="button icon-button" @click="() => (slideshow.active = !slideshow.active)">
-            <PlusIcon v-if="!slideshow.active" />
-            <MinusIcon v-else />
+
+          <Button
+            class="map-button "
+            @click="() => (slideshow.active = !slideshow.active)"
+          >
+            <Icon
+              type="mdi"
+              :path="mdiPresentation"
+              :size="headerIconSize"
+            />
+            <Locale path="map.presentation" />
+          </Button>
+
+          <div
+            class="button icon-button"
+            @click="togglePlay"
+          >
+            <PlayIcon
+              :size="headerIconSize"
+              v-if="!playing"
+            />
+            <PauseIcon
+              :size="headerIconSize"
+              v-else
+            />
           </div>
 
-          <div class="button icon-button" @click="togglePlay">
-            <PlayIcon v-if="!playing" />
-            <PauseIcon v-else />
-          </div>
-
-          <popup-activator :targetWidth="280" :noShadow="true">
-            <ShareIcon class="button icon-button"/>
+          <popup-activator
+            :targetWidth="280"
+            :noShadow="true"
+          >
+            <ShareIcon
+              :size="headerIconSize"
+              class="button icon-button"
+            />
             <template v-slot:popup>
-              <h3><Locale path="map.share_view" /></h3>
+              <h3>
+                <Locale path="map.share_view" />
+              </h3>
 
               <copy-field :value="shareLink" />
             </template>
@@ -31,18 +60,33 @@
 
         <div class="right">
           <slot name="right" />
-          <div v-if="allowToggle" class="timeline-button-container">
-            <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-if="timelineActive">
+          <div
+            v-if="allowToggle"
+            class="timeline-button-container"
+          >
+            <Button
+              class="map-button"
+              @click="toggleTimeline"
+              v-if="timelineActive"
+            >
               <Locale path="map.timeline.deactivate" />
-            </div>
-            <div class="timeline-toggle-button button button rounded" @click="toggleTimeline" v-else>
+            </Button>
+            <Button
+              class="map-button"
+              @click="toggleTimeline"
+              v-else
+            >
               <Locale path="map.timeline.active" />
-            </div>
+            </Button>
           </div>
         </div>
       </header>
 
-      <slideshow v-if="slideshow.active" :storagePrefix="timelineName" ref="slideshow" />
+      <slideshow
+        v-show="slideshow.active"
+        :storagePrefix="timelineName"
+        ref="slideshow"
+      />
     </div>
 
     <!-- <button class="play-btn" @click="play">
@@ -51,16 +95,38 @@
     </button> -->
 
     <div class="timeline-container">
-      <button type="button" @click.stop.prevent="down" @focus="focusTimeline">
+      <button
+        type="button"
+        @click.stop.prevent="down"
+        @focus="focusTimeline"
+      >
         <MenuLeft />
       </button>
 
-      <timeline-slider :min="from" :max="to" :value="clampedValue" @change.stop="change" @input.stop="change"
-        :labeledValue="10" :subdivisions="2" ref="timelineSlider">
+      <timeline-slider
+        :min="from"
+        :max="to"
+        :value="clampedValue"
+        @change.stop="change"
+        @input.stop="change"
+        :labeledValue="10"
+        :subdivisions="2"
+        ref="timelineSlider"
+      >
         <div class="input-wrapper">
-          <input class="yearInput" type="text" :value="value" style="text-align: center" @input="input"
-            @blur="insertClampedValue" />
-          <Info :alwaysShow="!valid" type="warning" class="info">
+          <input
+            class="yearInput"
+            type="text"
+            :value="value"
+            style="text-align: center"
+            @input="input"
+            @blur="insertClampedValue"
+          />
+          <Info
+            :alwaysShow="!valid"
+            type="warning"
+            class="info"
+          >
             Der eingegebene Wert befindet sich außerhalb der Zeitleiste
           </Info>
         </div>
@@ -69,7 +135,11 @@
           <slot name="background" />
         </template>
       </timeline-slider>
-      <button type="button" @click.stop.prevent="up" @focus="focusTimeline">
+      <button
+        type="button"
+        @click.stop.prevent="up"
+        @focus="focusTimeline"
+      >
         <MenuRight />
       </button>
     </div>
@@ -83,12 +153,16 @@ import MenuLeft from 'vue-material-design-icons/MenuLeft.vue';
 import MenuRight from 'vue-material-design-icons/MenuRight.vue';
 import Info from '../../forms/Info.vue';
 
-import PlayIcon from 'vue-material-design-icons/PlayCircleOutline.vue';
-import PauseIcon from 'vue-material-design-icons/PauseCircleOutline.vue';
+import Icon from "@jamescoyle/vue-icon"
+import { mdiPresentation } from "@mdi/js"
+
+import PlayIcon from 'vue-material-design-icons/Play.vue';
+import PauseIcon from 'vue-material-design-icons/Pause.vue';
 
 import PlusIcon from 'vue-material-design-icons/PlusCircleOutline.vue';
 import MinusIcon from 'vue-material-design-icons/MinusCircleOutline.vue';
 import ShareIcon from 'vue-material-design-icons/ShareVariant.vue';
+
 
 import TimerOff from 'vue-material-design-icons/TimerOff.vue';
 import Timer from 'vue-material-design-icons/Timer';
@@ -121,9 +195,10 @@ export default {
     Timer,
     TimerOff,
     CopyField,
+    Icon,
     Slideshow,
     Locale,
-},
+  },
   props: {
     map: Object,
     from: Number,
@@ -161,6 +236,8 @@ export default {
     return {
       playInterval: null,
       slideshow,
+      mdiPresentation,
+      headerIconSize: 22
     };
   },
   watch: {
@@ -361,11 +438,11 @@ export default {
     transition: all 0.2s;
 
 
-    &:active{
+    &:active {
       background-color: white !important;
     }
 
-    &:hover{
+    &:hover {
       background-color: white !important;
     }
 
@@ -395,6 +472,7 @@ export default {
   transform: translateY(-100%);
   width: 100%;
 
+
   transition: top $transition-time;
 
   header {
@@ -411,7 +489,8 @@ export default {
 
     >* {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
+      gap: $small-padding;
     }
 
     &:last-child {
@@ -426,6 +505,4 @@ export default {
       justify-content: center;
     }
   }
-}
-
-</style>
+}</style>

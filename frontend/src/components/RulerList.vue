@@ -1,34 +1,59 @@
 <template>
   <div class="ruler-list">
     <multi-select-list v-if="!group">
-      <ruler-list-section v-if="
-        Array.isArray(selectedUnavailable) && selectedUnavailable.length > 0
-      " :items="selectedUnavailable" :selectedIds="selectedIds" :styler="unavailableSelectedStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)" />
-      <ruler-list-section :items="items" :selectedIds="selectedIds" :styler="availableStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)" />
-      <ruler-list-section :items="unavailable" :selectedIds="selectedIds" :styler="unavailableSelectedStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)" />
+      <ruler-list-section
+        v-if="
+          Array.isArray(selectedUnavailable) && selectedUnavailable.length > 0
+        "
+        :items="selectedUnavailable"
+        :selectedIds="selectedIds"
+        :styler="unavailableSelectedStyler"
+        @selection-changed="(item) => this.checkboxSelected(item)"
+      />
+      <ruler-list-section
+        :items="items"
+        :selectedIds="selectedIds"
+        :styler="availableStyler"
+        @selection-changed="(item) => this.checkboxSelected(item)"
+      />
+      <ruler-list-section
+        :items="unavailable"
+        :selectedIds="selectedIds"
+        :styler="unavailableSelectedStyler"
+        @selection-changed="(item) => this.checkboxSelected(item)"
+      />
     </multi-select-list>
     <multi-select-list v-else>
-      <ruler-list-section v-if="
-        Array.isArray(selectedUnavailable) && selectedUnavailable.length > 0
-      " :items="selectedUnavailable" :selectedIds="selectedIds" :styler="unavailableSelectedStyler"
-        @selection-changed="(item) => this.checkboxSelected(item)" />
-      <collapsible v-for="group of groups" :key="group.key"
-        @toggled="(collapsed) => toggleCollapsible(group.key, collapsed)" :collapsed="isCollapsed(group.key)"><template
-          v-slot:header>
-          <selectable-list-header :hideAll="true" @select-all="selectAllInGroup(group)"
-            @unselect-all="removeAllFromGroup(group)" :allSelected="allSelected(group)"
-            :noneSelected="noneSelected(group)" :selected="selectedItemsInGroup(group).length"
-            :total="group.items.length">
+      <collapsible
+        v-for="group of groups"
+        :key="group.key"
+        @toggled="(collapsed) => toggleCollapsible(group.key, collapsed)"
+        :collapsed="isCollapsed(group.key)"
+      ><template v-slot:header>
+          <selectable-list-header
+            :hideAll="true"
+            @select-all="selectAllInGroup(group)"
+            @unselect-all="removeAllFromGroup(group)"
+            :allSelected="allSelected(group)"
+            :noneSelected="noneSelected(group)"
+            :selected="selectedItemsInGroup(group).length"
+            :total="group.items.length"
+          >
             {{ group.label }}
 
-            <span v-if="$store.state.debug" class="debug">({{ group.key }})</span>
+            <span
+              v-if="$store.state.debug"
+              class="debug"
+            >({{ group.key }})</span>
           </selectable-list-header>
         </template>
-        <ruler-list-section :items="sorted(group.items)" :selectedIds="selectedIds" :styler="availableStyler"
-          @selection-changed="checkboxSelected" />
+        <ruler-list-section
+          :unavailable="selectedUnavailable"
+          :items="sorted(group.items)"
+          :selectedIds="selectedIds"
+          :styler="availableStyler"
+          @selection-changed="checkboxSelected"
+        />
       </collapsible>
     </multi-select-list>
   </div>
@@ -97,7 +122,7 @@ export default {
       let groups = Object.values(
         this.items.reduce((prev, curr) => {
           let { id: key, name: label } = curr.dynasty;
-          
+
           if (prev[key]) {
             prev[key].items.push(curr);
           } else {

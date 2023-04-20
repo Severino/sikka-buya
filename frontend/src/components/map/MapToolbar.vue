@@ -9,7 +9,7 @@
         <div class="toolbar toolbar-right">
             <Button
                 v-if="filtersActive"
-                class="clear-filter-btn"
+                class="clear-filter-btn map-button"
                 @click="() => $emit('reset-filters')"
             >
                 <Locale path="general.reset_filter" />
@@ -32,19 +32,7 @@ export default {
 };
 </script>
 
-<style lang='scss'>
-.map-toolbar {
-    .button {
-        color: $white;
-        font-weight: bold;
-        background-color: rgba($color: $white, $alpha: 0.4);
-        backdrop-filter: blur(1px);
-        border: rgba($color: $white, $alpha: 0.8) 1px solid;
 
-        text-shadow: 0 0 5px black;
-    }
-}
-</style>
 
 
 <style lang='scss' scoped>

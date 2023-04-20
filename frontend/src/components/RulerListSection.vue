@@ -3,38 +3,39 @@
     class="ruler-list-section"
     v-if="Array.isArray(items) && items.length > 0"
   >
-    <MultiSelectListItem
+    <RulerListItem
+      v-for="item of unavailable"
+      :key="'ruler-' + item.id"
+      :selected="isSelected(item)"
+      :item="item"
+      :css="styler(item)"
+      :unavailable="true"
+      @selection-changed="() => $emit('selection-changed', item)"
+    />
+    <RulerListItem
       v-for="item of items"
       :key="'ruler-' + item.id"
       :selected="isSelected(item)"
-      @checkbox-selected="() => $emit('selection-changed', item)"
-      @click.native="() => $emit('selection-changed', item)"
-      :style="styler(item)"
-    >
-      <template v-slot:before>
-        <div
-          class="color-indicator"
-          :class="{ 'color-indicator-selected': isSelected(item) }"
-        ></div>
-      </template>
-      <span
-        >{{ getRulerName(item) }}
-        <span v-if="$store.state.debug" class="debug">({{ item.id }})</span>
-        <span v-if="getDynasty(item)" class="dynasty">{{
-          getDynasty(item)
-        }}</span></span
-      >
-    </MultiSelectListItem>
+      :item="item"
+      :css="styler(item)"
+      @selection-changed="() => $emit('selection-changed', item)"
+    />
+
   </ul>
 </template>
 
 <script>
-import MultiSelectList from './MultiSelectList.vue';
-import MultiSelectListItem from './MultiSelectListItem.vue';
+
 import MultiSelectListMixin from './mixins/multi-select-list.js';
-import Person from '../utils/Person';
+import RulerListItem from './RulerListItem.vue';
 export default {
   props: {
+    unavailable: {
+      type: Array,
+      validator: (items) => {
+        return items.every((item) => item && item.hasOwnProperty('id'));
+      },
+    },
     items: {
       type: Array,
       validator: (items) => {
@@ -44,24 +45,13 @@ export default {
     selectedIds: Array,
     styler: {
       type: Function,
-      default: () => {},
+      default: () => { },
     },
   },
   components: {
-    MultiSelectList,
-    MultiSelectListItem,
+    RulerListItem
   },
   mixins: [MultiSelectListMixin],
-  methods: {
-    getDynasty(item) {
-      if (item?.dynasty?.name && item?.dynasty?.id != 1) {
-        return item?.dynasty?.name;
-      } else return null;
-    },
-    getRulerName(ruler) {
-      return Person.getName(ruler);
-    },
-  },
 };
 </script>
 
@@ -93,10 +83,5 @@ export default {
 .dynasty {
   font-size: 0.7rem;
   color: $gray;
-}
-
-.selected-but-unavailable {
-  opacity: 0.5;
-  margin-bottom: $padding;
 }
 </style>

@@ -83,7 +83,6 @@ export default {
                 timeline.value = options.year || 433;
                 this.raw_timeline = timeline;
                 this.timelineActive = options.timelineActive
-                window.map = this.map;
             } catch (e) {
                 console.error(e);
             }

@@ -1,5 +1,8 @@
 <template>
-  <div class="slide slideshow-item" @click.stop.prevent="() => $emit('select')">
+  <div
+    class="slide slideshow-item"
+    @click.stop.prevent="() => $emit('select')"
+  >
     <div
       class="number-indicator"
       v-if="number"
@@ -8,10 +11,11 @@
     </div>
     <div class="slide-row-container">
       <SlideRow
-        v-for="row in rows"
-        :key="row.text"
+        v-for="(row, index) in getRows()"
+        :key="`slide-row-${index}`"
         :icon="row.icon"
         :text="row.text"
+        :style="getGridColumns(row.columns)"
       />
     </div>
   </div>
@@ -34,11 +38,16 @@ export default {
     PlusIcon,
     PopupActivator,
     SlideRow
-  },
-  computed: {
-    rows() {
+  }, methods: {
+    getRows() {
       return this.options?.display?.rows?.length > 0 ? this.options.display.rows : [];
-    }
+
+    },
+    getGridColumns(columns = 4) {
+      return {
+        ["grid-column"]: `span ${columns}`
+      }
+    },
   }
 };
 </script>
@@ -86,7 +95,9 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.slide-row-container{
-
+.slide-row-container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  justify-items: center;
 }
 </style>

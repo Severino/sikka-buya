@@ -82,6 +82,7 @@
 
         <template #left>
           <map-settings-box
+            :iconSize="22"
             :open="overlaySettings.uiOpen"
             @toggle="toggleSettings"
             @reset="resetSettings"
@@ -258,15 +259,8 @@ export default {
     }),
   ],
   computed: {
-    options() {
-      const options = {};
-      options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
-      options.selectedMints = URLParams.toStringArray(this.selectedMints);
-      Object.assign(options, this.timelineOptions, this.mapOptions);
-      return options;
-    },
     shareLink() {
-      return URLParams.generate(this.options).href;
+      return URLParams.generate(this.getOptions()).href;
     },
     filters() {
       return {
@@ -422,9 +416,34 @@ export default {
       timeline.methods.toggleTimeline.call(this);
       this.update();
     },
+    slideshowSlidesLoaded({ slides, slideshow }) {
+      // TODO: This is a hack to make sure the mints are loaded before we apply the display options
+      setTimeout(() => {
+        slides.map((slide) => {
+          slide.options = PoliticalSlide.formatLabel(slide.options, this.mints)
+          return slide
+        })
+
+        slideshow.updateSlides(slides)
+
+      }, 1000);
+    },
     requestSlideOptions({ slideshow, index, overwrite } = {}) {
-      let options = PoliticalSlide.formatLabel(this.options)
+      let options = this.applyDisplayOptionToLoadedSlides()
       slideshow.createSlide(options, index, overwrite);
+    },
+    applyDisplayOptionToLoadedSlides() {
+      let options = this.getOptions();
+      return PoliticalSlide.formatLabel(options, this.mints)
+    },
+    // We moved this from the computed property to a method because it is
+    // dependend on the map and is not notified when the map changes (move/zoom).
+    getOptions() {
+      const options = {};
+      options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
+      options.selectedMints = URLParams.toStringArray(this.selectedMints);
+      Object.assign(options, this.timelineOptions, this.getMapOptions());
+      return options;
     },
     async drawTimeline() {
       if (this.timelineChart) {
@@ -569,7 +588,6 @@ export default {
     },
     async update() {
       this.setLoading(true);
-      console.log(JSON.stringify(this.selections))
       await this.overlay.update({
         filters: this.filters,
         selections: this.selections,
@@ -591,7 +609,7 @@ export default {
       }
       if (options.selectedRulers) {
         this.selectedRulers = URLParams.fromStringArray(options.selectedRulers);
-      }
+      } else this.selectedRulers = [];
 
       if (options.selectedMints) {
         let active = URLParams.fromStringArray(options.selectedMints);
@@ -606,6 +624,8 @@ export default {
         });
 
         this.mintSelectionChanged({ active, added, removed });
+      } else {
+        this.mintSelectionChanged({ active: [] });
       }
 
       if (options.year && options.year != 'null') {

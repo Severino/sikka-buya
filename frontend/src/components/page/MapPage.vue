@@ -9,12 +9,23 @@
         :location="mapSettings.location"
         :zoom="mapSettings.zoom"
         ref="map"
-        @mapReady="mapChanged"
+        @ready="mapChanged"
+        @moved="mapMoved"
       >
       </map-view>
 
-      <router-view :map="map" @reset="resetMapSettings" @loading="setLoading" />
+      <router-view
+        :map="map"
+        @reset="resetMapSettings"
+        @loading="setLoading"
+      />
     </div>
+
+
+    <crosshair
+      v-if="showDebugCrosshair"
+      :center="center"
+    />
   </div>
 </template>
 
@@ -24,6 +35,7 @@ require('leaflet-semirings');
 require('../../plugins/leaflet-svg-icon');
 
 import URLParams from '../../utils/URLParams';
+import Crosshair from '../debug/Crosshair.vue';
 
 import MapView from '../map/MapView.vue';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
@@ -43,13 +55,15 @@ const mapSettings = Object.assign({}, localSettings, querySettings);
 
 export default {
   name: 'MapPage',
-  components: { MapView, LoadingSpinner },
+  components: { MapView, LoadingSpinner, Crosshair },
   data: function () {
     return {
       map: null,
+      center: { lat: 0, lng: 0 },
       types: [],
       mapSettings,
       loading: false,
+      showDebugCrosshair: false
     };
   },
   created() {
@@ -68,20 +82,32 @@ export default {
     });
 
     this.$nextTick(() => {
-      this.map.on('moveend', (args) => {
-        const { target: map } = args;
-        const { lat, lng } = map.getCenter();
-
-        settings.multiChange([
-          ['location', [lat, lng]],
-          ['zoom', map.getZoom()],
-        ]);
-      });
+      this.map.on('moveend', this.updateMapSettings);
     });
+  },
+  beforeDestroy() {
+    this.map.off('moveend', this.updateMapSettings);
   },
   methods: {
     mapChanged(map) {
       this.map = map;
+      this.updateCenter(map.getCenter());
+    },
+    mapMoved(e) {
+      const latLng = e.target.getCenter()
+      this.updateCenter(latLng);
+    },
+    updateCenter(latLng) {
+      this.center = latLng;
+    },
+    updateMapSettings(args) {
+      const { target: map } = args;
+      const { lat, lng } = map.getCenter();
+
+      settings.multiChange([
+        ['location', [lat, lng]],
+        ['zoom', map.getZoom()],
+      ]);
     },
     resetMapSettings() {
       settings.reset();
@@ -97,14 +123,13 @@ export default {
 </script>
 
 <style lang="scss">
-
-
 .map-page {
   height: 100vh;
 
-  #back-button > a {
+  #back-button>a {
     display: inline-flex;
-    > .material-design-icon {
+
+    >.material-design-icon {
       margin-right: 2 * $padding;
     }
 
@@ -120,7 +145,7 @@ export default {
 
     transform: scale(0.5) translateX(-50%, -50%);
 
-    > * {
+    >* {
       box-shadow: 0 0 3px red;
     }
   }
@@ -176,6 +201,7 @@ export default {
   }
 
   .side-bar-right {
+
     .select-list-item,
     .selected-but-unavailable {
       transition: background-color 0.3s;
@@ -231,7 +257,7 @@ export default {
 
     pointer-events: none;
 
-    > * {
+    >* {
       pointer-events: auto;
     }
   }
@@ -241,7 +267,7 @@ export default {
     position: relative;
     pointer-events: none;
 
-    > * {
+    >* {
       pointer-events: auto;
     }
 
@@ -250,11 +276,13 @@ export default {
 
       z-index: 100;
     }
+
     &.center-ui-center {
       grid-row: 2;
       pointer-events: none;
       z-index: 100;
     }
+
     &.center-ui-bottom {
       grid-row: 3;
       display: flex;

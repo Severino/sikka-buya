@@ -105,24 +105,51 @@ export default {
     };
   },
   mounted() {
-    this.scrollContent.addEventListener('wheel', this.scroll);
-
-    if (this.storagePrefix) {
-      try {
-        this.slides =
-          JSON.parse(window.localStorage.getItem(this.storageName)) || [];
-        console.log(this.slides)
-      } catch (e) {
-        console.warn(
-          'Could not load slideshow from localStorage. This warning is normal when no slideshow was saved.'
-        );
-      }
-    }
+    this.registerEventListener()
+    this.loadSlides()
   },
   beforeDestroy() {
-    this.scrollContent.removeEventListener('wheel', this.scroll);
+    this.removeEventListener()
   },
   methods: {
+    registerEventListener() {
+      this.scrollContent.addEventListener('wheel', this.scroll);
+      document.addEventListener('keydown', this.handleHotkeys);
+
+    },
+    removeEventListener() {
+      this.scrollContent.removeEventListener('wheel', this.scroll);
+      document.removeEventListener('keydown', this.handleHotkeys);
+    },
+    handleHotkeys(event) {
+      if (event.key === 'PageUp') {
+        this.prevSlide();
+      } else if (event.key === 'PageDown') {
+        this.nextSlide();
+      }
+    },
+    loadSlides() {
+      if (this.storagePrefix) {
+        try {
+          this.slides =
+            JSON.parse(window.localStorage.getItem(this.storageName)) || [];
+
+          // We need to wait for next tick for other components to be mounted
+          this.$nextTick(() => {
+            this.$root.$emit('slides-loaded', { slideshow: this, slides: this.slides });
+          })
+
+        } catch (e) {
+          console.warn(
+            'Could not load slideshow from localStorage. This warning is normal when no slideshow was saved.'
+          );
+        }
+      }
+    },
+    updateSlides(slides) {
+      this.slides = slides;
+      this.saveSlides();
+    },
     getName(slide) {
       if (slide?.options?.year) {
         return slide.options.year === 'null' ? null : slide.options.year;
@@ -201,11 +228,13 @@ export default {
       this.slideChanged();
     },
     slideChanged() {
-      console.log(this.slides)
+      this.saveSlides();
+    },
+    saveSlides() {
       if (this.storagePrefix) {
         localStorage.setItem(this.storageName, JSON.stringify(this.slides));
-      }
-    },
+      }else throw new Error('No storage prefix set.');
+    }
   },
   computed: {
     scrollContent() {

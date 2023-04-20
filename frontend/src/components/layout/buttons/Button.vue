@@ -1,10 +1,18 @@
 <template>
-  <button class="button" :type="type" :class="{ colored, multiline, 'content-button': contentButton }" @click="clicked" >
+  <button
+    class="button"
+    :type="type"
+    :class="{ colored, multiline, 'content-button': contentButton }"
+    @click="clicked"
+  >
     <!-- 
       @slot Default slot to render the button contents.
      -->
     <slot v-if="!to" />
-    <router-link v-else :to="to">
+    <router-link
+      v-else
+      :to="to"
+    >
       <slot />
     </router-link>
   </button>
@@ -44,7 +52,7 @@ export default {
      * Prevent the default stopPropagation
      */
     noStop: Boolean,
-    type:String
+    type: String
   },
   methods: {
     /**
@@ -77,9 +85,30 @@ export default {
     border-bottom: $border;
   }
 
-  a {
-    @include resetLinkStyle();
-    color: currentColor;
+
+
+  &.map-button {
+    color: $white;
+    font-weight: bold;
+    background-color: rgba($color: $white, $alpha: 0.4);
+    backdrop-filter: blur(1px);
+    border: rgba($color: $white, $alpha: 0.8) 1px solid;
+    $text-shadow: 0 0 5px rgba($color: $black, $alpha: 0.8);
+    text-shadow: $text-shadow;
+
+    > svg {
+      margin-right: $padding;
+      backdrop-filter: drop-shadow($text-shadow);
+    }
+
+    > .material-design-icon {
+      margin-right: $padding;
+      backdrop-filter: drop-shadow($text-shadow);
+    }
+
+    a {
+      font-weight: bold;
+    }
   }
 
   &.big-button {
@@ -93,6 +122,11 @@ export default {
     .material-design-icon {
       margin-right: $large-padding;
     }
+  }
+
+  a {
+    @include resetLinkStyle();
+    color: currentColor;
   }
 }
 </style>

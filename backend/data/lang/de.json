@@ -155,7 +155,8 @@
         "share_view": "Ansicht teilen",
         "ruler_selection": "Herrscherauswahl",
         "mint_selection": "Prägeorteauswahl",
-        "type_filter": "Filter"
+        "type_filter": "Filter",
+        "presentation": "Presentation"
     },
     "form": {
         "create": "Erstellen",
