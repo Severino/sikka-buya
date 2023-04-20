@@ -193,13 +193,11 @@ const unfilteredThreeWayFilters = [
   {
     label: 'property.year_uncertain',
     name: 'yearUncertain',
-    invert: true,
     order: 10,
   },
   {
     label: 'property.mint_uncertain',
     name: 'mintUncertain',
-    invert: true,
     order: 9,
   },
 ];
@@ -427,7 +425,13 @@ export default {
     },
   },
   mounted() {
-    this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this));
+    this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this),
+      {
+        before: () => {
+          this.$emit('update', {types: [], pageInfo: this.pageInfo});
+        },
+      }
+    );
     if (this.initData) {
       const initFilterMode = {};
 
@@ -447,7 +451,6 @@ export default {
         }
       });
       this.filterMode = Object.assign({}, this.filterMode, initFilterMode);
-      console.log(this.filterMode.ruler, initFilterMode.ruler);
       this.filters = Object.assign({}, this.filters, this.initData);
     }
   },
@@ -527,8 +530,7 @@ export default {
                   pagination: Pagination.fromPageInfo(pageInfo),
                   filters,
                   typeBody: this.typeBody,
-                },
-                true
+                }
               );
 
             pageInfo = nextPageInfo;
