@@ -5,7 +5,7 @@
         "Map Landing": "Kartenübersicht",
         "Treasure Map": "Schatzfundkarte",
         "Additional Maps": "weitere Karten",
-        "Political Map": "poitische Karte",
+        "Political Map": "politische Karte",
         "catalog Ruler Explorer": "Herrscherliste",
         "catalog Search": "Katalogsuche",
         "Analytics Table": "Tabellen",
@@ -55,7 +55,7 @@
         "mint_year": "Prägejahr | Prägejahre",
         "specialities_and_variants": "Besonderheiten / Varianten",
         "literature_and_remarks": "Literatur und Anmerkungen",
-        "piece": "Exemplar | Exemplare",
+        "piece": "Exemplar(e)",
         "treadwell_id": "Treadwell-ID | Treadwell-IDs",
         "project_id": "sikka:būya-ID | sikka:būya-IDs",
         "year_uncertain": "Jahr nicht sicher",
@@ -87,7 +87,7 @@
         "internal_notes": "Interne Anmerkungen ",
         "small_coin": "kleine Münze | kleine Münzen",
         "caliph": "Thronfolger d. Kalifen",
-        "other_person": "Sonstige Personen",
+        "other_person": "sonstige Personen",
         "year_of_mint": "Prägejahr",
         "ruler": "Herrscher",
         "typeview": {
@@ -102,12 +102,13 @@
             "misc": "Avers-Randbeschriftung"
         },
         "reverse": {
-            "fieldText": "Reverse-Feld",
-            "innerInscript": "Innere Reverse-Umschrift",
+            "fieldText": "Revers-Feld",
+            "innerInscript": "Innere Revers-Umschrift",
             "intermediateInscript": "mittlere Revers-Umschrift",
             "outerInscript": "äussere Revers-Umschrift",
             "misc": "Revers-Randbeschriftung"
-        }
+        },
+        "specials": "Besonderheiten und Varianten"
     },
     "error": {
         "already_submitted": "De Anfrage wurde bereits beantragt!",
@@ -126,12 +127,11 @@
         "reset_filters": "Filter zurücksetzen"
     },
     "cms": {
-        "bibliography": "Literaturverzeichnis | Literaturverzeichnisse",
-        "news": "News",
+        "bibliography": "Bibliographie",
+        "contact_page": "Kontakt",
         "create_page": "neue Seite erstellen",
         "landing_page_main_article": "Startseitentext",
-        "contact_page": "Kontakt",
-        "edit_page": "Seite bearbeiten"
+        "news": "Neuigkeiten"
     },
     "message": {
         "input_to_filter": "Hier Suchtext eingeben ...",
@@ -145,20 +145,19 @@
         "administration": "Nutzerbereich"
     },
     "warning": {
-        "not_reviewed_warning": "Warnung: Dieser Typ wurde noch nicht von unseren Experten validiert!",
-        "list_is_empty": "Keine Werte in dieser Liste."
+        "not_reviewed_warning": "Achtung: Dieses Katalogisat wurde noch nicht (abschließend) geprüft und korrekturgelesen!",
+        "list_is_empty": "Bisher sind keine Werte in dieser Liste."
     },
     "map": {
-        "show_map": "Kartenansicht",
+        "show_map": "zur Kartenansicht",
         "timeline": {
             "active": "Zeitleiste aktivieren",
             "deactivate": "Zeitleiste deaktivieren"
         },
-        "share_view": "Ansicht teilen",
+        "share_view": "Link auf diese Ansicht kopieren",
         "ruler_selection": "Herrscherauswahl",
         "mint_selection": "Prägeorteauswahl",
         "type_filter": "Filter",
-        "presentation": "Presentation",
         "bookmarks": "Lesezeichen"
     },
     "form": {
@@ -173,7 +172,7 @@
         "overlords": "Notiz: Bei der Oberherren-Eingabe geht man in der Hierarchie von unten (1.) nach oben, d. h. Nr. 2. steht über Nr. 1, Nr. 3 über Nr. 2 usw."
     },
     "role": {
-        "caliph": "Kalif | Kalifen",
+        "caliph": "Kalif | Kalif",
         "heir": "Thronfolger d. Kalifen",
         "donator": "Donator | Donatoren",
         "warden": "Münzwardein | Münzwardeine",
@@ -187,16 +186,16 @@
         "user_login": "Mitarbeiter Login",
         "setup": "Ersteinrichtung",
         "quick_access": "Schnellzugriff",
-        "supported_by": "gefördert von:"
+        "supported_by": "in Zusammenarbeit mit:"
     },
     "ui": {
         "list": {
             "pagination": {
                 "elements_per_page": "Elemente pro Seite"
+            },
+            "multidataselect2d": {
+                "add_group": "Gruppe hinzufügen"
             }
-        },
-        "multidataselect2d": {
-            "add_group": "Gruppe hinzufügen"
         }
     },
     "typeview": {
@@ -204,7 +203,7 @@
         "issuer": "Münzherr | Münzherr(en)",
         "overlord_info": "Vom Münzherrn ausgehende Hierarchie: Der im Folgenden Erstgenannte unterstand dem Zweitgenanntem usw. (zum Kalifen hin aufsteigende Reihenfolge).",
         "caliph": "Kalif | Kalife",
-        "heir": "Thronfolger des Kalifen",
+        "heir": "des. Thronfolger des Kalifen",
         "cutter": "Stempelschneider | Stempelschneider",
         "warden": "Münzwardein | Münzwardein(e)",
         "donator": "Donator | Donator(en)"
