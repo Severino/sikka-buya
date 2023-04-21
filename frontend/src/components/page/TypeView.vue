@@ -72,7 +72,10 @@
         <template #label>
           <locale path="property.mint" />
         </template>
-        <div style="display: flex" class="mint-property">
+        <div
+          style="display: flex"
+          class="mint-property"
+        >
           {{ printMintProperty() }}
           <sikka-buya-button
             v-if="mintHasLocation"
@@ -143,7 +146,10 @@
             :count="2"
           />
         </template>
-        <person-list :value="cutter" />
+        <person-list
+          :targetProps="['shortName', 'name']"
+          :value="cutter"
+        />
       </catalog-property>
 
       <catalog-property v-if="warden.length > 0">
@@ -153,7 +159,10 @@
             :count="2"
           />
         </template>
-        <person-list :value="warden" />
+        <person-list
+          :targetProps="['shortName', 'name']"
+          :value="warden"
+        />
       </catalog-property>
 
       <catalog-property v-if="donator.length > 0">
@@ -163,7 +172,10 @@
             :count="2"
           />
         </template>
-        <person-list :value="donator" />
+        <person-list
+          :targetProps="['shortName', 'name']"
+          :value="donator"
+        />
       </catalog-property>
     </div>
 
@@ -523,7 +535,7 @@ $columns: 4;
   grid-template-columns: repeat($columns, 1fr);
 }
 
-.mint-property .sikka-buya-button{
+.mint-property .sikka-buya-button {
   margin-left: 4 * $padding;
 }
 

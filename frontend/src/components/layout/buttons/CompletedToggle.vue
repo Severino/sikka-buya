@@ -1,25 +1,41 @@
 <template>
-  <toggle :value="toggleValue" @input="$emit('input', $event)">
-    <template v-slot:active><Check class="active" /></template>
-    <template v-slot:inactive><Check /></template>
+  <toggle
+    class="completed-toggle"
+    :class="{ readonly: readonly, active: toggleValue }"
+    :readonly="readonly"
+    :value="toggleValue"
+    @input="$emit('input', $event)"
+  >
+
+    <template v-slot:active>
+      <component
+        :is="icon"
+        :size="18"
+        class="active"
+      />
+    </template>
+    <template v-slot:inactive>
+      <component
+        :is="icon"
+        :size="18"
+      />
+    </template>
   </toggle>
 </template>
 
 
 <script>
 import Toggle from './Toggle.vue';
-import Briefcase from 'vue-material-design-icons/Briefcase';
-import Check from 'vue-material-design-icons/Check';
 
 export default {
   name: 'CompletedButton',
   components: {
     Toggle,
-    Briefcase,
-    Check,
   },
   props: {
+    icon: String,
     value: Boolean,
+    readonly: Boolean,
   },
   computed: {
     toggleValue() {
@@ -30,8 +46,29 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.completed-toggle {
+  &.button>.active {
+    color: $white;
+  }
+}
+</style>
+
 <style lang="scss" scoped>
-.toggle .active {
-  color: $primary-color;
+.completed-toggle {
+  display: flex;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  margin: 3px;
+
+}
+
+.readonly {
+  color: $light-gray;
+
+  .active {
+    color: $blue;
+  }
 }
 </style>

@@ -1,13 +1,19 @@
 <template>
-  <div class="slideshow" ref="slideshow">
+  <div
+    class="slideshow"
+    ref="slideshow"
+  >
     <scroll-view>
-      <div class="slides" ref="slides">
+      <div
+        class="slides"
+        ref="slides"
+      >
         <new-slide @click.native="requestSlide()" />
         <template v-for="(slide, idx) of slides">
           <slide
             :key="`slide-${idx}`"
             :number="idx + 1"
-            :name="getName(slide, idx)"
+            :options="slide.options"
             :class="{ active: idx === currentSlide }"
             @select="setSlide(idx)"
           />
@@ -19,22 +25,43 @@
       </div>
     </scroll-view>
     <div class="tool-bar">
-      <div class="button icon-button" @click="prevSlide">
+      <div
+        class="button icon-button"
+        @click="prevSlide"
+      >
         <PrevIcon :size="iconSize" />
       </div>
-      <div class="button icon-button" @click="requestSlide(currentSlide, true)">
+      <div
+        class="button icon-button"
+        @click="requestSlide(currentSlide, true)"
+      >
         <SyncIcon :size="iconSize" />
-        <div class="text"><Locale path="slideshow.override"/></div>
+        <div class="text">
+          <Locale path="slideshow.override" />
+        </div>
       </div>
-      <div class="button icon-button" @click="requestSlide()">
+      <div
+        class="button icon-button"
+        @click="requestSlide()"
+      >
         <CameraOutlineIcon :size="iconSize" />
-        <div class="text"><Locale path="slideshow.record"/></div>
+        <div class="text">
+          <Locale path="slideshow.record" />
+        </div>
       </div>
-      <div class="button icon-button" @click="removeSlide()">
+      <div
+        class="button icon-button"
+        @click="removeSlide()"
+      >
         <DeleteIcon :size="iconSize" />
-        <div class="text"><Locale path="slideshow.delete"/></div>
+        <div class="text">
+          <Locale path="slideshow.delete" />
+        </div>
       </div>
-      <div class="button icon-button" @click="nextSlide">
+      <div
+        class="button icon-button"
+        @click="nextSlide"
+      >
         <NextIcon :size="iconSize" />
       </div>
     </div>
@@ -42,19 +69,27 @@
 </template>
 
 <script>
-import NewSlide from './NewSlide.vue';
-import Slide from './Slide.vue';
+import NewSlide from './slides/NewSlide.vue';
+import Slide from './slides/Slide.vue';
 import CameraOutlineIcon from 'vue-material-design-icons/CameraOutline.vue';
 import NextIcon from 'vue-material-design-icons/SkipNext.vue';
 import PrevIcon from 'vue-material-design-icons/SkipPrevious.vue';
-import ScrollView from '../../../layout/ScrollView.vue';
+import ScrollView from '../../layout/ScrollView.vue';
 import SyncIcon from 'vue-material-design-icons/Sync.vue';
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
-import Locale from '../../../cms/Locale.vue';
+import Locale from '../../cms/Locale.vue';
+import HotkeyMixin from '../../mixins/hotkey';
+
 
 const storagePostFix = '-slideshow';
 
 export default {
+  mixins: [HotkeyMixin(
+    {
+      'PageUp': "prevSlide",
+      'PageDown': "nextSlide",
+    }
+  )],
   components: {
     Slide,
     NewSlide,
@@ -65,7 +100,7 @@ export default {
     DeleteIcon,
     SyncIcon,
     Locale,
-},
+  },
   props: {
     storagePrefix: String,
   },
@@ -78,23 +113,41 @@ export default {
     };
   },
   mounted() {
-    this.scrollContent.addEventListener('wheel', this.scroll);
-
-    if (this.storagePrefix) {
-      try {
-        this.slides =
-          JSON.parse(window.localStorage.getItem(this.storageName)) || [];
-      } catch (e) {
-        console.warn(
-          'Could not load slideshow from localStorage. This warning is normal when no slideshow was saved.'
-        );
-      }
-    }
+    this.registerEventListener()
+    this.loadSlides()
   },
-  unmounted() {
-    this.scrollContent.removeEventListener('wheel', this.scroll);
+  beforeDestroy() {
+    this.removeEventListener()
   },
   methods: {
+    registerEventListener() {
+      this.scrollContent.addEventListener('wheel', this.scroll);
+    },
+    removeEventListener() {
+      this.scrollContent.removeEventListener('wheel', this.scroll);
+    },
+    loadSlides() {
+      if (this.storagePrefix) {
+        try {
+          this.slides =
+            JSON.parse(window.localStorage.getItem(this.storageName)) || [];
+
+          // We need to wait for next tick for other components to be mounted
+          this.$nextTick(() => {
+            this.$root.$emit('slides-loaded', { slideshow: this, slides: this.slides });
+          })
+
+        } catch (e) {
+          console.warn(
+            'Could not load slideshow from localStorage. This warning is normal when no slideshow was saved.'
+          );
+        }
+      }
+    },
+    updateSlides(slides) {
+      this.slides = slides;
+      this.saveSlides();
+    },
     getName(slide) {
       if (slide?.options?.year) {
         return slide.options.year === 'null' ? null : slide.options.year;
@@ -145,6 +198,7 @@ export default {
       this.updateSlide();
     },
     prevSlide() {
+      console.log(this, this?.slides)
       const length = this.slides.length;
       if (length > 0) {
         if (this.currentSlide <= 0) this.currentSlide = length - 1;
@@ -173,10 +227,13 @@ export default {
       this.slideChanged();
     },
     slideChanged() {
+      this.saveSlides();
+    },
+    saveSlides() {
       if (this.storagePrefix) {
         localStorage.setItem(this.storageName, JSON.stringify(this.slides));
-      }
-    },
+      } else throw new Error('No storage prefix set.');
+    }
   },
   computed: {
     scrollContent() {
@@ -206,9 +263,6 @@ export default {
   display: flex;
   flex-direction: column;
 
-  > *:not(:last-child) {
-    margin-right: $padding;
-  }
 
   &:focus {
     outline: $primary-color;
@@ -218,18 +272,27 @@ export default {
 .slides {
   display: flex;
   justify-content: flex-start;
-  padding: $padding;
-  padding-bottom: 2 * $padding;
+  margin: $padding;
+  margin-bottom: 2 * $padding;
 
-  > * {
+  >* {
     margin-right: math.div($padding, 2);
+
+  }
+
+  &:after {
+    content: "";
+    display: block;
+    flex-shrink: 0;
+    width: $small-padding;
   }
 }
 
 .tool-bar {
   display: flex;
   background-color: $white;
-  > * {
+
+  >* {
     flex: 1;
   }
 }
@@ -250,6 +313,7 @@ export default {
   border-radius: 0;
   box-sizing: border-box;
   border-color: $dark-white;
+
   &:not(:last-child) {
     border-right-width: 0;
   }

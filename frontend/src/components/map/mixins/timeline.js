@@ -43,7 +43,8 @@ export default {
     data: function () {
         return {
             timelineActive: false,
-            raw_timeline: { from: 0, to: 100, value: 0 }, timeBuffer: null
+            raw_timeline: { from: 0, to: 100, value: 0 },
+            timeBuffer: null
         }
     },
     mounted() {
@@ -83,7 +84,6 @@ export default {
                 timeline.value = options.year || 433;
                 this.raw_timeline = timeline;
                 this.timelineActive = options.timelineActive
-                window.map = this.map;
             } catch (e) {
                 console.error(e);
             }
@@ -103,7 +103,7 @@ export default {
         },
         timelineOptions() {
             return {
-                year: this.raw_timeline.value,
+                year: (this.timelineActive) ? this.raw_timeline.value : null,
                 timelineActive: this.timelineActive
             }
         }

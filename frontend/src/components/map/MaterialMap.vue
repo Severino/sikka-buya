@@ -30,18 +30,18 @@
     </div>
     <div class="center-ui center-ui-center"></div>
     <div class="center-ui center-ui-bottom">
-      <timeline
+
+
+      <TimelineSlideshowArea
         ref="timeline"
         :map="map"
-        :from="timeline.from"
-        :to="timeline.to"
-        :value="raw_timeline.value"
-        :valid="timelineValid"
+        :timelineFrom="timeline.from"
+        :timelineTo="timeline.to"
+        :timelineValue="raw_timeline.value"
         :timelineActive="timelineActive"
         :shareLink="shareLink"
         timelineName="additional-map"
         @input="timelineChanged"
-        @change="timelineChanged"
         @toggle="timelineToggled"
       >
         <template #background>
@@ -51,7 +51,7 @@
           > </canvas>
         </template>
 
-      </timeline>
+      </TimelineSlideshowArea>
     </div>
 
     <Sidebar
@@ -86,26 +86,26 @@
           ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
-                      id
-                      projectId
-                      yearOfMint
-                      material {
                         id
-                        name
-                        color
-                      }
-                      mint {
-                        id
-                        name
-                        location 
-                        uncertain
-                        province {
+                        projectId
+                        yearOfMint
+                        material {
                           id
                           name
+                          color
                         }
-                      }
-                      excludeFromTypeCatalogue
-                      "
+                        mint {
+                          id
+                          name
+                          location 
+                          uncertain
+                          province {
+                            id
+                            name
+                          }
+                        }
+                        excludeFromTypeCatalogue
+                        "
         />
       </div>
     </Sidebar>
@@ -130,7 +130,7 @@ import LabeledInputContainer from '../LabeledInputContainer.vue';
 import MintList from '../MintList.vue';
 import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
-import Timeline from './control/Timeline.vue';
+import Timeline from './timeline/Timeline.vue';
 
 // Other
 import MaterialOverlay from '../../maps/MaterialOverlay';
@@ -142,6 +142,8 @@ import ListSelectionTools from '../interactive/ListSelectionTools.vue';
 import catalogFilterMixin from '../mixins/catalog-filter';
 import Locale from '../cms/Locale.vue';
 import MapToolbar from "./MapToolbar.vue"
+import { FilterSlide } from '../../models/slide';
+import TimelineSlideshowArea from './TimelineSlideshowArea.vue';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -162,6 +164,7 @@ export default {
     Sidebar,
     Slider,
     Timeline,
+    TimelineSlideshowArea
   },
   data: function () {
     return {
@@ -196,28 +199,9 @@ export default {
     catalogFilterMixin('sikka-buya-material-map-filters'),
   ],
   computed: {
-    options() {
-      const options = {};
-      if (this.map) {
-        options.zoom = this.map.getZoom();
-        const latlng = this.map.getCenter();
-        options.location = [latlng.lat, latlng.lng];
-      }
 
-      if (this.$refs.catalogFilter?.activeFilters) {
-        for (let [key, val] of Object.entries(
-          this.$refs.catalogFilter.activeFilters
-        )) {
-          options[`${queryPrefix}${key}`] = val;
-        }
-      }
-      options.year = this.timelineActive ? this.timeline.value : 'null';
-      options.selectedMints = this.selectedMints;
-
-      return options;
-    },
     shareLink() {
-      return URLParams.generate(this.options).href;
+      return URLParams.generate(this.getOptions()).href;
     },
     mintList() {
       function addAvailability(mint, available) {
@@ -252,21 +236,6 @@ export default {
     });
 
     this.overlay = new MaterialOverlay(this.featureGroup, settings, {
-      // onApplyData: (data) => {
-      //   const validTypes = [];
-      //   data.types.forEach((type) => {
-      //     if (type?.mint?.location) {
-      //       try {
-      //         type.mint.location = JSON.parse(type.mint.location);
-      //         validTypes.push(type);
-      //       } catch (e) {
-      //         console.warn(`Could not parse all mints: ${type.mint.name}`, e);
-      //       }
-      //     }
-      //   });
-
-      //   return validTypes;
-      // },
       onGeoJSONTransform: (features) => {
         features.forEach((feature) => {
           feature.data.types.forEach((type) => {
@@ -313,28 +282,49 @@ export default {
     this.updateTimeline(true);
   },
   methods: {
+    slideshowSlidesLoaded({ slideshow, slides }) {
+      // TODO: This is a hack to make sure the mints are loaded before we apply the display options
+      setTimeout(() => {
+        this.applyDisplayOptionToLoadedSlides({ slideshow, slides })
+      }, 1000);
+    },
+    applyDisplayOptionToLoadedSlides({ slideshow, slides }) {
+      slides = slides.map(slide => {
+        slide.options = FilterSlide.formatLabel(slide.options, this.mints)
+        return slide
+      })
+
+      slideshow.updateSlides(slides);
+    },
     recalculateCatalogSidebar() {
       this.$refs.catalogSidebar.recalculate();
     },
     requestSlideOptions({ slideshow, index, overwrite } = {}) {
-      slideshow.createSlide(this.options, index, overwrite);
+      let options = FilterSlide.formatLabel(this.getOptions(), this.mints)
+      slideshow.createSlide(options, index, overwrite);
     },
     applySlide(options = {}) {
+
+      const location = options.location.split(',')
+        .reduce((acc, val, index) => {
+          acc[index % 2 === 0 ? 'lat' : 'lng'] = parseFloat(val);
+          return acc;
+        }, {})
+
       if (options.zoom && options.location) {
-        this.map.flyTo(options.location, options.zoom);
+        this.map.flyTo(location, options.zoom);
       }
 
-      if (options.year) {
-        if (options.year === 'null') {
-          this.timelineActive = false;
-        } else {
-          this.timelineActive = true;
-          this.timeChanged(options.year);
-        }
+      if (options.year && options.year !== 'null') {
+        this.timelineActive = true;
+        this.timeChanged(options.year);
+      } else {
+        this.timelineActive = false;
       }
 
       if (options.selectedMints)
         this.mintSelectionChanged(options.selectedMints);
+      else this.mintSelectionChanged([]);
 
       this.$refs.catalogFilter.resetFilters();
       Object.entries(options).forEach(([key, value]) => {
@@ -401,6 +391,23 @@ export default {
         weight: 1,
       };
     },
+    getOptions() {
+      let options = {};
+
+      if (this.$refs.catalogFilter?.activeFilters) {
+        for (let [key, val] of Object.entries(
+          this.$refs.catalogFilter.activeFilters
+        )) {
+          options[`${queryPrefix}${key}`] = val;
+        }
+      }
+
+      options.selectedMints = this.selectedMints;
+
+      options = Object.assign(options, this.timelineOptions, this.getMapOptions())
+
+      return options;
+    },
     resetFilters: function () {
       this.$refs.catalogFilter.resetFilters();
       this.clearMintSelection({ preventUpdate: true });
@@ -450,4 +457,5 @@ export default {
       grid-column: span 6;
     }
   }
-}</style>
+}
+</style>

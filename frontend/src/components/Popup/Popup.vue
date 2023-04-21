@@ -1,11 +1,19 @@
 <template>
-  <div class="popup-anchor" v-if="active" :class="{ ['no-shadow']: noShadow }">
+  <div
+    class="popup-anchor"
+    v-if="active"
+    :class="{ ['no-shadow']: noShadow }"
+  >
     <div
       class="popup-translator"
       ref="translator"
       :style="{ width: targetWidth + 'px' }"
     >
-      <div class="popup" ref="popup" @click.stop>
+      <div
+        class="popup"
+        ref="popup"
+        @click.stop
+      >
         <slot />
         <Button
           class="close-button"
@@ -106,7 +114,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.popup > :first-child {
+.popup> :first-child {
   margin-top: 0;
 }
 
@@ -115,9 +123,11 @@ export default {
 }
 
 $color: $white;
+
 .popup {
   position: absolute;
   bottom: 0;
+  min-height: 2rem;
   background-color: $color;
   color: $black;
   border-radius: $border-radius;
@@ -159,5 +169,4 @@ $color: $white;
   right: 0;
   top: 0;
   padding: $small-padding;
-}
-</style>
+}</style>

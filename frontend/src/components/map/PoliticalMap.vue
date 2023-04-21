@@ -51,11 +51,11 @@
             {{ obj.mint.name }}
           </h4>
           <div class="mint-grid grid col-3">
-            
+
 
             <router-link
               v-for="typ of obj.types"
-              :class="{['disabled-link']: typ.excludeFromTypeCatalogue}"
+              :class="{ ['disabled-link']: typ.excludeFromTypeCatalogue }"
               target="_blank"
               :to="{ name: 'Catalog Entry', params: { id: typ.id } }"
               :key="`unlocated-mint-${typ.projectId}`"
@@ -65,23 +65,23 @@
       </div>
     </div>
     <div class="center-ui center-ui-bottom">
-      <timeline
+      <TimelineSlideshowArea
         ref="timeline"
         :map="map"
-        :from="timeline.from"
-        :to="timeline.to"
-        :value="raw_timeline.value"
+        :timelineFrom="timeline.from"
+        :timelineTo="timeline.to"
+        :timelineValue="raw_timeline.value"
         :valid="timelineValid"
         :shareLink="shareLink"
         :timelineActive="timelineActive"
         timelineName="political-map"
         @input="timeChanged"
-        @change="timeChanged"
         @toggle="toggleTimeline"
       >
 
         <template #left>
           <map-settings-box
+            :iconSize="18"
             :open="overlaySettings.uiOpen"
             @toggle="toggleSettings"
             @reset="resetSettings"
@@ -98,15 +98,8 @@
           </map-settings-box>
         </template>
 
-        <template #background>
-          <canvas
-            id="timeline-canvas"
-            ref="timelineCanvas"
-          > </canvas>
-        </template>
 
-
-      </timeline>
+      </TimelineSlideshowArea>
     </div>
 
     <Sidebar side="right">
@@ -131,6 +124,8 @@ import TimelineChart from '../../models/timeline/TimelineChart.js';
 import Range from '../../models/timeline/range.js';
 import Sequence from '../../models/timeline/sequence.js';
 import Pattern from '../../models/draw/pattern';
+import { PoliticalSlide } from '../../models/slide';
+
 
 //Utils
 import Sort from '../../utils/Sorter';
@@ -147,7 +142,7 @@ import timeline from './mixins/timeline';
 import slideshow from '../mixins/slideshow';
 
 // Components
-import Button from '../layout/buttons/Button.vue';
+import ButtonVue from '../layout/buttons/Button.vue';
 import Checkbox from '../forms/Checkbox.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import ListSelectionTools from '../interactive/ListSelectionTools.vue';
@@ -159,7 +154,7 @@ import RulerList from '../RulerList.vue';
 import ScrollView from '../layout/ScrollView.vue';
 import Sidebar from './Sidebar.vue';
 import Slider from '../forms/Slider.vue';
-import Timeline from './control/Timeline.vue';
+import TimelineSlideshowArea from './TimelineSlideshowArea.vue';
 
 // Icons
 import SettingsIcon from 'vue-material-design-icons/Cog.vue';
@@ -203,7 +198,7 @@ try {
 export default {
   name: 'PoliticalMap',
   components: {
-    Button,
+    ButtonVue,
     Checkbox,
     ExitIcon,
     LabeledInputContainer,
@@ -216,7 +211,7 @@ export default {
     SettingsIcon,
     Sidebar,
     Slider,
-    Timeline,
+    TimelineSlideshowArea,
     Notification,
     Locale,
     MapBackButton,
@@ -252,21 +247,12 @@ export default {
     mintLocationsMixin({
       onMintSelectionChanged: async function () {
         await this.drawTimeline();
-        this.addedMints = [];
-        this.removedMints = [];
       },
     }),
   ],
   computed: {
-    options() {
-      const options = {};
-      options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
-      options.selectedMints = URLParams.toStringArray(this.selectedMints);
-      Object.assign(options, this.timelineOptions, this.mapOptions);
-      return options;
-    },
     shareLink() {
-      return URLParams.generate(this.options).href;
+      return URLParams.generate(this.getOptions()).href;
     },
     filters() {
       return {
@@ -378,31 +364,41 @@ export default {
     });
 
     let selectedRulers = URLParams.getArray('selectedRulers');
-    if (selectedRulers)
-      this.rulerSelectionChanged(selectedRulers, {
+    if (selectedRulers) {
+      this.rulerSelectionChanged({ active: selectedRulers, added: selectedRulers }, {
         added: selectedRulers,
         preventUpdate: true,
       });
+    }
 
     let selectedMints = URLParams.getArray('selectedMints');
-    if (selectedMints)
+    if (selectedMints) {
       this.mintSelectionChanged(
         { active: selectedMints, added: selectedMints },
         {
           preventUpdate: true,
         }
       );
+    }
   },
 
   mounted: async function () {
     this.$nextTick(() => {
       URLParams.clear();
     });
+    console.log("a")
 
-    this.timelineChart = new TimelineChart(
-      this.$refs.timelineCanvas,
-      this.raw_timeline
-    );
+    if (this.$refs.timelineCanvas) {
+      console.log("a")
+      this.timelineChart = new TimelineChart(
+        this.$refs.timelineCanvas,
+
+        this.raw_timeline
+      );
+      console.log("b")
+    }
+    else
+      console.warn("No timeline canvas found")
 
     await this.initTimeline();
     this.update();
@@ -420,10 +416,35 @@ export default {
       timeline.methods.toggleTimeline.call(this);
       this.update();
     },
-    requestSlideOptions({ slideshow, index }) {
-      slideshow.createSlide(this.options, index);
+    slideshowSlidesLoaded({ slides, slideshow }) {
+      // TODO: This is a hack to make sure the mints are loaded before we apply the display options
+      setTimeout(() => {
+        slides.map((slide) => {
+          slide.options = PoliticalSlide.formatLabel(slide.options, this.mints)
+          return slide
+        })
+
+        slideshow.updateSlides(slides)
+
+      }, 1000);
     },
-    createSlide() { },
+    requestSlideOptions({ slideshow, index, overwrite } = {}) {
+      let options = this.applyDisplayOptionToLoadedSlides()
+      slideshow.createSlide(options, index, overwrite);
+    },
+    applyDisplayOptionToLoadedSlides() {
+      let options = this.getOptions();
+      return PoliticalSlide.formatLabel(options, this.mints)
+    },
+    // We moved this from the computed property to a method because it is
+    // dependend on the map and is not notified when the map changes (move/zoom).
+    getOptions() {
+      const options = {};
+      options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
+      options.selectedMints = URLParams.toStringArray(this.selectedMints);
+      Object.assign(options, this.timelineOptions, this.getMapOptions());
+      return options;
+    },
     async drawTimeline() {
       if (this.timelineChart) {
         this.timelineChart.clear();
@@ -588,7 +609,7 @@ export default {
       }
       if (options.selectedRulers) {
         this.selectedRulers = URLParams.fromStringArray(options.selectedRulers);
-      }
+      } else this.selectedRulers = [];
 
       if (options.selectedMints) {
         let active = URLParams.fromStringArray(options.selectedMints);
@@ -601,7 +622,10 @@ export default {
             added.push(mintId);
           }
         });
+
         this.mintSelectionChanged({ active, added, removed });
+      } else {
+        this.mintSelectionChanged({ active: [] });
       }
 
       if (options.year && options.year != 'null') {
@@ -651,7 +675,7 @@ export default {
     },
     updateAvailableMints() { },
     rulerSelectionChanged(selected, preventUpdate = false) {
-      this.selectedRulers = selected.active;
+      this.selectedRulers = selected.active || [];
 
       try {
         localStorage.setItem('map-rulers', JSON.stringify(this.selectedRulers));
@@ -676,7 +700,6 @@ export default {
       )
         .then((val) => {
           this.timelineChart.updateTimeline(this.raw_timeline);
-
           this.mintTimelineData = val.data.data.typeCountOfMints;
           const sequence = Sequence.fromArrayObject(
             this.mintTimelineData,

@@ -63,7 +63,6 @@ const store = new Vuex.Store({
       else console.error(`Requested language is not supported: ${lang}.`)
     },
     printError(state, error) {
-      console.log(error)
       if (!Array.isArray(error)) error = [error]
       state.errors.push(...error)
 

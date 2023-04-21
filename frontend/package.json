@@ -1,6 +1,6 @@
 {
     "name": "sikkabuya",
-    "version": "0.3.37",
+    "version": "0.3.38",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
@@ -10,6 +10,8 @@
         "styleguide:build": "vue-styleguidist build"
     },
     "dependencies": {
+        "@jamescoyle/vue-icon": "^0.1.2",
+        "@mdi/js": "^7.2.96",
         "@turf/convex": "^6.5.0",
         "@turf/turf": "^6.5.0",
         "axios": "^0.21.1",
@@ -64,12 +66,13 @@
         },
         "rules": {
             "no-unused-vars": "off",
-            "vue/no-unused-components": "off",
             "no-unreachable": "off",
             "no-inner-declarations": "off",
             "no-prototype-builtins": "off",
             "no-useless-escape": "off",
-            "no-extra-semi": "off"
+            "no-extra-semi": "off",
+            "vue/no-unused-components": "off",
+            "vue/no-v-for-template-key-on-child": "off"
         }
     },
     "browserslist": [

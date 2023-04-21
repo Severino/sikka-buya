@@ -18,6 +18,8 @@
         :name="name"
         @change="(event) => $emit('change', event)"
         @input="(event) => $emit('input', event)"
+        @focus="(event) => $emit('focus', event)"
+        @blur="(event) => $emit('blur', event)"
       />
     </label>
   </div>
@@ -50,6 +52,9 @@ export default {
     this.$refs.bar.style.width = (this.ratio * 100).toFixed(6) + '%';
   },
   methods: {
+    focus(){
+      this.$refs.slider.focus()
+    },
     updateValue(event) {
       const { x: sliderX, width } = event.currentTarget.getBoundingClientRect();
       let { x } = event;

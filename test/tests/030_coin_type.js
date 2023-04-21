@@ -1,6 +1,4 @@
 const chai = require('chai')
-
-const { getDiff } = require("recursive-diff")
 const expect = chai.expect
 const { graphql } = require('../helpers/graphql')
 const { KOHL, WESTERWELLE, MERKEL, DUERER, KARL, CHIRAC, CHARLES_DE_GAULLE, MACRON, HOLLANDE, SARKOZY, UDERZO, GOSCINNY, LOUIS, ARIELLE, SEBASTIAN, PLANKTON, FISCH, WAL, MICHELANGELO, BERNINI, POSEIDON, ELIZABETH_II, GAUCK } = require('../mockdata/persons')

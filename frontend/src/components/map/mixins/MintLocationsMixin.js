@@ -125,14 +125,15 @@ export function mintLocationsMixin({
                 this.addedMints = added
                 this.removedMints = removed
 
+                if (onMintSelectionChanged)
+                    onMintSelectionChanged.call(this, this.selectedMints)
+                if (!preventUpdate) this.update();
+
                 try {
                     window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
                 } catch (e) {
                     console.warn(e)
                 }
-                if (onMintSelectionChanged)
-                    onMintSelectionChanged.call(this, this.selectedMints)
-                if (!preventUpdate) this.update();
             },
             clearMintSelection({ preventUpdate = false } = {}) {
                 this.mintSelectionChanged({ active: [], removed: this.selectedMints }, { preventUpdate });

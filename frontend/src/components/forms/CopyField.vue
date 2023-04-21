@@ -10,7 +10,7 @@
         show: this.showOverlay,
       }"
     >
-      <span class="text">Copied!</span>
+      <span class="text"><Locale path="events.copied"/></span>
     </div>
     <input
       ref="input"
@@ -23,11 +23,13 @@
 
 <script>
 import CopyIcon from 'vue-material-design-icons/ContentCopy.vue';
+import Locale from '../cms/Locale.vue';
 
 export default {
   components: {
     CopyIcon,
-  },
+    Locale
+},
   props: {
     value: String,
   },

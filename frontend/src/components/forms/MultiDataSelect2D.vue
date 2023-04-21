@@ -38,23 +38,25 @@
     <multi-data-select-add-button
       id="add-group-button"
       @click.native="() => $emit('add')"
-    >Gruppe
-      hinzufügen</multi-data-select-add-button>
+    >
+      <Locale path="ui.multidataselect2d.add_group" />
+    </multi-data-select-add-button>
   </div>
 </template>
 
 <script>
+import Locale from '../cms/Locale.vue';
 import Button from '../layout/buttons/Button.vue';
 import MultiDataSelect from './MultiDataSelect.vue';
 import MultiDataSelectAddButton from './MultiDataSelectAddButton.vue';
 
 export default {
-  components: { MultiDataSelect, MultiDataSelectAddButton, Button },
+  components: { MultiDataSelect, MultiDataSelectAddButton, Button, Locale },
   props: {
     active: Array,
     input: Object,
-    separator: String,
     mode: String,
+    separator: String,
   },
   data() {
     return {
@@ -95,7 +97,8 @@ export default {
 }
 </style>
 
-<style lang="scss" scoped>.multi-data-select-2d {
+<style lang="scss" scoped>
+.multi-data-select-2d {
   padding: $small-padding;
   border: $border;
   border-radius: $border-radius;
@@ -114,4 +117,5 @@ export default {
 
 #add-group-button {
   margin-top: $small-padding;
-}</style>
+}
+</style>

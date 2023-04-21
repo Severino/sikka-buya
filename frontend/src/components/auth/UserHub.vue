@@ -60,6 +60,15 @@ export default {
 };
 </script>
 
+<style lang='scss'>
+.user-hub {
+  .toggle-button>.active {
+    background-color: white;
+    color: $primary-color;
+  }
+}
+</style>
+
 <style lang='scss' scoped>
 .user-hub {
 
@@ -69,10 +78,6 @@ export default {
     margin: 3px;
     font-size: 0.65rem;
 
-    .active {
-      background-color: white;
-
-    }
   }
 
   .material-design-icon {
@@ -109,4 +114,5 @@ export default {
 
   cursor: default;
   user-select: none;
-}</style>
+}
+</style>

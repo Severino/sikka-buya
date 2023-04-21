@@ -7,7 +7,7 @@
             class="toolbox"
             v-if="$store.getters.canEdit"
         >
-            <Button @click="() => cms_edit({ id: value.id, group, props: { include } })">
+            <Button @click="() => cms_edit({ id: value.id, group }, { include })">
                 <Locale path="general.edit" />
             </Button>
             <Button @click="() => remove(value.id)">
@@ -49,7 +49,7 @@ export default {
         showTime: { type: Boolean, default: true },
         value: { type: Object, required: true },
         group: { type: String, required: true },
-        include: { type: Array, default() { return [] } }
+        include: { type: Array, default: () => [] }
     },
     methods: {
         isPresent(name) {

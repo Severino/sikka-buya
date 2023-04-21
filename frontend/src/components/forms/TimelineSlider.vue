@@ -1,11 +1,14 @@
 <template>
   <slider
+    class="timeline-slider"
     :value="value"
-    @input="(arg) => $emit('input', arg)"
     :min="min"
     :max="max"
     :step="step"
-    class="timeline-slider"
+    @input="(arg) => $emit('input', arg)"
+    @focus="(arg) => $emit('focus', arg)"
+    @blur="(arg) => $emit('blur', arg)"
+    ref="slider"
   >
     <div class="background">
       <slot name="background" />
@@ -65,6 +68,10 @@ export default {
     },
   },
   methods: {
+    focus() {
+      this.$refs.slider.focus();
+      this.$emit('focus');
+    },
     offsetLeftCss(val) {
       return {
         left: this.valueToPercentage(val),

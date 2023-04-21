@@ -32,15 +32,6 @@ export default class PoliticalOverlay extends Overlay {
 
     filters.excludeFromMapApp = false
 
-
-    // We want to show the 'unselected' mints still visible in the 
-    // list. So we don't filter out the other mints.
-    // if (filters.mint) {
-    //   delete filters.mint
-    // }
-
-
-
     let result;
     if (filters.yearOfMint) {
 
@@ -84,6 +75,7 @@ export default class PoliticalOverlay extends Overlay {
         getPersonMints(mints: $mints) {
           mint { id, name, location }
           caliphs {id shortName name color dynasty {id name } }
+          heirs {id shortName name color dynasty {id name } }
           issuers {id shortName name color dynasty {id name } }
           overlords {id shortName name color dynasty {id name } }
         }
@@ -95,7 +87,7 @@ export default class PoliticalOverlay extends Overlay {
       result = await Query.raw(query, {
         persons: filters.person,
         mints: filters.mint
-      }, true)
+      })
     }
     return result.data.data
   }
@@ -172,7 +164,8 @@ export default class PoliticalOverlay extends Overlay {
 
           mintMap[pm.mint.id].data.personMints = pm
           availableMints[pm.mint.id] = mintMap[pm.mint.id]
-            ;[...pm.caliphs, ...pm.issuers, ...pm.overlords].forEach(person => {
+
+            ;[...pm.heirs, ...pm.caliphs, ...pm.issuers, ...pm.overlords].forEach(person => {
               rulers[person.id] = person
             })
         }
@@ -418,7 +411,7 @@ export default class PoliticalOverlay extends Overlay {
     return layer
   }
 
-  createMintWithoutYearMarker(latlng, feature, {
+  createMintWithoutTimeMarker(latlng, feature, {
     selections = {},
   } = {}) {
     let layer;
@@ -480,7 +473,7 @@ export default class PoliticalOverlay extends Overlay {
     if (this.mode === "year") {
       layer = this.createMintTypesMarker(...arguments)
     } else if (this.mode === "no_year") {
-      layer = this.createMintWithoutYearMarker(latlng, feature, { selections, animationTime })
+      layer = this.createMintWithoutTimeMarker(latlng, feature, { selections, animationTime })
     } else {
       throw new Error(`Marker mode is not implemented: ${this.mode}`)
     }

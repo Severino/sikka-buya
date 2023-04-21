@@ -1,9 +1,12 @@
 <template>
-  <div
-    class="popup-activator"
-  >
-    <div class="target" @click.stop.prevent="() => (active = !active)">
-      <slot />
+  <div class="popup-activator">
+    <div
+      class="target"
+      @click.stop.prevent="() => (active = !active)"
+    >
+      <slot v-bind:active="active">
+        <!-- Popup activator / button / text -->
+      </slot>
     </div>
     <popup
       :active="active"
@@ -11,7 +14,12 @@
       :noShadow="noShadow"
       @close="closePopup()"
     >
-      <slot name="popup" />
+      <slot
+        name="popup"
+        v-bind:active="active"
+      >
+        <!-- Popup content -->
+      </slot>
     </popup>
   </div>
 </template>

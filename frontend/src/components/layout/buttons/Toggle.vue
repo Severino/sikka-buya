@@ -1,10 +1,20 @@
 <template>
-  <div class="button toggle-button" :class="{active:value}" @click.stop.prevent="toggle" >
-    <Tooltip v-if="tooltip" >{{ tooltip }}</Tooltip>
-    <div v-if="value" class="active">
+  <div
+    class="toggle"
+    :class="classes"
+    @click.stop.prevent="toggle"
+  >
+    <Tooltip v-if="tooltip">{{ tooltip }}</Tooltip>
+    <div
+      v-if="value"
+      class="active"
+    >
       <slot name="active"></slot>
     </div>
-    <div class="inactive" v-else>
+    <div
+      class="inactive"
+      v-else
+    >
       <slot name="inactive"></slot>
     </div>
   </div>
@@ -14,39 +24,57 @@
 import Tooltip from '../../forms/Tooltip.vue';
 
 export default {
-    name: "Toggle",
-    props: {
-        value: {
-            type: Boolean,
-            required: true,
-        },
-        tooltip: String
+  name: "Toggle",
+  props: {
+    readonly: Boolean,
+    value: {
+      type: Boolean,
+      required: true,
     },
-    methods: {
-        toggle: function () {
-            this.$emit("input", !this.value);
-        },
-        stop(event) {
-            event.stopPropagation();
-            event.preventDefault();
-        },
+    tooltip: String
+  },
+  methods: {
+    toggle: function () {
+      this.$emit("input", !this.value);
     },
-    components: { Tooltip }
+    stop(event) {
+      event.stopPropagation();
+      event.preventDefault();
+    },
+  },
+  components: { Tooltip },
+  computed: {
+    classes() {
+      return {
+        active: this.value,
+        "button": !this.readonly,
+        ["toggle-button"]: !this.readonly
+      };
+    },
+  }
 };
 </script>
 
 <style lang="scss" scoped>
-.button {
-  border-radius: 0;
-  border: none;
-  background-color: transparent;
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  .active {
+  &:not(.button)>.active {
+    background-color: transparent;
     color: $primary-color;
   }
+}
 
-  &:hover {
-    background-color: rgb(223, 223, 223);
+.button {
+
+  &.active {
+    background-color: $primary-color;
+  }
+
+  >.active {
+    color: $white;
   }
 }
 </style>

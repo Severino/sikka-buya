@@ -1,10 +1,11 @@
 <template>
   <router-link
     class="card-link"
-    :class="{ [className]: true, disabled }"
+    :class="{ [className]: true, ['card-link-image']: !noImage, disabled }"
     :to="to"
   >
     <CMSImage
+      v-if="!noImage"
       class="image"
       :identity="identity"
       :mode="imageClass"
@@ -30,18 +31,21 @@ export default {
     CMSImage
   },
   props: {
+    noImage: Boolean,
     disabled: Boolean,
     to: Object || String,
-    identity: {
-      required: true,
-      type: String
-    },
+    identity: String,
     contain: Boolean,
     direction: {
       validator(value) {
         if (value == null) return true
         else return ["row", "column"].includes(value)
       }
+    }
+  },
+  mounted() {
+    if (!this.noImage) {
+      if (!this.identity) throw new Error(`Missing prop 'identity' for CardLink. If you don't want to use an image, set prop 'noImage' to true.`)
     }
   },
   methods: {
@@ -68,6 +72,8 @@ export default {
 <style lang="scss">
 .card-link {
 
+
+
   .image {
     min-height: 50px;
   }
@@ -87,8 +93,19 @@ export default {
   user-select: none;
   transition: all 0.3s;
 
+  &.subtle-card-link {
+    color: $primary-color;
+    background-color: $white;
+
+    header {
+      padding-top: $padding;
+      padding-bottom: $padding;
+
+    }
+  }
+
   &:not(.disabled):hover {
-    filter: brightness(0.95);
+    filter: brightness(0.90);
   }
 
   &.disabled {
@@ -121,7 +138,6 @@ header {
   padding: $big-box-padding;
   align-items: center;
   text-align: right;
-  min-width: 100px;
   align-self: flex-end;
 }
 

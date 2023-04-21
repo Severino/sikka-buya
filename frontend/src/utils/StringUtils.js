@@ -5,6 +5,13 @@ export default class StringUtils {
         return '–'
     }
 
+    static clip(str, length, ellipsis = '…') {
+        if (str.length > length) {
+            return str.substr(0, length) + ellipsis
+        }
+        return str
+    }
+
     static capitalize(str) {
         if (!str.length) return ""
         else return `${str[0].toUpperCase()}${str.substr(1).toLowerCase()}`

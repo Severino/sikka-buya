@@ -1,18 +1,22 @@
 <template>
-  <div class="slide slideshow-item">
+  <div
+    class="slide slideshow-item"
+    @click.stop.prevent="() => $emit('select')"
+  >
     <div
       class="number-indicator"
       v-if="number"
-      @click.stop.prevent="() => $emit('select')"
     >
       {{ number }}
     </div>
-    <div
-      v-if="name"
-      class="text-content"
-      @click.stop.prevent="() => $emit('select')"
-    >
-      {{ name }}
+    <div class="slide-row-container">
+      <SlideRow
+        v-for="(row, index) in getRows()"
+        :key="`slide-row-${index}`"
+        :icon="row.icon"
+        :text="row.text"
+        :style="getGridColumns(row.columns)"
+      />
     </div>
   </div>
 </template>
@@ -21,6 +25,7 @@
 import DotsVerticalIcon from 'vue-material-design-icons/DotsVertical.vue';
 import PlusIcon from 'vue-material-design-icons/Plus.vue';
 import PopupActivator from '../../../Popup/PopupActivator.vue';
+import SlideRow from './SlideRow.vue';
 
 export default {
   props: {
@@ -32,7 +37,18 @@ export default {
     DotsVerticalIcon,
     PlusIcon,
     PopupActivator,
-  },
+    SlideRow
+  }, methods: {
+    getRows() {
+      return this.options?.display?.rows?.length > 0 ? this.options.display.rows : [];
+
+    },
+    getGridColumns(columns = 4) {
+      return {
+        ["grid-column"]: `span ${columns}`
+      }
+    },
+  }
 };
 </script>
 
@@ -71,8 +87,17 @@ export default {
 
   min-width: 32px;
   padding: 0;
-  > * {
+
+  >* {
     padding: math.div($padding, 2) $padding;
   }
+}
+</style>
+
+<style lang="scss" scoped>
+.slide-row-container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  justify-items: center;
 }
 </style>

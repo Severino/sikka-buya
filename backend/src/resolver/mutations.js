@@ -95,7 +95,29 @@ const SuperUserMutations = {
             return WriteableDatabase.none("UPDATE app_user SET super=FALSE WHERE id=$1", user)
         } else
             WriteableDatabase.none("DELETE FROM app_user_privilege WHERE app_user=$[user] AND privilege=$[permission]", { user, permission })
-    }
+    },
+    async setTypeComplete(_, {
+        completed = true,
+        id = null
+    } = {}) {
+        if (completed) {
+            await WriteableDatabase.none("INSERT INTO type_completed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
+        } else {
+            await WriteableDatabase.none("DELETE FROM type_completed WHERE type=$1", id)
+        }
+        return completed
+    },
+    async setTypeReviewed(_, {
+        reviewed = true,
+        id = null,
+    } = {}) {
+        if (reviewed) {
+            await WriteableDatabase.none("INSERT INTO type_reviewed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
+        } else {
+            await WriteableDatabase.none("DELETE FROM type_reviewed WHERE type=$1", id)
+        }
+        return reviewed
+    },
 }
 
 
@@ -189,34 +211,38 @@ const UserMutations = {
         return Type.addType(_, args, context, info)
     },
     async deleteCoinType(_, args, context, info) {
+        const { super: isSuperUser } = Auth.verifyContext(context)
+
+        if (!isSuperUser) {
+            const { completed, reviewed } = await WriteableDatabase.oneOrNone(`
+        SELECT 
+            CASE WHEN type_completed.type is null
+            then False
+            else True 
+            END as completed,
+
+            CASE WHEN type_reviewed.type is null
+            then False
+            else True
+            END as reviewed
+        FROM type 
+        LEFT JOIN type_completed ON type_completed.type = type.id
+        LEFT JOIN type_reviewed ON type_reviewed.type = type.id
+        WHERE id=$[id]
+        `, { id })
+
+            if (completed || reviewed) {
+
+                throw new Error("error.type.delete.only_super_can_delete_completed_or_reviewed_types")
+            }
+        }
+
         return Type.deleteType(args.id)
     },
     async updateCoinType(_, args, context) {
         if (!args.id) throw new Error("No id provided!")
 
         return Type.updateType(args.id, args.data)
-    },
-    async setTypeComplete(_, {
-        completed = true,
-        id = null
-    } = {}, context) {
-        if (completed) {
-            await WriteableDatabase.none("INSERT INTO type_completed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
-        } else {
-            await WriteableDatabase.none("DELETE FROM type_completed WHERE type=$1", id)
-        }
-        return completed
-    },
-    async setTypeReviewed(_, {
-        reviewed = true,
-        id = null,
-    } = {}, context) {
-        if (reviewed) {
-            await WriteableDatabase.none("INSERT INTO type_reviewed (type) VALUES ($1) ON CONFLICT DO NOTHING", id)
-        } else {
-            await WriteableDatabase.none("DELETE FROM type_reviewed WHERE type=$1", id)
-        }
-        return reviewed
     },
     setLang(_, { path, lang, singular, plural } = {}) {
         Argument.require({ path, lang, singular })

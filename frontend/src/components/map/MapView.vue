@@ -1,5 +1,8 @@
 <template>
-  <div :id="'map_' + _uid" ref="map">
+  <div
+    :id="'map_' + _uid"
+    ref="map"
+  >
     <template v-if="ready">
       <slot />
     </template>
@@ -8,6 +11,7 @@
 
 <script>
 var L = require('leaflet');
+var _ = require('lodash');
 require('leaflet.pattern');
 
 import Simplebar from 'simplebar';
@@ -94,26 +98,8 @@ export default {
 
     window.map = map;
 
-    map.on('popupopen', function (e) {
-      const _container = e.popup._container;
-      const target = _container.querySelector('[make-simplebar]');
-
-      if (!target) {
-        console.warn(`No simplebar wrapper was found on the popup`);
-      } else {
-        const targetHTML = target.innerHTML;
-        target.innerHTML = '';
-
-        let wrapper = document.createElement('div');
-        wrapper.innerHTML = targetHTML;
-        wrapper.style.overflow = 'visible';
-        wrapper.classList.add(...target.className.split(' '));
-
-        const simplebar = new Simplebar(target, { autoHide: false });
-        const content = simplebar.getContentElement();
-        content.appendChild(wrapper);
-      }
-    });
+    map.on('popupopen', this.popupOpened);
+    map.on('move', this.mapMoved);
 
     if (this.height) {
       this.$refs.map.style.height = this.height;
@@ -135,9 +121,42 @@ export default {
     this.ready = true;
 
     this.$nextTick(() => {
-      this.$emit('mapReady', map);
+      this.$emit('ready', map);
     });
   },
+  beforeDestroy() {
+    this.map.off('popupopen', this.popupOpened);
+    this.map.off('move', this.mapMoved);
+  },
+  methods: {
+    popupOpened(e) {
+      const _container = e.popup._container;
+      const target = _container.querySelector('[make-simplebar]');
+
+      if (!target) {
+        console.warn(`No simplebar wrapper was found on the popup`);
+      } else {
+        const targetHTML = target.innerHTML;
+        target.innerHTML = '';
+
+        let wrapper = document.createElement('div');
+        wrapper.innerHTML = targetHTML;
+        wrapper.style.overflow = 'visible';
+        wrapper.classList.add(...target.className.split(' '));
+
+        const simplebar = new Simplebar(target, { autoHide: false });
+        const content = simplebar.getContentElement();
+        content.appendChild(wrapper);
+
+      }
+    },
+    mapMoved(e) {
+      this.$emit('moved', e);
+
+      const map = e.target;
+      _.isEqual(window.map, map);
+    },
+  }
 };
 </script>
 

@@ -30,6 +30,7 @@ export default {
                     [latlng.lat, latlng.lng].map((val) => val.toFixed(5))
                 );
             }
+
             return options
         }
     },
@@ -43,15 +44,21 @@ export default {
         this.featureGroup.clearLayers()
 
     },
-    // beforeRouteEnter: function (_, _2, next) {
-    //     next()
-    // },
-    // beforeRouteLeave(to, from, next) {
-    //     this.featureGroup.name = "OLD"
-    //     this.featureGroup.clearLayers()
-    //     next()
-    // },
     methods: {
+        // We moved this from the computed components to the methods, because
+        // it is dependend on the map object and not reactive if the map object
+        // changes.
+        getMapOptions() {
+            let options = {}
+            if (this.map) {
+                options.zoom = this.map.getZoom();
+                const latlng = this.map.getCenter();
+                options.location = URLParams.toStringArray(
+                    [latlng.lat, latlng.lng].map((val) => val.toFixed(5))
+                );
+            }
+            return options
+        },
         update: function () {
             throw new Error("Map mixin requires an update method!")
         },

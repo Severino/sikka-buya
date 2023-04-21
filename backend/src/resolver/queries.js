@@ -212,10 +212,6 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         modTypes.modReview = modTypes.types
         return modTypes
     },
-    getTypeComplete: async function (_, { id = null } = {}) {
-        const result = await Database.one("SELECT exists(SELECT * FROM type_completed WHERE type=$1)", id);
-        return result.exists
-    },
     getAnalytics: async function (_, { id = null } = {}) {
         const count = await Database.one("SELECT COUNT(*) as types, COUNT(DISTINCT mint) AS mints, COUNT(DISTINCT year_of_mint) AS years  FROM type", id);
 
@@ -428,16 +424,20 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                     
                     LEFT JOIN person_color ON person_color.person = person.id
                     LEFT JOIN dynasty ON dynasty.id = person.dynasty
+                ), heirs AS (
+                    SELECT other_person.type AS type, other_person.person AS person from other_person
+                    LEFT JOIN person ON person.id = other_person.person
+					LEFT JOIN person_role ON person_role.id = person.role
+                    WHERE person_role.name = 'heir'
                 )
-                
             SELECT  type.id, type.mint, 
                     coalesce(array_agg(caliph_person.json) filter (where caliph_person.id is not null) , '{}') as caliphs, 
                 -- Note here we implemente some special behavior the numismatics wanted:
                 -- When there is no issuer, but a caliph, then we use the caliph as issuer.
                 coalesce(array_agg(issuer_person.json) filter (where issuer_person.id is not null), 
                          array_agg(caliph_person.json) filter (where caliph_person.id is not null) ,'{}' ) as issuers, 
+                coalesce(array_agg(heirs_person.json) filter (where heirs_person.json is not null), '{}') as heirs,
                 coalesce(array_agg(overlord_person.json)  filter (where overlord_person.id is not null), '{}')  as overlords,
-
                 coalesce(array_agg(issuer.person) filter (where issuer.person is not null), '{}') as issuer_id,
                 coalesce(array_agg(overlord.person) filter (where overlord.person is not null), '{}') as overlord_id,
                 coalesce(array_agg(type.caliph) filter (where type.caliph is not null), '{}') as caliphs_id
@@ -446,7 +446,10 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
             LEFT JOIN overlord ON overlord.type = type.id
             LEFT JOIN persons caliph_person ON caliph_person.id = type.caliph
             LEFT JOIN persons issuer_person ON issuer_person.id = issuer.person 
+			LEFT JOIN heirs ON heirs.type = type.id
+            LEFT JOIN persons heirs_person ON heirs_person.id = heirs.person
             LEFT JOIN persons overlord_person ON overlord_person.id = overlord.person
+            LEFT JOIN other_person ON other_person.type = type.id
             WHERE type.exclude_from_map_app = FALSE
             GROUP BY type.id
                 
@@ -455,11 +458,9 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                 mint,
                 coalesce(array_agg(DISTINCT issuers) filter (where issuers is not null), '{}') as issuers, 
                 coalesce(array_agg(DISTINCT overlords) filter (where overlords is not null), '{}') as overlords, 
+                coalesce(array_agg(DISTINCT heirs) filter (where heirs is not null), '{}') as heirs,
                 coalesce(array_agg(DISTINCT caliphs) filter (where caliphs is not null), '{}') as caliphs
-
-
-                
-                FROM (SELECT DISTINCT mint, UNNEST(issuers) as issuers, UNNEST(overlords) as overlords, UNNEST(caliphs) as caliphs,  issuer_id || overlord_id || caliphs_id  as ruler_id FROM types) persons
+                FROM (SELECT DISTINCT mint, UNNEST(heirs) AS HEIRS, UNNEST(issuers) as issuers, UNNEST(overlords) as overlords, UNNEST(caliphs) as caliphs,  issuer_id || overlord_id || caliphs_id  as ruler_id FROM types) persons
                 JOIN mint m ON m.id = mint
                 JOIN province p ON m.province = p.id
                 ${(whereFilters.length > 0) ? `WHERE ${whereFilters.join(" AND ")}` : ''}
@@ -468,6 +469,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
                     issuers, 
                     overlords, 
                     caliphs, 
+                    heirs,
                     jsonb_build_object(
                         'id', m.id,
                         'name', m.name,
@@ -565,7 +567,7 @@ LEFT JOIN type_reviewed tr ON t.id = tr.type`
         if (!identity) throw new Error("Identity must be provided!")
         const { parts, filename } = CMS.decomposeIdentity(identity)
         const matchedFiles = await findFilesAt(parts, filename)
-        if (matchedFiles.length === 0) throw new Error("No file for filename: ", filename)
+        if (matchedFiles.length === 0) throw new Error("Missing image: " + filename)
         if (matchedFiles.length > 1) throw new Error("Too many matched files.")
         const match = matchedFiles[0]
         return CMS.getPublicPath(...parts, match)

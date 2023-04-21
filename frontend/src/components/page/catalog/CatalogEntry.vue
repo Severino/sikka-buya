@@ -138,6 +138,7 @@ export default {
                 otherPersons {
                   id
                   name
+                  shortName
                   role {
                     id, name
                   }

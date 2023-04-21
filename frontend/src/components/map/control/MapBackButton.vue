@@ -2,7 +2,7 @@
   <nav>
     <Button
       id="back-button"
-      class="ugly"
+      class="map-button"
       :to="{ name: 'Home' }"
     >
       <ExitToApp

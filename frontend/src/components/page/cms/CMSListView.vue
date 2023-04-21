@@ -58,7 +58,7 @@ export default {
 
 <style lang='scss' scoped>
 .list {
-    margin-bottom: 50vh;
+    margin-bottom: $page-bottom-spacing;
 
     >* {
         margin-top: $padding;

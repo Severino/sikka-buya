@@ -9,12 +9,15 @@ export default class Async {
 /**
  * A RequestGuard will receive a function that executes a request.
  * 
- * It immediately executes the initial request and also
- * executes the last request send, after it finalized the first,
- * while ignoring all requests done inbetween. 
+ * When executinge the callback using the exec method, the RequestGuard
+ * the request will be sent immediately. If another request is sent
+ * before the first one is finished, the RequestGuard will queue the
+ * request and execute it as soon as the first one is finished.
  */
 export class RequestGuard {
-    constructor(callback) {
+    constructor(callback, {
+        before = null,
+    } = {}) {
         if (!callback || typeof callback !== "function")
             throw new Error(`RequestGuard requires a callback function, got ${typeof callback}.`)
 
@@ -22,13 +25,17 @@ export class RequestGuard {
         this.current = 0
         this.locked = false
         this.value = null
+        this.before = before
         this.callback = callback
     }
 
     /**
-     * Executes a function as long as the requestCount
-     * is different from the previous requestNumber.
-
+     * Executes the callback function. If the RequestGuard is locked,
+     * the request will be queued and executed as soon as the RequestGuard
+     * is unlocked.
+     * 
+     * @param {any} value The value to pass to the callback function.
+     * @returns {Promise<any>} The return value of the callback function.
      *  
      */
     async exec(value) {
@@ -39,11 +46,18 @@ export class RequestGuard {
             do {
                 this.locked = true
                 let current = this.reqCount
+                let value = this.value
+
+                if(this.before) this.before(value)
+
                 try {
-                    returnValue = await this.callback(this.value)
+                    // console.log(`RequestGuard starts processing ${current}.`)
+                    returnValue = await this.callback(value)
                 } catch (e) {
                     console.error(e)
                 } finally {
+                    // console.log(`RequestGuard finished request ${current}.`)
+                    if (this.reqCount > current) console.log(`RequestGuard queued request ${this.reqCount}.`)
                     this.current = current
                     this.locked = false
                 }
@@ -55,8 +69,11 @@ export class RequestGuard {
              */
             this.reqCount = 0
             this.current = 0
+            return returnValue
+        } else {
+            // console.log("RequestGuard is locked, the request was queued.", this.reqCount, this.value)
         }
-        return returnValue
+        return null
     }
 
 }

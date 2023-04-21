@@ -4,7 +4,10 @@ const { createDirectoryStructure } = require('./utils/dir-builder')
 const { finished } = require('stream/promises')
 const Frontend = require('./frontend')
 
+
+const supportedExtensions = ["png", "jpg", "jpeg"]
 class CMS {
+
 
     static get config() {
         return {
@@ -36,7 +39,7 @@ class CMS {
         return path.join(this.dataPath, ...parts)
     }
 
-    static async findFilesAt(parts, key, extensions = ["png", "jpg", "jpeg"]) {
+    static async findFilesAt(parts, key, extensions = supportedExtensions) {
         const path = CMS.getDataPath(...parts)
         const files = await fs.promises.readdir(path)
         let regex = new RegExp(`^${key}.(${extensions.join("|")})$`, 'g')
@@ -48,7 +51,8 @@ class CMS {
 
     static async writeFileFromPromise(parts, filename, promise) {
         const fileStream = await promise.promise
-        const ext = path.extname(fileStream.filename)
+        const ext = path.extname(fileStream.filename).toLowerCase()
+        if (supportedExtensions.indexOf(ext.substring(1)) === -1) throw new Error("Unsupported file extension")
         const fileURI = this.getDataPath(...parts, filename + ext)
 
         const stream = fileStream.createReadStream()

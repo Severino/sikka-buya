@@ -127,6 +127,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+ul.unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    margin: 0;
+    padding: 0;
+  }
+}
+
 p {
   line-height: 1.5rem;
 }
@@ -272,6 +283,7 @@ h6 {
   transform: scale(1);
 }
 
+
 .circle-marker.added,
 .circle-marker.removed {
   pointer-events: none;
@@ -284,6 +296,7 @@ h6 {
 .circle-marker.removed {
   animation: shrinking 0.5s 1;
 }
+
 
 @keyframes growing {
   0% {

@@ -113,13 +113,15 @@
           </ListItemCell>
           <CompletedToggle
             class="done-button"
-            v-if="isEditor"
+            icon="check-icon"
+            :readonly="!$store.getters.userHasPermission('super')"
             :value="item.completed"
             @input="changeCompleteState($event, item)"
           />
           <CompletedToggle
             class="reviewed-button"
-            v-if="isEditor"
+            icon="check-emphasis-icon"
+            :readonly="!$store.getters.userHasPermission('super')"
             :value="item.reviewed"
             @input="changeReviewedState($event, item)"
           />
@@ -465,7 +467,9 @@ export default {
           if (idx != -1) this.$data.items.splice(idx, 1);
         })
         .catch((answer) => {
-          console.error(answer);
+          answer.forEach((err) => {
+            this.$store.commit('printError', this.$t(err));
+          });
         });
     },
     filterChanged(name, val) {
@@ -522,11 +526,8 @@ export default {
     height: 44px;
   }
 
-  .toggle-button {
-    color: $light-gray;
-    .active {
-      color: $bright-blue;
-    }
+  .toggle-button.active {
+      background-color: $bright-blue;
   }
 }
 </style>

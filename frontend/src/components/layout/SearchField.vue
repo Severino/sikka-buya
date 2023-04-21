@@ -1,5 +1,8 @@
 <template>
-  <div class="search" :class="{ active, 'input-search': isInputSearch }">
+  <div
+    class="search"
+    :class="{ active, 'input-search': isInputSearch }"
+  >
     <input
       type="search"
       :placeholder="$t('message.input_to_filter')"
@@ -7,17 +10,27 @@
       :value="value"
       ref="searchField"
     />
-    <div v-if="isInputSearch" class="search-indicator">
+    <div
+      v-if="isInputSearch"
+      class="search-indicator"
+    >
       <loading-spinner
         v-if="pending"
         class="spinner"
         :size="LoadingSpinnerSize.Small"
       />
-      <Magnify :size="iconSize" v-else />
+      <Magnify
+        :size="iconSize"
+        v-else
+      />
     </div>
-    <async-button v-else :pending="pending" @click="buttonSearch"
-      ><Magnify :size="iconSize"
-    /></async-button>
+    <async-button
+      v-else
+      :pending="pending"
+      @click="buttonSearch"
+    >
+      <Magnify :size="iconSize" />
+    </async-button>
   </div>
 </template>
 
@@ -26,15 +39,12 @@ import Magnify from 'vue-material-design-icons/Magnify';
 import LoadingSpinner from '../misc/LoadingSpinner.vue';
 import AsyncButton from './buttons/AsyncButton.vue';
 
-import HotKey from '../mixins/hotkey';
-
 export default {
   components: {
     Magnify,
     LoadingSpinner,
     AsyncButton,
   },
-  mixins: [HotKey],
   data: function () {
     return {
       timeout: null,
@@ -84,7 +94,7 @@ export default {
 
         // We use a local variable, that we dont override a new
         // search, that may happen before the callback is triggered.
-        this.timeout = setTimeout(() => {}, this.delay);
+        this.timeout = setTimeout(() => { }, this.delay);
       }
     },
     async buttonSearch() {
@@ -94,7 +104,7 @@ export default {
     async search(value) {
       return this.asyncSearch(value);
     },
-    handleHotkey(event) {
+    keyDown(event) {
       if (event.target == this.$refs.searchField) {
         if (event.key == 'Enter') {
           this.search(this.value);
@@ -128,6 +138,7 @@ export default {
     input {
       border-color: $primary-color;
     }
+
     .material-design-icon {
       color: $primary-color;
     }
@@ -137,7 +148,7 @@ export default {
     padding-left: 30px;
   }
 
-  > input {
+  >input {
     box-sizing: border-box;
     flex: 1;
     transition: all 0.3s;
