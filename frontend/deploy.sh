@@ -9,5 +9,5 @@ sudo mv /var/www/html/* /var/www/html_backup/
 echo "[4/5] Move new version to webroot"
 sudo mv ~/sikka-buya/frontend/dist/* /var/www/html/
 echo "[5/5] Copy cms data from backup to production folder"
-sudo cp /var/www/html_backup/data/cms/* /var/www/html/data/cms/
+sudo cp -r /var/www/html_backup/data/cms/* /var/www/html/data/cms/
 echo "Done! Thanks for deploying a new version of sikka:buya"
