@@ -81,7 +81,7 @@
 
         <template #left>
           <map-settings-box
-            :iconSize="22"
+            :iconSize="18"
             :open="overlaySettings.uiOpen"
             @toggle="toggleSettings"
             @reset="resetSettings"
@@ -142,7 +142,7 @@ import timeline from './mixins/timeline';
 import slideshow from '../mixins/slideshow';
 
 // Components
-import Button from '../layout/buttons/Button.vue';
+import ButtonVue from '../layout/buttons/Button.vue';
 import Checkbox from '../forms/Checkbox.vue';
 import LabeledInputContainer from '../LabeledInputContainer.vue';
 import ListSelectionTools from '../interactive/ListSelectionTools.vue';
@@ -198,7 +198,7 @@ try {
 export default {
   name: 'PoliticalMap',
   components: {
-    Button,
+    ButtonVue,
     Checkbox,
     ExitIcon,
     LabeledInputContainer,

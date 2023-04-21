@@ -26,15 +26,17 @@
         }
     },
     "general": {
-        "user": "Nutzer",
         "and": "und",
-        "or": "oder",
-        "edit": "bearbeiten",
         "delete": "löschen",
-        "name": "Name | Namen",
-        "publish": "veröffentlichen",
+        "edit": "bearbeiten",
         "filter_active": "Filter aktiv",
-        "reset_filter": "Filter aufheben"
+        "name": "Name | Namen",
+        "or": "oder",
+        "publish": "veröffentlichen",
+        "reset_filter": "Filter aufheben",
+        "settings": "Einstellungen",
+        "share": "Teilen",
+        "user": "Nutzer"
     },
     "property": {
         "material": "Material | Materialien",
@@ -156,7 +158,8 @@
         "ruler_selection": "Herrscherauswahl",
         "mint_selection": "Prägeorteauswahl",
         "type_filter": "Filter",
-        "presentation": "Presentation"
+        "presentation": "Presentation",
+        "bookmarks": "Lesezeichen"
     },
     "form": {
         "create": "Erstellen",
@@ -207,6 +210,8 @@
         "donator": "Donator | Donator(en)"
     },
     "slideshow": {
+        "play": "Abspielen",
+        "pause": "Anhalten",
         "override": "überschreiben",
         "record": "aufnehmen",
         "delete": "löschen"

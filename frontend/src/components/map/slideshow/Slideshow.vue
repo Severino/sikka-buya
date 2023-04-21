@@ -78,10 +78,18 @@ import ScrollView from '../../layout/ScrollView.vue';
 import SyncIcon from 'vue-material-design-icons/Sync.vue';
 import DeleteIcon from 'vue-material-design-icons/Delete.vue';
 import Locale from '../../cms/Locale.vue';
+import HotkeyMixin from '../../mixins/hotkey';
+
 
 const storagePostFix = '-slideshow';
 
 export default {
+  mixins: [HotkeyMixin(
+    {
+      'PageUp': "prevSlide",
+      'PageDown': "nextSlide",
+    }
+  )],
   components: {
     Slide,
     NewSlide,
@@ -114,19 +122,9 @@ export default {
   methods: {
     registerEventListener() {
       this.scrollContent.addEventListener('wheel', this.scroll);
-      document.addEventListener('keydown', this.handleHotkeys);
-
     },
     removeEventListener() {
       this.scrollContent.removeEventListener('wheel', this.scroll);
-      document.removeEventListener('keydown', this.handleHotkeys);
-    },
-    handleHotkeys(event) {
-      if (event.key === 'PageUp') {
-        this.prevSlide();
-      } else if (event.key === 'PageDown') {
-        this.nextSlide();
-      }
     },
     loadSlides() {
       if (this.storagePrefix) {
@@ -200,6 +198,7 @@ export default {
       this.updateSlide();
     },
     prevSlide() {
+      console.log(this, this?.slides)
       const length = this.slides.length;
       if (length > 0) {
         if (this.currentSlide <= 0) this.currentSlide = length - 1;

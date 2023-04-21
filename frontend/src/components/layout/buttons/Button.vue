@@ -2,7 +2,7 @@
   <button
     class="button"
     :type="type"
-    :class="{ colored, multiline, 'content-button': contentButton }"
+    :class="{ colored, multiline, 'content-button': contentButton, active: active }"
     @click="clicked"
   >
     <!-- 
@@ -52,7 +52,8 @@ export default {
      * Prevent the default stopPropagation
      */
     noStop: Boolean,
-    type: String
+    type: String,
+    active: Boolean
   },
   methods: {
     /**
@@ -89,21 +90,27 @@ export default {
 
   &.map-button {
     color: $white;
-    font-weight: bold;
-    background-color: rgba($color: $white, $alpha: 0.4);
+    font-weight: 600;
+    font-size: 0.8rem;
+
+    $background-alpha: 0.4;
+
+    background-color: rgba($color: $white, $alpha: $background-alpha);
     backdrop-filter: blur(1px);
     border: rgba($color: $white, $alpha: 0.8) 1px solid;
-    $text-shadow: 0 0 5px rgba($color: $black, $alpha: 0.8);
+    $text-shadow: 0 0 3px rgba($color: $black, $alpha: 0.8);
     text-shadow: $text-shadow;
 
-    > svg {
-      margin-right: $padding;
-      backdrop-filter: drop-shadow($text-shadow);
+    &.active {
+      background-color: rgba($color: $primary-color, $alpha: $background-alpha);
     }
 
-    > .material-design-icon {
-      margin-right: $padding;
-      backdrop-filter: drop-shadow($text-shadow);
+    >svg {
+      filter: drop-shadow($text-shadow);
+
+      &:not(:last-child) {
+        margin-right: $padding;
+      }
     }
 
     a {

@@ -6,45 +6,74 @@
         >
             <template #1>
                 <ButtonVue
-                    class="map-button "
+                    class="map-button"
+                    :active="slideshow.active"
                     @click="() => (slideshow.active = !slideshow.active)"
                 >
-                    <Icon
-                        type="mdi"
-                        :path="icons.presentation"
-                        :size="headerIconSize"
-                    />
-                    <Locale path="map.presentation" />
+                    <template v-if="slideshow.active">
+                        <Icon
+                            type="mdi"
+                            :path="icons.bookmarks"
+                            :size="headerIconSize"
+                        />
+                        <Locale path="map.bookmarks" />
+                    </template>
+                    <template v-else>
+                        <Icon
+                            type="mdi"
+                            :path="icons.bookmarksOutline"
+                            :size="headerIconSize"
+                        />
+                        <Locale path="map.bookmarks" />
+                    </template>
                 </ButtonVue>
 
-                <div
-                    class="button icon-button"
+                <ButtonVue
+                    class="map-button"
+                    :active="playing"
                     @click="togglePlay"
                 >
-                    <Icon
-                        v-if="!playing"
-                        type="mdi"
-                        :path="icons.play"
-                        :size="headerIconSize"
-                    />
-                    <Icon
-                        v-else
-                        type="mdi"
-                        :path="icons.pause"
-                        :size="headerIconSize"
-                    />
-                </div>
+                    <template v-if="playing">
+                        <Icon
+                            type="mdi"
+                            :path="icons.pause"
+                            :size="headerIconSize"
+                        />
+                        <Locale path="slideshow.pause" />
+                    </template>
+                    <template v-else>
+                        <Icon
+                            type="mdi"
+                            :path="icons.play"
+                            :size="headerIconSize"
+                        />
+                        <Locale path="slideshow.play" />
+                    </template>
+
+
+                </ButtonVue>
 
                 <popup-activator
                     :targetWidth="280"
                     :noShadow="true"
                 >
-                    <Icon
-                        type="mdi"
-                        :path="icons.share"
-                        :size="headerIconSize"
-                        class="button icon-button"
-                    />
+                    <template v-slot="{ active }">
+                        <ButtonVue
+                            class="map-button"
+                            :active="active"
+                            :noStop="true"
+                        >
+                            <Icon
+                                type="mdi"
+                                :path="icons.share"
+                                :size="headerIconSize"
+                                class="button icon-button"
+                            />
+                            <Locale path="general.share" />
+                        </ButtonVue>
+
+                    </template>
+
                     <template v-slot:popup>
                         <h3>
                             <Locale path="map.share_view" />
@@ -53,6 +82,7 @@
                         <copy-field :value="shareLink" />
                     </template>
                 </popup-activator>
+
 
                 <slot name="left" />
 
@@ -64,6 +94,7 @@
                 <template v-if="allowToggle">
                     <ButtonVue
                         class="map-button"
+                        :active="timelineActive"
                         @click="toggleTimeline"
                         v-if="timelineActive"
                     >
@@ -71,6 +102,7 @@
                     </ButtonVue>
                     <ButtonVue
                         class="map-button"
+                        :active="timelineActive"
                         @click="toggleTimeline"
                         v-else
                     >
@@ -116,7 +148,7 @@ import Grid from '../Grid.vue';
 import ButtonVue from '../layout/buttons/Button.vue';
 import Drawer from '../misc/Drawer.vue';
 
-import { mdiPresentation, mdiPlay, mdiPause, mdiShareVariant } from "@mdi/js"
+import { mdiPlay, mdiPause, mdiShareVariant, mdiBookmarkBoxMultiple, mdiBookmarkBoxMultipleOutline } from "@mdi/js"
 import Locale from '../cms/Locale.vue';
 import PopupActivator from '../Popup/PopupActivator.vue';
 import CopyField from '../forms/CopyField.vue';
@@ -164,7 +196,8 @@ export default {
         timelineValue: Number,
     },
     mixins: [icons({
-        "presentation": mdiPresentation,
+        "bookmarks": mdiBookmarkBoxMultiple,
+        "bookmarksOutline": mdiBookmarkBoxMultipleOutline,
         "play": mdiPlay,
         "pause": mdiPause,
         "share": mdiShareVariant
@@ -173,7 +206,7 @@ export default {
     data() {
         return {
             slideshow,
-            headerIconSize: 22,
+            headerIconSize: 18,
             playInterval: null,
 
         }
@@ -226,12 +259,18 @@ export default {
 };
 </script>
 
-
 <style lang='scss' scoped>
 .timeline-slideshow-area {
     flex: 1;
     margin: $padding;
+    margin-bottom: 20px;
+
+    >*:not(:last-child):not(.closed) {
+        margin-bottom: $padding ;
+    }
 }
+
+
 
 .timeline {
     height: 100px;

@@ -89,7 +89,7 @@ export default {
     this.map.off('moveend', this.updateMapSettings);
 
     this.map.eachLayer((layer) => {
-      this.map.removeLayer(layer) 
+      this.map.removeLayer(layer)
     })
   },
   methods: {
@@ -223,7 +223,6 @@ export default {
 
   .timeline {
     // max-width: 400px;
-    margin: 10px 0;
     width: 100%;
 
     .slider {
@@ -287,7 +286,7 @@ export default {
     }
 
     .ui-element-container {
-      > * {
+      >* {
         pointer-events: all;
       }
     }
