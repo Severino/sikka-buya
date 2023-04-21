@@ -66,8 +66,8 @@
     </div>
     <div class="center-ui center-ui-bottom">
       <TimelineSlideshowArea
-        ref="timeline"
         :map="map"
+        ref="timelineSlideshowArea"
         :timelineFrom="timeline.from"
         :timelineTo="timeline.to"
         :timelineValue="raw_timeline.value"
@@ -96,6 +96,13 @@
               />
             </labeled-input-container>
           </map-settings-box>
+        </template>
+
+        <template #background>
+          <canvas
+            id="timeline-canvas"
+            ref="timelineCanvas"
+          > </canvas>
         </template>
 
 
@@ -235,6 +242,7 @@ export default {
       unavailableRulers: [],
       selectedUnavailableRulers: [],
       unlocatedTypes: [],
+      timelineResizeTimeout: null,
       timelineChart: null,
       types: [],
     };
@@ -386,19 +394,11 @@ export default {
     this.$nextTick(() => {
       URLParams.clear();
     });
-    console.log("a")
 
-    if (this.$refs.timelineCanvas) {
-      console.log("a")
-      this.timelineChart = new TimelineChart(
-        this.$refs.timelineCanvas,
-
-        this.raw_timeline
-      );
-      console.log("b")
-    }
-    else
-      console.warn("No timeline canvas found")
+    this.timelineChart = new TimelineChart(
+      this.$refs.timelineCanvas,
+      this.raw_timeline
+    );
 
     await this.initTimeline();
     this.update();
@@ -552,7 +552,7 @@ export default {
       return ranges;
     },
     drawStripedAndBlock(timelineRuledBy) {
-      const height = this.$refs.timeline.$el.offsetHeight;
+      const height = this.$refs.timelineSlideshowArea.getTimeline().$el.offsetHeight;
       const points = timelineRuledBy.data || [];
 
       var fill = this.timelineChart
@@ -569,8 +569,12 @@ export default {
       this.timelineChart.drawRangeRectOnCanvas(combinedRanges, 0, height, fill);
     },
     updateCanvas() {
-      this.timelineChart.updateSize();
-      this.drawTimeline();
+      if (this.timelineResizeTimeout)
+        clearTimeout(this.timelineResizeTimeout);
+      this.timelineResizeTimeout = setTimeout(async () => {
+        // this.timelineChart.updateSize();
+        // await this.drawTimeline();
+      }, 1500);
     },
     timelineUpdated: async function () {
       this.update();
@@ -713,7 +717,7 @@ export default {
           if (ranges)
             mintRanges = Range.overlappingRanges([mintRanges, ranges]);
 
-          const height = this.$refs.timeline.$el.offsetHeight;
+          const height = this.$refs.timelineSlideshowArea.getTimeline().$el.offsetHeight;
           this.timelineChart.drawRangeLineOnCanvas(mintRanges, height / 2, {
             lineCap: 'butt',
             lineWidth: height,
@@ -762,11 +766,14 @@ export default {
 
 .unlocated-mints {
   position: absolute;
-  left: $padding * 2;
-  bottom: $padding * 4;
-  background-color: $white;
+  left: $padding ;
+  bottom: 0 ;
+  color: $white;
+  background-color: rgba($white, 0.8);
   width: 260px;
   border-radius: $border-radius;
+  border: 1px solid $light-gray;
+  backdrop-filter: blur(2px);
 
   h3 {
     font-size: 1em;

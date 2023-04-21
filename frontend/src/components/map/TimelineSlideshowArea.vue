@@ -130,10 +130,7 @@
             >
 
                 <template #background>
-                    <canvas
-                        id="timeline-canvas"
-                        ref="timelineCanvas"
-                    > </canvas>
+                    <slot name="background" />
                 </template>
             </Timeline>
         </Drawer>
@@ -225,6 +222,9 @@ export default {
         }
     },
     methods: {
+        getTimeline(){
+            return this.$refs.timeline;
+        },
         toggleTimeline() {
             this.$emit('toggle', this.timelineActive);
         },
