@@ -2,38 +2,27 @@
   <footer>
     <div class="content-wrapper grid col-3">
       <div>
-        <router-link :to="{ name: 'Contact' }">
-          <locale path="routes.contact" />
-        </router-link>
+        <ul class="unstyled">
+          <li>IMPRESSUM (TODO)</li>
+          <li>DATENSCHUTZ (TODO)</li>
+          <li>
+            <router-link :to="{ name: 'Contact' }">
+              <locale path="routes.contact" /> (TODO)
+            </router-link>
+          </li>
+        </ul>
+
+
       </div>
+      <div>
+
+      </div>
+
       <div>
         <router-link :to="{ name: 'Login' }">
           <locale path="system.user_login" />
         </router-link>
         <div>© 2023</div>
-      </div>
-      <div>
-        <h4>
-          <locale path="system.supported_by" />
-        </h4>
-        <ul class="unstyled">
-
-          <li>
-            <CMSImage
-              class="supporter-logo"
-              mode="contain"
-              identity="logo.supporter_1"
-            />
-          </li>
-          <li>
-            <CMSImage
-              class="supporter-logo"
-              mode="contain"
-              identity="logo.supporter_2"
-            />
-          </li>
-        </ul>
-
       </div>
     </div>
   </footer>
@@ -82,6 +71,6 @@ footer {
 }
 
 ul li {
-  margin-top: 2rem;
+  margin-bottom: 0.5rem;
 }
 </style>
