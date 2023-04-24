@@ -18,9 +18,9 @@ function ringsFromPersonMint(latlng, feature, selections, {
 }) {
     const personMints = feature.data.personMints
     let group = L.featureGroup()
-    if (innerRadius >= outerRadius) throw new Error("Inner Radius needs to be smaller than outer radius.")
 
     let outerRadius = radius
+    if (innerRadius >= outerRadius) throw new Error("Inner Radius needs to be smaller than outer radius.")
 
     // You can change the relative width of the single
     // rings by modifying the ringRadii. 
