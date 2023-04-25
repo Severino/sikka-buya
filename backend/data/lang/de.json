@@ -196,6 +196,9 @@
             "multidataselect2d": {
                 "add_group": "Gruppe hinzufügen"
             }
+        },
+        "multidataselect2d": {
+            "add_group": "Gruppe hinzufügen"
         }
     },
     "typeview": {

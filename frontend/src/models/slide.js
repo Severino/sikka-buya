@@ -2,8 +2,8 @@ import L from 'leaflet'
 import StringUtils from '../utils/StringUtils'
 
 export class Slide {
-    static formatLabel(options) {
-        throw new Error("Required method not implemented: formatLabel(options).")
+    static formatDisplay(options) {
+        throw new Error("Required method not implemented: formatDisplay(options).")
     }
 }
 
@@ -33,72 +33,75 @@ function getLocationRow(options, mints) {
 }
 
 function getYearRow(options) {
-    return new SlideDisplayRow({
+    return (options.year) ? new SlideDisplayRow({
         icon: "calendar-icon",
-        text: options.year.toString(),
-        columns: 2
-    })
+        text: options.year.toString()
+    }) : null
 }
 
-function addYearRowIfPresent(options) {
-    let row = []
-    let columns = 3
-    if (options.year) {
-        columns = 2
-        row.push(
-            getYearRow(options)
-        )
-    }
-
-    return { columns, row }
+function getMintRow(options) {
+    return (options.selectedMints.length > 0) ? new SlideDisplayRow({
+        icon: "mint-icon",
+        text: options.selectedMints.length.toString()
+    }) : null
 }
 
 export class PoliticalSlide extends Slide {
-    static formatLabel(options, mints) {
+    static formatDisplay(slide, mints) {
+        const options = slide.options
+        const rows = [getLocationRow(options, mints)]
 
-        const { columns, row: yearRow } = addYearRowIfPresent(options)
+        const secondRow = []
+        const yearRow = getYearRow(options)
+        if (yearRow) {
+            secondRow.push(yearRow)
+        }
 
-        const rows = [
-            getLocationRow(options, mints),
-            ...yearRow,
-            new SlideDisplayRow({
-                icon: "mint-icon",
-                text: options.selectedMints.length.toString(),
-                columns
-            }),
-            new SlideDisplayRow({
+        const mintRow = getMintRow(options)
+        if (mintRow) {
+            secondRow.push(mintRow)
+        }
+
+
+        if (options.selectedRulers.length > 0) {
+            secondRow.push(new SlideDisplayRow({
                 icon: "ruler-icon",
                 text: options.selectedRulers.length.toString(),
-                columns
-            })
-        ]
+            }))
+        }
 
-        options.display = new SlideDisplay({
+        secondRow.forEach(row => row.columns = 6 / secondRow.length)
+        rows.push(...secondRow)
+
+        slide.display = new SlideDisplay({
             rows
         })
 
-        return options
+        return slide
     }
 }
 
 export class FilterSlide extends Slide {
-    static formatLabel(options, mints) {
+    static formatDisplay(slide, mints) {
+        const options = slide.options
+        const rows = [getLocationRow(options, mints)]
+        const secondRow = []
 
-        const { columns: smallColumns, row: yearRow } = addYearRowIfPresent(options)
+        const yearRow = getYearRow(options)
+        if (yearRow) {
+            secondRow.push(yearRow)
+        }
 
-        options.display = new SlideDisplay({
-            rows: [
-                getLocationRow(options, mints),
-                ...yearRow,
-                new SlideDisplayRow({
-                    icon: "mint-icon",
-                    text: options.selectedMints.length.toString(),
-                    columns: smallColumns
-                })
-            ]
-        })
+        const mintRow = getMintRow(options)
+        if (mintRow) {
+            secondRow.push(mintRow)
+        }
 
-        return options
+        secondRow.forEach(row => row.columns = 6 / secondRow.length)
+
+        slide.display = {rows: [...rows, ...secondRow]}
+
+        return slide
     }
 }
 

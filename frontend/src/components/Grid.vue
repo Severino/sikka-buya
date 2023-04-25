@@ -38,10 +38,9 @@ export default {
 
 .column {
     display: flex;
-      align-items: center;
+      align-items: stretch;
       gap: $small-padding;
       color: $white;
-    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
 
 
       &:last-child {

@@ -96,7 +96,7 @@ export default {
     $background-alpha: 0.4;
 
     background-color: rgba($color: $white, $alpha: $background-alpha);
-    backdrop-filter: blur(1px);
+    backdrop-filter: blur(1px) drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
     border: rgba($color: $white, $alpha: 0.8) 1px solid;
     $text-shadow: 0 0 3px rgba($color: $black, $alpha: 0.8);
     text-shadow: $text-shadow;

@@ -417,24 +417,27 @@ export default {
       this.update();
     },
     slideshowSlidesLoaded({ slides, slideshow }) {
+
       // TODO: This is a hack to make sure the mints are loaded before we apply the display options
       setTimeout(() => {
-        slides.map((slide) => {
-          slide.options = PoliticalSlide.formatLabel(slide.options, this.mints)
+        let updatedSlides = slides.slice()
+
+        updatedSlides = updatedSlides.map((slide) => {
+          slide = PoliticalSlide.formatDisplay(slide, this.mints)
           return slide
         })
 
-        slideshow.updateSlides(slides)
+        slideshow.updateSlides(updatedSlides)
 
-      }, 1000);
+      }, 300);
     },
     requestSlideOptions({ slideshow, index, overwrite } = {}) {
-      let options = this.applyDisplayOptionToLoadedSlides()
-      slideshow.createSlide(options, index, overwrite);
+      let { options, display } = this.applyDisplayOptionToLoadedSlides()
+      slideshow.createSlide({ options, index, overwrite, display });
     },
     applyDisplayOptionToLoadedSlides() {
-      let options = this.getOptions();
-      return PoliticalSlide.formatLabel(options, this.mints)
+      const options = this.getOptions();
+      return PoliticalSlide.formatDisplay({name: "", options}, this.mints)
     },
     // We moved this from the computed property to a method because it is
     // dependend on the map and is not notified when the map changes (move/zoom).
@@ -767,7 +770,7 @@ export default {
 .unlocated-mints {
   position: absolute;
   left: $padding ;
-  bottom: 0 ;
+  bottom: 0;
   color: $white;
   background-color: rgba($white, 0.8);
   width: 260px;

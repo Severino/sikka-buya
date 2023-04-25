@@ -259,6 +259,26 @@ export default {
 };
 </script>
 
+<style lang="scss">
+.toolbar {
+    
+    .column > .button,
+    .column .popup-target > .button  {
+        // text-overflow: clip;
+        // flex-wrap: nowrap;
+        // overflow: hidden;
+
+        > span {
+            white-space: nowrap;
+            min-width: 0;
+            text-overflow: ellipsis;
+        }
+    }
+
+}
+
+</style>
+
 <style lang='scss' scoped>
 .timeline-slideshow-area {
     flex: 1;
@@ -279,8 +299,6 @@ export default {
 .toolbar {
     margin-bottom: $padding;
 
-    .button {
-        min-height: 100%;
-    }
+
 }
 </style>

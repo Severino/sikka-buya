@@ -32,16 +32,17 @@ export default {
     name: [String, Number],
     number: Number,
     options: Object,
+    display: Object,
   },
   components: {
     DotsVerticalIcon,
     PlusIcon,
     PopupActivator,
     SlideRow
-  }, methods: {
+  },
+  methods: {
     getRows() {
-      return this.options?.display?.rows?.length > 0 ? this.options.display.rows : [];
-
+      return this.display?.rows?.length > 0 ? this.display.rows : [];
     },
     getGridColumns(columns = 4) {
       return {

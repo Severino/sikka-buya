@@ -1,9 +1,8 @@
 <template>
-  <div class="settings">
-
     <PopupActivator
       :targetWidth="280"
       :noShadow="true"
+      class="settings"
     >
       <template v-slot="{ active }">
         <ButtonVue
@@ -36,8 +35,6 @@
         </ButtonVue>
       </template>
     </PopupActivator>
-
-  </div>
 </template>
 
 <script>

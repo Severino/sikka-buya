@@ -16,9 +16,8 @@
       <mint-list
         :items="mintList"
         :selectedIds="selectedMints"
-        @selectionChanged="
-          (val) => mintSelectionChanged(val, { preventUpdate: true })
-        "
+        @selectionChanged="(val) => mintSelectionChanged(val, { preventUpdate: true })
+          "
       />
     </Sidebar>
 
@@ -75,15 +74,15 @@
           :forceAll="true"
           :pageInfo="pageInfo"
           :exclude="[
-            'mint',
-            'yearOfMint',
-            'ruler',
-            'buyid',
-            'caliph',
-            'treadwellId',
-            'projectId',
-            'heir'
-          ]"
+              'mint',
+              'yearOfMint',
+              'ruler',
+              'buyid',
+              'caliph',
+              'treadwellId',
+              'projectId',
+              'heir'
+            ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
                         id
@@ -251,29 +250,28 @@ export default {
   mounted: async function () {
     await this.fetchMints();
     if (this.$route.query['selectedMints']) {
-      try {
-        let parsed = JSON.parse(this.$route.query['selectedMints']);
-        if (Array.isArray(parsed)) {
-          this.selectedMints = parsed;
-        }
-      } catch (e) {
-        console.warn(e);
-      }
+      let selectedMints = URLParams.get('selectedMints', "array")
+      if (selectedMints)
+        this.selectedMints = selectedMints
     }
 
     this.$nextTick(() => {
       for (let [key, val] of Object.entries(this.$route.query)) {
+        console.log(key, queryPrefix, key.startsWith(queryPrefix), this.$refs?.catalogFilter?.activeFilters)
         if (
           key.startsWith(queryPrefix) &&
           this.$refs?.catalogFilter?.activeFilters
         ) {
+          let value = val;
+
+          const filterKey = key.replace(queryPrefix, '');
           try {
-            let parsed = JSON.parse(val);
-            const filterKey = key.replace(queryPrefix, '');
-            this.$refs.catalogFilter.setFilter(filterKey, parsed);
+            value = JSON.parse(val);
           } catch (e) {
             console.warn(e);
           }
+
+          this.$refs.catalogFilter.setFilter(filterKey, value);
         }
       }
     });
@@ -290,7 +288,10 @@ export default {
     },
     applyDisplayOptionToLoadedSlides({ slideshow, slides }) {
       slides = slides.map(slide => {
-        slide.options = FilterSlide.formatLabel(slide.options, this.mints)
+        if (typeof slide.location === "string")
+          slide.location = URLParams.fromStringArray(slide.location)
+
+        slide = FilterSlide.formatDisplay(slide, this.mints)
         return slide
       })
 
@@ -300,16 +301,18 @@ export default {
       this.$refs.catalogSidebar.recalculate();
     },
     requestSlideOptions({ slideshow, index, overwrite } = {}) {
-      let options = FilterSlide.formatLabel(this.getOptions(), this.mints)
-      slideshow.createSlide(options, index, overwrite);
+      let { options, display } = FilterSlide.formatDisplay({ options: this.getOptions() }, this.mints)
+      console.log(options.display, display)
+      slideshow.createSlide({ options, display, index, overwrite });
     },
     applySlide(options = {}) {
-
-      const location = options.location.split(',')
-        .reduce((acc, val, index) => {
-          acc[index % 2 === 0 ? 'lat' : 'lng'] = parseFloat(val);
-          return acc;
-        }, {})
+      let location = options.location
+      if (typeof location === "string")
+        location = location.split(',')
+          .reduce((acc, val, index) => {
+            acc[index % 2 === 0 ? 'lat' : 'lng'] = parseFloat(val);
+            return acc;
+          }, {})
 
       if (options.zoom && options.location) {
         this.map.flyTo(location, options.zoom);
@@ -404,7 +407,7 @@ export default {
 
       options.selectedMints = this.selectedMints;
 
-      options = Object.assign(options, this.timelineOptions, this.getMapOptions())
+      options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions())
 
       return options;
     },

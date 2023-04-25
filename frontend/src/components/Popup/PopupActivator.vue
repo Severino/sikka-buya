@@ -1,7 +1,7 @@
 <template>
   <div class="popup-activator">
     <div
-      class="target"
+      class="popup-target"
       @click.stop.prevent="() => (active = !active)"
     >
       <slot v-bind:active="active">

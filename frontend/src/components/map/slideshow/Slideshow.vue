@@ -12,7 +12,8 @@
         <template v-for="(slide, idx) of slides">
           <slide
             :key="`slide-${idx}`"
-            :number="idx + 1"
+            :number="Number(idx) + 1"
+            :display="slide.display"
             :options="slide.options"
             :class="{ active: idx === currentSlide }"
             @select="setSlide(idx)"
@@ -128,6 +129,7 @@ export default {
     },
     loadSlides() {
       if (this.storagePrefix) {
+
         try {
           this.slides =
             JSON.parse(window.localStorage.getItem(this.storageName)) || [];
@@ -145,7 +147,7 @@ export default {
       }
     },
     updateSlides(slides) {
-      this.slides = slides;
+      this.slides = slides
       this.saveSlides();
     },
     getName(slide) {
@@ -170,10 +172,11 @@ export default {
         overwrite,
       });
     },
-    createSlide(options, index = null, overwrite = false) {
+    createSlide({ options = {}, index = null, overwrite = false, display = {} }) {
       const slide = {
         name: null,
         options,
+        display
       };
 
       if (index == null) this.slides.push(slide);
@@ -183,7 +186,6 @@ export default {
       }
 
       this.currentSlide = index == null ? this.slides.length - 1 : index;
-
       this.slideChanged();
     },
     nextSlide() {
@@ -198,7 +200,6 @@ export default {
       this.updateSlide();
     },
     prevSlide() {
-      console.log(this, this?.slides)
       const length = this.slides.length;
       if (length > 0) {
         if (this.currentSlide <= 0) this.currentSlide = length - 1;

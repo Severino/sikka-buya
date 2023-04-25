@@ -57,7 +57,7 @@ export class RequestGuard {
                     console.error(e)
                 } finally {
                     // console.log(`RequestGuard finished request ${current}.`)
-                    if (this.reqCount > current) console.log(`RequestGuard queued request ${this.reqCount}.`)
+                    // if (this.reqCount > current) console.log(`RequestGuard queued request ${this.reqCount}.`)
                     this.current = current
                     this.locked = false
                 }

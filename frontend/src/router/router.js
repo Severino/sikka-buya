@@ -111,7 +111,7 @@ const routes = [
     path: "/map/",
     name: "MapPage",
     component: MapPage,
-    meta$gene: { hideHub: true },
+    meta$gene: { hideHub: true, auth: true },
     redirect: {
       name: "Political Map"
     },
@@ -230,6 +230,7 @@ const routes = [
         path: "/map-overview",
         name: "Map Overview",
         component: RouterContainer,
+        meta$gene: {auth: true},
         redirect: { name: "Map Landing" },
         children: [
           {
@@ -534,7 +535,6 @@ router.beforeEach(async (to, from, next) => {
       if (auth) {
         next()
       } else {
-        console.log(to.name)
         if (to.name === "Home") {
           router.push({ name: "Landing" })
         } else {

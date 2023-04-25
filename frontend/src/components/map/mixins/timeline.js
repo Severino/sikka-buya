@@ -90,6 +90,12 @@ export default {
         },
         timelineUpdated() {
             throw new Error("Mixin requires method 'timelineUpdated'.")
+        },
+        getTimelineOptions() {
+            return {
+                year: (this.timelineActive) ? this.raw_timeline.value : null,
+                timelineActive: this.timelineActive
+            }
         }
     },
     computed: {
@@ -101,11 +107,5 @@ export default {
         timelineValid() {
             return this.timeline.value === this.raw_timeline.value
         },
-        timelineOptions() {
-            return {
-                year: (this.timelineActive) ? this.raw_timeline.value : null,
-                timelineActive: this.timelineActive
-            }
-        }
     }
 }

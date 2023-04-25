@@ -36,19 +36,18 @@ export function dataFromRulers(rulers, { selected = [], options = {} }) {
             data.push(subdata)
         })
     } else {
-        const ruler = rulers
-
         sel = true
         let fillColor
-        if (ruler.group) {
-            fillColor = ruler.styles.fillPattern
-            for (let ruler of Object.values(ruler.items)) {
+        if (rulers.group) {
+            fillColor = rulers.styles.fillPattern
+            for (let ruler of Object.values(rulers.items)) {
                 if (selected.length > 0) {
                     sel = selected.indexOf(ruler.id) !== -1
                     if (sel) break
                 }
             }
         } else {
+            const ruler = rulers
             if (selected.length > 0) {
                 sel = selected.indexOf(ruler.id) !== -1
             }
@@ -60,8 +59,8 @@ export function dataFromRulers(rulers, { selected = [], options = {} }) {
             stroke: true,
             color: "#999",
             weight: 0.75
-        }, ruler.styles, {
-            data: ruler,
+        }, rulers.styles, {
+            data: rulers,
         })
     }
 
