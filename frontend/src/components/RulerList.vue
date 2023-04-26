@@ -31,8 +31,7 @@
         :collapsed="isCollapsed(group.key)"
       ><template v-slot:header>
           <selectable-list-header
-            :hideSelectAllButton="true"
-            @select-all="selectAllInGroup(group)"
+            @select-all="selectAllInGroup(group)" 
             @unselect-all="removeAllFromGroup(group)"
             :allSelected="allSelected(group)"
             :noneSelected="noneSelected(group)"
@@ -185,17 +184,5 @@ export default {
     background-color: currentColor;
     margin-right: 5px;
   }
-}
-</style>
-
-<style lang="scss" scoped>
-.dynasty {
-  font-size: 0.7rem;
-  color: $gray;
-}
-
-.selected-but-unavailable {
-  opacity: 0.5;
-  margin-bottom: $padding;
 }
 </style>

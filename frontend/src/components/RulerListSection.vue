@@ -79,9 +79,3 @@ export default {
 }
 </style>
 
-<style lang="scss" scoped>
-.dynasty {
-  font-size: 0.7rem;
-  color: $gray;
-}
-</style>

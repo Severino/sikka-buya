@@ -5,29 +5,35 @@
       @click.prevent.stop="selectAll"
       :class="{ disabled: allSelected }"
     >
-      <SelectAllIcon :size="18" />
+      <Icon type="mdi" :path="icons.mdiSelectAll" :size="iconSize" />
     </div>
     <div
       @click.prevent.stop="unselectAll"
       :class="{ disabled: noneSelected }"
     >
-      <RemoveAllIcon :size="18" />
+      <Icon type="mdi" :path="icons.mdiSelectOff" :size="iconSize" />
     </div>
   </div>
 </template>
 
 <script>
-import RemoveAllIcon from 'vue-material-design-icons/CheckboxMultipleBlankOutline';
-import SelectAllIcon from 'vue-material-design-icons/CheckboxMultipleBlank';
+
+import iconMixin from '@/components/mixins/icons'; 
+import {mdiSelectAll, mdiSelectOff} from '@mdi/js/mdi';
+
 export default {
-  components: {
-    SelectAllIcon,
-    RemoveAllIcon,
-  },
+  mixins: [iconMixin({ mdiSelectAll, mdiSelectOff })],
   props: {
     allSelected: { type: Boolean, required: true },
     noneSelected: { type: Boolean, required: true },
     hideSelectAllButton: Boolean,
+  },
+  data(){
+    return {
+      iconSize: 18,
+      unselectIcon: mdiSelectOff,
+      selectAllIcon: mdiSelectAll
+    }
   },
   methods: {
     selectAll() {
@@ -43,4 +49,5 @@ export default {
 <style lang='scss' scoped>
 .list-selection-tools {
   display: flex;
-}</style>
+}
+</style>

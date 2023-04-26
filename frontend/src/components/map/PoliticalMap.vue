@@ -112,15 +112,26 @@
 
     <Sidebar side="right">
       <template #title>
-        <Locale path="map.ruler_selection" />
+          <Locale path="map.ruler_selection" />
+      </template>
+
+      <template #tools>
+        <ListSelectionTools
+          @select-all="()=>{}"
+          @unselect-all=" clearRulerSelection "
+          :hideSelectAllButton="true"
+          :allSelected="false"
+          :noneSelected="selectedRulers.length === 0"
+        >
+        </ListSelectionTools>
       </template>
       <ruler-list
-        :selectedUnavailable="selectedUnavailableRulers"
-        :unavailable="unavailableRulers"
-        :items="availableRulers"
-        :selectedIds="selectedRulers"
-        :group="!timelineActive"
-        @selectionChanged="rulerSelectionChanged"
+        :selectedUnavailable=" selectedUnavailableRulers "
+        :unavailable=" unavailableRulers "
+        :items=" availableRulers "
+        :selectedIds=" selectedRulers "
+        :group=" !timelineActive "
+        @selectionChanged=" rulerSelectionChanged "
       />
     </Sidebar>
   </div>
@@ -438,7 +449,7 @@ export default {
     },
     applyDisplayOptionToLoadedSlides() {
       const options = this.getOptions();
-      return PoliticalSlide.formatDisplay({name: "", options}, this.mints)
+      return PoliticalSlide.formatDisplay({ name: "", options }, this.mints)
     },
     // We moved this from the computed property to a method because it is
     // dependend on the map and is not notified when the map changes (move/zoom).

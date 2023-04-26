@@ -63,4 +63,10 @@ export default {
 .ruler-unavailable {
     opacity: 0.5;
 }
+
+.dynasty {
+  font-size: 0.75rem;
+  color: $light-gray;
+  font-weight: bold;
+}
 </style>
