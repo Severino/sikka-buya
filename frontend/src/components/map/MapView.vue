@@ -84,12 +84,19 @@ export default {
         createCorner('bottom', 'center');
       },
     });
-    // Initialize the map
+
+    // Removes the old map if it exists
+    // this is useful when the app is hot reloaded
+    // in development mode
+    if (window.map?.remove) 
+      window.map.remove() 
+
+    // Initialize the map 
     var map = L.map('map_' + this._uid, {
       center: this.location,
       zoom: this.zoom,
       minZoom: 3,
-      maxBounds: mapBoundaries,
+      maxBounds: mapBoundaries, 
       zoomControl: false,
       scrollWheelZoom: false, // disable original zoom function
       smoothWheelZoom: true, // enable smooth zoom
