@@ -126,6 +126,7 @@ const routes = [
         name: "Additional Maps",
         component: MaterialMap
       },
+      // TODO: Remove
       {
         path: "playground",
         name: "Playground",
