@@ -9,6 +9,7 @@
         <list-selection-tools
           @select-all="selectAllMints"
           @unselect-all="clearMintSelection"
+          :hideSelectAllButton="true"
           :allSelected="allMintsSelected"
           :noneSelected="mint_locations_mixin_noneSelected"
         />

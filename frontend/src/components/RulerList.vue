@@ -31,7 +31,7 @@
         :collapsed="isCollapsed(group.key)"
       ><template v-slot:header>
           <selectable-list-header
-            :hideAll="true"
+            :hideSelectAllButton="true"
             @select-all="selectAllInGroup(group)"
             @unselect-all="removeAllFromGroup(group)"
             :allSelected="allSelected(group)"
