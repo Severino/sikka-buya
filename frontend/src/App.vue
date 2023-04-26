@@ -157,6 +157,10 @@ input::placeholder {
   display: flex;
 }
 
+.flex-fill {
+  flex: 1;
+}
+
 
 input[type='color'] {
   flex: unset !important;
