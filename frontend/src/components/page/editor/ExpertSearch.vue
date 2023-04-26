@@ -2,7 +2,7 @@
   <div class="catalog-filter-search">
     <h1>{{ $t('editor.expert_search') }}</h1>
 
-    <div class="grid col-2">
+    <div class="grid">
       <aside>
         <Button
           class="error"
@@ -24,6 +24,7 @@
         />
       </aside>
       <pagination
+      class="results"
         :pageInfo="pageInfo"
         @input="updatePagination"
       >
@@ -117,6 +118,22 @@ export default {
 
 
 <style lang="scss" scoped>
+
+
+.results {
+  grid-column: span 4;
+}
+
+.grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+aside {
+  grid-column: span 2;
+}
+
+
+
 #text-search {
   margin-bottom: 3 * $padding;
 }

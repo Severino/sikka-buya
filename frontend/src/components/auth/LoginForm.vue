@@ -1,6 +1,12 @@
 <template>
-  <Box class="login-form" title="Login">
-    <form ref="form" @keydown="enter">
+  <Box
+    class="login-form"
+    title="Login"
+  >
+    <form
+      ref="form"
+      @keydown="enter"
+    >
       <user-form
         :email="email"
         :password="password"
@@ -8,23 +14,29 @@
         @input="inputChanged"
       />
     </form>
-    <ErrorMessage v-if="loginError" :error="loginError" />
+    <ErrorMessage
+      v-if="loginError"
+      :error="loginError"
+    />
 
-    <segmented-row>
-      <template v-slot:right>
-        <div>
-          <async-button
-            ref="loginBtn"
-            @click="buttonLogin"
-            class="colored big-button"
-            :pending="buttonDisabled"
-            id="submit-button"
-          >
-            Anmelden
-          </async-button>
-        </div>
-      </template>
-    </segmented-row>
+
+    <template #footer>
+      <segmented-row>
+        <template v-slot:right>
+          <div>
+            <async-button
+              ref="loginBtn"
+              @click="buttonLogin"
+              class="colored big-button"
+              :pending="buttonDisabled"
+              id="submit-button"
+            >
+              Anmelden
+            </async-button>
+          </div>
+        </template>
+      </segmented-row>
+    </template>
   </Box>
 </template>
 
@@ -95,10 +107,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.buttons {
+<style lang="scss" scoped>.buttons {
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-between;
-}
-</style>
+}</style>

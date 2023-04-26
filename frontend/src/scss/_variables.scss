@@ -27,12 +27,13 @@ $bright-blue: hsl(214, 60%, 60%);
 $orange: #ff531f;
 $yellow: #ffd21f;
 $green: #48ac48;
+$light-green: rgb(94, 170, 94);
 $dark-green: #6b996b;
 
 $red: #da4133;
 $dark-red: darken($red, 10%);
 
-$primary-color: $green;
+$primary-color: $light-green;
 $dark-primary-color: $dark-green;
 
 $big-font: 1.5rem;

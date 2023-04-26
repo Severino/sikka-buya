@@ -73,7 +73,7 @@
           <locale path="property.mint" />
         </template>
         <div
-          style="display: flex"
+          style="display: flex; align-items: center;"
           class="mint-property"
         >
           {{ printMintProperty() }}

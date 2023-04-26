@@ -1,27 +1,49 @@
 <template>
   <section>
     <Box>
-      <form action="" @submit.prevent="submit">
-        <h3>
+      <template #header>
+        <h2>
           <Locale path="system.signup_title" />
-        </h3>
+        </h2>
+      </template>
+      <form
+        action=""
+        @submit.prevent="submit"
+      >
+
         <label for="">
           <Locale path="system.email" />
         </label>
-        <input type="text" id="email" :value="email" readonly />
+        <input
+          type="text"
+          id="email"
+          :value="email"
+          readonly
+        />
         <label for="password">
           <Locale path="system.password" />
         </label>
-        <input type="password" v-model="password" name="new-password" id="password" />
+        <input
+          type="password"
+          v-model="password"
+          name="new-password"
+          id="password"
+        />
         <error-message :error="error" />
+      </form>
+
+      <template #footer>
         <segmented-row>
           <template v-slot:right>
-            <Button class="button big-button signup-button" :disabled="disabled" >
+            <Button
+              class="button big-button signup-button"
+              :disabled="disabled"
+            >
               <Locale path="system.signup" />
             </Button>
           </template>
         </segmented-row>
-      </form>
+      </template>
     </Box>
   </section>
 </template>
@@ -65,7 +87,7 @@ export default {
         .finally(() => {
           this.disabled = false;
         });
-        return false
+      return false
     },
   },
   computed: {

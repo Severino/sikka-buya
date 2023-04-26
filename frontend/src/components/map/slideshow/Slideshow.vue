@@ -26,12 +26,26 @@
       </div>
     </scroll-view>
     <div class="tool-bar">
+
       <div
+        v-for="button in controls"
+        class="button icon-button"
+        @click="button.action"
+        :key="`action-button-${button.icon}}`"
+      >
+        <Icon
+          type="mdi"
+          :path="button.icon"
+          :size="iconSize"
+        />
+        <Locale v-if="button.name" :path="`slideshow.${button.name}`" />
+      </div>
+      <!-- <div
         class="button icon-button"
         @click="prevSlide"
       >
         <PrevIcon :size="iconSize" />
-      </div>
+      </div> 
       <div
         class="button icon-button"
         @click="requestSlide(currentSlide, true)"
@@ -64,7 +78,7 @@
         @click="nextSlide"
       >
         <NextIcon :size="iconSize" />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -72,15 +86,13 @@
 <script>
 import NewSlide from './slides/NewSlide.vue';
 import Slide from './slides/Slide.vue';
-import CameraOutlineIcon from 'vue-material-design-icons/CameraOutline.vue';
-import NextIcon from 'vue-material-design-icons/SkipNext.vue';
-import PrevIcon from 'vue-material-design-icons/SkipPrevious.vue';
 import ScrollView from '../../layout/ScrollView.vue';
-import SyncIcon from 'vue-material-design-icons/Sync.vue';
-import DeleteIcon from 'vue-material-design-icons/Delete.vue';
 import Locale from '../../cms/Locale.vue';
 import HotkeyMixin from '../../mixins/hotkey';
+import Hotkeyed from '../../interactive/Hotkeyed.vue';
 
+import Icon from "@jamescoyle/vue-icon"
+import { mdiCameraOutline, mdiDelete, mdiSkipNext, mdiSkipPrevious, mdiSync } from '@mdi/js';
 
 const storagePostFix = '-slideshow';
 
@@ -94,13 +106,10 @@ export default {
   components: {
     Slide,
     NewSlide,
-    CameraOutlineIcon,
-    NextIcon,
-    PrevIcon,
     ScrollView,
-    DeleteIcon,
-    SyncIcon,
+    Icon,
     Locale,
+    Hotkeyed
   },
   props: {
     storagePrefix: String,
@@ -111,6 +120,31 @@ export default {
       slideId: 0,
       currentSlide: 0,
       iconSize: 18,
+      controls: [
+        {
+          icon: mdiSkipPrevious,
+          action: this.prevSlide,
+        },
+        {
+          name: "override",
+          icon: mdiSync,
+          action: this.overrideSlide,
+        },
+        {
+          name: "record",
+          icon: mdiCameraOutline,
+          action: this.requestSlide,
+        },
+        {
+          name: "delete",
+          icon: mdiDelete,
+          action: this.removeSlide,
+        },
+        {
+          icon: mdiSkipNext,
+          action: this.nextSlide,
+        }
+      ]
     };
   },
   mounted() {
@@ -164,6 +198,9 @@ export default {
       const sensitivity = 0.3;
       const scrollLeft = this.scrollContent.scrollLeft;
       this.scrollContent.scrollLeft = scrollLeft + scroll * sensitivity;
+    },
+    overrideSlide() {
+      this.requestSlide(this.currentSlide, true)
     },
     requestSlide(index, overwrite) {
       this.$root.$emit('request-slide-options', {

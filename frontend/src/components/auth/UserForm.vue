@@ -2,7 +2,7 @@
   <fieldset>
     <h3 v-if="title">{{ title }}</h3>
 
-    <labeled-input-container>
+    <labeled-input-container class="box-row">
       <template #label>
         <Locale path="system.email" />
       </template>
@@ -18,7 +18,7 @@
       />
     </labeled-input-container>
 
-    <labeled-input-container>
+    <labeled-input-container class="box-row">
       <template #label>
         <Locale path="system.password" />
       </template>
@@ -85,7 +85,7 @@ input {
   box-sizing: border-box;
 }
 
-fieldset > *:not(:first-child, input, button) {
+fieldset>*:not(:first-child, input, button) {
   display: block;
   margin-top: $padding;
 }
