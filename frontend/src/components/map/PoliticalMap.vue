@@ -454,10 +454,12 @@ export default {
     // We moved this from the computed property to a method because it is
     // dependend on the map and is not notified when the map changes (move/zoom).
     getOptions() {
-      const options = {};
+      let options = {};
       options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
       options.selectedMints = URLParams.toStringArray(this.selectedMints);
-      Object.assign(options, this.timelineOptions, this.getMapOptions());
+      options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions());
+
+      console.log(options)
       return options;
     },
     async drawTimeline() {

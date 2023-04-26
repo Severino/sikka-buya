@@ -9,7 +9,7 @@
     >
       {{ number }}
     </div>
-    <div class="slide-row-container">
+    <div class="slide-row-grid" v-if="useSimple">
       <SlideRow
         v-for="(row, index) in getRows()"
         :key="`slide-row-${index}`"
@@ -17,6 +17,9 @@
         :text="row.text"
         :style="getGridColumns(row.columns)"
       />
+    </div>
+    <div class="slide-body" v-else>
+      {{ options.year ? options.year : "-" }}
     </div>
   </div>
 </template>
@@ -29,6 +32,7 @@ import SlideRow from './SlideRow.vue';
 
 export default {
   props: {
+    useSimple: Boolean,
     name: [String, Number],
     number: Number,
     options: Object,
@@ -96,7 +100,13 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-.slide-row-container {
+
+.slide-body {
+  grid-column: span 2;
+  display: flex;
+  justify-content: center;
+}
+.slide-row-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   justify-items: center;
