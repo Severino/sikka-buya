@@ -17,7 +17,7 @@
           @select-all="selectAllMints"
           @unselect-all="clearMintSelection"
           :allSelected="allMintsSelected"
-          :noneSelected="!mintsSelected"
+          :noneSelected="mint_locations_mixin_noneSelected"
         />
       </template>
 

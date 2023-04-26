@@ -4,12 +4,13 @@
       <template #title>
         <Locale path="map.mint_selection" />
       </template>
+
       <template v-slot:tools>
         <list-selection-tools
           @select-all="selectAllMints"
           @unselect-all="clearMintSelection"
           :allSelected="allMintsSelected"
-          :noneSelected="mintsSelected"
+          :noneSelected="mint_locations_mixin_noneSelected"
         />
       </template>
 

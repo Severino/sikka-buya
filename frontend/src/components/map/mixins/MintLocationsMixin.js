@@ -3,7 +3,6 @@
 import MintLocation from '../../../models/mintlocation';
 import Query from '../../../database/query';
 import Mint from '../../../models/map/mint';
-import URLParams from '../../../utils/URLParams';
 
 
 const selectedMintStorageName = "active-mints"
@@ -161,8 +160,8 @@ export function mintLocationsMixin({
             }
         },
         computed: {
-            mintsSelected() {
-                return this.selectedMints.length !== 0;
+            mint_locations_mixin_noneSelected() {
+                return this.selectedMints.length === 0;
             },
             allMintsSelected() {
                 return this.selectedMints.length === this.mints.length;
