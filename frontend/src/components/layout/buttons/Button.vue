@@ -1,8 +1,9 @@
 <template>
   <button
     class="button"
+    :disabled="disabled"
     :type="type"
-    :class="{ colored, multiline, 'content-button': contentButton, active: active }"
+    :class="{ colored, multiline, 'content-button': contentButton, active: active, disabled }"
     @click="clicked"
   >
     <!-- 
@@ -77,6 +78,15 @@ export default {
 <style lang="scss">
 .button {
   box-sizing: border-box;
+  $disabled-color: $gray;
+
+  &[disabled] {
+    color: $disabled-color;
+    border: 1px solid $disabled-color;
+
+    background-color: transparent;
+    cursor: not-allowed;
+  }
 
   &.row-button {
     border-radius: 0;
@@ -100,6 +110,13 @@ export default {
     border: rgba($color: $white, $alpha: 0.8) 1px solid;
     $text-shadow: 0 0 3px rgba($color: $black, $alpha: 0.8);
     text-shadow: $text-shadow;
+
+    &.disabled {
+      opacity: 0.5;
+      $disabled-color: white;
+      color: $disabled-color;
+      border: 1px solid $disabled-color;
+    }
 
     &.active {
       background-color: rgba($color: $primary-color, $alpha: $background-alpha);

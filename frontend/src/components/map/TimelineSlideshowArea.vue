@@ -16,7 +16,6 @@
                             :path="icons.bookmarks"
                             :size="headerIconSize"
                         />
-                        <Locale path="map.bookmarks" />
                     </template>
                     <template v-else>
                         <Icon
@@ -24,13 +23,13 @@
                             :path="icons.bookmarksOutline"
                             :size="headerIconSize"
                         />
-                        <Locale path="map.bookmarks" />
                     </template>
                 </ButtonVue>
 
                 <ButtonVue
                     class="map-button"
                     :active="playing"
+                    :disabled="!timelineActive"
                     @click="togglePlay"
                 >
                     <template v-if="playing">
@@ -39,7 +38,6 @@
                             :path="icons.pause"
                             :size="headerIconSize"
                         />
-                        <Locale path="slideshow.pause" />
                     </template>
                     <template v-else>
                         <Icon
@@ -47,7 +45,6 @@
                             :path="icons.play"
                             :size="headerIconSize"
                         />
-                        <Locale path="slideshow.play" />
                     </template>
 
 
@@ -69,7 +66,6 @@
                                 :size="headerIconSize"
                                 class="button icon-button"
                             />
-                            <Locale path="general.share" />
                         </ButtonVue>
 
                     </template>

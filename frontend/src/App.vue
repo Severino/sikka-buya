@@ -421,20 +421,6 @@ button {
     font-size: $small-font;
     padding: 0 $small-padding * 2;
   }
-
-  &[disabled] {
-    $disabled-color: $gray;
-    color: $disabled-color;
-    border: 1px solid $disabled-color;
-
-    background-color: transparent;
-    cursor: not-allowed;
-
-    // &:hover,
-    // &:active {
-    //   background-color: $light-gray;
-    // }
-  }
 }
 
 .disabled {
