@@ -316,9 +316,9 @@ export default class PoliticalOverlay extends Overlay {
         let caliphColor = (caliph.color) ? caliph.color : Color.MissingColor
         let heirColor = (heir.color) ? heir.color : Color.MissingColor
 
-        if (selectedRulers.length > 0) {
-          caliphColor = (selectedRulers.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor()
-          heirColor = (selectedRulers.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor()
+        if (selectedRulers?.active?.length > 0) {
+          caliphColor = (selectedRulers.active.indexOf(caliph.id) !== -1) ? caliphColor : Color.getInactiveColor()
+          heirColor = (selectedRulers.active.indexOf(heir.id) !== -1) ? heirColor : Color.getInactiveColor()
         }
 
         const stripes = new L.StripePattern({
@@ -326,7 +326,7 @@ export default class PoliticalOverlay extends Overlay {
           spaceColor: heirColor,
           opacity: 1,
           spaceOpacity: 1,
-          weight: 7,
+          weight: 6,
           angle: -45,
         });
         if (!this.heirStripes[caliph.id])

@@ -66,7 +66,7 @@ export default {
       showDebugCrosshair: false
     };
   },
-  created() {
+  created() { 
     let queryObject = URLParams.getMany({
       zoom: 'int',
       location: 'array',
@@ -86,6 +86,7 @@ export default {
     });
   },
   beforeDestroy() {
+
     this.map.off('moveend', this.updateMapSettings);
 
     this.map.eachLayer((layer) => {

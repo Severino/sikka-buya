@@ -6,7 +6,7 @@
       </template>
 
       <template v-slot:tools>
-        <list-selection-tools
+        <list-selection-tools 
           @select-all="selectAllMints"
           @unselect-all="clearMintSelection"
           :hideSelectAllButton="true"
