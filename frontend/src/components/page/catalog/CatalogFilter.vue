@@ -116,211 +116,39 @@
       <error-box
         v-else
         :key="input.name"
-        :message="`Unbekannter Eingabetyp '${input.type}': EingabeFeld kann nicht angezeigt werden!`"
+        :message="`${input.name} - Unbekannter Eingabetyp '${input.type}': EingabeFeld kann nicht angezeigt werden!`"
       />
     </template>
   </div>
 </template>
 
 <script>
-import MultiDataSelect from '../../forms/MultiDataSelect.vue';
+import { RequestGuard } from '../../../utils/Async.mjs';
+import ErrorBox from '../system/ErrorBox.vue';
 import Filter, { FilterList } from '../../../models/Filter';
 import LabeledInputContainer from '../../LabeledInputContainer.vue';
+import Locale from '../../cms/Locale.vue';
+import Mode from '../../../models/Mode';
+import MultiDataSelect from '../../forms/MultiDataSelect.vue';
+import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
+import PageInfo, { Pagination } from '../../../models/pageinfo';
+import RadioButtonGroup from '../../forms/RadioButtonGroup.vue';
 import Sorter from '../../../utils/Sorter';
 import ThreeWayToggle from '../../forms/ThreeWayToggle.vue';
-import RadioButtonGroup from '../../forms/RadioButtonGroup.vue';
-import { RequestGuard } from '../../../utils/Async.mjs';
 import Type from '../../../utils/Type';
-import PageInfo, { Pagination } from '../../../models/pageinfo';
-import ErrorBox from '../system/ErrorBox.vue';
-import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
-import Mode from '../../../models/Mode';
-import Locale from '../../cms/Locale.vue';
-
-function addType(arr, typeName) {
-  arr.forEach((obj) => (obj.type = typeName));
-}
-
-const textFilters = [
-  {
-    label: 'property.project_id',
-    name: 'projectId',
-    order: -10,
-  },
-  {
-    label: 'property.treadwell_id',
-    name: 'treadwellId',
-    order: -9,
-  },
-  {
-    label: 'property.year_of_mint',
-    name: 'yearOfMint',
-    order: -3,
-  },
-];
-addType(textFilters, 'text');
-
-const unfilteredNumberFilters = [];
-addType(unfilteredNumberFilters, 'number');
-
-const unfilteredButtonGroupFilters = [
-  {
-    label: 'property.procedure',
-    name: 'procedure',
-    options: ['pressed', 'cast'],
-    labels: ['property.procedures.pressed', 'property.procedures.cast'],
-    order: 3,
-  },
-];
-addType(unfilteredButtonGroupFilters, 'button-group');
-
-const unfilteredThreeWayFilters = [
-  {
-    label: 'property.cursive_script',
-    name: 'cursiveScript',
-    order: 8,
-  },
-  {
-    label: 'property.donativ',
-    name: 'donativ',
-    order: 4,
-  },
-  {
-    label: 'property.small_coin',
-    name: 'small',
-    order: 3.5,
-  },
-  {
-    label: 'property.year_uncertain',
-    name: 'yearUncertain',
-    order: 10,
-  },
-  {
-    label: 'property.mint_uncertain',
-    name: 'mintUncertain',
-    order: 9,
-  },
-];
-addType(unfilteredThreeWayFilters, 'three-way');
-
-let unfilteredMultiSelectFilters = [
-  {
-    label: 'property.material',
-    name: 'material',
-    order: 0,
-    mode: Mode.Or,
-  },
-  {
-    label: 'property.mint',
-    name: 'mint',
-    order: -5,
-    mode: Mode.Or,
-  },
-  {
-    label: 'property.nominal',
-    name: 'nominal',
-    order: 3,
-    mode: Mode.Or,
-  },
-  {
-    label: 'role.caliph',
-    name: 'caliph',
-    mode: Mode.Or,
-    attribute: 'shortName',
-    queryBody: ['id', 'shortName'],
-    order: 5.8,
-  },
-  {
-    label: 'role.heir',
-    name: 'heir',
-    mode: Mode.Or,
-    attribute: 'shortName',
-    queryCommand: 'searchPersonsWithRole',
-    queryBody: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
-    additionalParameters: {
-      include: ['heir'],
-    },
-    order: 5.8,
-  },
-  {
-    label: 'property.other_person',
-    name: 'otherPerson',
-    queryCommand: 'searchPersonsWithRole',
-    mode: Mode.Or,
-    queryBody: ['id', 'name', 'shortName', { role: ['id', 'name'] }],
-    additionalParameters: {
-      exclude: ['caliph', 'heir'],
-    },
-    displayTextCallback: function (search) {
-      return `${search.shortName || search.name} (${this.$tc(
-        `role.${search.role.name}`
-      )})`;
-    },
-    order: 6,
-    allowModeChange: true,
-  },
-  {
-    label: 'property.title',
-    name: 'title',
-    order: 7,
-    mode: Mode.And,
-    allowModeChange: true,
-  },
-  {
-    label: 'property.honorific',
-    name: 'honorific',
-    order: 8,
-    mode: Mode.And,
-    allowModeChange: true,
-  },
-  {
-    label: 'property.ruler',
-    name: 'buyid',
-    join: 'ruler',
-    // This is somewhat unsatisfying to use a dynamic value as input for the buyids here.
-    additionalParameters: { dynasty: 1 },
-    queryCommand: 'searchPersonsWithoutRole',
-    queryBody: ['id', 'name', 'shortName', { dynasty: ['id', 'name'] }],
-    displayTextCallback: function (search) {
-      let txt = search.shortName || search.name;
-      if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
-      return txt;
-    },
-    order: 5.6,
-    allowModeChange: true,
-    mode: Mode.And,
-  },
-];
-addType(unfilteredMultiSelectFilters, 'multi-select');
-
-const unfilteredMultiDataSelect2D = [
-  {
-    label: 'property.coin_mark',
-    name: 'coinMark',
-    order: 5,
-    mode: Mode.And,
-  },
-  {
-    label: 'property.coin_verse',
-    name: 'coinVerse',
-    order: 5,
-    mode: Mode.And,
-  },
-];
-addType(unfilteredMultiDataSelect2D, 'multi-select-2d');
-
-unfilteredMultiSelectFilters = unfilteredMultiSelectFilters.sort(
-  Sorter.stringPropAlphabetically('label')
-);
+import { FilterType, filterConfig } from '../../../config/catalog_filter';
+const filters = filterConfig
 
 let filterData = {};
 let filterMethods = {};
 
+
+
 [
-  ...textFilters,
-  ...unfilteredThreeWayFilters,
-  ...unfilteredButtonGroupFilters,
-  ...unfilteredNumberFilters,
+  ...filters[FilterType.text],
+  ...filters[FilterType.threeWay],
+  ...filters[FilterType.buttonGroup],
+  ...filters[FilterType.number]
 ].forEach((item) => {
   filterData = Object.assign(filterData, {
     [item.name]: item.defaultValue == null ? null : item.defaultValue,
@@ -329,7 +157,7 @@ let filterMethods = {};
 
 let filterMode = {};
 
-unfilteredMultiSelectFilters.forEach((item) => {
+filters[FilterType.multiSelect].forEach((item) => {
   const filter = new Filter(item.name);
   filterData = Object.assign(filterData, filter.mapData(item.defaultValue));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
@@ -337,7 +165,7 @@ unfilteredMultiSelectFilters.forEach((item) => {
   item.filter = filter;
 });
 
-unfilteredMultiDataSelect2D.forEach((item) => {
+filters[FilterType.multiSelect2D].forEach((item) => {
   const filter = new FilterList(item.name);
   filterData = Object.assign(filterData, filter.mapData([[]]));
   filterMethods = Object.assign(filterMethods, filter.mapMethods());
@@ -345,18 +173,13 @@ unfilteredMultiDataSelect2D.forEach((item) => {
   item.filter = filter;
 });
 
-const inputs = [
-  ...unfilteredNumberFilters,
-  ...unfilteredButtonGroupFilters,
-  ...unfilteredMultiSelectFilters,
-  ...unfilteredMultiDataSelect2D,
-  ...unfilteredThreeWayFilters,
-  ...textFilters,
-].sort((a, b) => {
-  if (a.order == null) return 1;
-  else if (b.order == null) return -1;
-  else return a.order - b.order;
-});
+const inputs = Object.values(filters)
+  .flat()
+  .sort((a, b) => {
+    if (a.order == null) return 1;
+    else if (b.order == null) return -1;
+    else return a.order - b.order;
+  });
 
 export default {
   components: {
@@ -392,6 +215,7 @@ export default {
       i: 0,
       max: 10,
       inputs,
+      filterConfig: filters,
       types: [],
       filters: {
         ...filterData,
@@ -428,28 +252,31 @@ export default {
     this.searchRequestGuard = new RequestGuard(this.searchCallback.bind(this),
       {
         before: () => {
-          this.$emit('update', {types: [], pageInfo: this.pageInfo});
+          this.$emit('update', { types: [], pageInfo: this.pageInfo });
         },
       }
     );
     if (this.initData) {
-      const initFilterMode = {};
 
-      unfilteredMultiSelectFilters.forEach((input) => {
+
+      const initFilterMode = {};
+      filters[FilterType.multiSelect].forEach((input) => {
         if (this.initData[input.name]) {
+          console.log(input.name)
           input.mode = this.initData[input.name].mode || input.mode;
           initFilterMode[input.name] = input.mode;
           this.initData[input.name] = this.initData[input.name].value || [];
         }
       });
 
-      unfilteredMultiDataSelect2D.forEach((input) => {
+      filters[FilterType.multiSelect2D].forEach((input) => {
         if (this.initData[input.name]) {
           input.mode = this.initData[input.name].mode || input.mode;
           initFilterMode[input.name] = input.mode;
           this.initData[input.name] = this.initData[input.name].value || [[]];
         }
       });
+
       this.filterMode = Object.assign({}, this.filterMode, initFilterMode);
       this.filters = Object.assign({}, this.filters, this.initData);
     }
@@ -575,15 +402,15 @@ export default {
     },
     resetFilters() {
       [
-        ...textFilters,
-        ...unfilteredThreeWayFilters,
-        ...unfilteredButtonGroupFilters,
-        ...unfilteredNumberFilters,
+        ...filters[FilterType.text],
+        ...filters[FilterType.threeWay],
+        ...filters[FilterType.buttonGroup],
+        ...filters[FilterType.number],
       ].forEach((item) => {
         this.$set(this.filters, item.name, item.defaultValue || null);
       });
 
-      [...unfilteredMultiSelectFilters].forEach((filter) => {
+      [...filters[FilterType.multiSelect]].forEach((filter) => {
         const emptyObj = Filter.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
@@ -592,7 +419,7 @@ export default {
         }
       });
 
-      [...unfilteredMultiDataSelect2D].forEach((filter) => {
+      [...filters[FilterType.multiSelect2D]].forEach((filter) => {
         const emptyObj = FilterList.mapData(filter.name, filter.defaultValue);
         for (let [key, val] of Object.entries(emptyObj)) {
           this.$set(this.filters, key, val);
@@ -688,27 +515,27 @@ export default {
       );
     },
     multiSelectFilters() {
-      return this.excludeItem(unfilteredMultiSelectFilters);
+      return this.excludeItem(filters[FilterType.multiSelect]);
     },
     multiSelectFilters2D() {
-      return this.excludeItem(unfilteredMultiDataSelect2D);
+      return this.excludeItem(filters[FilterType.multiSelect2D]);
     },
     storage() {
       let storage = {};
       let activeFilters = this.activeFilters;
 
       [
-        ...textFilters,
-        ...unfilteredThreeWayFilters,
-        ...unfilteredButtonGroupFilters,
-        ...unfilteredNumberFilters,
+        ...filters[FilterType.text],
+        ...filters[FilterType.threeWay],
+        ...filters[FilterType.buttonGroup],
+        ...filters[FilterType.number],
       ].forEach((item) => {
         if (activeFilters[item.name] != null) {
           storage[item.name] = activeFilters[item.name];
         }
       });
 
-      [...unfilteredMultiSelectFilters, ...unfilteredMultiDataSelect2D].forEach(
+      [...filters[FilterType.multiSelect], ...filters[FilterType.multiSelect2D]].forEach(
         (filter) => {
           storage[filter.name] = {
             mode: this.filterMode[filter.name] || Mode.And,

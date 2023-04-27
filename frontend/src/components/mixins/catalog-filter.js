@@ -1,7 +1,15 @@
-export default function (storage) {
+import { FilterType, filterConfig, filterKeys, filterNameMap } from "../../config/catalog_filter";
+import URLParams from "../../utils/URLParams";
+
+import Query from "../../database/query";
+
+export default function (storage, urlParamsConfig) {
     return {
         created() {
-            this.catalog_filter_mixin_load()
+            if (!this.catalog_filter_mixin_override_with_query_params()) {
+                console.log("Loaded stored filter values!")
+                this.catalog_filter_mixin_load()
+            } else console.log("Override with query params!")
         },
         data() {
             return {
@@ -30,6 +38,76 @@ export default function (storage) {
                 } catch (e) {
                     console.warn('Could not load stored filter values!', e);
                 }
+            },
+            catalog_filter_mixin_override_with_query_params() {
+                const data = {}
+                const url = new URL(window.location)
+                const params = url.searchParams
+
+                params.forEach((value, key) => {
+                    if (filterNameMap[key]) {
+                        if (!data[key]) {
+                            switch (filterNameMap[key].type) {
+                                case FilterType.text:
+                                    data[key] = URLParams.get(key, "string")
+                                    break
+                                case FilterType.threeWay:
+                                    data[key] = URLParams.get(key, "bool")
+                                    break
+                                case FilterType.multiSelect:
+                                    data[key] = URLParams.getMultiSelect(key, 'int')
+                                    console.log(data[key])
+                                    break
+                                // case FilterType.multiSelect2D:
+                                //     data[key] = URLParams.getArray2D(value)
+                                //     break
+                                default:
+                                    throw new Error(`Unknown filter type "${filterNameMap[key].type}"!`)
+                            }
+                        } else {
+                            console.warn(`Found two filters of type "${key}"!`)
+                        }
+
+                    }
+                })
+
+                // function capitalize(name) {
+                //     return `${name[0].toUpperCase() + name.slice(1)}`
+                // }
+
+                // function getQueryName(name, id) {
+                //     return `get${capitalize(name)}${id}`
+                // }
+
+                // const body = []
+                //     ;[
+                //         ...filterConfig[FilterType.multiSelect],
+                //         ...filterConfig[FilterType.multiSelect2D]
+                //     ].forEach(({ name }) => {
+                //         if (data[name]) {
+                //             data[name].value.forEach((obj) => {
+                //                 body.push(`${getQueryName(name, obj.id)}:get${capitalize(name)}(id: ${obj.id}){id name}`)
+                //             })
+                //         }
+                //     })
+
+                // const queriedData = (await Query.raw(`query {${body.join('\n')}}`, {}, true)).data.data
+
+                //     ;[
+                //         ...filterConfig[FilterType.multiSelect],
+                //         ...filterConfig[FilterType.multiSelect2D]
+                //     ].forEach(({ name }) => {
+                //         if (data[name]) {
+                //             data[name].value.forEach((obj) => {
+                //                 obj.value = queriedData[getQueryName(name, obj.id)]
+                //             })
+                //         }
+                //     })
+
+                //     console.log(data)
+
+                this.catalog_filter_mixin_initData = data
+                return Object.keys(data).length > 0
             },
             catalog_filter_mixin_save(catalogFilterRef, obj = {}) {
                 const data = Object.assign({}, catalogFilterRef.storage, obj)

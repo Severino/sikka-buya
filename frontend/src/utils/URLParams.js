@@ -1,3 +1,5 @@
+import Mode from "../models/Mode"
+
 export default class URLParams {
 
 
@@ -47,8 +49,10 @@ export default class URLParams {
      * @param {String} type - Type of the variable, allowed types are: array, int and bool.
      * @returns Returns the respective value of the variable. 
      */
-    static get(name, type) {
+    static get(name, type = "string") {
         switch (type) {
+            case 'string':
+                return name
             case 'array':
                 return URLParams.getArray(name)
             case 'int':
@@ -56,7 +60,7 @@ export default class URLParams {
             case 'bool':
                 return URLParams.getBoolean(name)
             default:
-                throw new Error(`URLParams get type not specified: ${type}!`)
+                throw new Error(`URLParams 'get' type not implemented: ${type}!`)
         }
     }
 
@@ -68,7 +72,7 @@ export default class URLParams {
      * @param {String} key 
      * @returns {Array | null} Array or null when no value was found.
      */
-    static getArray(key) {
+    static getArray(key, type = "string") {
         let arr = null
         let url = new URL(window.location);
 
@@ -76,6 +80,53 @@ export default class URLParams {
             const queryVariable = url.searchParams.get(key)
             if (queryVariable === "null" || queryVariable === '') return []
             arr = URLParams.fromStringArray(queryVariable)
+
+
+            if (type !== 'string') {
+                arr = this._parseArray(arr, type)
+            }
+            return arr
+        }
+    }
+
+    static getMultiSelect(key, type) {
+        let obj = { value: [], mode: Mode.Or }
+        let url = new URL(window.location);
+
+        if (url.searchParams.has(key)) {
+
+            if (!url.searchParams.has(key + "_mode")) {
+                console.warn(`URLParams: No mode found for key ${key}! Using default mode: ${obj.mode}`)
+            } else {
+                obj.mode = URLParams.getBoolean(key + "_mode")
+            }
+
+            obj.value = URLParams.getArray(key, type).map((id) => {
+                return { id: id, name: "..." }
+            })
+        }
+
+        return obj
+    }
+
+
+    /**
+     *  Parses an array of strings to a specific type.
+     * 
+     * @param {*} arr - Array of strings
+     * @param {*} type - Type of the array
+     * @returns  Array of the specific type
+     */
+    static _parseArray(arr, type) {
+        switch (type) {
+            case 'int':
+                arr = arr.map((val) => parseInt(val))
+                break;
+            case 'bool':
+                arr = arr.map((val) => val === 'true')
+                break;
+            default:
+                throw new Error(`URLParams 'getArray' type not implemented: ${type}!`)
         }
         return arr
     }
@@ -144,5 +195,26 @@ export default class URLParams {
 
     static toStringArray(arr) {
         return arr.join(",")
+    }
+
+    static fromObject(obj) {
+        let strings = {}
+        for (let [key, value] of Object.entries(obj)) {
+            if (Array.isArray(value)) {
+
+                strings[key] = value.map((v) => {
+                    if (typeof v === 'object') {
+                        return v.id
+                    } else {
+                        return v
+                    }
+                })
+            } else if (typeof value === 'object') {
+                throw new Error("Object is no implemented")
+            } else {
+                strings[key] = value
+            }
+        }
+        return strings
     }
 }

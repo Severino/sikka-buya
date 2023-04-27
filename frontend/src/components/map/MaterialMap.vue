@@ -6,7 +6,7 @@
       </template>
 
       <template v-slot:tools>
-        <list-selection-tools 
+        <list-selection-tools
           @select-all="selectAllMints"
           @unselect-all="clearMintSelection"
           :hideSelectAllButton="true"
@@ -197,7 +197,9 @@ export default {
         this.overwriteFilters.mint = selection;
       },
     }),
-    catalogFilterMixin('sikka-buya-material-map-filters'),
+    catalogFilterMixin('sikka-buya-material-map-filters', {
+      
+    }),
   ],
   computed: {
 
@@ -397,20 +399,13 @@ export default {
       };
     },
     getOptions() {
-      let options = {};
-
-      if (this.$refs.catalogFilter?.activeFilters) {
-        for (let [key, val] of Object.entries(
-          this.$refs.catalogFilter.activeFilters
-        )) {
-          options[`${queryPrefix}${key}`] = val;
-        }
+      let options = {}
+      if (this.$refs.catalogFilter) {
+        const filters = this.$refs.catalogFilter.activeFilters
+        options = URLParams.fromObject(filters);
+        options.selectedMints = this.selectedMints;
       }
-
-      options.selectedMints = this.selectedMints;
-
       options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions())
-
       return options;
     },
     resetFilters: function () {
