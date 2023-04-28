@@ -64,6 +64,7 @@
           <locale path="routes.catalog" />
         </card-link>
 
+        <div class="alternate-buttons">
         <card-link
           class="subtle-card-link alternative-card-link"
           :noImage="true"
@@ -77,7 +78,7 @@
           <locale path="cms.bibliography" />
 
         </card-link>
-
+      </div>
 
       </aside>
     </div>
@@ -374,5 +375,9 @@ aside {
   h2 {
     color: gray;
   }
+}
+
+.alternate-buttons {
+  margin-top: 1.5rem;
 }
 </style>
