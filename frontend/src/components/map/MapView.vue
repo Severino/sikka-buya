@@ -85,13 +85,7 @@ export default {
       },
     });
 
-    // Removes the old map if it exists
-    // this is useful when the app is hot reloaded
-    // in development mode
-    if (window.map?.remove) {
-      console.log("Remove old map")
-      window.map.remove()
-    }
+
     // Initialize the map 
     var map = L.map('map_' + this._uid, {
       center: this.location,
@@ -103,8 +97,6 @@ export default {
       smoothWheelZoom: true, // enable smooth zoom
       smoothSensitivity: 1, // zoom speed. default is 1 
     });
-
-    window.map = map;
 
     map.on('popupopen', this.popupOpened);
     map.on('move', this.mapMoved); 
@@ -137,7 +129,6 @@ export default {
     this.map.off('move', this.mapMoved);
 
     this.map.remove();
-    window.map = null;
   },
   methods: {
     popupOpened(e) {
@@ -163,9 +154,6 @@ export default {
     },
     mapMoved(e) {
       this.$emit('moved', e);
-
-      const map = e.target;
-      _.isEqual(window.map, map);
     },
   }
 };

@@ -35,12 +35,13 @@
       <template #footer>
         <segmented-row>
           <template v-slot:right>
-            <Button
+            <AsyncButton
               class="button big-button signup-button"
-              :disabled="disabled"
+              :pending="disabled"
+              @click="submit"
             >
               <Locale path="system.signup" />
-            </Button>
+            </AsyncButton>
           </template>
         </segmented-row>
       </template>
@@ -55,9 +56,10 @@ import Button from '../../layout/buttons/Button.vue';
 import ErrorMessage from '../../ErrorMessage.vue';
 import Box from '../../layout/Box.vue';
 import SegmentedRow from '../../layout/SegmentedRow.vue';
+import AsyncButton from '../../layout/buttons/AsyncButton.vue';
 export default {
   name: 'AcceptInvitePage',
-  components: { Box, Button, ErrorMessage, SegmentedRow, Locale },
+  components: { Box, Button, ErrorMessage, SegmentedRow, Locale, AsyncButton },
   data: function () {
     return {
       password: '',
