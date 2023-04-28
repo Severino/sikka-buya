@@ -56,7 +56,6 @@ export default function (storage, urlParamsConfig) {
                                     break
                                 case FilterType.multiSelect:
                                     data[key] = URLParams.getMultiSelect(key, 'int')
-                                    console.log(data[key])
                                     break
                                 // case FilterType.multiSelect2D:
                                 //     data[key] = URLParams.getArray2D(value)

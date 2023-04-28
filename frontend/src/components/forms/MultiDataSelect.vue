@@ -4,17 +4,10 @@
       <div class="active-list">
         <div class="data-select-wrapper placeholder"></div>
 
-        <template v-for="el of active">
-          <!-- <span
-            v-if="idx > 0"
-            class="item-connection-indicator"
-            :key="'ici-' + idx"
-            v-text="mode"
-          ></span> -->
-
+        <template v-for="(el, index) of active">
           <button
             :key="`active-${el.id}`"
-            @click="() => $emit('remove', el)"
+            @click="() => $emit('remove', el, index)"
           >
             {{ el[attribute] }}
             <CloseThickIcon
@@ -23,10 +16,6 @@
             />
           </button>
         </template>
-        <!-- <multi-data-select-add-button
-          id="add-element-button"
-          @click.native="showDataSelect()"
-        /> -->
       </div>
     </div>
 
@@ -338,4 +327,5 @@ $min-height: 24px;
       opacity: 0.5;
     }
   }
-}</style>
+}
+</style>

@@ -87,7 +87,7 @@
           :text="input.text"
           v-model="filters[searchVariableName(input.name)]"
           @select="(el) => selectFilter(input.name, el)"
-          @remove="(el) => removeFilter(input.name, el)"
+          @remove="(el, index) => removeFilter(input.name, el, index)"
           @change-mode="() => dataSelectToggled(input)"
           @dynamic-change="() => $emit('dynamic-change')"
         />
@@ -123,6 +123,7 @@
 </template>
 
 <script>
+import Query from '../../../database/query';
 import { RequestGuard } from '../../../utils/Async.mjs';
 import ErrorBox from '../system/ErrorBox.vue';
 import Filter, { FilterList } from '../../../models/Filter';
@@ -133,10 +134,11 @@ import MultiDataSelect from '../../forms/MultiDataSelect.vue';
 import MultiDataSelect2D from '../../forms/MultiDataSelect2D.vue';
 import PageInfo, { Pagination } from '../../../models/pageinfo';
 import RadioButtonGroup from '../../forms/RadioButtonGroup.vue';
-import Sorter from '../../../utils/Sorter';
 import ThreeWayToggle from '../../forms/ThreeWayToggle.vue';
 import Type from '../../../utils/Type';
-import { FilterType, filterConfig } from '../../../config/catalog_filter';
+import { FilterType, filterConfig, filterNameMap } from '../../../config/catalog_filter';
+import StringUtils from '../../../utils/StringUtils';
+import URLParams from '../../../utils/URLParams';
 const filters = filterConfig
 
 let filterData = {};
@@ -257,15 +259,21 @@ export default {
       }
     );
     if (this.initData) {
-
+      const reload = []
 
       const initFilterMode = {};
       filters[FilterType.multiSelect].forEach((input) => {
         if (this.initData[input.name]) {
-          console.log(input.name)
-          input.mode = this.initData[input.name].mode || input.mode;
+          // When the mode is not allowed to be changed, the mode is set to the default value
+          input.mode = input.allowModeChange ? this.initData[input.name].mode || input.mode : input.mode;
           initFilterMode[input.name] = input.mode;
           this.initData[input.name] = this.initData[input.name].value || [];
+
+          this.initData[input.name].forEach((item) => {
+            if (item.id !== undefined && item.name === "...") {
+              reload.push({ id: item.id, category: input.name, type: FilterType.multiSelect })
+            }
+          })
         }
       });
 
@@ -277,8 +285,12 @@ export default {
         }
       });
 
+
       this.filterMode = Object.assign({}, this.filterMode, initFilterMode);
       this.filters = Object.assign({}, this.filters, this.initData);
+
+      this.reloadFilterNamesIfNecessary(reload)
+
     }
   },
   methods: {
@@ -289,6 +301,18 @@ export default {
     dataSelectToggled(input) {
       this.filterMode[input.name] = Mode.toggle(this.filterMode[input.name]);
       this.search();
+    },
+    getURLParams() {
+      let options = {};
+      const configMap = filterNameMap;
+      for (const [key, value] of Object.entries(this.activeFilters)) {
+        if (configMap[key].type === FilterType.multiSelect) {
+          options[key] = URLParams.toMultiSelect(value, this.filterMode[key])
+        } else {
+          options[key] = value;
+        }
+      }
+      return options;
     },
     async searchCallback({
       filters,
@@ -383,6 +407,33 @@ export default {
       this.$emit('update', { types, pageInfo });
       this.$emit('loading', false);
     },
+    reloadFilterNamesIfNecessary(reload = []) {
+      if (reload.length > 0)
+        Query.raw(
+          // All queries get concatenated into one query  
+          `{
+        ${reload.map(({ id, category }) => {
+            // We need to use an alias here to avoid conflicts with the other filters
+            return `${category}_${id}:get${StringUtils.capitalize(category)} (id: ${id}) {id name}`
+          })}
+      }`, {}, true).then(
+            (result) => {
+              const obj = result.data.data
+
+              const filterObjs = reload.reduce((acc, { id, category } = {}) => {
+                if (!acc[category]) acc[category] = []
+                const item = obj[`${category}_${id}`]
+                item.idx = acc[category].length
+                acc[category].push(item)
+                return acc
+              }, {})
+
+              for (let [category, filterObj] of Object.entries(filterObjs)) {
+                this.$set(this.filters, category, filterObj)
+              }
+            }
+          )
+    },
     async search() {
       const filters = Object.assign(
         {},
@@ -441,13 +492,13 @@ export default {
       );
       return this[methodName](target, idx);
     },
-    removeFilter(name, target, idx = null) {
+    removeFilter(name, target, index) {
       const methodName = this._getMethodFromFilter(
         'removeMethodName',
         name,
-        idx
+        index
       );
-      return this[methodName](target, idx);
+      return this[methodName](target, index);
     },
     removeFilterGroup(name, idx) {
       this.filters[name].splice(idx, 1);

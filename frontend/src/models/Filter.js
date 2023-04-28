@@ -65,6 +65,7 @@ export default class Filter {
     removeFilter() {
         const name = this.name
         return function (target) {
+
             if (this["has" + StringUtils.capitalize(name) + "Filter"](target)) {
                 this.filters[name] = this.filters[name].filter(
                     (el) => el.id != target.id
@@ -76,12 +77,12 @@ export default class Filter {
     hasFilter() {
         const name = this.name
         return function (target) {
-
             let id = parseInt(target.id)
+
             if (isNaN(id)) return false
 
             return this.filters[name]
-                .map((el) => el.id)
+                .map((el) => parseInt(el.id))
                 .includes(id);
         }
     }
@@ -107,11 +108,12 @@ export class FilterList extends Filter {
 
     hasFilter() {
         const name = this.name
-        return function (target, idx) {
+        return function (target, index) {
+
             let id = parseInt(target.id)
             if (isNaN(id)) return false
 
-            return this.filters[name]?.[idx]
+            return this.filters[name]?.[index]
                 .map((el) => el.id)
                 .includes(id);
         }
@@ -120,12 +122,17 @@ export class FilterList extends Filter {
     selectFilter() {
         const name = this.name
         return function (target, idx) {
+            console.log(0)
             if (!this["has" + StringUtils.capitalize(name) + "Filter"](target, idx)) {
+
+                console.log(1)
 
                 target.id = parseInt(target.id)
                 if (this.filters[name][idx])
                     this.filters[name][idx].push(target);
             }
+            console.log(2)
+
             this.filters[Filter.searchVariableName(name)] = { id: null, name: '' };
         }
     }

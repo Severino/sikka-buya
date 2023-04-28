@@ -40,7 +40,7 @@
         :timelineTo="timeline.to"
         :timelineValue="raw_timeline.value"
         :timelineActive="timelineActive"
-        :shareLink="shareLink"
+        :shareLink="getShareLink()"
         timelineName="additional-map"
         @input="timelineChanged"
         @toggle="timelineToggled"
@@ -145,6 +145,7 @@ import Locale from '../cms/Locale.vue';
 import MapToolbar from "./MapToolbar.vue"
 import { FilterSlide } from '../../models/slide';
 import TimelineSlideshowArea from './TimelineSlideshowArea.vue';
+import { FilterType } from '../../config/catalog_filter';
 
 const queryPrefix = 'map-filter-';
 let settings = new Settings(window, 'MaterialOverlay');
@@ -198,14 +199,10 @@ export default {
       },
     }),
     catalogFilterMixin('sikka-buya-material-map-filters', {
-      
+
     }),
   ],
   computed: {
-
-    shareLink() {
-      return URLParams.generate(this.getOptions()).href;
-    },
     mintList() {
       function addAvailability(mint, available) {
         mint.available = available;
@@ -268,6 +265,8 @@ export default {
         ) {
           let value = val;
 
+          console.log('set filter', key, val)
+
           const filterKey = key.replace(queryPrefix, '');
           try {
             value = JSON.parse(val);
@@ -278,12 +277,20 @@ export default {
           this.$refs.catalogFilter.setFilter(filterKey, value);
         }
       }
+
+      // We clear the URL params after we have set the filters
+      // This is to prevent the filters from being applied again on reload.
+      // The values are stored anyways in the localstorage.
+      // URLParams.clear()
     });
 
     await this.initTimeline();
     this.updateTimeline(true);
   },
   methods: {
+    getShareLink() {
+      return URLParams.generate(this.getOptions()).href;
+    },
     slideshowSlidesLoaded({ slideshow, slides }) {
       // TODO: This is a hack to make sure the mints are loaded before we apply the display options
       setTimeout(() => {
@@ -401,10 +408,9 @@ export default {
     getOptions() {
       let options = {}
       if (this.$refs.catalogFilter) {
-        const filters = this.$refs.catalogFilter.activeFilters
-        options = URLParams.fromObject(filters);
-        options.selectedMints = this.selectedMints;
+        const filters = this.$refs.catalogFilter.getURLParams()
       }
+      options.selectedMints = this.selectedMints;
       options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions())
       return options;
     },

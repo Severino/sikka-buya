@@ -18,6 +18,10 @@ export default class URLParams {
         })
 
         for (let [key, value] of Object.entries(params)) {
+
+            if (value === true) value = "1"
+            if (value === false) value = "0"
+
             if (value != null)
                 url.searchParams.set(key, value)
         }
@@ -89,21 +93,31 @@ export default class URLParams {
         }
     }
 
-    static getMultiSelect(key, type) {
+    static toMultiSelect(array, mode) {
+        return `${mode === Mode.And ? "§" : ""}${array.map(obj => obj.id).join(',')}`
+    }
+
+    static getMultiSelect(key, mode) {
         let obj = { value: [], mode: Mode.Or }
         let url = new URL(window.location);
 
         if (url.searchParams.has(key)) {
 
-            if (!url.searchParams.has(key + "_mode")) {
-                console.warn(`URLParams: No mode found for key ${key}! Using default mode: ${obj.mode}`)
-            } else {
-                obj.mode = URLParams.getBoolean(key + "_mode")
+            // if (!url.searchParams.has(key + "_mode")) {
+            //     console.warn(`URLParams: No mode found for key ${ key }! Using default mode: ${ obj.mode } `)
+            // } else {
+            //     obj.mode = URLParams.getBoolean(key + "_mode")
+            // }
+
+            let searchParams = url.searchParams.get(key)
+
+            if (searchParams.charAt(0) === '§') {
+                obj.mode = Mode.And
+                searchParams = searchParams.substring(1)
             }
 
-            obj.value = URLParams.getArray(key, type).map((id) => {
-                return { id: id, name: "..." }
-            })
+
+            obj.value = URLParams.fromStringArray(searchParams).map((val, index) => ({ name: "...", id: parseInt(val), index }))
         }
 
         return obj
@@ -126,7 +140,7 @@ export default class URLParams {
                 arr = arr.map((val) => val === 'true')
                 break;
             default:
-                throw new Error(`URLParams 'getArray' type not implemented: ${type}!`)
+                throw new Error(`URLParams 'getArray' type not implemented: ${type} !`)
         }
         return arr
     }
@@ -172,8 +186,8 @@ export default class URLParams {
         const queryParam = url.searchParams.get(key)
 
         if (queryParam !== undefined) {
-            if (queryParam === "true") value = true
-            else if (queryParam === "false") value = false
+            if (queryParam === "true" || queryParam === "1") value = true
+            else if (queryParam === "false" || queryParam === "0") value = false
         }
 
         return value
