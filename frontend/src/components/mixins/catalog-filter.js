@@ -1,7 +1,7 @@
-import { FilterType, filterConfig, filterKeys, filterNameMap } from "../../config/catalog_filter";
+import { FilterType, filterNameMap } from "../../config/catalog_filter";
 import URLParams from "../../utils/URLParams";
+import { camelCase } from "change-case";
 
-import Query from "../../database/query";
 
 export default function (storage, urlParamsConfig) {
     return {
@@ -44,66 +44,38 @@ export default function (storage, urlParamsConfig) {
                 const url = new URL(window.location)
                 const params = url.searchParams
 
-                params.forEach((value, key) => {
-                    if (filterNameMap[key]) {
-                        if (!data[key]) {
-                            switch (filterNameMap[key].type) {
+                params.forEach((_, queryKey) => {
+                    const objectKey = camelCase(queryKey)
+
+                    if (filterNameMap[objectKey]) {
+                        if (!data[objectKey]) {
+                            switch (filterNameMap[objectKey].type) {
                                 case FilterType.text:
-                                    data[key] = URLParams.get(key, "string")
+                                    data[objectKey] = URLParams.get(queryKey, "string")
                                     break
                                 case FilterType.threeWay:
-                                    data[key] = URLParams.get(key, "bool")
+                                    data[objectKey] = URLParams.get(queryKey, "bool")
                                     break
                                 case FilterType.multiSelect:
-                                    data[key] = URLParams.getMultiSelect(key, 'int')
+                                    data[objectKey] = URLParams.getMultiSelect(queryKey)
                                     break
-                                // case FilterType.multiSelect2D:
-                                //     data[key] = URLParams.getArray2D(value)
-                                //     break
+                                case FilterType.multiSelect2D:
+                                    data[objectKey] = URLParams.getMultiSelect2D(queryKey)
+                                    console.log(data[objectKey])
+                                    break
+                                case FilterType.buttonGroup:
+                                    data[objectKey] = URLParams.get(queryKey, "string")
+                                    console.log(queryKey)
+                                    break
                                 default:
-                                    throw new Error(`Unknown filter type "${filterNameMap[key].type}"!`)
+                                    throw new Error(`Unknown filter type "${filterNameMap[queryKey].type}"!`)
                             }
                         } else {
-                            console.warn(`Found two filters of type "${key}"!`)
+                            console.warn(`Found two filters of type "${queryKey}"!`)
                         }
 
                     }
                 })
-
-                // function capitalize(name) {
-                //     return `${name[0].toUpperCase() + name.slice(1)}`
-                // }
-
-                // function getQueryName(name, id) {
-                //     return `get${capitalize(name)}${id}`
-                // }
-
-                // const body = []
-                //     ;[
-                //         ...filterConfig[FilterType.multiSelect],
-                //         ...filterConfig[FilterType.multiSelect2D]
-                //     ].forEach(({ name }) => {
-                //         if (data[name]) {
-                //             data[name].value.forEach((obj) => {
-                //                 body.push(`${getQueryName(name, obj.id)}:get${capitalize(name)}(id: ${obj.id}){id name}`)
-                //             })
-                //         }
-                //     })
-
-                // const queriedData = (await Query.raw(`query {${body.join('\n')}}`, {}, true)).data.data
-
-                //     ;[
-                //         ...filterConfig[FilterType.multiSelect],
-                //         ...filterConfig[FilterType.multiSelect2D]
-                //     ].forEach(({ name }) => {
-                //         if (data[name]) {
-                //             data[name].value.forEach((obj) => {
-                //                 obj.value = queriedData[getQueryName(name, obj.id)]
-                //             })
-                //         }
-                //     })
-
-                //     console.log(data)
 
                 this.catalog_filter_mixin_initData = data
                 return Object.keys(data).length > 0

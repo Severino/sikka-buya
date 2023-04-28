@@ -139,6 +139,7 @@ import Type from '../../../utils/Type';
 import { FilterType, filterConfig, filterNameMap } from '../../../config/catalog_filter';
 import StringUtils from '../../../utils/StringUtils';
 import URLParams from '../../../utils/URLParams';
+import { snakeCase } from "change-case";
 const filters = filterConfig
 
 let filterData = {};
@@ -270,7 +271,7 @@ export default {
           this.initData[input.name] = this.initData[input.name].value || [];
 
           this.initData[input.name].forEach((item) => {
-            if (item.id !== undefined && item.name === "...") {
+            if (item.id !== undefined && item.name.startsWith("...")) {
               reload.push({ id: item.id, category: input.name, type: FilterType.multiSelect })
             }
           })
@@ -282,15 +283,20 @@ export default {
           input.mode = this.initData[input.name].mode || input.mode;
           initFilterMode[input.name] = input.mode;
           this.initData[input.name] = this.initData[input.name].value || [[]];
+
+          this.initData[input.name].forEach((arr, arrayIndex) => {
+            arr.forEach(item => {
+              if (item.id !== undefined && item.name.startsWith("...")) {
+                reload.push({ id: item.id, category: input.name, type: FilterType.multiSelect2D, arrayIndex })
+              }
+            })
+          })
         }
       });
 
-
       this.filterMode = Object.assign({}, this.filterMode, initFilterMode);
       this.filters = Object.assign({}, this.filters, this.initData);
-
       this.reloadFilterNamesIfNecessary(reload)
-
     }
   },
   methods: {
@@ -306,10 +312,14 @@ export default {
       let options = {};
       const configMap = filterNameMap;
       for (const [key, value] of Object.entries(this.activeFilters)) {
+        const uriKey = snakeCase(key)
+
         if (configMap[key].type === FilterType.multiSelect) {
-          options[key] = URLParams.toMultiSelect(value, this.filterMode[key])
+          options[uriKey] = URLParams.toMultiSelect(value, this.filterMode[key])
+        } else if (configMap[key].type === FilterType.multiSelect2D) {
+          options[uriKey] = URLParams.toMultiSelect2D(value, this.filterMode[key])
         } else {
-          options[key] = value;
+          options[uriKey] = value;
         }
       }
       return options;
@@ -353,11 +363,11 @@ export default {
       multiSelectFilters2D.forEach(({ name }) => {
         if (filters[name]) {
           if (this.filterMode?.[name].toLowerCase() === 'and') {
-            filters[name + '_or_and'] = filters[name].map((arr) =>
+            filters[name + '_and_or'] = filters[name].map((arr) =>
               arr.map((el) => el.id)
             );
           } else {
-            filters[name + '_and_or'] = filters[name].map((arr) =>
+            filters[name + '_or_and'] = filters[name].map((arr) =>
               arr.map((el) => el.id)
             );
           }
@@ -413,20 +423,51 @@ export default {
           // All queries get concatenated into one query  
           `{
         ${reload.map(({ id, category }) => {
+
+            let queryName = StringUtils.capitalize(category)
+            let queryBody = "{id name}"
+
+            if (category === "otherPerson") {
+              queryName = "Person"
+              queryBody = "{id name:shortName}"
+
+            }
+
             // We need to use an alias here to avoid conflicts with the other filters
-            return `${category}_${id}:get${StringUtils.capitalize(category)} (id: ${id}) {id name}`
+            return `${category}_${id}:get${queryName} (id: ${id}) ${queryBody}`
           })}
       }`, {}, true).then(
             (result) => {
               const obj = result.data.data
 
-              const filterObjs = reload.reduce((acc, { id, category } = {}) => {
-                if (!acc[category]) acc[category] = []
-                const item = obj[`${category}_${id}`]
-                item.idx = acc[category].length
-                acc[category].push(item)
+              const filterObjs = reload.reduce((acc, { id, category, type, arrayIndex } = {}) => {
+                switch (type) {
+                  case FilterType.multiSelect: {
+
+                    if (!acc[category]) acc[category] = []
+                    const item = obj[`${category}_${id}`]
+                    item.idx = acc[category].length
+                    acc[category].push(item)
+                    break;
+                  }
+                  case FilterType.multiSelect2D: {
+
+                    if (!acc[category]) acc[category] = []
+                    while (acc[category].length <= arrayIndex) {
+                      acc[category].push([])
+                    }
+
+                    const item = obj[`${category}_${id}`]
+                    item.idx = acc[category].length
+                    acc[category][arrayIndex].push(item)
+                    break;
+                  }
+                  default:
+                    throw new Error(`Type not implemented for reloading names ${type}`)
+                }
                 return acc
               }, {})
+
 
               for (let [category, filterObj] of Object.entries(filterObjs)) {
                 this.$set(this.filters, category, filterObj)
@@ -586,11 +627,21 @@ export default {
         }
       });
 
-      [...filters[FilterType.multiSelect], ...filters[FilterType.multiSelect2D]].forEach(
+      filters[FilterType.multiSelect].forEach(
         (filter) => {
           storage[filter.name] = {
             mode: this.filterMode[filter.name] || Mode.And,
             value: activeFilters[filter.name] || [],
+          };
+        }
+      );
+
+
+      filters[FilterType.multiSelect2D].forEach(
+        (filter) => {
+          storage[filter.name] = {
+            mode: this.filterMode[filter.name] || Mode.And,
+            value: activeFilters[filter.name] || [[]],
           };
         }
       );

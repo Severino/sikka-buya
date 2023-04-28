@@ -64,7 +64,6 @@
                                 type="mdi"
                                 :path="icons.share"
                                 :size="headerIconSize"
-                                class="button icon-button"
                             />
                         </ButtonVue>
 

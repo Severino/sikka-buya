@@ -2,7 +2,13 @@ import Mode from "../models/Mode"
 
 export default class URLParams {
 
-
+    static get symbols() {
+        return {
+            and: "~",
+            array: ",",
+            multiArray: ";",
+        }
+    }
 
     /**
      * Removes all existing parmameters and sets all 
@@ -56,7 +62,7 @@ export default class URLParams {
     static get(name, type = "string") {
         switch (type) {
             case 'string':
-                return name
+                return URLParams.getString(name)
             case 'array':
                 return URLParams.getArray(name)
             case 'int':
@@ -94,34 +100,64 @@ export default class URLParams {
     }
 
     static toMultiSelect(array, mode) {
-        return `${mode === Mode.And ? "§" : ""}${array.map(obj => obj.id).join(',')}`
+        return `${mode === Mode.And ? URLParams.symbols.and : ""}${array.map(obj => obj.id).join(URLParams.symbols.array)}`
     }
 
-    static getMultiSelect(key, mode) {
+    static getMultiSelect(key) {
         let obj = { value: [], mode: Mode.Or }
         let url = new URL(window.location);
 
         if (url.searchParams.has(key)) {
 
-            // if (!url.searchParams.has(key + "_mode")) {
-            //     console.warn(`URLParams: No mode found for key ${ key }! Using default mode: ${ obj.mode } `)
-            // } else {
-            //     obj.mode = URLParams.getBoolean(key + "_mode")
-            // }
-
             let searchParams = url.searchParams.get(key)
-
-            if (searchParams.charAt(0) === '§') {
+            if (searchParams.charAt(0) === URLParams.symbols.and) {
                 obj.mode = Mode.And
                 searchParams = searchParams.substring(1)
             }
-
 
             obj.value = URLParams.fromStringArray(searchParams).map((val, index) => ({ name: "...", id: parseInt(val), index }))
         }
 
         return obj
     }
+
+    static toMultiSelect2D(array2d, mode) {
+        return `${mode === Mode.And ? URLParams.symbols.and : ""}${array2d.map(array => array.map(obj => obj.id).join(URLParams.symbols.array)).join(URLParams.symbols.multiArray)}`
+    }
+
+    static getMultiSelect2D(key) {
+        let obj = { value: [[]], mode: Mode.Or }
+        let url = new URL(window.location);
+
+        if (url.searchParams.has(key)) {
+
+            let searchParams = url.searchParams.get(key)
+
+            if (searchParams.charAt(0) === URLParams.symbols.and) {
+                obj.mode = Mode.And
+                searchParams = searchParams.substring(1)
+            }
+
+
+            const value = searchParams
+                .split(URLParams.symbols.multiArray)
+                .filter(a => a !== "")
+                .reduce((acc, arrayString) => {
+                    const arr = URLParams
+                        .fromStringArray(arrayString)
+                        .map((val, index) => ({ name: `...(${val})`, id: parseInt(val), index }))
+                    acc.push(arr)
+                    return acc
+                }, [])
+
+            console.log(value)
+
+            obj.value = value
+        }
+
+        return obj
+    }
+
 
 
     /**
@@ -145,6 +181,11 @@ export default class URLParams {
         return arr
     }
 
+
+    static getString(key, defaultValue = null) {
+        let url = new URL(window.location)
+        return url.searchParams.get(key) || defaultValue
+    }
 
     /**
      * All params in the URL string are strings.

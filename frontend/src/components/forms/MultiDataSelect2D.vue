@@ -117,5 +117,6 @@ export default {
 
 #add-group-button {
   margin-top: $small-padding;
+  padding: 3px;
 }
 </style>

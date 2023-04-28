@@ -1,19 +1,23 @@
 <template>
   <button
     class="multi-data-select-add-icon button add-button"
-    style="height: 20px; min-width: 20px"
+    style="min-width: 20px"
   >
-    <Plus :size="14" />
-    <slot />
+    <Icon type="mdi" :path="icons.mdiPlus" :size="16" />
+    <slot> </slot>
   </button>
 </template>
 
 <script>
 import Plus from 'vue-material-design-icons/Plus';
+import IconsMixin from '../mixins/icons';
+import { mdiPlus } from '@mdi/js';
+
 export default {
   components: {
     Plus,
   },
+  mixins: [IconsMixin({mdiPlus})]
 };
 </script>
 
@@ -23,13 +27,11 @@ export default {
   align-items: center;
   justify-content: center;
   font-size: $small-font;
+  width: 100%;
 
-  .plus-icon {
-    margin-top: 3px;
+  svg {
+    margin-right: 0.25em;
   }
 
-  span {
-    display: block;
-  }
 }
 </style>

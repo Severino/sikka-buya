@@ -231,7 +231,6 @@ export default {
         settings[key] = value;
       });
       this.overlaySettings = Object.assign(this.overlaySettings, settings);
-
       this.overlay.repaint();
     });
 
@@ -258,14 +257,11 @@ export default {
 
     this.$nextTick(() => {
       for (let [key, val] of Object.entries(this.$route.query)) {
-        console.log(key, queryPrefix, key.startsWith(queryPrefix), this.$refs?.catalogFilter?.activeFilters)
         if (
           key.startsWith(queryPrefix) &&
           this.$refs?.catalogFilter?.activeFilters
         ) {
           let value = val;
-
-          console.log('set filter', key, val)
 
           const filterKey = key.replace(queryPrefix, '');
           try {
@@ -281,7 +277,7 @@ export default {
       // We clear the URL params after we have set the filters
       // This is to prevent the filters from being applied again on reload.
       // The values are stored anyways in the localstorage.
-      // URLParams.clear()
+      URLParams.clear()
     });
 
     await this.initTimeline();
@@ -407,18 +403,18 @@ export default {
     },
     getOptions() {
       let options = {}
+      let filters = {}
       if (this.$refs.catalogFilter) {
-        const filters = this.$refs.catalogFilter.getURLParams()
+        filters = this.$refs.catalogFilter.getURLParams()
       }
       options.selectedMints = this.selectedMints;
-      options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions())
+      options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions(), filters)
       return options;
     },
     resetFilters: function () {
       this.$refs.catalogFilter.resetFilters();
       this.clearMintSelection({ preventUpdate: true });
       this.overwriteFilters.mint = this.selectedMints;
-
       this.update();
     },
     async update() {
