@@ -112,13 +112,13 @@
 
     <Sidebar side="right">
       <template #title>
-          <Locale path="map.ruler_selection" />
+        <Locale path="map.ruler_selection" />
       </template>
 
       <template #tools>
         <ListSelectionTools
-          @select-all="()=>{}"
-          @unselect-all=" clearRulerSelection "
+          @select-all="() => { }"
+          @unselect-all="clearRulerSelection"
           :hideSelectAllButton="true"
           :allSelected="false"
           :noneSelected="selectedRulers.length === 0"
@@ -126,12 +126,12 @@
         </ListSelectionTools>
       </template>
       <ruler-list
-        :selectedUnavailable=" selectedUnavailableRulers "
-        :unavailable=" unavailableRulers "
-        :items=" availableRulers "
-        :selectedIds=" selectedRulers "
-        :group=" !timelineActive "
-        @selectionChanged=" rulerSelectionChanged "
+        :selectedUnavailable="selectedUnavailableRulers"
+        :unavailable="unavailableRulers"
+        :items="availableRulers"
+        :selectedIds="selectedRulers"
+        :group="!timelineActive"
+        @selectionChanged="rulerSelectionChanged"
       />
     </Sidebar>
   </div>
@@ -414,19 +414,21 @@ export default {
 
     await this.initTimeline();
     this.update();
-    await this.drawTimeline();
+    // await this.drawTimeline();
 
-    window.addEventListener('resize', this.updateCanvas);
+    window.addEventListener('resize', this.resizeCanvas);
   },
-  unmounted: function () {
+  beforeDestroy: function () {
     if (this.mintLocations) this.mintLocations.clearLayers();
 
-    window.removeEventListener('resize', this.updateCanvas);
+    window.removeEventListener('resize', this.resizeCanvas);
   },
   methods: {
     toggleTimeline() {
       timeline.methods.toggleTimeline.call(this);
-      this.update();
+      this.$nextTick(() => {
+        this.update();
+      });
     },
     slideshowSlidesLoaded({ slides, slideshow }) {
 
@@ -458,11 +460,10 @@ export default {
       options.selectedRulers = URLParams.toStringArray(this.selectedRulers);
       options.selectedMints = URLParams.toStringArray(this.selectedMints);
       options = Object.assign(options, this.getTimelineOptions(), this.getMapOptions());
-
-      console.log(options)
       return options;
     },
     async drawTimeline() {
+      if (!this.$data.i) this.$data.i = 1
       if (this.timelineChart) {
         this.timelineChart.clear();
         if (this.selectedMints.length > 0 && this.selectedRulers.length > 0) {
@@ -585,13 +586,12 @@ export default {
       const combinedRanges = Range.fromNumberSequence(points);
       this.timelineChart.drawRangeRectOnCanvas(combinedRanges, 0, height, fill);
     },
-    updateCanvas() {
-      if (this.timelineResizeTimeout)
-        clearTimeout(this.timelineResizeTimeout);
-      this.timelineResizeTimeout = setTimeout(async () => {
-        // this.timelineChart.updateSize();
-        // await this.drawTimeline();
-      }, 1500);
+    resizeCanvas() {
+      if (this.timelineResizeTimeout) clearTimeout(this.timelineResizeTimeout);
+      this.timelineResizeTimeout = setTimeout(() => {
+        this.timelineChart.updateSize();
+        this.drawTimeline();
+      }, 300);
     },
     timelineUpdated: async function () {
       this.update();
@@ -609,6 +609,7 @@ export default {
     },
     async update() {
       this.setLoading(true);
+      await this.drawTimeline()
       await this.overlay.update({
         filters: this.filters,
         selections: this.selections,
@@ -707,7 +708,7 @@ export default {
       if (!preventUpdate) {
         this.updateAvailableRulers();
         this.repaint();
-        this.drawTimeline();
+        this.drawTimeline()
       }
     },
     async drawMintCountOntoTimeline(ranges) {

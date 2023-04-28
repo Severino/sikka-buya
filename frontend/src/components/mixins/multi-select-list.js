@@ -13,7 +13,6 @@ export default {
         checkboxSelected(item) {
             let selection = this.selectedIds;
             const idx = selection.indexOf(item.id);
-            console.log(idx)
             if (idx == -1) {
                 selection.push(item.id);
                 this.selectionChanged({ active: selection, addeed: [item.id], removed: [] });
