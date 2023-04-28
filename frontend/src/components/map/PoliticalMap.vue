@@ -382,6 +382,16 @@ export default {
         this.updateAvailableRulers();
       },
     });
+  },
+  mounted: async function () {
+    this.$nextTick(() => {
+      URLParams.clear();
+    });
+
+    this.timelineChart = new TimelineChart(
+      this.$refs.timelineCanvas,
+      this.raw_timeline
+    );
 
     let selectedRulers = URLParams.getArray('selectedRulers');
     if (selectedRulers) {
@@ -396,24 +406,17 @@ export default {
       this.mintSelectionChanged(
         { active: selectedMints, added: selectedMints },
         {
+          preserveSelections: true,
           preventUpdate: true,
         }
       );
     }
-  },
-
-  mounted: async function () {
-    this.$nextTick(() => {
-      URLParams.clear();
-    });
-
-    this.timelineChart = new TimelineChart(
-      this.$refs.timelineCanvas,
-      this.raw_timeline
-    );
 
     await this.initTimeline();
-    this.update();
+    await this.update();
+
+    this.addedMints = []
+
     // await this.drawTimeline();
 
     window.addEventListener('resize', this.resizeCanvas);

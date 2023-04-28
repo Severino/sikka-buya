@@ -119,19 +119,24 @@ export function mintLocationsMixin({
                 this.mintLocationLayer = this.mintLocation.createGeometryLayer(features, this.selectedMints);
                 this.mintLocationLayer.addTo(this.featureGroup);
             },
-            mintSelectionChanged({ active = [], added = [], removed = [], }, { preventUpdate = false } = {}) {
+            async mintSelectionChanged({ active = [], added = [], removed = [], }, { preventUpdate = false, preserveSelections = false } = {}) {
                 this.selectedMints = active;
                 this.addedMints = added
                 this.removedMints = removed
 
                 if (onMintSelectionChanged)
                     onMintSelectionChanged.call(this, this.selectedMints)
-                if (!preventUpdate) this.update();
+                if (!preventUpdate) await this.update();
 
                 try {
                     window.localStorage.setItem(selectedMintStorageName, JSON.stringify(this.selectedMints))
                 } catch (e) {
                     console.warn(e)
+                }
+
+                if (!preserveSelections) {
+                    this.addedMints = []
+                    this.removedMints = []
                 }
             },
             clearMintSelection({ preventUpdate = false } = {}) {

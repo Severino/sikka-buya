@@ -20,7 +20,7 @@
             zoom: linkZoom,
             location: mintLocation,
             timelineActive: true,
-            selectedRulers: [],
+            selectedRulers: null,
             selectedMints: [type.mint.id],
           },
         }"
@@ -86,7 +86,7 @@
                 location: mintLocation,
                 zoom: linkZoom,
                 selectedMints: [type.mint.id],
-                selectedRulers: [],
+                selectedRulers: null,
               },
             }"
           >

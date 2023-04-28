@@ -350,7 +350,8 @@ export default class PoliticalOverlay extends Overlay {
 
 
   createMintTypesMarker(latlng, feature, {
-    selections = {}
+    selections = {},
+    animationTime = 300
   } = {}) {
 
     const { data, selected } = coinsToRulerData(
@@ -392,7 +393,7 @@ export default class PoliticalOverlay extends Overlay {
        * was intentionally removed by request of the numismatics 
        * //14-12-2022
        */
-      const locationMarker = this.createMintLocationMarker(latlng, feature, { added: mintAdded, removed: mintRemoved })
+      const locationMarker = this.createMintLocationMarker(latlng, feature, { added: mintAdded, removed: mintRemoved, animationTime })
       const objects = [concentricCirclesMarker, locationMarker]
 
 
@@ -402,7 +403,7 @@ export default class PoliticalOverlay extends Overlay {
 
       layer = L.featureGroup(objects);
     } else {
-      layer = this.createMintLocationMarker(latlng, feature, { added: mintAdded, removed: mintRemoved })
+      layer = this.createMintLocationMarker(latlng, feature, { added: mintAdded, removed: mintRemoved, animationTime })
 
     }
     layer.bringToFront()
@@ -413,6 +414,7 @@ export default class PoliticalOverlay extends Overlay {
 
   createMintWithoutTimeMarker(latlng, feature, {
     selections = {},
+    animationTime = 300,
   } = {}) {
     let layer;
     const mint = feature.data.mint
@@ -443,11 +445,11 @@ export default class PoliticalOverlay extends Overlay {
         stroke
       })
 
-      let marker = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved })
+      let marker = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved, animationTime })
       marker.addTo(layer)
       if (marker.isSpecial) layer.isSpecial = true
     } else {
-      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved })
+      layer = this.createMintLocationMarker(latlng, feature, { active: isMintSelected, added: wasAdded, removed: wasRemoved, animationTime })
     }
 
     layer.bringToFront()
