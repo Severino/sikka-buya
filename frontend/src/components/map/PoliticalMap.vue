@@ -783,6 +783,7 @@ export default {
 
 .unlocated-mints {
   position: absolute;
+  pointer-events: all;
   left: $padding ;
   bottom: 0;
   color: $white;
