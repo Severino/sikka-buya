@@ -4,7 +4,7 @@
     :class="{ readonly: readonly, active: toggleValue }"
     :readonly="readonly"
     :value="toggleValue"
-    @input="$emit('input', $event)"
+    @input="clicked"
   >
 
     <template v-slot:active>
@@ -36,6 +36,11 @@ export default {
     icon: String,
     value: Boolean,
     readonly: Boolean,
+  },
+  methods: {
+    clicked(event) {
+      if (!this.readonly) this.$emit('input', event)
+    }
   },
   computed: {
     toggleValue() {
