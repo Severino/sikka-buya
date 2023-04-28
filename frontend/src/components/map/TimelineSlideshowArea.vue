@@ -13,14 +13,14 @@
                     <template v-if="slideshow.active">
                         <Icon
                             type="mdi"
-                            :path="icons.bookmarks"
+                            :path="icons.bookmark"
                             :size="headerIconSize"
                         />
                     </template>
                     <template v-else>
                         <Icon
                             type="mdi"
-                            :path="icons.bookmarksOutline"
+                            :path="icons.bookmarkOutline"
                             :size="headerIconSize"
                         />
                     </template>
@@ -140,7 +140,7 @@ import Grid from '../Grid.vue';
 import ButtonVue from '../layout/buttons/Button.vue';
 import Drawer from '../misc/Drawer.vue';
 
-import { mdiPlay, mdiPause, mdiShareVariant, mdiBookmarkBoxMultiple, mdiBookmarkBoxMultipleOutline } from "@mdi/js"
+import { mdiPlay, mdiPause, mdiShareVariant, mdiBookmarkBoxMultiple, mdiBookmarkBoxMultipleOutline, mdiBookmark, mdiBookmarkOutline } from "@mdi/js"
 import Locale from '../cms/Locale.vue';
 import PopupActivator from '../Popup/PopupActivator.vue';
 import CopyField from '../forms/CopyField.vue';
@@ -188,8 +188,8 @@ export default {
         timelineValue: Number,
     },
     mixins: [icons({
-        "bookmarks": mdiBookmarkBoxMultiple,
-        "bookmarksOutline": mdiBookmarkBoxMultipleOutline,
+        "bookmark": mdiBookmark,
+        "bookmarkOutline": mdiBookmarkOutline,
         "play": mdiPlay,
         "pause": mdiPause,
         "share": mdiShareVariant
