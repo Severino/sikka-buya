@@ -124,6 +124,10 @@ export default {
   text-transform: capitalize;
 }
 
+.navigation {
+  height: 60px;
+}
+
 header {
   // position: sticky;
   background-color: $white;

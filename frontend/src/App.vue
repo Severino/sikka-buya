@@ -217,11 +217,7 @@ $debug-color: orangered !important;
 }
 
 .center-box {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  height: calc(100vh - 60px);
   display: flex;
   justify-content: center;
   align-items: center;
