@@ -60,7 +60,6 @@ export default {
 
 <style lang="scss" scoped>
 .nav-grid {
-  height: 420px;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 3 * $padding;
 }

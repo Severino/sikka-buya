@@ -257,10 +257,12 @@ h6 {
 }
 
 .subtitled {
-  margin-bottom: 2 * $regular-font;
 
-  h1 {
-    margin-bottom: $xtra-small-font;
+
+  text-align: left;
+  .subtitle {
+    font-size: 0.641em;
+    color: currentColor;
   }
 }
 
@@ -424,6 +426,7 @@ button {
 }
 
 .disabled {
+  pointer-events: none;
   color: $light-gray;
 }
 

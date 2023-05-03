@@ -65,20 +65,24 @@
         </card-link>
 
         <div class="alternate-buttons">
-        <card-link
-          class="subtle-card-link alternative-card-link"
-          :noImage="true"
-          :to="{
-            name: 'CMSList',
-            params: {
-              group: 'bibliography',
-            }
-          }"
-        >
-          <locale path="cms.bibliography" />
+          <card-link
+            class="subtle-card-link alternative-card-link"
+            :disabled="true"
+            :noImage="true"
+            :to="{
+                name: 'CMSList',
+                params: {
+                  group: 'bibliography',
+                }
+              }"
+          >
+            <div class="subtitled">
+              <locale path="cms.bibliography" />
+              <span class="subtitle">Demnächst verfügbar!</span>
+            </div>
 
-        </card-link>
-      </div>
+          </card-link>
+        </div>
 
       </aside>
     </div>

@@ -97,6 +97,11 @@ export default {
     color: $primary-color;
     background-color: $white;
 
+    &.disabled {
+      background-color: $light-gray;
+      color: $gray;
+    }
+
     header {
       padding-top: $padding;
       padding-bottom: $padding;
