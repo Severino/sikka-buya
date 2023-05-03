@@ -185,7 +185,11 @@ export default {
         map: Object,
         timelineFrom: Number,
         timelineTo: Number,
-        timelineValue: Number,
+        timelineValue: {
+            validator: (value) => {
+                return !isNaN(value) || value === "";
+            },
+        },
     },
     mixins: [icons({
         "bookmark": mdiBookmark,
@@ -217,7 +221,7 @@ export default {
         }
     },
     methods: {
-        getTimeline(){
+        getTimeline() {
             return this.$refs.timeline;
         },
         toggleTimeline() {
@@ -256,14 +260,14 @@ export default {
 
 <style lang="scss">
 .toolbar {
-    
-    .column > .button,
-    .column .popup-target > .button  {
+
+    .column>.button,
+    .column .popup-target>.button {
         // text-overflow: clip;
         // flex-wrap: nowrap;
         // overflow: hidden;
 
-        > span {
+        >span {
             white-space: nowrap;
             min-width: 0;
             text-overflow: ellipsis;
@@ -271,7 +275,6 @@ export default {
     }
 
 }
-
 </style>
 
 <style lang='scss' scoped>

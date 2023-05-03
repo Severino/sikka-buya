@@ -32,7 +32,7 @@
       >
         <div class="input-wrapper">
           <input
-            class="yearInput"
+            class="year-input"
             type="text"
             :value="value"
             style="text-align: center"
@@ -84,7 +84,11 @@ export default {
     map: Object,
     from: Number,
     to: Number,
-    value: Number,
+    value: {
+      validator: (value) => {
+        return !isNaN(value) || value === "";
+      },
+    },
   },
   data() { return { focussed: false } },
   computed: {
@@ -102,7 +106,11 @@ export default {
       this.changed(options.year);
     },
     input(event) {
-      this.$emit('input', parseFloat(event.currentTarget.value));
+
+      let value = parseFloat(event.currentTarget.value)
+      if(isNaN(value)) value = "";
+
+      this.$emit('input', value);
     },
     change(event) {
       this.changed(parseFloat(event.currentTarget.value));
@@ -245,7 +253,7 @@ export default {
     padding: $small-padding;
   }
 
-  .yearInput {
+  .year-input {
     display: block;
     padding: 5px;
     min-width: 75px;
@@ -255,9 +263,13 @@ export default {
     pointer-events: all;
     border: none;
     border-radius: $border-radius;
+
+    color: $black;
+
+    font-size: 1.2rem;
     font-weight: bold;
     background-color: rgba($color: #ffffff, $alpha: 0.5);
-    margin-top: 3px;
+    margin-top: 5px;
     // border-bottom: 1px solid currentColor;
 
     transition: all 0.2s;
@@ -268,12 +280,12 @@ export default {
     }
 
     &:hover {
-      background-color: white !important;
+      filter: brightness(1);
     }
 
     &:focus {
       background-color: rgba($color: #ffffff, $alpha: 0.8);
-      outline: 1px solid $primary-color;
+      outline: 2px solid $primary-color;
     }
   }
 }
