@@ -3,11 +3,15 @@
     <div class="content-wrapper grid col-3">
       <div>
         <ul class="unstyled">
-          <li>IMPRESSUM (TODO)</li>
-          <li>DATENSCHUTZ (TODO)</li>
+          <li><a href="https://uni-tuebingen.de/impressum/">
+              <locale path="routes.impressum" />
+            </a></li>
+          <li><a href="https://uni-tuebingen.de/datenschutzerklaerung/">
+              <locale path="routes.data_protection" />
+            </a></li>
           <li>
             <router-link :to="{ name: 'Contact' }">
-              <locale path="routes.contact" /> (TODO)
+              <locale path="routes.contact" />
             </router-link>
           </li>
         </ul>
@@ -15,14 +19,32 @@
 
       </div>
       <div>
+        <ul class="unstyled">
+          <li><router-link :to="{ name: 'Login' }">
+              <locale path="system.user_login" />
+            </router-link></li>
+          <li>
+            <div>© 2023</div>
+          </li>
+        </ul>
+
 
       </div>
 
       <div>
-        <router-link :to="{ name: 'Login' }">
-          <locale path="system.user_login" />
-        </router-link>
-        <div>© 2023</div>
+        <h4>
+          <locale path="general.cooperations" />:
+
+        </h4>
+        <a
+          href="http://numid-verbund.de/"
+          target="_blank"
+        >
+          <img
+            class="supporter-logo"
+            src="/image/logos/numid-logo.png"
+            alt="Logo des Numid-Verbundes"
+          ></a>
       </div>
     </div>
   </footer>
@@ -51,10 +73,6 @@ footer {
     right: 0;
     top: 4px;
     border-top: 6px dotted whitesmoke;
-  }
-
-  .supporter-logo {
-    width: 200px;
   }
 
 
