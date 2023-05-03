@@ -91,24 +91,30 @@ class Auth {
 
     /**
      * Verifies a jwt token to authenticate the user. 
+     * Does not throw an error when not authenticated.
+     * 
+     * If you need an error to be thrown, use {@link verifyContext} instead.
      * 
      * @param {object} token - JWT token, that was created and stored at the client by the servers {@link login}  
      * @returns {boolean} - True if valid, false otherwise.
      */
     static verify(token) {
-        try {
-            return jwt.verify(token, process.env.JWT_SECRET)
-        } catch (e) {
-            throw new Error("401")
-        }
+        return jwt.verify(token, process.env.JWT_SECRET)
     }
 
     static getTokenFromContext(context) {
         let authHeader = context?.headers?.auth
-        if(!authHeader || authHeader === "null") return null
+        if (!authHeader || authHeader === "null") return null
         else return authHeader
     }
 
+    /**
+     * Verifies if the context contains a valid token.
+     * Note: Will not throw an error on failure. Use {@link verifyContext} instead.
+     * 
+     * @param {*} context 
+     * @returns - True if valid, false otherwise.
+     */
     static authContext(context) {
         let valid = false
         let token = this.getTokenFromContext(context)
@@ -118,17 +124,19 @@ class Auth {
         return valid
     }
 
+
+    /**
+     * Verifies if the context contains a valid token.
+     * Throws an error ("401") on failure.
+     * 
+     * @param {*} context
+     * @returns - True if valid, false otherwise.
+     * @throws - Throws an error "401" if the token is invalid.
+     */
     static verifyContext(context) {
         let valid = this.authContext(context)
         if (!valid) throw new Error("401")
         return valid
-    }
-
-    static requireAuthContext(context) {
-        let auth = Auth.verifyContext(context)
-        if (!auth) {
-            throw new Error('You are not authenticated!')
-        }
     }
 
     static requireSuperUser(context) {

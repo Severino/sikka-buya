@@ -283,7 +283,7 @@ const Mutations = Object.assign({},
             PageGQL.Mutations,
             BlockGQL.Mutations
         ), (_, __, context) => {
-            return Auth.requireAuthContext(context)
+            return Auth.verifyContext(context)
         }),
     guard(EditorMutations, async (_, __, context) => await Auth.requirePermission(context, 'editor')),
     guard(SuperUserMutations, (_, __, context) => Auth.requireSuperUser(context))

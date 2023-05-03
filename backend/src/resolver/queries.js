@@ -193,7 +193,7 @@ ORDER BY person.id;
    * Same as getCoinTypes, but also allow to filter for evaluation filters.
    */
     modGetTypes: async function (_, args, context) {
-        Auth.requireAuthContext(context)
+        Auth.verifyContext(context)
 
 
 
