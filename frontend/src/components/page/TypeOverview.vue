@@ -218,7 +218,7 @@ export default {
 
     if (this.isEditor)
       this.pageInfo.count =
-        parseInt(localStorage.getItem('pagination-count')) || 15;
+        parseInt(localStorage.getItem('pagination-count')) || 30;
     this.updateTypeList();
     this.$refs.search.$el.querySelector('input').focus();
   },
@@ -533,6 +533,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
+
 .list {
   display: flex;
   flex-direction: column;

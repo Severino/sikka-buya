@@ -15,6 +15,9 @@
     <BackHeader :to="{ name: 'TypeOverview' }" />
 
     <Heading>{{ $tc('property.type') }}</Heading>
+    <p>
+      <router-link :to="{ name: 'Catalog Entry', params: { id: coin.id } }">In Typenkatalog anzeigen</router-link>
+    </p>
     <LoadingSpinner v-if="loading" />
     <div
       v-if="!loading"
