@@ -3,10 +3,9 @@
         class="locale-comp"
         :class="{ editable: $store.getters.canEdit }"
     >
-        <template v-if="$store.getters.canEdit">
-
-            {{ $tc(path, count) }}
-            <router-link
+        <template v-if="$store.getters.canEdit"><!--
+            -->{{ $tc(path, count) }}<!--
+            --><router-link
                 class="locale-link"
                 :to="{
                     name: 'Locale',
@@ -33,9 +32,9 @@
                 </div>
             </router-link>
         </template>
-        <template v-else>
-            {{ $tc(path, count) }}
-        </template>
+        <template v-else><!--
+            -->{{ $tc(path, count) }}<!--
+        --></template>
     </span>
 </template>
 

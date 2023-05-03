@@ -2,13 +2,15 @@
   <main>
     <navigation />
     <router-view></router-view>
+    <page-footer />
   </main>
 </template>
 
 <script>
 import Navigation from '../Navigation.vue';
+import PageFooter from '../page/PageFooter.vue';
 export default {
-  components: { Navigation },
+  components: { Navigation, PageFooter },
   name: 'CommonMain',
 };
 </script>

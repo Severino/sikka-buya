@@ -104,7 +104,9 @@ class Auth {
     }
 
     static getTokenFromContext(context) {
-        return (context && context.headers) ? context.headers.auth : null
+        let authHeader = context?.headers?.auth
+        if(!authHeader || authHeader === "null") return null
+        else return authHeader
     }
 
     static authContext(context) {

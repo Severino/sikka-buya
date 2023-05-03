@@ -15,7 +15,9 @@
         "Catalog Ruler Explorer": "Herrscherliste",
         "Catalog Entry": "Eintrag | Einträge",
         "home": "Startseite",
-        "contact": "Kontakt"
+        "contact": "Kontakt",
+        "data_protection": "Datenschutzerklärung",
+        "impressum": "Impressum"
     },
     "user": {
         "permission": {
@@ -36,7 +38,8 @@
         "reset_filter": "Filter aufheben",
         "settings": "Einstellungen",
         "share": "Teilen",
-        "user": "Nutzer"
+        "user": "Nutzer",
+        "cooperations": "Kooperationen"
     },
     "property": {
         "material": "Material | Materialien",

@@ -111,7 +111,7 @@ const routes = [
     path: "/map/",
     name: "MapPage",
     component: MapPage,
-    meta$gene: { hideHub: true, auth: true },
+    meta$gene: { hideHub: true },
     redirect: {
       name: "Political Map"
     },
@@ -134,7 +134,6 @@ const routes = [
       },
     ]
   }, {
-    meta: { auth: true },
     path: "/home",
     name: "Home",
     component: LandingPage
@@ -150,38 +149,28 @@ const routes = [
         component: ContactPage
       },
       {
-        meta: { auth: true },
         path: "/cms/single/:group",
         props: true,
         name: "CMSSingle",
         component: CMSEditPage
       },
       {
-        meta: { auth: true },
         path: "cms/:group/:id",
         name: "CMSEditPage",
         props: true,
         component: CMSEditPage,
       },
       {
-        meta: { auth: true },
         path: "cms/:group",
         props: true,
         name: "CMSList",
         component: CMSListPage
-      },
-
-      {
-        path: "/landing",
-        name: "Landing",
-        component: PlaceholderLandingPage
       },
       {
         path: '/catalog/',
         component: RouterContainer,
         name: 'Catalog',
         redirect: { name: "Catalog Overview" },
-        meta$gene: { auth: true },
         children: [{
           path: '',
           name: "Catalog Overview",
@@ -231,7 +220,6 @@ const routes = [
         path: "/map-overview",
         name: "Map Overview",
         component: RouterContainer,
-        meta$gene: {auth: true},
         redirect: { name: "Map Landing" },
         children: [
           {
@@ -291,7 +279,6 @@ const routes = [
             path: "expert_search",
             name: "ExpertSearch",
             component: ExpertSearch,
-            meta: { auth: true }
           },
           {
             path: "fixdiff",
@@ -303,7 +290,7 @@ const routes = [
             path: 'user',
             name: 'UserManagement',
             component: UserManagementPage,
-            meta: { auth: true, super: true }
+            meta: { super: true }
           },
           {
             path: "type",
