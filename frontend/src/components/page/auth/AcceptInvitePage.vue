@@ -1,5 +1,5 @@
 <template>
-  <section>
+  <section class="center-box">
     <Box>
       <template #header>
         <h2>
@@ -109,17 +109,6 @@ button {
   &[disabled] {
     background-color: gray;
   }
-}
-
-section {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .box {

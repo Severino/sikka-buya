@@ -47,7 +47,7 @@ describe('Setup Page', function () {
     cy.visit('/setup')
     cy.wait(150)
     cy.location("pathname").should((pathname) => {
-      expect(pathname).to.eq("/landing")
+      expect(pathname).to.eq("/home")
     })
   })
 

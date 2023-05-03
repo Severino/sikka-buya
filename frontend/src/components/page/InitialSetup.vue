@@ -1,9 +1,12 @@
 <template>
-  <section class="hero">
-    <Box>
-      <h2>
-        <Locale path="system.setup" />
-      </h2>
+  <section class="center-box">
+    <Box class="">
+      <template #header>
+        <h2>
+          <Locale path="system.setup" />
+        </h2>
+      </template>
+
 
       <div v-if="!databaseExists">
         <p class="error">
@@ -115,17 +118,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-section {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .box {
   max-width: 100%;
   width: 720px;
