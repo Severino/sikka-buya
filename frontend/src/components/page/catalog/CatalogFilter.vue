@@ -363,11 +363,11 @@ export default {
       multiSelectFilters2D.forEach(({ name }) => {
         if (filters[name]) {
           if (this.filterMode?.[name].toLowerCase() === 'and') {
-            filters[name + '_and_or'] = filters[name].map((arr) =>
+            filters[name + '_or_and'] = filters[name].map((arr) =>
               arr.map((el) => el.id)
             );
           } else {
-            filters[name + '_or_and'] = filters[name].map((arr) =>
+            filters[name + '_and_or'] = filters[name].map((arr) =>
               arr.map((el) => el.id)
             );
           }
