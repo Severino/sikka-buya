@@ -122,17 +122,11 @@ export class FilterList extends Filter {
     selectFilter() {
         const name = this.name
         return function (target, idx) {
-            console.log(0)
             if (!this["has" + StringUtils.capitalize(name) + "Filter"](target, idx)) {
-
-                console.log(1)
-
                 target.id = parseInt(target.id)
                 if (this.filters[name][idx])
                     this.filters[name][idx].push(target);
             }
-            console.log(2)
-
             this.filters[Filter.searchVariableName(name)] = { id: null, name: '' };
         }
     }
@@ -150,6 +144,8 @@ export class FilterList extends Filter {
                         }
                     }
                 }
+            }else{
+                console.error("Could not find filter(" + target.id + ") in " + name + " at index " + idx)
             }
         }
     }

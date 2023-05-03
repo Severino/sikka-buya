@@ -441,24 +441,22 @@ export default {
               const obj = result.data.data
 
               const filterObjs = reload.reduce((acc, { id, category, type, arrayIndex } = {}) => {
+
+
+                const item = obj[`${category}_${id}`]
+                item.id = parseInt(item.id)
+                if (!acc[category]) acc[category] = []
+                item.idx = acc[category].length
+
                 switch (type) {
                   case FilterType.multiSelect: {
-
-                    if (!acc[category]) acc[category] = []
-                    const item = obj[`${category}_${id}`]
-                    item.idx = acc[category].length
                     acc[category].push(item)
                     break;
                   }
                   case FilterType.multiSelect2D: {
-
-                    if (!acc[category]) acc[category] = []
                     while (acc[category].length <= arrayIndex) {
                       acc[category].push([])
                     }
-
-                    const item = obj[`${category}_${id}`]
-                    item.idx = acc[category].length
                     acc[category][arrayIndex].push(item)
                     break;
                   }
@@ -534,6 +532,7 @@ export default {
       return this[methodName](target, idx);
     },
     removeFilter(name, target, index) {
+      console.log(name, target, index)
       const methodName = this._getMethodFromFilter(
         'removeMethodName',
         name,
