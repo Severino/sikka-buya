@@ -1,7 +1,7 @@
 <template>
   <div class="type-view">
     <info
-      :alwaysShow="!type.reviewed"
+      :alwaysShow="!type.completed"
       type="warning"
       id="not-reviewed-warning"
     >
@@ -622,6 +622,7 @@ header {
   position: fixed;
   right: 5%;
   bottom: 5%;
+  z-index: 1000;
 
   button {
     $size: 100px;
@@ -633,7 +634,7 @@ header {
     height: $size;
     color: $white;
     border-radius: math.div($size, 2);
-    box-shadow: $shadow;
+    box-shadow: $strong-shadow;
   }
 }
 

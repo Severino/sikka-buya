@@ -57,6 +57,8 @@ export default {
         pieces: [],
         specials: '',
         internalNotes: null,
+        completed: false,
+        reviewed: false
       },
     };
   },
@@ -172,6 +174,7 @@ export default {
                 excludeFromMapApp
                 internalNotes
                 reviewed
+                completed
         }
       }
       `
