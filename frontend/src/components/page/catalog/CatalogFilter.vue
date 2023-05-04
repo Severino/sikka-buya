@@ -1,6 +1,7 @@
 <template>
   <div class="catalog-filters">
     <template v-for="input of filteredInput">
+
       <labeled-input-container
         v-if="input.type === 'text'"
         :key="`${input.name}-text`"
@@ -176,13 +177,8 @@ filters[FilterType.multiSelect2D].forEach((item) => {
   item.filter = filter;
 });
 
-const inputs = Object.values(filters)
+const unorderedInputs = Object.values(filters)
   .flat()
-  .sort((a, b) => {
-    if (a.order == null) return 1;
-    else if (b.order == null) return -1;
-    else return a.order - b.order;
-  });
 
 export default {
   components: {
@@ -199,6 +195,10 @@ export default {
     initData: Object,
     forceAll: Boolean,
     pageInfo: Object,
+    overwriteOrder: {
+      type: Object,
+      default: () => ({}),
+    },
     additionalQuery: {
       type: String,
     },
@@ -217,7 +217,7 @@ export default {
     return {
       i: 0,
       max: 10,
-      inputs,
+      unorderedInputs,
       filterConfig: filters,
       types: [],
       filters: {
@@ -596,6 +596,15 @@ export default {
           obj[name] = val;
           return obj;
         }, {});
+    },
+    inputs() {
+      return this.unorderedInputs.slice().sort((a, b) => {
+        let A = this.overwriteOrder[a.name] ? this.overwriteOrder[a.name] : a.order;
+        let B = this.overwriteOrder[b.name] ? this.overwriteOrder[b.name] : b.order;
+        if (A == null) return 1;
+        else if (B == null) return -1;
+        else return A - B;
+      });
     },
     filtersActive() {
       return Object.keys(this.activeFilters).length > 0;

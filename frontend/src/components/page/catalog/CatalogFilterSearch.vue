@@ -19,6 +19,7 @@
         <catalog-filter
           :pageInfo="pageInfo"
           :initData="catalog_filter_mixin_initData"
+          :overwriteOrder="filterOrder"
           @update="updateTypes"
           :overwriteFilters="overwriteFilters"
           :constantFilters="{ excludeFromTypeCatalogue: false }"
@@ -105,6 +106,13 @@ export default {
     },
   },
   computed: {
+    filterOrder(){
+      return {
+        otherPerson: 4.13,
+        coinVerse: 5.01,
+        cursiveScript: 8.1
+      }
+    },  
     hasFilters() {
       return this.catalog_filter_mixin_filterActive || this.text != '';
     },

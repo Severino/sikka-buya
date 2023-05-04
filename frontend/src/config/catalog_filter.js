@@ -34,14 +34,14 @@ const _filterConfig = {
             name: 'procedure',
             options: ['pressed', 'cast'],
             labels: ['property.procedures.pressed', 'property.procedures.cast'],
-            order: 3,
+            order: 2.5,
         },
     ],
     [FilterType.threeWay]: [
         {
             label: 'property.cursive_script',
             name: 'cursiveScript',
-            order: 8,
+            order: 4.2,
         },
         {
             label: 'property.donativ',
@@ -90,7 +90,7 @@ const _filterConfig = {
             mode: Mode.Or,
             attribute: 'shortName',
             queryBody: ['id', 'shortName'],
-            order: 5.8
+            order: 4.11
         },
         {
             label: 'role.heir',
@@ -102,7 +102,7 @@ const _filterConfig = {
             additionalParameters: {
                 include: ['heir'],
             },
-            order: 5.8
+            order: 4.12
         },
         {
             label: 'property.other_person',
@@ -148,7 +148,7 @@ const _filterConfig = {
                 if (search?.dynasty?.name) txt = `${txt} (${search.dynasty.name})`;
                 return txt;
             },
-            order: 5.6,
+            order: 4.1,
             allowModeChange: true,
             mode: Mode.And,
         },], [FilterType.multiSelect2D]: [
@@ -162,7 +162,7 @@ const _filterConfig = {
             {
                 label: 'property.coin_verse',
                 name: 'coinVerse',
-                order: 5,
+                order: 4.8,
                 mode: Mode.And
             },
         ]
