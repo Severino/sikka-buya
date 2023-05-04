@@ -629,6 +629,7 @@ a {
   transform: translateX(-50%) translateY(100%);
   padding: $padding;
   border-radius: $small-border-radius;
+  z-index: 99999999999;
 
   transition: all $transition-time;
 

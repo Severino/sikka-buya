@@ -119,7 +119,11 @@ class Auth {
         let valid = false
         let token = this.getTokenFromContext(context)
         if (token) {
-            valid = this.verify(token)
+            try {
+                valid = this.verify(token)
+            } catch (e) {
+                valid = false
+            }
         }
         return valid
     }
