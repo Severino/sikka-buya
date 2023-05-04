@@ -146,11 +146,14 @@ class PageGQL extends GQL {
 
                 let results = []
                 try {
+
+                    //TODO: Should be ordered by published_timestamp
+                    // but publishing is not yet implemented,
                     results = await Database.manyOrNone(`
                     SELECT web_page.* FROM web_page 
                     LEFT JOIN web_page_group ON web_page_group.id = web_page.page_group
                     WHERE web_page_group.name = $1
-                    ORDER BY published_timestamp DESC;
+                    ORDER BY created_timestamp DESC;
                 `, group)
                 } catch (e) {
                     console.log(e)
