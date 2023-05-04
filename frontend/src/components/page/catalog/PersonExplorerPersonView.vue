@@ -116,6 +116,13 @@ export default {
         }
       }
     },
+    getSelection(){
+      return {
+        activeType: (this.open) ? this.activeType : [],
+        activeYears: (this.open) ? this.activeYears : [],
+        open: this.open,
+      };
+    },
     toggledCollapsible() {
       if (this.open) {
         this.resetSelection();
@@ -134,7 +141,7 @@ export default {
       this.selectionChanged();
     },
     selectionChanged() {
-      this.$emit('selection-changed', this.person.id, this.selection);
+      this.$emit('selection-changed', this.person.id, this.getSelection());
     },
     isTypeActive(id) {
       return this.activeType === id;
@@ -201,12 +208,11 @@ avers {fieldText innerInscript intermediateInscript outerInscript misc}
 reverse {fieldText innerInscript intermediateInscript outerInscript misc} 
 cursiveScript coinMarks {name id}
 literature pieces  specials yearUncertain mintUncertain excludeFromMapApp
+completed
 `,
           });
 
           const types = result.types;
-
-          console.log(types);
 
           let typeTree = {};
           types.forEach((type) => {
