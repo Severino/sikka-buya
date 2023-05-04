@@ -81,7 +81,7 @@ export default function (storage, urlParamsConfig) {
                 return Object.keys(data).length > 0
             },
             catalog_filter_mixin_save(catalogFilterRef, obj = {}) {
-                const data = Object.assign({}, catalogFilterRef.storage, obj)
+                const data = Object.assign({}, catalogFilterRef.getStorage(), obj)
                 localStorage.setItem(storage, JSON.stringify(data))
             },
             catalog_filter_mixin_updateActive(catalogFilterRef, excludedKeys = []) {

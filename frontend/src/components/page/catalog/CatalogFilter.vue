@@ -519,6 +519,27 @@ export default {
 
       this.search();
     },
+    setFilters(options) {
+      [
+        ...filters[FilterType.text],
+        ...filters[FilterType.threeWay],
+        ...filters[FilterType.buttonGroup],
+        ...filters[FilterType.number],
+      ].forEach((item) => {
+        if (options[item.name] !== undefined) {
+          this.$set(this.filters, item.name, options[item.name]);
+        }
+      });
+
+      [...filters[FilterType.multiSelect], ...filters[FilterType.multiSelect2D]].forEach((filter) => {
+        if (options[filter.name] !== undefined) {
+          this.$set(this.filters, filter.name, options[filter.name].value);
+          this.$set(this.filterMode, filter.name, options[filter.name].mode);
+        }
+      });
+
+      this.search();
+    },
     _getMethodFromFilter(methodName, inputName, idx = null) {
       const filterClass = idx == null ? Filter : FilterList;
       return filterClass[methodName](inputName);
@@ -563,6 +584,46 @@ export default {
     },
     excludeItem(group) {
       return group.filter((item) => this.exclude.indexOf(item.name) === -1);
+    },
+    getStorage() {
+      let storage = {};
+      let activeFilters = this.activeFilters;
+
+      [
+        ...filters[FilterType.text],
+        ...filters[FilterType.threeWay],
+        ...filters[FilterType.buttonGroup],
+        ...filters[FilterType.number],
+      ].forEach(({ name }) => {
+        if (name === "nominal") console.log("0")
+        if (activeFilters[name] != null) {
+          storage[name] = activeFilters[name];
+        }
+      });
+
+
+      filters[FilterType.multiSelect].forEach(
+        (filter) => {
+          if (name === "nominal") console.log("1")
+          storage[filter.name] = {
+            mode: this.filterMode[filter.name] || Mode.And,
+            value: activeFilters[filter.name] || [],
+          };
+        }
+      );
+
+
+      filters[FilterType.multiSelect2D].forEach(
+        (filter) => {
+          if (name === "nominal") console.log("2")
+          storage[filter.name] = {
+            mode: this.filterMode[filter.name] || Mode.And,
+            value: activeFilters[filter.name] || [[]],
+          };
+        }
+      );
+
+      return storage;
     },
   },
   computed: {
@@ -620,44 +681,8 @@ export default {
     multiSelectFilters2D() {
       return this.excludeItem(filters[FilterType.multiSelect2D]);
     },
-    storage() {
-      let storage = {};
-      let activeFilters = this.activeFilters;
-
-      [
-        ...filters[FilterType.text],
-        ...filters[FilterType.threeWay],
-        ...filters[FilterType.buttonGroup],
-        ...filters[FilterType.number],
-      ].forEach((item) => {
-        if (activeFilters[item.name] != null) {
-          storage[item.name] = activeFilters[item.name];
-        }
-      });
-
-      filters[FilterType.multiSelect].forEach(
-        (filter) => {
-          storage[filter.name] = {
-            mode: this.filterMode[filter.name] || Mode.And,
-            value: activeFilters[filter.name] || [],
-          };
-        }
-      );
-
-
-      filters[FilterType.multiSelect2D].forEach(
-        (filter) => {
-          storage[filter.name] = {
-            mode: this.filterMode[filter.name] || Mode.And,
-            value: activeFilters[filter.name] || [[]],
-          };
-        }
-      );
-
-      return storage;
-    },
     storageString() {
-      return JSON.stringify(this.storage);
+      return JSON.stringify(this.getStorage());
     },
   },
 };

@@ -76,15 +76,15 @@
           :forceAll="true"
           :pageInfo="pageInfo"
           :exclude="[
-              'mint',
-              'yearOfMint',
-              'ruler',
-              'buyid',
-              'caliph',
-              'treadwellId',
-              'projectId',
-              'heir'
-            ]"
+            'mint',
+            'yearOfMint',
+            'ruler',
+            'buyid',
+            'caliph',
+            'treadwellId',
+            'projectId',
+            'heir'
+          ]"
           :overwriteFilters="overwriteFilters"
           typeBody="
                         id
@@ -307,8 +307,8 @@ export default {
       this.$refs.catalogSidebar.recalculate();
     },
     requestSlideOptions({ slideshow, index, overwrite } = {}) {
-      let { options, display } = FilterSlide.formatDisplay({ options: this.getOptions() }, this.mints)
-      console.log(options.display, display)
+      const catalogOptions = Object.assign({}, this.getOptions(), this.$refs.catalogFilter.getStorage())
+      let { options, display } = FilterSlide.formatDisplay({ options: catalogOptions }, this.mints)
       slideshow.createSlide({ options, display, index, overwrite });
     },
     applySlide(options = {}) {
@@ -336,12 +336,10 @@ export default {
       else this.mintSelectionChanged([]);
 
       this.$refs.catalogFilter.resetFilters();
-      Object.entries(options).forEach(([key, value]) => {
-        if (key.startsWith(queryPrefix)) {
-          const param = key.replace(queryPrefix, '');
-          this.$refs.catalogFilter.filters[param] = value;
-        }
-      });
+      this.$refs.catalogFilter.setFilters(options)
+      
+      
+      
     },
     resetSettings() {
       this.overlay.settings.reset();
