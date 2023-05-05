@@ -40,7 +40,7 @@ jobs:
       - run: npm install yarn -g
       - run: yarn global add grunt
       - run: yarn install
-      - run: node action-test.js
+      - run: node actions-test.js
         working-directory: ./test
         env:
           # use postgres for the host here because we have specified a container for the job.
