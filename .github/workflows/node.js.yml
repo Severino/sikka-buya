@@ -27,7 +27,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.13.2]
+        node-version: [16.13.2] 
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -43,6 +43,7 @@ jobs:
       - name: Create .env file for test environment
         run: |
          touch test/.env
+         echo DB_HOST=localhost >> test/.env
          echo DB_SUPER_USER=postgres >> test/.env
          echo DB_SUPER_PASSWORD=postgres >> test/.env
          echo DB_SUPER_NAME=postgres >> test/.env
@@ -60,5 +61,5 @@ jobs:
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
-          DB_HOST: postgres
-          DB_PORT: ${{ job.services.postgres.ports[5432] }}
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432 # get randomly assigned published port
