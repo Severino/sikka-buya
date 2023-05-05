@@ -1,6 +1,6 @@
 
 
-const pgp = require("pg-promise")
+const pgp = require("pg-promise")({})
 
 const db = pgp({
     user: "postgres",
@@ -10,8 +10,14 @@ const db = pgp({
     port: 5432,
 })
 
-db.none(`CREATE TABLE test (text TEXT)`);
-db.none(`INSERT INTO test VALUES ('Hello World')`);
-const result = db.manyOrNone(`SELECT * FROM test`)
+async function main() {
 
-console.log(result)
+    await db.none(`CREATE TABLE test (text TEXT)`);
+    await db.none(`INSERT INTO test VALUES ('Hello World')`);
+    const result = await db.manyOrNone(`SELECT * FROM test`)
+
+    console.log(result)
+}
+
+
+main().catch(console.error)
