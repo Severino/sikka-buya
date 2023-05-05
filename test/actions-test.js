@@ -1,9 +1,9 @@
 
-
+require("dotenv").config()
 const pgp = require("pg-promise")({})
 
 const db = pgp({
-    user: "postgres",
+    user: process.env.DB_SUPER_USER,
     host: "postgres",
     database: "postgres",
     password: "postgres",
