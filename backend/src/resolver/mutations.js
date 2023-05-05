@@ -242,7 +242,7 @@ const UserMutations = {
     async updateCoinType(_, args, context) {
         if (!args.id) throw new Error("No id provided!")
 
-        return Type.updateType(args.id, args.data)
+        return Type.updateType(args.id, args.data, context)
     },
     setLang(_, { path, lang, singular, plural } = {}) {
         Argument.require({ path, lang, singular })

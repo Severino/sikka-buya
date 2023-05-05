@@ -329,14 +329,14 @@ describe(`Type Queries`, function () {
   })
 
   it("Add was successfull", async function () {
-    let result = await graphql(`{coinType{ types {${body}}}}`)
+    let result = await graphql(`{coinType{ types {${body}}}}`, {}, User1.token)
 
     expect(result.data.data).to.deep.equal({
       "coinType": {
         "types": [
           ATLANTIS_TYPE,
-          FRENCH_TYPE,
-          GERMAN_TYPE,
+          FRENCH_TYPE_WHEN_LOGGED_IN,
+          GERMAN_TYPE_WHEN_LOGGED_IN,
         ]
       }
     })
@@ -358,7 +358,7 @@ describe(`Type Queries`, function () {
               getCoinType(id:3) {
                   ${body}
               }
-          }`)
+          }`, {}, User1.token)
 
     expect(result.data.data.getCoinType).to.deep.equal(ATLANTIS_TYPE_UPDATED)
   })
@@ -523,13 +523,14 @@ const GERMAN_TYPE = {
   "specials": "<div style=\" text - align: center;\">Keine</div>",
   "excludeFromTypeCatalogue": false,
   "excludeFromMapApp": false,
-  "internalNotes": "<div style=\" text - align: center;\">Bitte nochmal neu!</div>",
+  "internalNotes": null,
   "yearUncertain": false,
   "mintUncertain": false,
   "plain_text": "GER1989\\nGøld\\nBerlin\\n1 Mark\\nAbbildung des deutschen Michels\\nDanach lasst uns alle streben\\nfür das deutsche Vaterland!\\nEinigkeit und Recht und Freiheit\\nMichel ohne Mütze\\nAbbildung eines Birnbaums\\nUnd kam die goldene Herbsteszeit,\\nEin Birnbaum in seinem Garten stand,\\nHerr von Ribbeck auf Ribbeck im Havelland,\\nBirnbaum ohne Früchte\\nAv: NationalhymneRev. Gedicht Fontane\\nKeine"
 }
 
 const GERMAN_TYPE_WHEN_LOGGED_IN_DIFF = {
+  "internalNotes": "<div style=\" text - align: center;\">Bitte nochmal neu!</div>",
   "plain_text": "GER1989\\nGøld\\nBerlin\\n1 Mark\\nAbbildung des deutschen Michels\\nDanach lasst uns alle streben\\nfür das deutsche Vaterland!\\nEinigkeit und Recht und Freiheit\\nMichel ohne Mütze\\nAbbildung eines Birnbaums\\nUnd kam die goldene Herbsteszeit,\\nEin Birnbaum in seinem Garten stand,\\nHerr von Ribbeck auf Ribbeck im Havelland,\\nBirnbaum ohne Früchte\\nAv: NationalhymneRev. Gedicht Fontane\\nKeine\\nBitte nochmal neu!"
 }
 
@@ -708,13 +709,14 @@ const FRENCH_TYPE = {
   "specials": "<div style=\" text - align: center;\">Revolutionsmünze mit König</div>",
   "excludeFromTypeCatalogue": false,
   "excludeFromMapApp": false,
-  "internalNotes": "<div style=\" text - align: center;\">Bitte Überprüfen!</div>",
+  "internalNotes": null,
   "yearUncertain": true,
   "mintUncertain": true,
   "plain_text": "FRévô1789\\nSilber\\nParis\\n1 Taler\\nAbb. Französische Flagge\\nContre nous de la tyrannie\\nLe jour de gloire est arrivé!\\nAllons enfants de la Patrie,\\nFlagge wehend\\nFranzösischer Hahn\\nFraternité\\nÉgalité\\nLiberté\\nHahn trägt Hose\\nAv: NationalhymneRev. revolutionärer Asusspruch\\nRevolutionsmünze mit König"
 }
 
 FRENCH_TYPE_WHEN_LOGGED_IN_DIFF = {
+  "internalNotes": "<div style=\" text - align: center;\">Bitte Überprüfen!</div>",
   "plain_text": "FRévô1789\\nSilber\\nParis\\n1 Taler\\nAbb. Französische Flagge\\nContre nous de la tyrannie\\nLe jour de gloire est arrivé!\\nAllons enfants de la Patrie,\\nFlagge wehend\\nFranzösischer Hahn\\nFraternité\\nÉgalité\\nLiberté\\nHahn trägt Hose\\nAv: NationalhymneRev. revolutionärer Asusspruch\\nRevolutionsmünze mit König\\nBitte Überprüfen!"
 }
 
@@ -899,11 +901,8 @@ const ATLANTIS_TYPE = {
   "internalNotes": "Ziemlich sicher eine Fäschung!",
   "yearUncertain": true,
   "mintUncertain": true,
-  "plain_text": "ẲTLxxx\nPerlmutt\nǍtlantis\n⅟₂ ₳die\nEin Mann in Lokführermontur vor einer Dampflokomotive.\nEine Insel mit zwei Bergen,\nund dem tiefen weiten Meer,\nmit viel Tunnels und Gleisen.\nLokführer scheint an Fäden zu hängen.\nGroßes '₳'\nDie Währung\ndes Landes\nunter dem Meer.\nJahreszahl unter '₳' nicht lesbar.\nKeine Literatur vorhanden\nEinzige bekannte Münze aus Atlantis"
+  "plain_text": "ẲTLxxx\nPerlmutt\nǍtlantis\n⅟₂ ₳die\nEin Mann in Lokführermontur vor einer Dampflokomotive.\nEine Insel mit zwei Bergen,\nund dem tiefen weiten Meer,\nmit viel Tunnels und Gleisen.\nLokführer scheint an Fäden zu hängen.\nGroßes '₳'\nDie Währung\ndes Landes\nunter dem Meer.\nJahreszahl unter '₳' nicht lesbar.\nKeine Literatur vorhanden\nEinzige bekannte Münze aus Atlantis\\nZiemlich sicher eine Fäschung!" //Somehow the last \\n needs 2 backslashes
 }
-
-
-
 
 const ATLANTIS_INPUT = `{
       projectId: "ẲTLxxx",
@@ -1208,5 +1207,5 @@ const ATLANTIS_TYPE_UPDATED = {
   "internalNotes": "Fäschung!",
   "yearUncertain": false,
   "mintUncertain": false,
-  "plain_text": "ẲT\nSilber\nBerlin\n1 Taler\nDampflokomotive\nBergen\nMeer\nGleisen\nLokführer\n₳\nDie\ndes\nunter\nnicht lesbar.\nvorhanden\nEis"
+  "plain_text": "ẲT\nSilber\nBerlin\n1 Taler\nDampflokomotive\nBergen\nMeer\nGleisen\nLokführer\n₳\nDie\ndes\nunter\nnicht lesbar.\nvorhanden\nEis\\nFäschung!"
 }

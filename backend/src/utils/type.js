@@ -153,12 +153,12 @@ class Type {
     }
 
 
-    static async createPlainTextField(type, { transaction = null, skipFetch = false }) {
+    static async createPlainTextField(type, { transaction = null, skipFetch = false, context = null }) {
         /**
          * We get the complete type to have all fields available.
          */
         if (!skipFetch)
-            type = await this.getFullType(type.id, transaction)
+            type = await this.getFullType(type.id, transaction, context)
 
         if (!transaction) transaction = Database
 
@@ -263,7 +263,7 @@ class Type {
 
     }
 
-    static async preProcessUpsert(data, { skipFetch = false, transaction = null }) {
+    static async preProcessUpsert(data, { skipFetch = false, transaction = null, context = null }) {
         /**
         * Thus the avers and reverse data is nested inside a seperate object,
         * inside the GraphQL interface, we need to transform whose properties
@@ -276,14 +276,14 @@ class Type {
         this.unwrapCoinSideInformation(data, "front_side_", data.avers)
         this.unwrapCoinSideInformation(data, "back_side_", data.reverse)
         this.cleanupHTMLFields(data)
-        data.plainText = (await this.createPlainTextField(data, { skipFetch, transaction })).text
+        data.plainText = (await this.createPlainTextField(data, { skipFetch, transaction, context })).text
         return data
     }
 
     static async addType(_, args, context, info) {
 
         return WriteableDatabase.tx(async t => {
-            const data = await this.preProcessUpsert(args.data, { skipFetch: true, transaction: t })
+            const data = await this.preProcessUpsert(args.data, { skipFetch: true, transaction: t, context })
 
             const { id: type } = await t.one(`
             INSERT INTO type(
@@ -549,7 +549,7 @@ class Type {
         }
 
         for (let [idx, type] of result.entries()) {
-            result[idx] = await this.postprocessType(type, postProcessFields)
+            result[idx] = await this.postprocessType(type, postProcessFields, context)
         }
 
         return { types: result, pageInfo }
@@ -651,7 +651,7 @@ class Type {
             throw new Error("Requested type does not exist: " + e)
         })
 
-        return await this.postprocessType(result);
+        return await this.postprocessType(result, null, context);
     }
 
     static get rows() {
@@ -719,7 +719,7 @@ class Type {
         return joins
     }
 
-    static async postprocessType(type, fields) {
+    static async postprocessType(type, fields, context) {
         if (!type) throw new Error(`Type was not provided!`)
 
         const config = [
@@ -802,13 +802,16 @@ class Type {
         }
 
 
-
-
         for (let [key, val] of Object.entries(this.databaseToGraphQlMap)) {
             if (type[key] != null) {
                 type[val] = type[key]
                 delete type[key]
             }
+        }
+
+        const isUser = Auth.authContext(context)
+        if (!isUser) {
+            type.internalNotes = null
         }
 
         return type
