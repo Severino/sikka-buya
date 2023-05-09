@@ -4,7 +4,7 @@ const pgp = require("pg-promise")({})
 
 const db = pgp({
     user: process.env.DB_SUPER_USER,
-    host: "postgres",
+    host: "localhost",
     database: "postgres",
     password: "postgres",
     port: 5432,

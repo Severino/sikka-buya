@@ -41,6 +41,7 @@ jobs:
       - run: yarn global add grunt
       - run: yarn install
       - name: "Create .env File"
+        working-directory: ./test
         run: |
           touch .env
           echo "DB_SUPER_USER=postgres" >> .env
