@@ -10,9 +10,10 @@ on:
     branches: [ "actions-test" ]
 
 jobs:
-  build:
+  container-job:
 
     runs-on: ubuntu-latest
+    container: node:18-alpine
     
     services:
       postgres:
@@ -24,11 +25,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
-    strategy:
-      matrix:
-        node-version: [16.13.2] 
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - uses: actions/checkout@v3
@@ -51,5 +47,5 @@ jobs:
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
-          POSTGRES_HOST: localhost
+          POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432 # get randomly assigned published port
