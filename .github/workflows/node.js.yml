@@ -33,9 +33,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: npm install yarn -g
-      - run: yarn global add grunt
-      - run: yarn install --frozen-lockfile
+      - run: npm install grunt -g
+      - run: npm ci
       - name: "Create .env File"
         working-directory: ./test
         run: |
