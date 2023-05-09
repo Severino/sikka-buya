@@ -39,7 +39,7 @@ jobs:
           cache: 'npm'
       - run: npm install yarn -g
       - run: yarn global add grunt
-      - run: yarn install
+      - run: yarn install --frozen-lockfile
       - name: "Create .env File"
         working-directory: ./test
         run: |
@@ -51,5 +51,5 @@ jobs:
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
-          POSTGRES_HOST: postgres
+          POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432 # get randomly assigned published port
