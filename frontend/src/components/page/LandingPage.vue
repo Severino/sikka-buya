@@ -47,34 +47,36 @@
         />
       </div>
       <aside>
-        <card-link
-          class="alternative-card-link"
-          :to="{ name: 'Map Overview' }"
-          identity="landing-page-map-link"
-          direction="row"
-        >
-          <locale path="routes.map" />
-        </card-link>
-        <card-link
-          class="alternative-card-link"
-          :to="{ name: 'Catalog Overview' }"
-          identity="landing-page-catalog-link"
-          direction="row"
-        >
-          <locale path="routes.catalog" />
-        </card-link>
+        <section>
+          <card-link
+            class="alternative-card-link"
+            :to="{ name: 'Map Overview' }"
+            identity="landing-page-map-link"
+            direction="row"
+          >
+            <locale path="routes.map" />
+          </card-link>
+          <card-link
+            class="alternative-card-link"
+            :to="{ name: 'Catalog Overview' }"
+            identity="landing-page-catalog-link"
+            direction="row"
+          >
+            <locale path="routes.catalog" />
+          </card-link>
+        </section>
 
-        <div class="alternate-buttons">
+        <section class="alternate-buttons">
           <card-link
             class="subtle-card-link alternative-card-link"
             :disabled="true"
             :noImage="true"
             :to="{
-                name: 'CMSList',
-                params: {
-                  group: 'bibliography',
-                }
-              }"
+              name: 'CMSList',
+              params: {
+                group: 'bibliography',
+              }
+            }"
           >
             <div class="subtitled">
               <locale path="cms.bibliography" />
@@ -82,8 +84,72 @@
             </div>
 
           </card-link>
-        </div>
 
+          <card-link
+            class="subtle-card-link alternative-card-link"
+            :disabled="true"
+            :noImage="true"
+            :to="{
+              name: 'CMSList',
+              params: {
+                group: 'working_papers',
+              }
+            }"
+          >
+
+            <div class="subtitled">
+              <locale path="cms.working_papers" />
+              <span class="subtitle">Demnächst verfügbar!</span>
+            </div>
+          </card-link>
+        </section>
+
+        <section>
+
+          <div class="box fint-box">
+            <h2>
+              <Locale path="custom.fint.title" />
+            </h2>
+            <p>
+              <Locale path="custom.fint.description" />
+
+              <br>
+              <a href="https://www.fint-ikmk.uni-tuebingen.de/ikmk/home">
+                <Locale path="custom.fint.to" />
+              </a>
+            </p>
+
+            <form
+              class="flex row"
+              method="post"
+              action="https://www.fint-ikmk.uni-tuebingen.de/ikmk/quick_search?lang=de"
+            >
+              <input
+                type="hidden"
+                name="search_type"
+                value="quick_search"
+              >
+              <input
+                name="quick_search_value"
+                type="text"
+                style="flex:1"
+              >
+
+              <button
+                style="margin-left: 1rem;"
+                type="submit"
+              >
+                <Icon
+                  type="mdi"
+                  :path="icons.search"
+                  :size="20"
+                />
+                <Locale path="general.search" />
+              </button>
+
+            </form>
+          </div>
+        </section>
       </aside>
     </div>
     <page-footer />
@@ -101,6 +167,10 @@ import CardLink from '../navigation/CardLink.vue';
 import PageFooter from './PageFooter.vue';
 import CMSView from '../cms/CMSView.vue';
 import CMSListView from './cms/CMSListView.vue';
+import iconMixin from "../mixins/icons"
+import { mdiMagnify } from '@mdi/js/mdi';
+
+
 
 export default {
   components: {
@@ -115,6 +185,7 @@ export default {
     PageFooter,
     Row,
   },
+  mixins: [iconMixin({'search': mdiMagnify})]
 };
 </script>
 
@@ -122,13 +193,12 @@ export default {
 #landing-page {
 
 
-
   .alternative-card-link {
     // max-height: 300px;
 
     &.card-link-image {
       height: 300px;
-      aspect-ratio: 3/2;
+      // aspect-ratio: 3/2;
 
       .image {
         flex: 1;
@@ -325,44 +395,28 @@ section:first-of-type {
 }
 
 .box {
-  display: flex;
-  flex-direction: column;
-  background-color: white;
-  border-radius: $small-border-radius;
-  border: $border;
+  border-radius: $border-radius;
 
-  color: $black;
+  padding: $large-box-padding;
 
-  .body {
-    padding: $large-padding;
-    // flex: 1;
-  }
-
-  header {
-    position: relative;
-    background-color: $gray;
-    min-height: 200px;
-    padding: $large-padding;
-
-    flex: 1;
-
-    h3 {
-      position: absolute;
-      bottom: $large-padding;
-      margin: 0;
-    }
-  }
-
-  footer {
-    display: flex;
-    flex-direction: column;
-    padding: $large-padding;
-
-    .button {
-      align-self: flex-end;
-    }
+  h2 {
+    margin-top: 0;
   }
 }
+
+.fint-box {
+  background-color: #1d6a8e;
+  color: $dark-white;
+
+  h2 {
+    color: white;
+  }
+
+  a {
+    color: #e98a63;
+  }
+}
+
 
 .columns {
   display: grid;
@@ -379,9 +433,15 @@ aside {
   h2 {
     color: gray;
   }
-}
 
-.alternate-buttons {
-  margin-top: 1.5rem;
+  section {
+    margin-bottom: 1.5rem;
+
+    >* {
+
+      margin-bottom: $padding;
+    }
+  }
+
 }
 </style>
