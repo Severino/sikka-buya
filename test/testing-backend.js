@@ -10,7 +10,7 @@ function overwriteWithGithubActionsEnv() {
         POSTGRES_PORT: "DB_PORT"
     }
 
-    for (let { githubEnv, env } of config) {
+    for (let { githubEnv, env } of Object.entries(config)) {
         if (process.env[githubEnv])
             process.env[env] = process.env[githubEnv]
     }
