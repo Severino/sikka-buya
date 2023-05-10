@@ -3,9 +3,14 @@
   "version": "0.3.46",
   "description": "Testing suite for the sikka-buya project.",
   "main": "Gruntfile.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "test": "npm run test:api && npm run test:cypress:run",
     "test:api": "grunt test",
+    "test:api:keepalive": "grunt test-keepalive",
+    "test:backend:keepalive": "grunt backend:keepalive",
     "test:backend:reload": "nodemon testing-backend.js",
     "test:backend": "node testing-backend.js",
     "test:cypress": "concurrently -k -n \"BACKEND,CYPRESS,VUE\"  -c \"magenta,cyan,blue\" \"npm run test:backend \" \"npm run test:cypress-app\" \"cd .. && npm run frontend\" ",
@@ -29,7 +34,7 @@
     "express": "^4.17.1",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "grunt": "^1.4.1",
+    "grunt": "^1.6.1",
     "grunt-contrib-jshint": "^2.1.0",
     "grunt-contrib-uglify": "^5.0.1",
     "grunt-contrib-watch": "^1.1.0",
