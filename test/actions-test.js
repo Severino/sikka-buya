@@ -2,12 +2,22 @@
 require("dotenv").config()
 const pgp = require("pg-promise")({})
 
+
+const user = process.env.DB_USER
+const host = process.env.POSTGRES_HOST || process.env.DB_HOST
+const database = process.env.DB_NAME
+const password = process.env.DB_PASSWORD
+const port = process.env.POSTGRES_PORT || process.env.DB_PORT
+
+
+console.log({ user, host, database, password, port }})
+
 const db = pgp({
-    user: process.env.DB_USER,
-    host: process.env.POSTGRES_HOST || process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.POSTGRES_PORT || process.env.DB_PORT,
+    user,
+    host,
+    database,
+    password,
+    port,
 })
 
 async function main() {
