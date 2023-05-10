@@ -7,10 +7,13 @@
     "author": "Severin Opel",
     "license": "MIT",
     "private": true,
+    "engines": {
+        "node": "16.x"
+    },
     "scripts": {
         "frontend": "cd frontend && yarn run serve",
         "backend": "cd backend && yarn run dev",
-        "install": "cd backend && yarn install && cd ../frontend && yarn install",
+        "test": "cd test && npm run test",
         "docs": "cd docs && npm run dev",
         "migrate": "cd backend && node scripts/migrate.js",
         "update-version": "node ./shared/scripts/update_version_number.js",
@@ -18,7 +21,7 @@
         "deploy:backend": "cd backend && pm2 delete all && npm run pm2",
         "deploy:frontend": "cd frontend && ./deploy.sh",
         "deploy": "npm run deploy:backend && npm run deploy:frontend",
-        "postinstall": "(cd frontend && yarn install); (cd backend && yarn install); (cd test && yarn install)"
+        "postinstall": "(cd frontend && yarn install --ignore-scripts) && (cd backend && yarn install --ignore-scripts) && (cd test && yarn install --ignore-scripts)"
     },
     "devDependencies": {
         "concurrently": "^7.1.0",

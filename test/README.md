@@ -8,6 +8,19 @@ durchgeführt werden.
 Dieses Dokument gibt die entsprechenden Informationen, wie die Tests gehandhabt werden und gepflegt
 werden können.
 
+## Requirements
+
+### Grunt
+
+Das Test Framwork benutzt Grunt als Taskrunner. Dafür muss die cli global installiert 
+werden.
+
+```cli
+npm install -g grunt-cli
+```
+
+
+
 ## Datenbankschema
 
 Wenn sich die Datenbank ändert muss auch das Schema im Testordner angepasst werden.

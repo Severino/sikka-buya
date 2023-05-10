@@ -13,7 +13,7 @@ jobs:
   container-job:
 
     runs-on: ubuntu-latest
-    container: node:18-alpine
+    container: node:16-alpine
     
     services:
       postgres:
@@ -28,10 +28,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16
           cache: 'npm'
       - run: npm install grunt -g
       - run: npm i
