@@ -45,6 +45,7 @@
     "mocha": "^9.2.2",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.12",
+    "pg-promise": "10.11.1",
     "wait-on": "^6.0.0"
   },
   "author": "",
