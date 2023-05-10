@@ -10,7 +10,7 @@ const password = process.env.DB_PASSWORD
 const port = process.env.POSTGRES_PORT || process.env.DB_PORT
 
 
-console.log({ user, host, database, password, port }})
+console.log({ user, host, database, password, port })
 
 const db = pgp({
     user,
