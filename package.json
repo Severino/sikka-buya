@@ -21,7 +21,7 @@
         "deploy:backend": "cd backend && pm2 delete all && npm run pm2",
         "deploy:frontend": "cd frontend && ./deploy.sh",
         "deploy": "npm run deploy:backend && npm run deploy:frontend",
-        "postinstall": "(cd frontend && yarn install --ignore-scripts) && (cd backend && yarn install --ignore-scripts) && (cd test && yarn install --ignore-scripts)"
+        "postinstall": "(cd frontend && yarn install --ignore-scripts); (cd backend && yarn install --ignore-scripts); (cd test && yarn install --ignore-scripts)"
     },
     "devDependencies": {
         "concurrently": "^7.1.0",
