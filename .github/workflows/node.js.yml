@@ -34,7 +34,7 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: npm install grunt -g
-      - run: npm i
+      - run: yarn install
       - name: "Create .env File"
         working-directory: ./test
         run: |
