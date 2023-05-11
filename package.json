@@ -22,8 +22,8 @@
         "deploy:frontend": "cd frontend && ./deploy.sh",
         "deploy": "npm run deploy:backend && npm run deploy:frontend",
         "postinstall": "run-script-os",
-        "postinstall:windows": "(cd frontend && yarn install --ignore-scripts) && (cd backend && yarn install --ignore-scripts) && (cd test && yarn install --ignore-scripts)",
-        "postinstall:default": "(cd frontend && yarn install --ignore-scripts); (cd backend && yarn install --ignore-scripts); (cd test && yarn install --ignore-scripts)"
+        "postinstall:windows": "(cd frontend && yarn install) && (cd backend && yarn install) && (cd test && yarn install)",
+        "postinstall:default": "(cd frontend && yarn install); (cd backend && yarn install); (cd test && yarn install)"
     },
     "devDependencies": {
         "concurrently": "^7.1.0",
