@@ -568,10 +568,6 @@ describe("Testing Type", function () {
 
         this.beforeAll(function () {
             cy.task("MountMinimalDatabase")
-            // TODO: Check if a lower wait also works.
-            //       This was used to tackle an error that was 
-            //      Potentinally resolved
-            cy.wait(3000)
             cy.fixture("users/admin").then(user => {
                 cy.login(user.email, user.password)
             })
@@ -996,7 +992,6 @@ describe("Testing Type", function () {
             cy.visit("/editor/type")
             cy.get(".list-item").should("have.length", 2)
             cy.triggerDeleteButton(".list-item:nth-child(1) .dynamic-delete-button")
-            cy.wait(500)
             cy.get(".list-item").contains('Šīr389').should("exist")
             cy.get(".list-item").children().should("have.length", 1)
 

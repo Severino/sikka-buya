@@ -72,7 +72,6 @@ describe("Testing Province", function () {
         it("Can create new province", function () {
             cy.visit("/editor/province/create")
             cy.get("#province-name").type("Kirmān")
-            cy.wait(300)
             cy.get("#submit-button").click()
             cy.location("pathname").should((pathname) => {
                 expect(pathname).to.eq("/editor/province")
