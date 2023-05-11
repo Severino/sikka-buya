@@ -34,7 +34,7 @@ async function databaseExists(db) {
 
 async function createDatabase(db) {
     return new Promise((resolve, reject) => {
-        db.result("CREATE Database $1:name OWNER $2:name WITH LOCALE de_DE", [process.env.DB_NAME, process.env.DB_USER]).then(() => {
+        db.result("CREATE Database $1:name OWNER $2:name LOCALE 'German_Germany.1252'", [process.env.DB_NAME, process.env.DB_USER]).then(() => {
             Message.success(`Database '${process.env.DB_NAME}' was created successfully....`)
             resolve(true)
         }).catch((error) => {
