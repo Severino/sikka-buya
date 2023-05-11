@@ -6,7 +6,7 @@ const pgp = require("pg-promise")({})
 const user = process.env.DB_SUPER_USER
 const host = process.env.DB_HOST
 const database = process.env.DB_NAME
-const password = process.env.DB_PASSWORD
+const password = process.env.DB_SUPER_PASSWORD
 const port = process.env.DB_PORT
 
 
