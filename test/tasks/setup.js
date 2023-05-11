@@ -41,7 +41,7 @@ async function dropReadOnlyUserIfNecessary() {
 }
 
 async function createTestDatabase() {
-    await SuperDatabase.none("CREATE DATABASE $1:name", WriteableDatabase.$cn.database)
+    await SuperDatabase.none("CREATE DATABASE $1:name WITH LOCALE de_DE", WriteableDatabase.$cn.database)
     console.log(`Created test database`)
 }
 
@@ -87,7 +87,7 @@ async function resetTestDatabase(schemaFile) {
                 await applySchemaFile(WriteableDatabase, schemaFilePath)
                 console.log(`Successfully applied schema file!`)
             } catch (e) {
-                console.log(`Could not apply schema file: ` , e)
+                console.log(`Could not apply schema file: `, e)
             }
 
             try {
