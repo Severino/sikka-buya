@@ -19,6 +19,7 @@ jobs:
       postgres:
         image: postgres:13
         env:
+          POSTGRES_DB: sikka-buya-test
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
         options: >-
           --health-cmd pg_isready
