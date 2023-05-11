@@ -41,7 +41,7 @@ async function dropReadOnlyUserIfNecessary() {
 }
 
 async function createTestDatabase() {
-    await SuperDatabase.none("CREATE DATABASE $1:name WITH LOCALE 'German_Germany.1252'", WriteableDatabase.$cn.database)
+    await SuperDatabase.none("CREATE DATABASE $1:name WITH LOCALE 'C'", WriteableDatabase.$cn.database)
     console.log(`Created test database`)
 }
 
