@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = {
   // The rest of the Cypress config options go here...
   projectId: "jzfi3q",
-
+  video: false,
   e2e: {
     baseUrl: "http://localhost:8080",
     setupNodeEvents(on, config) {
