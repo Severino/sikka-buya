@@ -46,5 +46,6 @@ jobs:
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
-          DB_SUPER_USER:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_HOST: postgres
+          DB_SUPER_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
           DB_PORT: 5432 # get randomly assigned published port
