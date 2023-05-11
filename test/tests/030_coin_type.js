@@ -1188,7 +1188,7 @@ const ATLANTIS_TYPE_UPDATED = {
       "name": "π"
     }, {
       "id": "5",
-      "name": "Ẳ"
+      "name": "€"
     }
   ],
   "coinVerses": [

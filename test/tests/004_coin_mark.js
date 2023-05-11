@@ -6,12 +6,11 @@ const startData = {
     "data": {
         "coinMark": [
             {
+                "id": "5",
+                "name": "€"
+            }, {
                 "id": "1",
                 "name": "Ä"
-            },
-            {
-                "id": "5",
-                "name": "Ẳ"
             },
             {
                 "id": "3",
