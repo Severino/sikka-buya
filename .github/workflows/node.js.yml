@@ -45,7 +45,7 @@ jobs:
           cat .env
           
       - name: Install 'XvfB' which is required for cypress testing
-        run: sudo apt-get install -y xvfb
+        run: apk add -y xvfb
       - run: npm run test:cypress:run
         working-directory: ./test
         env:
