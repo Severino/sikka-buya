@@ -14,7 +14,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container: 
-       image: node:16-alpine
+       image: node:16
     
     services:
       postgres:
@@ -45,7 +45,7 @@ jobs:
           cat .env
           
       - name: Install 'XvfB' which is required for cypress testing
-        run: apk add xvfb
+        run: apt-get install -y xvfb
       - run: npm run test:cypress:run
         working-directory: ./test
         env:
