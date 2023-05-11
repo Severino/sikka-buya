@@ -39,16 +39,12 @@ jobs:
         working-directory: ./test
         run: |
           touch .env
-          echo "DB_USER=postgres" >> .env
-          echo "DB_HOST=localhost" >> .env
-          echo "DB_NAME=postgres" >> .env
-          echo "DB_PASSWORD=postgres" >> .env
-          echo "DB_PORT=5432" >> .env
+          echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
       - run: node actions-test.js
         working-directory: ./test
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
-          DB_HOST: postgres
+          DB_SUPER_USER: postgres
           DB_PORT: 5432 # get randomly assigned published port
