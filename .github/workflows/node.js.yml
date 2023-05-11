@@ -49,4 +49,5 @@ jobs:
           # If we were running the job on the VM this would be localhost
           DB_HOST: postgres
           DB_SUPER_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
           DB_PORT: 5432 # get randomly assigned published port
