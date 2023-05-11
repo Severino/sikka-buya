@@ -17,7 +17,7 @@ jobs:
     
     services:
       postgres:
-        image: postgres:13
+        image: postgis/postgis:12-3.3
         env:
           POSTGRES_DB: sikka-buya-test
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
@@ -42,11 +42,13 @@ jobs:
           touch .env
           echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
-      - run: npm run test:api
+      - run: npm run test
         working-directory: ./test
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
           DB_HOST: postgres
+          DB_READ_ONLY_PASSWORD:  ${{secrets.POSTGRES_READ_ONLY_PASSWORD}}
           DB_SUPER_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
           DB_PORT: 5432 # get randomly assigned published port
