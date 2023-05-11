@@ -13,7 +13,9 @@ jobs:
   container-job:
 
     runs-on: ubuntu-latest
-    container: node:16-alpine
+    container: 
+       image: node:16-alpine
+       options: --user 1001  # Magical user to not get cypress error EACCES
     
     services:
       postgres:
