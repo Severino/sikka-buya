@@ -12,7 +12,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         mochaTest: {
             options: {
-                noFail: true,
+                noFail: false,
                 showDiff: true,
                 truncateThreshold: 0,
                 captureFile: "api-test-log.txt"
