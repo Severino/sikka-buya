@@ -42,7 +42,7 @@ jobs:
           touch .env
           echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
-      - run: npm run test:api
+      - run: npm run test
         working-directory: ./test
         env:
           # use postgres for the host here because we have specified a container for the job.
