@@ -43,9 +43,10 @@ jobs:
           touch .env
           echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
-          
+      - name: Update Packages
+        run: apt update
       - name: Install 'XvfB' which is required for cypress testing
-        run: apt-get install -y xvfb
+        run: apt install -y xvfb
       - run: npm run test:cypress:run
         working-directory: ./test
         env:
