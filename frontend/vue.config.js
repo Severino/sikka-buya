@@ -1,6 +1,9 @@
 const path = require("path")
 
 module.exports = {
+    devServer: {
+        progress: false // disable progress logging in console. => it massively pollutes the CI logs
+    },
     configureWebpack: {
         devtool: 'source-map',
         resolve: {
