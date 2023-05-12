@@ -171,4 +171,4 @@ async function setupTestDatabase() {
 }
 
 
-module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase, recreateTestDatabase }
+module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase, recreateTestDatabase, createTestDatabaseIfNecessary }
