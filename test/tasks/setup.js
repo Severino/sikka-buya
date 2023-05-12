@@ -64,10 +64,11 @@ async function resetTestDatabase(schemaFile) {
         resetLock = true
         try {
 
+            await createTestDatabaseIfNecessary()
+
             // If the public schema got deleted for some reason, we need to recreate it.
             await WriteableDatabase.none("CREATE SCHEMA IF NOT EXISTS public")
 
-            await createTestDatabaseIfNecessary()
 
             try {
                 await createReadOnlyUserIfNecessary()
