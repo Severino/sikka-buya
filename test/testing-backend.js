@@ -1,4 +1,4 @@
-const { resetTestDatabase } = require('./tasks/setup.js')
+const { resetTestDatabase, recreateTestDatabase } = require('./tasks/setup.js')
 const { join: joinPath } = require("path");
 const start = require('../backend/express.js');
 const { error } = require('../backend/scripts/modules/logging.js');
@@ -56,7 +56,6 @@ async function main() {
 
     let resetLock = false
     async function handler(req, res, next) {
-
         let status = 200
         let message = ""
 
@@ -73,6 +72,9 @@ async function main() {
                 } else {
                     console.log(`Apply Method: ${method}`)
                     switch (method) {
+                        case "RecreateTestDatabase":
+                            await recreateTestDatabase()
+                            break;
                         case "ResetDatabase":
                             await resetTestDatabase()
                             break;

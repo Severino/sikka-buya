@@ -43,6 +43,10 @@ jobs:
           touch .env
           echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
+      - name: Log Locale
+        working-directory: ./test
+        run: node print-locale.js
+      # Cypress
       - name: Update Packages
         run: apt update
       - name: Install Cypress Dependencies

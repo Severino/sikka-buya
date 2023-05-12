@@ -15,6 +15,16 @@ const SuperDatabase = WriteableDatabase.$config.pgp({
 
 let resetLock = false
 
+async function recreateTestDatabase() {
+    await dropTestDatabase()
+    await createTestDatabase()
+}
+
+async function dropTestDatabase() {
+    await SuperDatabase.none("DROP DATABASE IF EXISTS $1:name", WriteableDatabase.$cn.database)
+}
+
+
 async function createTestDatabaseIfNecessary() {
     const { count } = await SuperDatabase.one("SELECT count(*) FROM pg_database WHERE datname=$1", WriteableDatabase.$cn.database)
     if (count == 0) {
@@ -41,7 +51,7 @@ async function dropReadOnlyUserIfNecessary() {
 }
 
 async function createTestDatabase() {
-    await SuperDatabase.none("CREATE DATABASE $1:name WITH LOCALE 'C'", WriteableDatabase.$cn.database)
+    await SuperDatabase.none("CREATE DATABASE $1:name WITH LOCALE 'de-DE.utf8' TEMPLATE 'template0'", WriteableDatabase.$cn.database)
     console.log(`Created test database`)
 }
 
@@ -161,4 +171,4 @@ async function setupTestDatabase() {
 }
 
 
-module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase }
+module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase, recreateTestDatabase }
