@@ -36,7 +36,7 @@ jobs:
           apt-get update 
           apt-get install -y locales
           locale-gen de_DE.UTF-8
-          update-locale LANG=de_DE.UTF-8 
+          dpkg-reconfigure locales 
       - name: Init Database With Correct Locale
         run: |
           mkdir /data
