@@ -35,8 +35,11 @@ jobs:
           apt-get clean 
           apt-get update 
           apt-get install -y locales
+          echo "LOCALE GEN"
           locale-gen $LANG
+          echo "DPKG RECONFIGURE"
           dpkg-reconfigure --frontend=noninteractive locales 
+          echo "UPDATE LOCALE"
           update-locale LANG=$LANG
       - name: Init Database With Correct Locale
         run: |
