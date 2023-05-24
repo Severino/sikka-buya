@@ -32,14 +32,14 @@ jobs:
     steps:
       - name: Setup locale
         run: |
-          sudo locale-gen de_DE.UTF-8
-          sudo update-locale LANG=de_DE.UTF-8 
+          locale-gen de_DE.UTF-8
+          update-locale LANG=de_DE.UTF-8 
       - name: Init Database With Correct Locale
         run: |
-          sudo mkdir /data
-          sudo chown postgres /data
-          sudo su postgres
-          sudo initdb --pgdata=/data -E 'UTF-8' --lc-collate='de_DE.UTF-8' --lc-ctype='de_DE.UTF-8'
+          mkdir /data
+          chown postgres /data
+          su postgres
+          initdb --pgdata=/data -E 'UTF-8' --lc-collate='de_DE.UTF-8' --lc-ctype='de_DE.UTF-8'
       - name: Checkout
         uses: actions/checkout@v3
       - name: Use Node.js 16
