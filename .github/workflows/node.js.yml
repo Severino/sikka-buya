@@ -19,10 +19,11 @@ jobs:
     
     services:
       postgres:
-        image: postgis/postgis:12-3.3
+        image: postgis/postgis:12-3.3-alpine
         env:
           POSTGRES_DB: sikka-buya-test
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          POSTGRES_INITDB_ARGS: --locale-provider=icu --icu-locale=de-DE
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
