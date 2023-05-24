@@ -24,6 +24,7 @@ jobs:
           POSTGRES_DB: sikka-buya-test
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
           POSTGRES_INITDB_ARGS: --locale-provider=icu --icu-locale=de-DE
+          LANG: "de_DE.UTF-8"
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -31,7 +32,12 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Setup locale
+        run: |
+          sudo locale-gen de_DE.UTF-8
+          sudo update-locale LANG=de_DE.UTF-8 
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
