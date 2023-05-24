@@ -1,11 +1,11 @@
 
 require("dotenv").config()
 const { WriteableDatabase } = require('../backend/src/utils/database')
-const { recreateTestDatabase } = require('./tasks/setup')
+const { createTestDatabaseIfNecessary } = require('./tasks/setup')
 
 
 async function main() {
-    await recreateTestDatabase()
+    await createTestDatabaseIfNecessary()
 
     WriteableDatabase.one("SHOW LC_COLLATE").then((result) => {
         console.log(result)
