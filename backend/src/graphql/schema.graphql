@@ -223,6 +223,7 @@ type PersonPosition {
 }
 
 type Query {
+  locale: String
   ping: String
   environment: String
 
