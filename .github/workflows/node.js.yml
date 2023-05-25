@@ -19,7 +19,7 @@ jobs:
     
     services:
       postgres:
-        image: postgis/postgis:12-3.3
+        image: severinoo/postgis
         env:
           POSTGRES_DB: sikka-buya-test
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
@@ -34,12 +34,6 @@ jobs:
         run: |
           echo "CURRENT LOCALE"
           locale
-      - name: Init Database With Correct Locale
-        run: |
-          mkdir /data
-          chown postgres /data
-          su postgres
-          initdb --pgdata=/data -E 'UTF-8' --lc-collate='de_DE.UTF-8' --lc-ctype='de_DE.UTF-8'
       # - name: Checkout
       #   uses: actions/checkout@v3
       # - name: Use Node.js 16
