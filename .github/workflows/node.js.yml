@@ -19,7 +19,7 @@ jobs:
     
     services:
       postgres:
-        image: severinoo/postgis
+        image: severinoo/postgis-de:12-3.3
         env:
           POSTGRES_DB: sikka-buya-test
           POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
