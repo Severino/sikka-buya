@@ -6,10 +6,6 @@ const startData = {
     "data": {
         "nominal": [
             {
-                "id": "1",
-                "name": "₳die"
-            },
-            {
                 "id": "2",
                 "name": "1 Mark"
             },
@@ -20,7 +16,10 @@ const startData = {
             {
                 "id": "4",
                 "name": "1 Złoty"
-            }
+            }, {
+                "id": "1",
+                "name": "₳die"
+            },
         ]
     }
 }

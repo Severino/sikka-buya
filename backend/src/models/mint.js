@@ -171,7 +171,7 @@ class Mint {
     }
 
     static get ORDER() {
-        return `ORDER BY mi.name ASC`
+        return `ORDER BY ${SQLUtils.normalizeString("mi.name")} ASC`
     }
 }
 
