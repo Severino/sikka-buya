@@ -49,16 +49,13 @@ jobs:
           touch .env
           echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
-      - name: Log Locale
+      # Cypress
+      - name: Update Packages
+        run: apt update
+      - name: Install Cypress Dependencies
+        run: apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      - run: npm run test:cypress:run
         working-directory: ./test
-        run: node print-locale.js
-      # # Cypress
-      # - name: Update Packages
-      #   run: apt update
-      # - name: Install Cypress Dependencies
-      #   run: apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-      # - run: npm run test:cypress:run
-      #   working-directory: ./test
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
