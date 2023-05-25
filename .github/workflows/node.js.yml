@@ -49,6 +49,9 @@ jobs:
           touch .env
           echo "${{secrets.ENV_FILE}}" >> .env
           cat .env
+      # API Tests
+      - run: npm run test:api
+        working-directory: ./test
       # Cypress
       - name: Update Packages
         run: apt update
