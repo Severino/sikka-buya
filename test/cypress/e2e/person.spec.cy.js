@@ -241,9 +241,9 @@ describe("Testing Person", function () {
                 .should('deep.eq', [
                     "Abu ’l-Ḥasan Muḥammad b. al-Mustakfī",
                     "Abu ’l-Wafāʾ Tuzun",
+                    'ʿIzz ad-Daula Abū Manṣūr Baḫtiyār b. Muʿizz ad-Daula Aḥmad',
                     'al-Muṭīʿ li-᾽llāh, Abu ᾽l-Qāsim al-Faḍl b. al-Muqtadir',
                     'al-Qādir bi-᾽llāh, Abu ᾽l-ʿAbbās Aḥmad b. Isḥāq',
-                    'ʿIzz ad-Daula Abū Manṣūr Baḫtiyār b. Muʿizz ad-Daula Aḥmad',
                     'Rukn ad-Daula Abū ʿAlī al-Ḥasan b. Būya',
                     'Sulṭān ad-Daula Abū Šuǧāʿ Fanā-Ḫusra b. Bahāʾ ad-Daula Ḫusra-Fīrūz',
                     'ʿUmdat ad-Daula Abū Isḥāq Ibrāhīm b. Muʿizz ad-Daula Aḥmad'

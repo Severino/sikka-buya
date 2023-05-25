@@ -1,5 +1,6 @@
 const Auth = require("./auth.js")
 const { WriteableDatabase, Database } = require("./utils/database.js")
+const SQLUtils = require("./utils/sql.js")
 
 class Resolver {
 
@@ -67,6 +68,12 @@ class Resolver {
     }
 
     async list(_, { language } = {}) {
+
+
+        function orderByColumn(column) {
+            return `ORDER BY ${SQLUtils.normalizeString(column)} ASC`
+        }
+
         if (language && language.length < 4 && language != "de") {
             let langTable = `${this.tableName}_${language}`
             return Database.manyOrNone(`
@@ -74,11 +81,12 @@ class Resolver {
             CASE WHEN b.name IS NOT NULL THEN b.name ELSE a.name END
             FROM ${this.tableName} a
             LEFT JOIN ${langTable} b ON a.id= b.id
-            ORDER BY a.name ASC
+            ${orderByColumn("a.name")}
             `)
 
-        } else
-            return Database.manyOrNone(`SELECT * FROM ${this.tableName} ORDER BY ${this.tableName}.name ASC`)
+        } else {
+            return Database.manyOrNone(`SELECT * FROM ${this.tableName}  ${orderByColumn("name")}`)
+        }
     }
 
     async search(_, args) {
