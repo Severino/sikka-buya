@@ -6,9 +6,6 @@ const startData = {
     "data": {
         "coinMark": [
             {
-                "id": "5",
-                "name": "€"
-            }, {
                 "id": "1",
                 "name": "Ä"
             },
@@ -23,7 +20,10 @@ const startData = {
             {
                 "id": "4",
                 "name": "π"
-            }
+            }, {
+                "id": "5",
+                "name": "€"
+            },
         ]
     }
 }
