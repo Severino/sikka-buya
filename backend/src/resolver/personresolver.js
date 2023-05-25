@@ -114,7 +114,7 @@ class PersonResolver extends Resolver {
         LEFT JOIN dynasty d ON p.dynasty = d.id
         LEFT JOIN person_color c ON c.person = p.id
         ${where}
-        ORDER BY name ASC`,
+        ORDER BY ${SQLUtils.normalizeString("p.name")} ASC`,
             queryParameters)
 
         result = result.map(item => {
