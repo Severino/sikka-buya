@@ -1,4 +1,5 @@
 const { expect } = require('chai')
+const { graphql } = require('../helpers/graphql')
 
 /**
     * The env file describes how the database is accessed!
@@ -18,4 +19,11 @@ describe("Check .env variables", function () {
                 expect(process.env[var_name]).to.not.be.undefined
             })
         })
+})
+
+describe("Check if locale is set correctly", function () {
+    it("Is the locale set to C?", async function () {
+        const locale = await graphql(`{locale}`)
+        expect(locale.data.data.locale).to.equal("C")
+    })
 })
