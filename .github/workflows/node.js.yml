@@ -40,24 +40,28 @@ jobs:
           chown postgres /data
           su postgres
           initdb --pgdata=/data -E 'UTF-8' --lc-collate='de_DE.UTF-8' --lc-ctype='de_DE.UTF-8'
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Use Node.js 16
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: 'npm'
-      - run: npm install grunt -g
-      - run: yarn install --frozen-lockfile
-      - name: "Create .env File"
-        working-directory: ./test
-        run: |
-          touch .env
-          echo "${{secrets.ENV_FILE}}" >> .env
-          cat .env
+      # - name: Checkout
+      #   uses: actions/checkout@v3
+      # - name: Use Node.js 16
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16
+      #     cache: 'npm'
+      # - run: npm install grunt -g
+      # - run: yarn install --frozen-lockfile
+      # - name: "Create .env File"
+      #   working-directory: ./test
+      #   run: |
+      #     touch .env
+      #     echo "${{secrets.ENV_FILE}}" >> .env
+      #     cat .env
       - name: Log Locale
         working-directory: ./test
         run: node print-locale.js
+
+      - name: Log Database Locale
+        working-directory: ./test
+        run: psql postgres://$DB_SUPER_NAME:$DB_SUPER_PASSWORD@localhost:5432/sikka-buya-test -c "SHOW LC_COLLATE;"
       # # Cypress
       # - name: Update Packages
       #   run: apt update
