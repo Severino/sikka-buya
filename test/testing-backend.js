@@ -36,8 +36,6 @@ function verifyAllEnvVariablesAreSet() {
             missingEnv.push(env)
     })
 
-
-
     if (missingEnv.length > 0) throw new Error(`Missing env variables: ${missingEnv.join(", ")}. Set them in the .env file in the test directory.`)
 }
 
@@ -52,7 +50,6 @@ async function main() {
     verifyAllEnvVariablesAreSet()
     process.env.expressPort = 4000
     process.env.jwtSecret = "secret"
-
 
     let resetLock = false
     async function handler(req, res, next) {

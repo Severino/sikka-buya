@@ -2,8 +2,8 @@ const { pgp } = require("./database")
 
 class SQLUtils {
 
-    static normalizeString(text){
-        return pgp.as.format("regexp_replace(lower(unaccent($[text:raw])), '^(ad-|al-|ʿ)', '')", {text})
+    static normalizeString(text) {
+        return pgp.as.format("regexp_replace(lower(unaccent($[text:raw])), '^(ad-|al-|ar-|ʿ)', '')", { text })
     }
 
 
