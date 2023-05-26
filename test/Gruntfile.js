@@ -15,7 +15,8 @@ module.exports = function (grunt) {
                 noFail: false,
                 showDiff: true,
                 truncateThreshold: 0,
-                captureFile: "api-test-log.txt"
+                captureFile: "api-test-log.txt",
+                timeout: 10000,
             },
             test: {
                 src: ["./tests/**/*.js"]
