@@ -5,9 +5,9 @@ name: Node.js CI
  
 on:
   push:
-    branches: [ "actions-test" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "actions-test" ]
+    branches: [ "main" ]
 env:
   LANG: "de_DE.UTF-8"
 jobs:
