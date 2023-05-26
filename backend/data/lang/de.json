@@ -29,7 +29,6 @@
     },
     "general": {
         "and": "und",
-        "cooperations": "Kooperationen",
         "delete": "löschen",
         "edit": "bearbeiten",
         "filter_active": "Filter aktiv",
@@ -40,6 +39,7 @@
         "search": "Suchen", 
         "settings": "Einstellungen",
         "share": "Teilen",
+        "cooperations": "Kooperationen",
         "user": "Nutzer"
     },
     "property": {
