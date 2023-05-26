@@ -1,8 +1,20 @@
-const { resetTestDatabase } = require('./tasks/setup.js')
+const { resetTestDatabase, recreateTestDatabase } = require('./tasks/setup.js')
 const { join: joinPath } = require("path");
 const start = require('../backend/express.js');
 const { error } = require('../backend/scripts/modules/logging.js');
 
+
+function overwriteWithGithubActionsEnv() {
+    const config = {
+        POSTGRES_HOST: "DB_HOST",
+        POSTGRES_PORT: "DB_PORT"
+    }
+
+    for (let { githubEnv, env } of Object.entries(config)) {
+        if (process.env[githubEnv])
+            process.env[env] = process.env[githubEnv]
+    }
+}
 
 function verifyAllEnvVariablesAreSet() {
     const missingEnv = []
@@ -34,14 +46,13 @@ async function main() {
         require("dotenv").config()
     }
 
+    overwriteWithGithubActionsEnv()
     verifyAllEnvVariablesAreSet()
     process.env.expressPort = 4000
     process.env.jwtSecret = "secret"
 
-
     let resetLock = false
     async function handler(req, res, next) {
-
         let status = 200
         let message = ""
 
@@ -58,6 +69,9 @@ async function main() {
                 } else {
                     console.log(`Apply Method: ${method}`)
                     switch (method) {
+                        case "RecreateTestDatabase":
+                            await recreateTestDatabase()
+                            break;
                         case "ResetDatabase":
                             await resetTestDatabase()
                             break;

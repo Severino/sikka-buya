@@ -61,6 +61,8 @@ export default { components: { Locale, CMSImage } };
 <style lang="scss"  scoped>
 footer {
 
+  position: relative;
+
   .footer-content {
     margin-top: 10vh;
     position: relative;

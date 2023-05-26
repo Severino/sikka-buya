@@ -742,7 +742,7 @@ const ATLANTIS_TYPE = {
   "purity": 900,
   "nominal": {
     "id": "1",
-    "name": "⅟₂ ₳die"
+    "name": "₳die"
   },
   "small": true,
   "yearOfMint": "xxx",
@@ -901,7 +901,7 @@ const ATLANTIS_TYPE = {
   "internalNotes": "Ziemlich sicher eine Fäschung!",
   "yearUncertain": true,
   "mintUncertain": true,
-  "plain_text": "ẲTLxxx\nPerlmutt\nǍtlantis\n⅟₂ ₳die\nEin Mann in Lokführermontur vor einer Dampflokomotive.\nEine Insel mit zwei Bergen,\nund dem tiefen weiten Meer,\nmit viel Tunnels und Gleisen.\nLokführer scheint an Fäden zu hängen.\nGroßes '₳'\nDie Währung\ndes Landes\nunter dem Meer.\nJahreszahl unter '₳' nicht lesbar.\nKeine Literatur vorhanden\nEinzige bekannte Münze aus Atlantis\\nZiemlich sicher eine Fäschung!" //Somehow the last \\n needs 2 backslashes
+  "plain_text": "ẲTLxxx\nPerlmutt\nǍtlantis\n₳die\nEin Mann in Lokführermontur vor einer Dampflokomotive.\nEine Insel mit zwei Bergen,\nund dem tiefen weiten Meer,\nmit viel Tunnels und Gleisen.\nLokführer scheint an Fäden zu hängen.\nGroßes '₳'\nDie Währung\ndes Landes\nunter dem Meer.\nJahreszahl unter '₳' nicht lesbar.\nKeine Literatur vorhanden\nEinzige bekannte Münze aus Atlantis\\nZiemlich sicher eine Fäschung!" //Somehow the last \\n needs 2 backslashes
 }
 
 const ATLANTIS_INPUT = `{
@@ -1188,7 +1188,7 @@ const ATLANTIS_TYPE_UPDATED = {
       "name": "π"
     }, {
       "id": "5",
-      "name": "Ẳ"
+      "name": "€"
     }
   ],
   "coinVerses": [

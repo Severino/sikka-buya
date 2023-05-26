@@ -18,8 +18,8 @@ const startData = {
                 "name": "1 Złoty"
             }, {
                 "id": "1",
-                "name": "⅟₂ ₳die"
-            }
+                "name": "₳die"
+            },
         ]
     }
 }

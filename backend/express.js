@@ -29,9 +29,7 @@ async function start({
      * GraphQL Imports
      */
     const { graphqlHTTP } = require("express-graphql")
-    const { loadSchemaSync } = require('@graphql-tools/load');
-    const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader');
-    const { addResolversToSchema, makeExecutableSchema } = require('graphql-tools');
+    const {  makeExecutableSchema } = require('graphql-tools');
 
     /**
      * Custom GraphQL Extensions

@@ -27,6 +27,10 @@ const SuperUserQueries = {
 
 const Queries = {
     ping: () => Date.now(),
+    locale: async function () {
+        const {lc_collate: locale} = await Database.one(`SHOW lc_collate`)
+        return locale
+    },
     environment: () => {
         return (process.env.TEST_ENVIRONMENT) ? "testing" : "production"
     },

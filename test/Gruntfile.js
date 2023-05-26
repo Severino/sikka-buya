@@ -12,10 +12,11 @@ module.exports = function (grunt) {
     grunt.initConfig({
         mochaTest: {
             options: {
-                noFail: true,
+                noFail: false,
                 showDiff: true,
                 truncateThreshold: 0,
-                captureFile: "api-test-log.txt"
+                captureFile: "api-test-log.txt",
+                timeout: 10000,
             },
             test: {
                 src: ["./tests/**/*.js"]
@@ -33,8 +34,17 @@ module.exports = function (grunt) {
     })
 
     grunt.registerTask('test', [
-        'setup-and-test'
+        'setup',
+        // Run all mocha tests.
+        'run-mocha'
     ])
+
+    grunt.registerTask('test-keepalive', [
+        'setup-and-keepalive',
+        // Run all mocha tests.
+        'run-mocha'
+    ])
+
 
     grunt.registerTask('setup', [
         // Creates a test database as defined in .env
@@ -49,18 +59,10 @@ module.exports = function (grunt) {
         'keepalive'
     ])
 
-    grunt.registerTask('setup-and-test', [
-        'setup',
-        // Run all mocha tests.
-        'run-mocha',
-        //// You may want to keep the server alive after the tests, to run some manual queries on the test database.
-        'keepalive'
-    ])
 
     /**
      * Setup 
      */
-
     grunt.registerTask('setup-test-database', function () {
         let done = this.async()
         setupTestDatabase().then(done)
@@ -68,6 +70,10 @@ module.exports = function (grunt) {
 
 
     grunt.registerTask('backend', [
+        'run-backend-server'
+    ])
+
+    grunt.registerTask('backend:keepalive', [
         'run-backend-server',
         'keepalive'
     ])

@@ -10,10 +10,6 @@ const startData = {
                 "name": "Ä"
             },
             {
-                "id": "5",
-                "name": "Ẳ"
-            },
-            {
                 "id": "3",
                 "name": "ê"
             },
@@ -24,7 +20,10 @@ const startData = {
             {
                 "id": "4",
                 "name": "π"
-            }
+            }, {
+                "id": "5",
+                "name": "€"
+            },
         ]
     }
 }

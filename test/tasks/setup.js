@@ -15,6 +15,16 @@ const SuperDatabase = WriteableDatabase.$config.pgp({
 
 let resetLock = false
 
+async function recreateTestDatabase() {
+    await dropTestDatabase()
+    await createTestDatabase()
+}
+
+async function dropTestDatabase() {
+    await SuperDatabase.none("DROP DATABASE IF EXISTS $1:name", WriteableDatabase.$cn.database)
+}
+
+
 async function createTestDatabaseIfNecessary() {
     const { count } = await SuperDatabase.one("SELECT count(*) FROM pg_database WHERE datname=$1", WriteableDatabase.$cn.database)
     if (count == 0) {
@@ -41,7 +51,7 @@ async function dropReadOnlyUserIfNecessary() {
 }
 
 async function createTestDatabase() {
-    await SuperDatabase.none("CREATE DATABASE $1:name", WriteableDatabase.$cn.database)
+    await SuperDatabase.none("CREATE DATABASE $1:name WITH LOCALE 'C' TEMPLATE 'template0'", WriteableDatabase.$cn.database)
     console.log(`Created test database`)
 }
 
@@ -64,10 +74,11 @@ async function resetTestDatabase(schemaFile) {
         resetLock = true
         try {
 
+            await createTestDatabaseIfNecessary()
+
             // If the public schema got deleted for some reason, we need to recreate it.
             await WriteableDatabase.none("CREATE SCHEMA IF NOT EXISTS public")
 
-            await createTestDatabaseIfNecessary()
 
             try {
                 await createReadOnlyUserIfNecessary()
@@ -87,7 +98,7 @@ async function resetTestDatabase(schemaFile) {
                 await applySchemaFile(WriteableDatabase, schemaFilePath)
                 console.log(`Successfully applied schema file!`)
             } catch (e) {
-                console.log(`Could not apply schema file: ` , e)
+                console.log(`Could not apply schema file: `, e)
             }
 
             try {
@@ -160,4 +171,4 @@ async function setupTestDatabase() {
 }
 
 
-module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase }
+module.exports = { applyDummyData, resetTestDatabase, setupTestDatabase, recreateTestDatabase, createTestDatabaseIfNecessary }

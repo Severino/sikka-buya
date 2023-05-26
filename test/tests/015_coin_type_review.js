@@ -142,29 +142,29 @@ describe('Type verification', function () {
             })
         })
 
-            describe('Deactivate', function () {
+        describe('Deactivate', function () {
 
-                it('Cannot activate reviewed when not logged in', async function () {
-                    const promise = graphql(SET_TYPE_REVIEWED_MUTATION, { id: 2, value: false })
-                    return expect(promise).to.be.rejectedWith(['401'])
-                })
-
-                it('Cannot activate reviewed when not logged in as super user', async function () {
-                    const promise = graphql(SET_TYPE_REVIEWED_MUTATION, { id: 2, value: false }, User3.token)
-                    return expect(promise).to.be.rejectedWith(['401'])
-                })
-
-                it('Can activate reviewed', async function () {
-                    const result = await graphql(SET_TYPE_REVIEWED_MUTATION, { id: 2, value: false }, SuperUser.token)
-                    const success = result.data.data.setTypeReviewed
-                    return expect(success).to.be.false
-                })
-
-                it('After activation reviewed list is correct', async function () {
-                    const result = await graphql(MOD_GET_TYPES_QUERY, {}, SuperUser.token)
-                    expect(result.data.data.modGetTypes.types[0].reviewed).to.be.false
-                    expect(result.data.data.modGetTypes.types[1].reviewed).to.be.true
-                })
+            it('Cannot activate reviewed when not logged in', async function () {
+                const promise = graphql(SET_TYPE_REVIEWED_MUTATION, { id: 2, value: false })
+                return expect(promise).to.be.rejectedWith(['401'])
             })
+
+            it('Cannot activate reviewed when not logged in as super user', async function () {
+                const promise = graphql(SET_TYPE_REVIEWED_MUTATION, { id: 2, value: false }, User3.token)
+                return expect(promise).to.be.rejectedWith(['401'])
+            })
+
+            it('Can activate reviewed', async function () {
+                const result = await graphql(SET_TYPE_REVIEWED_MUTATION, { id: 2, value: false }, SuperUser.token)
+                const success = result.data.data.setTypeReviewed
+                return expect(success).to.be.false
+            })
+
+            it('After activation reviewed list is correct', async function () {
+                const result = await graphql(MOD_GET_TYPES_QUERY, {}, SuperUser.token)
+                expect(result.data.data.modGetTypes.types[0].reviewed).to.be.false
+                expect(result.data.data.modGetTypes.types[1].reviewed).to.be.true
+            })
+        })
     })
 });

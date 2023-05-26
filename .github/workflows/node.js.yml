@@ -8,53 +8,72 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
 jobs:
-  build:
+  container-job:
 
     runs-on: ubuntu-latest
+    container: 
+       image: node:16
     
     services:
       postgres:
-        image: postgres:13
+        image: severinoo/postgis-c:12-3.3
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-          POSTGRES_PORT: 5432
-
-    strategy:
-      matrix:
-        node-version: [16.13.2]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+          POSTGRES_DB: sikka-buya-test
+          POSTGRES_PASSWORD: ${{secrets.POSTGRES_SUPER_PASSWORD}}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup locale
+        run: |
+          echo "Current System Locale: "
+          locale
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16
           cache: 'npm'
-      - run: npm install yarn -g
-      - run: yarn global add grunt
-      - run: yarn install
-#    
-      - name: Create .env file for test environment
+      - run: npm install grunt -g
+      - run: yarn install --frozen-lockfile
+      - name: "Create .env File"
+        working-directory: ./test
         run: |
-         touch test/.env
-         echo DB_SUPER_USER=postgres >> test/.env
-         echo DB_SUPER_PASSWORD=postgres >> test/.env
-         echo DB_SUPER_NAME=postgres >> test/.env
-         echo DB_READ_ONLY_USER=test_visitor >> test/.env
-         echo DB_READ_ONLY_PASSWORD=test_visitor >> test/.env
-         echo DB_USER=postgres >> test/.env
-         echo DB_PASSWORD=postgres >> test/.env
-         echo DB_NAME=sikka-buya-test-database >> test/.env
-         echo DB_HOST=localhost >> test/.env
-         echo DB_PORT=5432 >> test/.env
-         echo JWT_SECRET=secret >> test/.env
-         echo MAX_SEARCH=100 >> test/.env
-         cat test/.env
-#    - run: npm run build --if-present
-      - run: |
-         cd test && grunt test
+          touch .env
+          echo "${{secrets.ENV_FILE}}" >> .env
+          cat .env
+      # API Tests
+      - run: npm run test:api
+        working-directory: ./test
+        env:
+          # use postgres for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be localhost
+          DB_HOST: postgres
+          DB_SUPER_NAME: sikka-buya-test
+          DB_READ_ONLY_PASSWORD:  ${{secrets.POSTGRES_READ_ONLY_PASSWORD}}
+          DB_SUPER_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_PORT: 5432 # get randomly assigned published port
+      # Cypress
+      - name: Update Packages
+        run: apt update
+      - name: Install Cypress Dependencies
+        run: apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+      
+      - name: Cypress Run 
+        run: npm run test:cypress:run
+        working-directory: ./test
+        env:
+          # use postgres for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be localhost
+          DB_HOST: postgres
+          DB_SUPER_NAME: sikka-buya-test
+          DB_READ_ONLY_PASSWORD:  ${{secrets.POSTGRES_READ_ONLY_PASSWORD}}
+          DB_SUPER_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_PASSWORD:  ${{secrets.POSTGRES_SUPER_PASSWORD}}
+          DB_PORT: 5432 # get randomly assigned published port

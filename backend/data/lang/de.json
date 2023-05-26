@@ -36,10 +36,11 @@
         "or": "oder",
         "publish": "veröffentlichen",
         "reset_filter": "Filter aufheben",
+        "search": "Suchen", 
         "settings": "Einstellungen",
         "share": "Teilen",
-        "user": "Nutzer",
-        "cooperations": "Kooperationen"
+        "cooperations": "Kooperationen",
+        "user": "Nutzer"
     },
     "property": {
         "material": "Material | Materialien",
@@ -134,7 +135,8 @@
         "contact_page": "Kontakt",
         "create_page": "neue Seite erstellen",
         "landing_page_main_article": "Startseitentext",
-        "news": "Neuigkeiten"
+        "news": "Neuigkeiten",
+        "working_papers": "Working Papers"
     },
     "message": {
         "input_to_filter": "Hier Suchtext eingeben ...",
@@ -232,5 +234,12 @@
     "time": {
         "created_date": "erstellt am",
         "published_date": "veröffentlicht am"
+    },
+    "custom": {
+        "fint": {
+            "title": "Das Digitale Münzkabinett der Forschungsstelle für islamische Numismatik Tübingen (FINT)",
+            "description": "Recherchieren Sie Einzelstücke in unserem digitalen Münzarchiv",
+            "to": "Besuche den Münzkatalog"
+        }
     }
 }

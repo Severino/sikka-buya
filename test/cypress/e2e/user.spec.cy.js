@@ -36,16 +36,13 @@ describe('Setup Page', function () {
       superUser = user
       cy.get("input#username").type(user.email)
       cy.get("input#cpassword").type(user.password)
-      cy.wait(150)
       cy.get("#submit-button").click();
-      cy.wait(150)
       cy.get(".success").should("have.text", "Succesfully created superuser!")
     })
   })
 
   it('redirects if super user is set', function () {
     cy.visit('/setup')
-    cy.wait(150)
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/home")
     })
@@ -65,19 +62,17 @@ describe('Setup Page', function () {
     cy.visit('/login')
     cy.get("input#username").type(superUser.email)
     cy.get("input#cpassword").type(superUser.password)
-    cy.wait(150)
     const submitBtn = cy.get("#submit-button")
     submitBtn.should("not.have.class", "pending")
     submitBtn.click();
     submitBtn.should("have.class", "pending")
-    cy.wait(2000)
+
   })
 
   it('login working', function () {
     cy.visit('/login')
     cy.get("input#username").type(superUser.email)
     cy.get("input#cpassword").type(superUser.password)
-    cy.wait(150)
     cy.get("#submit-button").click()
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq("/editor/")
@@ -177,7 +172,6 @@ describe('Accept Invite', function () {
 
   it("Goto Invite Page", function () {
     cy.visit(`/invite/${user1.email}`)
-    cy.wait(150)
     cy.location("pathname").should((pathname) => {
       expect(pathname).to.eq(`/invite/${user1.email}`)
     })

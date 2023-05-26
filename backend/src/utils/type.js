@@ -536,7 +536,7 @@ class Type {
         FROM type t 
         ${JOINS}
         ${WHERE}
-        ORDER BY t.project_id ASC
+        ORDER BY ${SQLUtils.normalizeString("t.project_id")} ASC
         ${pageInfo.toQuery()}
         
 ; `
